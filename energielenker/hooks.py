@@ -17,6 +17,13 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/energielenker/css/energielenker.css"
 # app_include_js = "/assets/energielenker/js/energielenker.js"
+app_include_css = [
+    "/assets/energielenker/css/energielenker.css"
+]
+app_include_js = [
+    "/assets/js/energielenkertemplates.min.js",
+    "/assets/energielenker/js/energielenker.js"
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/energielenker/css/energielenker.css"

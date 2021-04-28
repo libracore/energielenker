@@ -1,0 +1,27 @@
+.timesheet-manager-list {
+    width: 300px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.timesheet-manager-updates-header {
+    background: #f5f7fa;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+}
+
+.timesheet-manager-list .timesheet-manager-updates-header .timesheet-manager-leaderboard {
+    float: right;
+    padding: 0;
+}
+
+.timesheet-manager-start {
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+
+.timesheet-manager-stop {
+    margin-bottom: 5px;
+    margin-right: 5px;
+}

@@ -1,0 +1,44 @@
+<li class="dropdown dropdown-mobile">
+    <a class"dropdown-toggle" href="#" data-toggle="dropdown" title="Stopwatch" onclick="return false">
+        <span><i class="octicon octicon-clock"></i></span>
+    </a>
+    <ul class="dropdown-menu timesheet-manager-list" role="menu">
+        <li class="timesheet-manager-updates-header">
+            <span class="timesheet-manager-updates-title bold text-muted">Timesheet Manager</span>
+            <a href="/desk#List/Timesheet/List" class="timesheet-manager-leaderboard text-muted hidden-xs">Timesheets</a>
+        </li>
+        <li>
+            {% if employee %}
+                <a href="/desk#Form/Employee/{{ employee.name }}" class="text-muted text-center">
+                    {{ employee.name }}: {{ employee.employee_name }}
+                </a>
+            {% else %}
+                <a href="#" onclick="return false" class="text-muted text-center">
+                    {{ __("No Employee found") }}
+                </a>
+            {% endif %}
+        </li>
+        <li id="timesheet_manager" style="text-align: center;">
+            {% if timesheet %}
+                {% if timesheet.docstatus != 1 %}
+                    <a href="/desk#Form/Timesheet/{{ timesheet.name }}" class="text-muted text-center">
+                        {{ __("Current Timesheet") }}: {{ timesheet.name }}
+                    </a>
+                    {% if timer_status == "stopped" %}
+                        <button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">{{ __("Quick Start Timer") }}</button>
+                        <button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">{{ __("Start Timer") }}</button>
+                    {% else %}
+                        <button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">{{ __("Stop Timer") }}</button>
+                    {% endif %}
+                {% else %}
+                        <a href="/desk#Form/Timesheet/{{ timesheet.name }}" class="text-muted text-center">
+                            {{ __("Your Timesheet is already submitted, please Cancel/Amend it first") }}
+                        </a>
+                {% endif %}
+            {% endif %}
+        </li>
+        <li style="text-align: center;">
+            <button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">{{ __("Add Timeblock") }}</button>
+        </li>
+    </ul>
+</li>
