@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include energielenker *.css
+recursive-include energielenker *.csv
+recursive-include energielenker *.html
+recursive-include energielenker *.ico
+recursive-include energielenker *.js
+recursive-include energielenker *.json
+recursive-include energielenker *.md
+recursive-include energielenker *.png
+recursive-include energielenker *.py
+recursive-include energielenker *.svg
+recursive-include energielenker *.txt
+recursive-exclude energielenker *.pyc
