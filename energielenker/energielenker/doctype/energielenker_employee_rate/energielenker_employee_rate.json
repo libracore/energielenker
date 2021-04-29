@@ -1,0 +1,45 @@
+{
+ "creation": "2021-04-29 09:45:13.594306",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "internal_rate",
+  "external_rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "internal_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Internal Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "external_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "External Rate",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-04-29 09:45:13.594306",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "energielenker Employee Rate",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -25,3 +25,7 @@
     margin-bottom: 5px;
     margin-right: 5px;
 }
+
+.pending-ts {
+    color: orange;
+}

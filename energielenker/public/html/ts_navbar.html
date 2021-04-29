@@ -1,6 +1,6 @@
 <li class="dropdown dropdown-mobile">
     <a class"dropdown-toggle" href="#" data-toggle="dropdown" title="Stopwatch" onclick="return false">
-        <span><i class="octicon octicon-clock"></i></span>
+        <span id="ts_indicator" class=""><i class="octicon octicon-clock"></i></span>
     </a>
     <ul class="dropdown-menu timesheet-manager-list" role="menu">
         <li class="timesheet-manager-updates-header">
@@ -24,21 +24,31 @@
                     <a href="/desk#Form/Timesheet/{{ timesheet.name }}" class="text-muted text-center">
                         {{ __("Current Timesheet") }}: {{ timesheet.name }}
                     </a>
-                    {% if timer_status == "stopped" %}
-                        <button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">{{ __("Quick Start Timer") }}</button>
-                        <button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">{{ __("Start Timer") }}</button>
-                    {% else %}
-                        <button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">{{ __("Stop Timer") }}</button>
-                    {% endif %}
                 {% else %}
                         <a href="/desk#Form/Timesheet/{{ timesheet.name }}" class="text-muted text-center">
                             {{ __("Your Timesheet is already submitted, please Cancel/Amend it first") }}
                         </a>
                 {% endif %}
+            {% else %}
+                <a href="#" onclick="return false" class="text-muted text-center">
+                    {{ __("A new Timesheet will be created") }}
+                </a>
+            {% endif %}
+            {% if employee %}
+                {% if timer_status == "stopped" %}
+                    <button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">{{ __("Quick Start Timer") }}</button>
+                    <button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">{{ __("Start Timer") }}</button>
+                {% else %}
+                    <button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">{{ __("Stop Timer") }}</button>
+                {% endif %}
             {% endif %}
         </li>
-        <li style="text-align: center;">
-            <button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">{{ __("Add Timeblock") }}</button>
-        </li>
+        {% if employee %}
+            {% if timer_status == "stopped" %}
+                <li style="text-align: center;">
+                    <button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">{{ __("Add Timeblock") }}</button>
+                </li>
+            {% endif %}
+        {% endif %}
     </ul>
 </li>

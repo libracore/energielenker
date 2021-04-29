@@ -27,93 +27,194 @@ def get_data():
             data["timer_status"] = 'started'
     except:
         data["timesheet"] = 0
+        data["timer_status"] = 'stopped'
     
     return data
 
 @frappe.whitelist()
 def quick_start_timer(ts):
-    ts = frappe.get_doc("Timesheet", ts)
-    
-    row = ts.append('time_logs', {})
-    row.activity_type = 'Execution'
-    row.from_time = get_datetime()
-    row.to_time= get_datetime()
-    row.hours = 0
-    
-    ts.save()
-    
-    return
+    if ts != 'new':
+        ts = frappe.get_doc("Timesheet", ts)
+        
+        row = ts.append('time_logs', {})
+        row.activity_type = 'Execution'
+        row.from_time = get_datetime()
+        row.to_time= get_datetime()
+        row.hours = 0
+        
+        ts.save()
+        
+        return ts.name
+    else:
+        user = frappe.session.user
+        employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
+        new_ts = frappe.get_doc({
+            "doctype": "Timesheet",
+            "employee": employee.name,
+            "time_logs": [
+                {
+                    "activity_type": 'Execution',
+                    "from_time": get_datetime(),
+                    "to_time": get_datetime(),
+                    "hours": 0
+                }
+            ]
+        })
+        new_ts.insert()
+        return new_ts.name
     
 @frappe.whitelist()
 def start_timer(ts, details):
-    try:
-        basestring
-    except NameError:
-        basestring = str
-    if isinstance(details, basestring):
-        details = json.loads(details)
+    if ts != 'new':
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(details, basestring):
+            details = json.loads(details)
 
-    ts = frappe.get_doc("Timesheet", ts)
-    
-    row = ts.append('time_logs', {})
-    row.activity_type = details["activity_type"]
-    row.from_time = get_datetime()
-    row.to_time= get_datetime()
-    row.hours = 0
-    
-    for key in details:
-        if key == 'project':
-            row.project = details[key]
-        if key == "task":
-            row.task = details[key]
-        if key == "issue":
-            row.issue = details[key]
+        ts = frappe.get_doc("Timesheet", ts)
+        
+        row = ts.append('time_logs', {})
+        row.activity_type = details["activity_type"]
+        row.from_time = get_datetime()
+        row.to_time= get_datetime()
+        row.hours = 0
+        
+        for key in details:
+            if key == 'project':
+                row.project = details[key]
+            if key == "task":
+                row.task = details[key]
+            if key == "issue":
+                row.issue = details[key]
+                
+        ts.save()
+        
+        return ts.name
+    else:
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(details, basestring):
+            details = json.loads(details)
             
-    ts.save()
-    
-    return
+        project = ''
+        task = ''
+        issue = ''
+        for key in details:
+            if key == 'project':
+                project = details[key]
+            if key == "task":
+                task = details[key]
+            #if key == "issue":
+            #    issue = details[key]
+                
+        user = frappe.session.user
+        employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
+        
+        new_ts = frappe.get_doc({
+            "doctype": "Timesheet",
+            "employee": employee.name,
+            "time_logs": [
+                {
+                    "activity_type": details["activity_type"],
+                    "from_time": get_datetime(),
+                    "to_time": get_datetime(),
+                    "hours": 0,
+                    #"issue": issue,
+                    "project": project,
+                    "task": task
+                }
+            ]
+        })
+        new_ts.insert()
+        return new_ts.name
     
 @frappe.whitelist()
 def stop_timer(ts):
-    ts = frappe.get_doc("Timesheet", ts)
-    
-    for time_log in ts.time_logs:
-        if time_log.hours == 0:
-            time_log.to_time = get_datetime()
-            
-    ts.save()
-    
-    return
+    if ts != 'new':
+        ts = frappe.get_doc("Timesheet", ts)
+        
+        for time_log in ts.time_logs:
+            if time_log.hours == 0:
+                time_log.to_time = get_datetime()
+                
+        ts.save()
+        
+        return ts.name
 
 @frappe.whitelist()
 def add_timeblock(ts, details):
-    try:
-        basestring
-    except NameError:
-        basestring = str
-    if isinstance(details, basestring):
-        details = json.loads(details)
+    if ts != 'new':
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(details, basestring):
+            details = json.loads(details)
 
-    next_start_time = get_next_start_time(ts)
-    ts = frappe.get_doc("Timesheet", ts)
+        next_start_time = get_next_start_time(ts)
+        ts = frappe.get_doc("Timesheet", ts)
+        
+        row = ts.append('time_logs', {})
+        row.activity_type = details["activity_type"]
+        row.from_time = next_start_time
+        row.to_time= add_to_date(date=row.from_time, hours=details["hours"])
+        row.hours = details["hours"]
+        
+        for key in details:
+            if key == 'project':
+                row.project = details[key]
+            if key == "task":
+                row.task = details[key]
+            if key == "issue":
+                row.issue = details[key]
+                
+        ts.save()
     
-    row = ts.append('time_logs', {})
-    row.activity_type = details["activity_type"]
-    row.from_time = next_start_time
-    row.to_time= add_to_date(date=row.from_time, hours=details["hours"])
-    row.hours = details["hours"]
-    
-    for key in details:
-        if key == 'project':
-            row.project = details[key]
-        if key == "task":
-            row.task = details[key]
-        if key == "issue":
-            row.issue = details[key]
+        return ts.name
+    else:
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(details, basestring):
+            details = json.loads(details)
             
-    ts.save()
-    
-    return
+        start_time = get_datetime(nowdate() + " 00:00:00")
+        project = ''
+        task = ''
+        issue = ''
+        for key in details:
+            if key == 'project':
+                project = details[key]
+            if key == "task":
+                task = details[key]
+            #if key == "issue":
+            #    issue = details[key]
+                
+        user = frappe.session.user
+        employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
+        
+        new_ts = frappe.get_doc({
+            "doctype": "Timesheet",
+            "employee": employee.name,
+            "time_logs": [
+                {
+                    "activity_type": details["activity_type"],
+                    "from_time": start_time,
+                    "to_time": add_to_date(date=start_time, hours=details["hours"]),
+                    "hours": details["hours"],
+                    #"issue": issue,
+                    "project": project,
+                    "task": task
+                }
+            ]
+        })
+        new_ts.insert()
+        return new_ts.name
     
 def get_next_start_time(ts):
     ts = frappe.get_doc("Timesheet", ts)

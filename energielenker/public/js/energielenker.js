@@ -7,23 +7,36 @@ $(document).ready(function(){
             "callback": function(response) {
                 var data = response.message;
                 $('.nav.navbar-nav.navbar-right').prepend(frappe.render_template("ts_navbar", data));
-                if (data.timesheet != 0) {
-                    if (data.timer_status == 'stopped') {
+                if (data.employee != 0) {
+                    if (data.timesheet != 0) {
+                        if (data.timer_status == 'stopped') {
+                            $("#timesheet_manager_start").click(function(){
+                                timesheet_manager_start(data.timesheet.name);
+                            });
+                            $("#timesheet_manager_quick_start").click(function(){
+                                timesheet_manager_quick_start(data.timesheet.name);
+                            });
+                            $("#timesheet_manager_add_timeblock").click(function(){
+                                timesheet_manager_add_timeblock(data.timesheet.name);
+                            });
+                        } else {
+                            $("#timesheet_manager_stop").click(function(){
+                                timesheet_manager_stop(data.timesheet.name);
+                            });
+                            $("#ts_indicator").addClass("pending-ts");
+                        }
+                    } else {
                         $("#timesheet_manager_start").click(function(){
-                            timesheet_manager_start(data.timesheet.name);
+                            timesheet_manager_start('new');
                         });
                         $("#timesheet_manager_quick_start").click(function(){
-                            timesheet_manager_quick_start(data.timesheet.name);
+                            timesheet_manager_quick_start('new');
                         });
-                    } else {
-                        $("#timesheet_manager_stop").click(function(){
-                            timesheet_manager_stop(data.timesheet.name);
+                        $("#timesheet_manager_add_timeblock").click(function(){
+                            timesheet_manager_add_timeblock('new');
                         });
                     }
                 }
-                $("#timesheet_manager_add_timeblock").click(function(){
-                    timesheet_manager_add_timeblock(data.timesheet.name);
-                });
             }
         });
     }, 1000);
@@ -40,10 +53,12 @@ function timesheet_manager_quick_start(ts) {
             // remove start-buttons, add stop-button
             $("#timesheet_manager_start").remove();
             $("#timesheet_manager_quick_start").remove();
-            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">Stop Timer</button>');
+            $("#timesheet_manager_add_timeblock").remove();
+            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">' + __("Stop Timer") + '</button>');
             $("#timesheet_manager_stop").click(function(){
-                timesheet_manager_stop(ts);
+                timesheet_manager_stop(response.message);
             });
+            $("#ts_indicator").addClass("pending-ts");
         }
     });
 }
@@ -67,10 +82,12 @@ function timesheet_manager_start(ts) {
                 // remove start-buttons, add stop-button
                 $("#timesheet_manager_start").remove();
                 $("#timesheet_manager_quick_start").remove();
-                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">Stop Timer</button>');
+                $("#timesheet_manager_add_timeblock").remove();
+                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">' + __("Stop Timer") + '</button>');
                 $("#timesheet_manager_stop").click(function(){
-                    timesheet_manager_stop(ts);
+                    timesheet_manager_stop(response.message);
                 });
+                $("#ts_indicator").addClass("pending-ts");
             }
         });
     },
@@ -89,14 +106,20 @@ function timesheet_manager_stop(ts) {
         "callback": function(response) {
             // remove stop-button, add start-buttons
             $("#timesheet_manager_stop").remove();
-            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">Quick Start Timer</button>');
-            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">Start Timer</button>');
+            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">' + __("Quick Start Timer") + '</button>');
+            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">' + __("Start Timer") + '</button>');
+            $("#timesheet_manager").append('<button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">' + __("Add Timeblock") + '</button>');
             $("#timesheet_manager_start").click(function(){
-                timesheet_manager_start(ts);
+                timesheet_manager_start(response.message);
             });
             $("#timesheet_manager_quick_start").click(function(){
-                timesheet_manager_quick_start(data.timesheet.name);
+                timesheet_manager_quick_start(response.message);
             });
+            
+            $("#timesheet_manager_add_timeblock").click(function(){
+                timesheet_manager_add_timeblock(response.message);
+            });
+            $("#ts_indicator").removeClass("pending-ts");
         }
     });
 }
