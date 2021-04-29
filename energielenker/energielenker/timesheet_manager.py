@@ -115,8 +115,8 @@ def start_timer(ts, details):
                 project = details[key]
             if key == "task":
                 task = details[key]
-            #if key == "issue":
-            #    issue = details[key]
+            if key == "issue":
+                issue = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -142,7 +142,7 @@ def start_timer(ts, details):
                     "from_time": get_datetime(),
                     "to_time": get_datetime(),
                     "hours": 0,
-                    #"issue": issue,
+                    "issue": issue,
                     "project": project,
                     "task": task,
                     "billable": billable,
@@ -228,8 +228,8 @@ def add_timeblock(ts, details):
                 project = details[key]
             if key == "task":
                 task = details[key]
-            #if key == "issue":
-            #    issue = details[key]
+            if key == "issue":
+                issue = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -259,7 +259,7 @@ def add_timeblock(ts, details):
                     "from_time": start_time,
                     "to_time": add_to_date(date=start_time, hours=details["hours"]),
                     "hours": details["hours"],
-                    #"issue": issue,
+                    "issue": issue,
                     "project": project,
                     "task": task,
                     "billable": billable,
