@@ -68,7 +68,8 @@ function timesheet_manager_start(ts) {
         {'fieldname': 'activity_type', 'fieldtype': 'Link', 'label': 'Activity Type', 'reqd': 1, 'options': 'Activity Type'},
         {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project'},
         {'fieldname': 'task', 'fieldtype': 'Link', 'label': 'Task', 'reqd': 0, 'options': 'Task'},
-        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'}
+        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'},
+        {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0}
     ],
     function(values){
         frappe.call({
@@ -130,7 +131,8 @@ function timesheet_manager_add_timeblock(ts) {
         {'fieldname': 'activity_type', 'fieldtype': 'Link', 'label': 'Activity Type', 'reqd': 1, 'options': 'Activity Type'},
         {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project'},
         {'fieldname': 'task', 'fieldtype': 'Link', 'label': 'Task', 'reqd': 0, 'options': 'Task'},
-        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'}
+        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'},
+        {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0}
     ],
     function(values){
         frappe.call({

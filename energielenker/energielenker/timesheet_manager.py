@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
-from frappe.utils.data import today, now, get_datetime, add_to_date, nowdate
+from frappe.utils.data import today, now, get_datetime, add_to_date, nowdate, time_diff_in_hours
 import json
 
 @frappe.whitelist()
@@ -89,6 +89,13 @@ def start_timer(ts, details):
             if key == "issue":
                 row.issue = details[key]
                 
+        if int(details["bill"]) == 1:
+            rates = get_employee_rate(ts.employee)
+            row.billable = 1
+            row.billing_hours = 0
+            row.billing_rate = rates["external_rate"]
+            row.costing_rate = rates["internal_rate"]
+                
         ts.save()
         
         return ts.name
@@ -114,6 +121,18 @@ def start_timer(ts, details):
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
         
+        if int(details["bill"]) == 1:
+            rates = get_employee_rate(employee.name)
+            billable = 1
+            billing_hours = 0
+            billing_rate = rates["external_rate"]
+            costing_rate = rates["internal_rate"]
+        else:
+            billable = 0
+            billing_hours = 0
+            billing_rate = 0
+            costing_rate = 0
+        
         new_ts = frappe.get_doc({
             "doctype": "Timesheet",
             "employee": employee.name,
@@ -125,7 +144,11 @@ def start_timer(ts, details):
                     "hours": 0,
                     #"issue": issue,
                     "project": project,
-                    "task": task
+                    "task": task,
+                    "billable": billable,
+                    "billing_hours": billing_hours,
+                    "billing_rate": billing_rate,
+                    "costing_rate": costing_rate
                 }
             ]
         })
@@ -140,6 +163,10 @@ def stop_timer(ts):
         for time_log in ts.time_logs:
             if time_log.hours == 0:
                 time_log.to_time = get_datetime()
+                if time_log.billable == 1:
+                    time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
+                    time_log.billing_amount = float(time_log.billing_hours) * float(time_log.billing_rate)
+                    time_log.costing_amount = float(time_log.billing_hours) * float(time_log.costing_rate)
                 
         ts.save()
         
@@ -172,6 +199,15 @@ def add_timeblock(ts, details):
             if key == "issue":
                 row.issue = details[key]
                 
+        if int(details["bill"]) == 1:
+            rates = get_employee_rate(ts.employee)
+            row.billable = 1
+            row.billing_hours = details["hours"]
+            row.billing_rate = rates["external_rate"]
+            row.costing_rate = rates["internal_rate"]
+            row.billing_amount = float(details["hours"]) * float(rates["external_rate"])
+            row.costing_amount = float(details["hours"]) * float(rates["internal_rate"])
+                
         ts.save()
     
         return ts.name
@@ -198,6 +234,22 @@ def add_timeblock(ts, details):
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
         
+        if int(details["bill"]) == 1:
+            rates = get_employee_rate(employee.name)
+            billable = 1
+            billing_hours = details["hours"]
+            billing_rate = rates["external_rate"]
+            costing_rate = rates["internal_rate"]
+            billing_amount = float(details["hours"]) * float(rates["external_rate"])
+            costing_amount = float(details["hours"]) * float(rates["internal_rate"])
+        else:
+            billable = 0
+            billing_hours = 0
+            billing_rate = 0
+            costing_rate = 0
+            billing_amount = 0
+            costing_amount = 0
+        
         new_ts = frappe.get_doc({
             "doctype": "Timesheet",
             "employee": employee.name,
@@ -209,7 +261,13 @@ def add_timeblock(ts, details):
                     "hours": details["hours"],
                     #"issue": issue,
                     "project": project,
-                    "task": task
+                    "task": task,
+                    "billable": billable,
+                    "billing_hours": billing_hours,
+                    "billing_rate": billing_rate,
+                    "costing_rate": costing_rate,
+                    "billing_amount": billing_amount,
+                    "costing_amount": costing_amount
                 }
             ]
         })
@@ -225,3 +283,21 @@ def get_next_start_time(ts):
             start_time = timelog.to_time
             
     return start_time
+
+def get_employee_rate(employee):
+    employee = frappe.get_doc("Employee", employee)
+    if employee.employee_rate:
+        try:
+            rates = frappe.db.sql("""SELECT `internal_rate`, `external_rate` FROM `tabenergielenker Employee Rate` WHERE `parent` = '{employee}' AND `date` <= '{today}' ORDER BY `date` DESC LIMIT 1""".format(employee=employee.name, today=today()), as_dict=True)[0]
+        except:
+            rates = {
+                'internal_rate': 0,
+                'external_rate': 0
+            }
+    else:
+        rates = {
+                'internal_rate': 0,
+                'external_rate': 0
+            }
+    return rates
+    
