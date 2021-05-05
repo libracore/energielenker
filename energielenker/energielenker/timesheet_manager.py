@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 from frappe.utils.data import today, now, get_datetime, add_to_date, nowdate, time_diff_in_hours
 import json
 
@@ -24,7 +25,11 @@ def get_data():
         data["timer_status"] = 'stopped'
         zero_hours_qty = frappe.db.sql("""SELECT COUNT(`name`) FROM `tabTimesheet Detail` WHERE `parent` = '{timesheet}' AND `hours` = 0""".format(timesheet=data["timesheet"]["name"]), as_list=True)[0][0]
         if zero_hours_qty > 0:
-            data["timer_status"] = 'started'
+            quick_entry = frappe.db.sql("""SELECT COUNT(`name`) FROM `tabTimesheet Detail` WHERE `parent` = '{timesheet}' AND `hours` = 0 AND `quick_entry` = 1""".format(timesheet=data["timesheet"]["name"]), as_list=True)[0][0]
+            if quick_entry > 0:
+                data["timer_status"] = 'quick_entry'
+            else:
+                data["timer_status"] = 'started'
     except:
         data["timesheet"] = 0
         data["timer_status"] = 'stopped'
@@ -37,12 +42,14 @@ def quick_start_timer(ts):
         ts = frappe.get_doc("Timesheet", ts)
         
         row = ts.append('time_logs', {})
-        row.activity_type = 'Execution'
+        row.activity_type = get_default_activity_type()
         row.from_time = get_datetime()
         row.to_time= get_datetime()
         row.hours = 0
+        row.quick_entry = 1
         
         ts.save()
+        frappe.db.commit()
         
         return ts.name
     else:
@@ -53,14 +60,17 @@ def quick_start_timer(ts):
             "employee": employee.name,
             "time_logs": [
                 {
-                    "activity_type": 'Execution',
+                    "activity_type": get_default_activity_type(),
                     "from_time": get_datetime(),
                     "to_time": get_datetime(),
-                    "hours": 0
+                    "hours": 0,
+                    "quick_entry": 1
                 }
             ]
         })
         new_ts.insert()
+        frappe.db.commit()
+        
         return new_ts.name
     
 @frappe.whitelist()
@@ -76,10 +86,11 @@ def start_timer(ts, details):
         ts = frappe.get_doc("Timesheet", ts)
         
         row = ts.append('time_logs', {})
-        row.activity_type = details["activity_type"]
+        row.activity_type = get_default_activity_type()
         row.from_time = get_datetime()
         row.to_time= get_datetime()
         row.hours = 0
+        row.tbd = int(details["tbd"])
         
         for key in details:
             if key == 'project':
@@ -88,6 +99,8 @@ def start_timer(ts, details):
                 row.task = details[key]
             if key == "issue":
                 row.issue = details[key]
+            if key == "remarks":
+                row.remarks = details[key]
                 
         if int(details["bill"]) == 1:
             rates = get_employee_rate(ts.employee)
@@ -97,6 +110,7 @@ def start_timer(ts, details):
             row.costing_rate = rates["internal_rate"]
                 
         ts.save()
+        frappe.db.commit()
         
         return ts.name
     else:
@@ -110,6 +124,7 @@ def start_timer(ts, details):
         project = ''
         task = ''
         issue = ''
+        remarks = ''
         for key in details:
             if key == 'project':
                 project = details[key]
@@ -117,6 +132,8 @@ def start_timer(ts, details):
                 task = details[key]
             if key == "issue":
                 issue = details[key]
+            if key == "remarks":
+                remarks = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -132,19 +149,22 @@ def start_timer(ts, details):
             billing_hours = 0
             billing_rate = 0
             costing_rate = 0
+            
         
         new_ts = frappe.get_doc({
             "doctype": "Timesheet",
             "employee": employee.name,
             "time_logs": [
                 {
-                    "activity_type": details["activity_type"],
+                    "activity_type": get_default_activity_type(),
+                    "remarks": remarks,
                     "from_time": get_datetime(),
                     "to_time": get_datetime(),
                     "hours": 0,
                     "issue": issue,
                     "project": project,
                     "task": task,
+                    "tbd": int(details["tbd"]),
                     "billable": billable,
                     "billing_hours": billing_hours,
                     "billing_rate": billing_rate,
@@ -153,6 +173,8 @@ def start_timer(ts, details):
             ]
         })
         new_ts.insert()
+        frappe.db.commit()
+        
         return new_ts.name
     
 @frappe.whitelist()
@@ -169,6 +191,48 @@ def stop_timer(ts):
                     time_log.costing_amount = float(time_log.billing_hours) * float(time_log.costing_rate)
                 
         ts.save()
+        frappe.db.commit()
+        
+        return ts.name
+        
+@frappe.whitelist()
+def stop_timer_from_quick_start(ts, details):
+    if ts != 'new':
+        ts = frappe.get_doc("Timesheet", ts)
+        try:
+            basestring
+        except NameError:
+            basestring = str
+        if isinstance(details, basestring):
+            details = json.loads(details)
+        
+        for time_log in ts.time_logs:
+            if time_log.hours == 0:
+                time_log.to_time = get_datetime()
+                for key in details:
+                    if key == 'project':
+                        time_log.project = details[key]
+                    if key == "task":
+                        time_log.task = details[key]
+                    if key == "issue":
+                        time_log.issue = details[key]
+                    if key == "tbd":
+                        time_log.tbd = details[key]
+                    if key == "remarks":
+                        time_log.remarks = details[key]
+                        
+                
+                if int(details["bill"]) == 1:
+                    rates = get_employee_rate(ts.employee)
+                    time_log.billable = 1
+                    time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
+                    time_log.billing_rate = rates["external_rate"]
+                    time_log.costing_rate = rates["internal_rate"]
+                    time_log.billing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["external_rate"])
+                    time_log.costing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["internal_rate"])
+                
+        ts.save()
+        frappe.db.commit()
         
         return ts.name
 
@@ -186,10 +250,11 @@ def add_timeblock(ts, details):
         ts = frappe.get_doc("Timesheet", ts)
         
         row = ts.append('time_logs', {})
-        row.activity_type = details["activity_type"]
+        row.activity_type = get_default_activity_type()
         row.from_time = next_start_time
         row.to_time= add_to_date(date=row.from_time, hours=details["hours"])
         row.hours = details["hours"]
+        row.tbd = int(details["tbd"])
         
         for key in details:
             if key == 'project':
@@ -198,6 +263,8 @@ def add_timeblock(ts, details):
                 row.task = details[key]
             if key == "issue":
                 row.issue = details[key]
+            if key == "remarks":
+                row.remarks = details[key]
                 
         if int(details["bill"]) == 1:
             rates = get_employee_rate(ts.employee)
@@ -209,6 +276,7 @@ def add_timeblock(ts, details):
             row.costing_amount = float(details["hours"]) * float(rates["internal_rate"])
                 
         ts.save()
+        frappe.db.commit()
     
         return ts.name
     else:
@@ -223,6 +291,8 @@ def add_timeblock(ts, details):
         project = ''
         task = ''
         issue = ''
+        remarks = ''
+        
         for key in details:
             if key == 'project':
                 project = details[key]
@@ -230,6 +300,8 @@ def add_timeblock(ts, details):
                 task = details[key]
             if key == "issue":
                 issue = details[key]
+            if key == "remarks":
+                remarks = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -249,19 +321,22 @@ def add_timeblock(ts, details):
             costing_rate = 0
             billing_amount = 0
             costing_amount = 0
+            
         
         new_ts = frappe.get_doc({
             "doctype": "Timesheet",
             "employee": employee.name,
             "time_logs": [
                 {
-                    "activity_type": details["activity_type"],
+                    "activity_type": get_default_activity_type(),
+                    "remarks": remarks,
                     "from_time": start_time,
                     "to_time": add_to_date(date=start_time, hours=details["hours"]),
                     "hours": details["hours"],
                     "issue": issue,
                     "project": project,
                     "task": task,
+                    "tbd": int(details["tbd"]),
                     "billable": billable,
                     "billing_hours": billing_hours,
                     "billing_rate": billing_rate,
@@ -272,6 +347,8 @@ def add_timeblock(ts, details):
             ]
         })
         new_ts.insert()
+        frappe.db.commit()
+        
         return new_ts.name
     
 def get_next_start_time(ts):
@@ -301,3 +378,9 @@ def get_employee_rate(employee):
             }
     return rates
     
+def get_default_activity_type():
+    try:
+        default_activity_type = frappe.db.sql("""SELECT `name` FROM `tabActivity Type` WHERE `default` = 1""", as_dict=True)[0].name
+        return default_activity_type
+    except:
+        frappe.throw(_("No default Activity Type set"))
