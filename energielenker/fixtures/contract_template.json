@@ -1,0 +1,28 @@
+[
+ {
+  "contract_terms": null,
+  "docstatus": 0,
+  "doctype": "Contract Template",
+  "fulfilment_terms": [],
+  "modified": "2021-06-14 18:01:22.378314",
+  "name": "Dienstleistungsvertrag",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "requires_fulfilment": 0,
+  "title": "Dienstleistungsvertrag"
+ },
+ {
+  "contract_terms": null,
+  "docstatus": 0,
+  "doctype": "Contract Template",
+  "fulfilment_terms": [],
+  "modified": "2021-06-14 18:01:42.567284",
+  "name": "Werkvertrag",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "requires_fulfilment": 0,
+  "title": "Werkvertrag"
+ }
+]
