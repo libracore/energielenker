@@ -12,7 +12,7 @@ app_email = "info@libracore.com"
 app_license = "MIT"
 
 fixtures = [
-	{"dt": "Contract Template", "filters": [["name", "in", ["Dienstleistungsvertrag", "Werkvertrag"]]]}
+    {"dt": "Contract Template", "filters": [["name", "in", ["Dienstleistungsvertrag", "Werkvertrag"]]]}
 ]
 
 # Includes in <head>
@@ -38,10 +38,12 @@ app_include_js = [
 
 # include js in doctype views
 doctype_js = {
-	"Project": "energielenker/project/project.js"
+    "Project": "energielenker/project/project.js"
 }
 
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {
+    "Project" : "energielenker/project/project_list.js"
+}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -94,14 +96,14 @@ doctype_js = {
 # Hook on document methods and events
 
 doc_events = {
-	"Project": {
-		"autoname": "energielenker.energielenker.project.project.autoname",
-		"onload": "energielenker.energielenker.project.project.onload",
-		"validate": "energielenker.energielenker.project.project.validate"
-	},
-	"Task": {
-		"on_update": "energielenker.energielenker.task.task.on_update"
-	}
+    "Project": {
+        "autoname": "energielenker.energielenker.project.project.autoname",
+        "onload": "energielenker.energielenker.project.project.onload",
+        "validate": "energielenker.energielenker.project.project.validate"
+    },
+    "Task": {
+        "on_update": "energielenker.energielenker.task.task.on_update"
+    }
 }
 
 # Scheduled Tasks

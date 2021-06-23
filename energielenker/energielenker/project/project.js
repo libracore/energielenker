@@ -17,6 +17,17 @@ frappe.ui.form.on("Project", {
 		frm.trigger("set_contact_query");
 		frm.trigger("render_contact");
 	},
+    refresh: function(frm) {
+        cur_frm.fields_dict.participants.grid.get_field('participant_contact').get_query = function(doc, cdt, cdn) {
+          var child = locals[cdt][cdn];
+          return {
+            filters: {
+        	  "link_doctype": "Customer",
+        	  "link_name": child.participant
+            }
+          }
+        };
+    },
 	customer: function (frm) {
 		frm.set_value("contact", null);
 		frm.trigger("set_contact_query");

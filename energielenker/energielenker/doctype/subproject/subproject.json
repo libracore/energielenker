@@ -5,7 +5,8 @@
  "engine": "InnoDB",
  "field_order": [
   "subproject",
-  "subproject_name"
+  "subproject_name",
+  "subproject_completed"
  ],
  "fields": [
   {
@@ -25,10 +26,18 @@
    "in_list_view": 1,
    "label": "Subproject Name",
    "read_only": 1
+  },
+  {
+   "fetch_from": "subproject.percent_complete",
+   "fieldname": "subproject_completed",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "% Completed",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-06-15 14:50:31.673969",
+ "modified": "2021-06-23 14:27:34.565696",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Subproject",
