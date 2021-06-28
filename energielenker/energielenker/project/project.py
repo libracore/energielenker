@@ -38,7 +38,8 @@ class PowerProject():
             "billable_amount_trend",
             "expected_purchase_cost",
             "purchase_cost_trend",
-            "overall_trend"
+            "overall_trend",
+            "total_amount"
         ]
 
         for kpi in custom_kpis:
@@ -53,7 +54,7 @@ class PowerProject():
             "total_sales_amount",
             "total_billable_amount",
             "total_billed_amount",
-            "total_consumed_material_cost",
+            "total_consumed_material_cost"
         ]
 
         for kpi in erpnext_kpis:
@@ -199,6 +200,9 @@ class PowerProject():
         )
 
         return sum(map(lambda task: max(task[0] - task[1], 0), open_tasks))
+        
+    def get_total_amount(self):
+        return self.project.total_sales_amount
 
 def autoname(project, event):
     project.name = make_autoname(project.naming_series)
@@ -288,3 +292,47 @@ def get_contact_details(doc):
         contact["address"] = get_condensed_address(address)
 
     return {"contact_list": [contact]}
+
+@frappe.whitelist()
+def fetch_payment_schedule(project, sales_order, payment_schedule):
+    if payment_schedule:
+        import json
+        payment_schedule = json.loads(payment_schedule)
+            
+        project = frappe.get_doc("Project", project)
+        found_so = False
+        
+        if len(project.payment_schedule) > 0:
+            # check if SO already exist
+            for ps in project.payment_schedule:
+                if ps.order == sales_order:
+                    found_so = True
+        if not found_so:
+            # add SO
+            for so_ps in payment_schedule:
+                new_ps = project.append('payment_schedule', {})
+                new_ps.order = sales_order
+                new_ps.date = so_ps["due_date"]
+                new_ps.amount = so_ps["payment_amount"]
+                if project.total_amount:
+                    percent_of_total_amount = so_ps["payment_amount"] / project.total_amount * 100;
+                    new_ps.percent = percent_of_total_amount
+            project.save()
+            
+            # create assignment
+            from frappe.desk.form.assign_to import add
+            project_manager = frappe.get_doc("Employee", project.project_manager).user_id
+            add(args = {
+                'assign_to': project_manager,
+                'doctype': 'Project',
+                'name': project.name,
+                'description': _('Check the Payment Forecast Table')
+            })
+        
+        return
+
+@frappe.whitelist()
+def clear_payment_schedule(project, sales_order):
+    frappe.db.sql("""DELETE FROM `tabPayment Forecast` WHERE `parent` = '{project}' AND `order` = '{sales_order}'""".format(project=project, sales_order=sales_order), as_list=True)
+    return
+    
