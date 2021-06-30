@@ -1,0 +1,59 @@
+{
+ "autoname": "field:project_status",
+ "creation": "2021-06-14 20:54:08.777031",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "project_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Status",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "modified": "2021-06-17 00:18:24.313993",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Project Status",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "All"
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

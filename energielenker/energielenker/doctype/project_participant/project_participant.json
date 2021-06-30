@@ -1,0 +1,39 @@
+{
+ "creation": "2021-06-15 14:33:38.913601",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "participant",
+  "participant_contact"
+ ],
+ "fields": [
+  {
+   "fieldname": "participant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Participant",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "participant_contact",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Contact",
+   "options": "Contact",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-06-23 14:34:46.434746",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Project Participant",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

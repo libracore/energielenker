@@ -1,0 +1,50 @@
+{
+ "creation": "2021-06-15 14:40:58.978088",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "subproject",
+  "subproject_name",
+  "subproject_completed"
+ ],
+ "fields": [
+  {
+   "fieldname": "subproject",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Subproject",
+   "options": "Project",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "depends_on": "eval: doc.subproject",
+   "fetch_from": "subproject.project_name",
+   "fieldname": "subproject_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Subproject Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "subproject.percent_complete",
+   "fieldname": "subproject_completed",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "% Completed",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-06-23 14:27:34.565696",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Subproject",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

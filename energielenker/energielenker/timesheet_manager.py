@@ -377,6 +377,12 @@ def get_employee_rate(employee):
                 'external_rate': 0
             }
     return rates
+
+def get_employee_rate_internal(employee):
+    return get_employee_rate(employee).internal_rate
+
+def get_employee_rate_external(employee):
+    return get_employee_rate(employee).external_rate
     
 def get_default_activity_type():
     try:
