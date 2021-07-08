@@ -39,7 +39,10 @@ app_include_js = [
 # include js in doctype views
 doctype_js = {
     "Project": "energielenker/project/project.js",
-    "Sales Order": "energielenker/sales_order/sales_order.js"
+    "Sales Order": "energielenker/sales_order/sales_order.js",
+    "Quotation": "energielenker/quotation/quotation.js",
+    "Sales Invoice": "energielenker/sales_invoice/sales_invoice.js",
+    "Delivery Note": "energielenker/delivery_note/delivery_note.js"
 }
 
 doctype_list_js = {
