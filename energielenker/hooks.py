@@ -42,7 +42,8 @@ doctype_js = {
     "Sales Order": "energielenker/sales_order/sales_order.js",
     "Quotation": "energielenker/quotation/quotation.js",
     "Sales Invoice": "energielenker/sales_invoice/sales_invoice.js",
-    "Delivery Note": "energielenker/delivery_note/delivery_note.js"
+    "Delivery Note": "energielenker/delivery_note/delivery_note.js",
+    "Address": "energielenker/address/address.js"
 }
 
 doctype_list_js = {
