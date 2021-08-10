@@ -112,13 +112,13 @@ class PowerProject():
         )[0].sum or 0
 
     def get_time_trend(self):
-        return self.get_expected_time() - (self.project.actual_time or 0) - self.get_open_time()
+        return self.get_expected_time() - (self.project.actual_time or 0) + self.get_open_time()
 
     def get_billable_amount_trend(self):
         return (
             self.get_expected_billable_amount()
             - (self.project.total_billable_amount or 0)
-            - self.get_open_billable_amount()
+            + self.get_open_billable_amount()
         )
 
     def get_open_quotation_amount(self):
