@@ -112,7 +112,12 @@ class PowerProject():
         )[0].sum or 0
 
     def get_time_trend(self):
-        return self.get_expected_time() - (self.project.actual_time or 0) + self.get_open_time()
+        # old
+        # time_trend = self.get_expected_time() - (self.project.actual_time or 0) - self.get_open_time()
+        
+        # new
+        time_trend = self.get_expected_time() - (self.project.actual_time or 0) + max(self.get_open_time(), 0)
+        return time_trend
 
     def get_billable_amount_trend(self):
         return (
@@ -198,8 +203,12 @@ class PowerProject():
             fields=["expected_time", "actual_time"],
             as_list=True
         )
-
-        return sum(map(lambda task: max(task[0] - task[1], 0), open_tasks))
+        
+        # old
+        #return sum(map(lambda task: max(task[0] - task[1], 0), open_tasks))
+        
+        # new
+        return sum(map(lambda task: (task[0] - task[1]), open_tasks))
         
     def get_total_amount(self):
         return self.project.total_sales_amount
