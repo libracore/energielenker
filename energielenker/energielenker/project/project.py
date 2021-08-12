@@ -22,8 +22,8 @@ class PowerProject():
             self.subprojects.append(pp.project)
 
     def update_kpis(self):
-        self.update_custom_kpis()
         self.update_erpnext_kpis()
+        self.update_custom_kpis()
         self.update_dates()
         self.project.calculate_gross_margin()
 
@@ -112,11 +112,7 @@ class PowerProject():
         )[0].sum or 0
 
     def get_time_trend(self):
-        # old
-        # time_trend = self.get_expected_time() - (self.project.actual_time or 0) - self.get_open_time()
-        
-        # new
-        time_trend = self.get_expected_time() - (self.project.actual_time or 0) + max(self.get_open_time(), 0)
+        time_trend = (self.get_expected_time() - self.project.actual_time) - self.get_open_time()
         return time_trend
 
     def get_billable_amount_trend(self):
@@ -140,7 +136,8 @@ class PowerProject():
         return frappe.get_all(
             "Task",
             filters={
-                "project": self.project.name
+                "project": self.project.name,
+                "status": ["not in", ["Cancelled"]]
             },
             fields=["sum(expected_time) as sum"]
         )[0].sum or 0
@@ -204,10 +201,6 @@ class PowerProject():
             as_list=True
         )
         
-        # old
-        #return sum(map(lambda task: max(task[0] - task[1], 0), open_tasks))
-        
-        # new
         return sum(map(lambda task: (task[0] - task[1]), open_tasks))
         
     def get_total_amount(self):
