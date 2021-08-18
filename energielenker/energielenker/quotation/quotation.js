@@ -6,6 +6,27 @@ frappe.ui.form.on('Quotation', {
     }
 })
 
+frappe.ui.form.on("Quotation Item", "textposition", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    check_text_and_or_alternativ(item);
+});
+
+frappe.ui.form.on("Quotation Item", "alternative_position", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    check_text_and_or_alternativ(item);
+});
+
+function check_text_and_or_alternativ(item) {
+    if (item.textposition == 1 || item.alternative_position == 1) {
+        item.discount_percentage = 100.00;
+        cur_frm.refresh_field('items');
+    } else {
+        item.discount_percentage = 0.00;
+        item.discount_amount = 0.00;
+        cur_frm.refresh_field('items');
+    }
+}
+
 function shipping_address_query(frm) {
     cur_frm.fields_dict['shipping_address_name'].get_query = function(doc) {
         return {
