@@ -2,6 +2,17 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Sales Order", {
+    refresh: function(frm) {
+       setTimeout(function(){ 
+        cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
+            function() {                                                                      
+            return {
+                    query: "energielenker.energielenker.item.item.item_query",
+					filters: {'is_sales_item': 1}
+                }
+            }
+        }, 1000);
+    },
     on_submit: function (frm) {
         if (cur_frm.doc.project) {
             // add fetch payment forecast

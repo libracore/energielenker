@@ -44,7 +44,8 @@ doctype_js = {
     "Sales Invoice": "energielenker/sales_invoice/sales_invoice.js",
     "Delivery Note": "energielenker/delivery_note/delivery_note.js",
     "Address": "energielenker/address/address.js",
-    "Purchase Order": "energielenker/purchase_order/purchase_order.js"
+    "Purchase Order": "energielenker/purchase_order/purchase_order.js",
+    "Item": "energielenker/item/item.js"
 }
 
 doctype_list_js = {
@@ -151,4 +152,3 @@ doc_events = {
 # override_doctype_dashboards = {
 # 	"Task": "energielenker.task.get_dashboard_data"
 # }
-
