@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Work Order",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2021-09-21 13:32:31.225611",
+   "default_value": null,
+   "doc_type": "Work Order",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "naming_series",
+   "idx": 0,
+   "modified": "2021-09-21 13:32:31.225611",
+   "modified_by": "Administrator",
+   "name": "Work Order-naming_series-options",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "options",
+   "property_type": "Text",
+   "value": "AA.#######\nMFG-WO-.YYYY.-"
+  }
+ ],
+ "sync_on_migrate": 1
+}

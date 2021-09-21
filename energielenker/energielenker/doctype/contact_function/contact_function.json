@@ -1,4 +1,5 @@
 {
+ "allow_rename": 1,
  "autoname": "field:function",
  "creation": "2021-09-14 13:30:27.245944",
  "doctype": "DocType",
@@ -17,7 +18,7 @@
    "unique": 1
   }
  ],
- "modified": "2021-09-14 20:00:56.152654",
+ "modified": "2021-09-21 12:53:05.702991",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Contact Function",

@@ -45,17 +45,34 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
+        cur_frm.set_value(cur_frm.doc.project, cur_frm.doc.project_clone);
+        check_vielfaches(frm);
+    },
+    project: function(frm) {
+        cur_frm.set_value('project_clone', cur_frm.doc.project);
     }
 });
 
 frappe.ui.form.on("Sales Order Item", "textposition", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
     check_text_and_or_alternativ(item);
+    set_item_typ(item);
 });
 
 frappe.ui.form.on("Sales Order Item", "alternative_position", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
     check_text_and_or_alternativ(item);
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Sales Order Item", "interne_position", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Sales Order Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
 });
 
 function check_text_and_or_alternativ(item) {
@@ -67,6 +84,27 @@ function check_text_and_or_alternativ(item) {
         item.discount_amount = 0.00;
         cur_frm.refresh_field('items');
     }
+}
+
+function set_item_typ(item) {
+    if (item.textposition == 1) {
+        item.typ = 'T';
+    } else {
+        if (item.alternative_position == 1) {
+            item.typ = 'A';
+        } else {
+            if (item.interne_position == 1) {
+                item.typ = 'I';
+            } else {
+                if (item.kalkulationssumme_interner_positionen == 1) {
+                    item.typ = 'K';
+                } else {
+                    item.typ = 'N';
+                }
+            }
+        }
+    }
+    cur_frm.refresh_field('items');
 }
 
 function shipping_address_query(frm) {
@@ -96,5 +134,18 @@ function check_navision(frm) {
                 frappe.validated=false;
             }
         }
+    });
+}
+
+function check_vielfaches(frm) {
+    var items = cur_frm.doc.items;
+    items.forEach(function(entry) {
+        if (entry.vielfaches != 0) {
+            var rest = entry.qty % entry.vielfaches;
+            if (rest != 0) {
+                frappe.msgprint( "Die Menge (" + entry.qty + ") der Postition " + entry.idx + " ist kein Vielfaches von " + entry.vielfaches, __("Validation") );
+                frappe.validated=false;
+            }
+        } 
     });
 }

@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Payment Order",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2021-09-21 13:52:28.421302",
+   "default_value": null,
+   "doc_type": "Payment Order",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "naming_series",
+   "idx": 0,
+   "modified": "2021-09-21 13:52:28.421302",
+   "modified_by": "Administrator",
+   "name": "Payment Order-naming_series-options",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "options",
+   "property_type": "Text",
+   "value": "ZAU.#######\nPMO-"
+  }
+ ],
+ "sync_on_migrate": 1
+}

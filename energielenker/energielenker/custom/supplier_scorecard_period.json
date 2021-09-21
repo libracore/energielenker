@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Supplier Scorecard Period",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2021-09-21 13:48:00.842659",
+   "default_value": null,
+   "doc_type": "Supplier Scorecard Period",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "naming_series",
+   "idx": 0,
+   "modified": "2021-09-21 13:48:00.842659",
+   "modified_by": "Administrator",
+   "name": "Supplier Scorecard Period-naming_series-options",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "options",
+   "property_type": "Text",
+   "value": "LBW.#######\nPU-SSP-.YYYY.-"
+  }
+ ],
+ "sync_on_migrate": 1
+}

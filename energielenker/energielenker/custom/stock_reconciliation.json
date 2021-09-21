@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Stock Reconciliation",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2021-09-21 13:34:39.421329",
+   "default_value": null,
+   "doc_type": "Stock Reconciliation",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "naming_series",
+   "idx": 0,
+   "modified": "2021-09-21 13:34:39.421329",
+   "modified_by": "Administrator",
+   "name": "Stock Reconciliation-naming_series-options",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "options",
+   "property_type": "Text",
+   "value": "BA.#######\nMAT-RECO-.YYYY.-"
+  }
+ ],
+ "sync_on_migrate": 1
+}

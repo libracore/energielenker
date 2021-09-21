@@ -11,5 +11,21 @@ frappe.ui.form.on('Purchase Order', {
 	    } else {
 	        cur_frm.set_value('shipping_address', '');
 	    }
-	}
+	},
+    validate: function(frm) {
+        check_vielfaches(frm);
+    }
 })
+
+function check_vielfaches(frm) {
+    var items = cur_frm.doc.items;
+    items.forEach(function(entry) {
+        if (entry.vielfaches != 0) {
+            var rest = entry.qty % entry.vielfaches;
+            if (rest != 0) {
+                frappe.msgprint( "Die Menge (" + entry.qty + ") der Postition " + entry.idx + " ist kein Vielfaches von " + entry.vielfaches, __("Validation") );
+                frappe.validated=false;
+            }
+        } 
+    });
+}
