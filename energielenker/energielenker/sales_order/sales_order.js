@@ -45,13 +45,28 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
-        cur_frm.set_value(cur_frm.doc.project, cur_frm.doc.project_clone);
+        cur_frm.set_value('project', cur_frm.doc.project_clone);
         check_vielfaches(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
+        fetch_customer_from_project(frm);
     }
 });
+
+function fetch_customer_from_project(frm) {
+    frappe.call({
+        "method": "frappe.client.get",
+        "args": {
+            "doctype": "Project",
+            "name": cur_frm.doc.project
+        },
+        "callback": function(r) {
+            var project = r.message;
+            cur_frm.set_value('customer', project.customer);
+        }
+    });
+}
 
 frappe.ui.form.on("Sales Order Item", "textposition", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];

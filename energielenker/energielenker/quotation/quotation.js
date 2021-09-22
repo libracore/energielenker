@@ -5,7 +5,7 @@ frappe.ui.form.on('Quotation', {
             function() {                                                                      
             return {
                     query: "energielenker.energielenker.item.item.item_query",
-					filters: {'is_sales_item': 1}
+                    filters: {'is_sales_item': 1}
                 }
             }
         }, 1000);

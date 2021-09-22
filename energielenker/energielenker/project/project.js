@@ -123,11 +123,19 @@ frappe.ui.form.on("Payment Forecast", {
 
 
 function format_time_trend_field(frm) {
-    var time_trend_field = $('[data-fieldname="time_trend"]');
+    var time_trend_field = $('[data-fieldname="voraussichtliche_abweichung"]');
     var value = parseFloat(time_trend_field[0].childNodes[1].childNodes[3].childNodes[3].innerHTML);
     if (value < 0) {
         time_trend_field.css("color","red");
     } else {
         time_trend_field.css("color","green");
+    }
+    
+    var time_trend_field_eur = $('[data-fieldname="voraussichtliche_abweichung_eur"]');
+    var value_eur = parseFloat(time_trend_field[0].childNodes[1].childNodes[3].childNodes[3].innerHTML);
+    if (value_eur < 0) {
+        time_trend_field_eur.css("color","red");
+    } else {
+        time_trend_field_eur.css("color","green");
     }
 }

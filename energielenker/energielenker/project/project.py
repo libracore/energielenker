@@ -3,8 +3,7 @@
 # For license information, please see license.txt
 
 import frappe
-from energielenker.energielenker.timesheet_manager import \
-    get_employee_rate_external
+from energielenker.energielenker.timesheet_manager import get_employee_rate_external
 from frappe import _
 from frappe.model.naming import make_autoname
 from frappe.utils.data import get_datetime
@@ -31,16 +30,24 @@ class PowerProject():
     def update_custom_kpis(self):
         custom_kpis = [
             "open_quotation_amount",
-            "expected_time",
+            "expected_time", #--> wurde ersetzt durch zeit_geplant_in_aufgaben
             "expected_billable_amount",
-            "open_time",
+            "open_time", # --> wurde ersetzt durch noch_zu_erwarten
             "open_billable_amount",
-            "time_trend",
+            "time_trend", # --> wurde ersetzt durch voraussichtliche_abweichung
             "billable_amount_trend",
             "expected_purchase_cost",
             "purchase_cost_trend",
             "overall_trend",
-            "total_amount"
+            "total_amount",
+            "zeit_geplant_in_aufgaben", # neu
+            "zeit_gebucht_ueber_zeiterfassung", # neu
+            "noch_zu_erwarten", # neu
+            "voraussichtliche_abweichung", # neu
+            "zeit_geplant_in_aufgaben_eur", # neu
+            "zeit_gebucht_ueber_zeiterfassung_eur", # neu
+            "noch_zu_erwarten_eur", # neu
+            "voraussichtliche_abweichung_eur" # neu
         ]
 
         for kpi in custom_kpis:
@@ -48,7 +55,7 @@ class PowerProject():
 
     def update_erpnext_kpis(self):
         erpnext_kpis = [
-            "actual_time",
+            "actual_time", # --> wurde ersetzt durch zeit_gebucht_ueber_zeiterfassung
             "total_costing_amount",
             "total_expense_claim",
             "total_purchase_cost",
@@ -132,9 +139,11 @@ class PowerProject():
             fields=["sum(base_net_amount) as sum"],
         )[0].sum or 0
 
+# zum löschen
     def get_time_trend(self):
         time_trend = (self.get_expected_time() - self.project.actual_time) - self.get_open_time()
         return time_trend
+# -------------------------------------------------------------------------------------------------
 
     def get_billable_amount_trend(self):
         return (
@@ -153,6 +162,7 @@ class PowerProject():
             fields=["sum(grand_total) as sum"],
         )[0].sum or 0
 
+# zum löschen
     def get_expected_time(self):
         return frappe.get_all(
             "Task",
@@ -162,6 +172,7 @@ class PowerProject():
             },
             fields=["sum(expected_time) as sum"]
         )[0].sum or 0
+# -----------------------------------------------------
 
     def get_open_billable_amount(self):
         open_tasks = frappe.get_all(
@@ -202,15 +213,9 @@ class PowerProject():
         
         return expected_billable_amount
 
-    def get_employee_rate(self, employee):
-        employee = frappe.get_value("Employee", {"user_id": employee}, "name")
+    
 
-        return (
-            get_employee_rate_external(employee) 
-            if employee
-            else self.project.default_external_rate
-        )
-
+# zum löschen
     def get_open_time(self):
         open_tasks = frappe.get_all(
             "Task",
@@ -223,9 +228,133 @@ class PowerProject():
         )
         
         return sum(map(lambda task: (task[0] - task[1]), open_tasks))
-        
+#----------------------------------------------------------------------------
+    
     def get_total_amount(self):
         return self.project.total_sales_amount
+    
+# NEU -----------------------------------------------------------------------
+    
+    def get_noch_zu_erwarten(self):
+        noch_zu_erwarten = 0
+        open_tasks = frappe.get_all(
+            "Task",
+            filters={
+                "project": self.project.name,
+                "status": ["not in", ["Completed", "Cancelled"]]
+            },
+            fields=["expected_time", "actual_time"]
+        )
+        
+        for task in open_tasks:
+            noch_zu_erwarten += (
+                max(task.expected_time - task.actual_time, 0)
+            )
+        
+        return noch_zu_erwarten
+    
+    def get_voraussichtliche_abweichung(self):
+        voraussichtliche_abweichung = 0
+        open_tasks = frappe.get_all(
+            "Task",
+            filters={
+                "project": self.project.name,
+                "status": ["not in", ["Cancelled"]]
+            },
+            fields=["expected_time", "actual_time", "status"]
+        )
+        
+        for task in open_tasks:
+            if task.status == 'Completed':
+                voraussichtliche_abweichung += task.expected_time - task.actual_time
+            else:
+                if task.actual_time > task.expected_time:
+                    voraussichtliche_abweichung += task.expected_time - task.actual_time
+        
+        return voraussichtliche_abweichung
+    
+    def get_zeit_geplant_in_aufgaben(self):
+        return frappe.get_all(
+            "Task",
+            filters={
+                "project": self.project.name,
+                "status": ["not in", ["Cancelled"]]
+            },
+            fields=["sum(expected_time) as sum"]
+        )[0].sum or 0
+    
+    def get_zeit_gebucht_ueber_zeiterfassung(self):
+        from_time_sheet = frappe.db.sql("""SELECT
+            SUM(`hours`) as `time`
+            FROM `tabTimesheet Detail` WHERE `project` = '{project}' AND `docstatus` = 1""".format(project=self.project.name), as_dict=True)[0]
+        return from_time_sheet.time or 0
+    
+    def get_zeit_geplant_in_aufgaben_eur(self):
+        eur = 0
+        tasks = frappe.get_all(
+            "Task",
+            filters={
+                "project": self.project.name,
+                "status": ["not in", ["Cancelled"]]
+            },
+            fields=["expected_time", "completed_by"]
+        )
+        
+        for task in tasks:
+            eur += (
+                self.get_employee_rate(task.completed_by) * task.expected_time
+            )
+        
+        return eur
+    
+    def get_employee_rate(self, employee):
+        employee = frappe.get_value("Employee", {"user_id": employee}, "name")
+
+        return (
+            get_employee_rate_external(employee) 
+            if employee
+            else self.project.default_external_rate
+        )
+    
+    def get_zeit_gebucht_ueber_zeiterfassung_eur(self):
+        eur = 0
+        emp_hours = frappe.db.sql("""SELECT
+                                        `ts`.`employee` AS `employee`,
+                                        SUM(`tsd`.`hours`) AS `hours`
+                                    FROM `tabTimesheet Detail` AS `tsd`
+                                    LEFT JOIN `tabTimesheet` AS `ts` ON `ts`.`name` = `tsd`.`parent`
+                                    WHERE `tsd`.`project` = '{project}' AND `tsd`.`docstatus` = 1
+                                    GROUP BY `ts`.`employee`""".format(project=self.project.name), as_dict=True)
+        for emp_hour in emp_hours:
+            eur += (
+                get_employee_rate_external(emp_hour.employee) * emp_hour.hours
+            )
+        
+        return eur
+    
+    def get_noch_zu_erwarten_eur(self):
+        eur = 0
+        open_tasks = frappe.get_all(
+            "Task",
+            filters={
+                "project": self.project.name,
+                "status": ["not in", ["Completed", "Cancelled"]]
+            },
+            fields=["expected_time", "actual_time", "completed_by"]
+        )
+        
+        for task in open_tasks:
+            eur += (
+                max(task.expected_time - task.actual_time, 0) * self.get_employee_rate(task.completed_by)
+            )
+        
+        return eur
+        
+    def get_voraussichtliche_abweichung_eur(self):
+        eur = self.get_voraussichtliche_abweichung() * self.project.default_external_rate
+        return eur
+        
+# /NEU -----------------------------------------------------------------------
 
 def autoname(project, event):
     project.name = make_autoname(project.naming_series)

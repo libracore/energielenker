@@ -47,7 +47,10 @@ doctype_js = {
     "Contact": "energielenker/contact/contact.js",
     "Purchase Order": "energielenker/purchase_order/purchase_order.js",
     "Purchase Invoice": "energielenker/purchase_invoice/purchase_invoice.js",
-    "Item": "energielenker/item/item.js"
+    "Item": "energielenker/item/item.js",
+    "Material Request": "energielenker/material_request/material_request.js",
+    "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt.js",
+    "Issue": "energielenker/issue/issue.js"
 }
 
 doctype_list_js = {
