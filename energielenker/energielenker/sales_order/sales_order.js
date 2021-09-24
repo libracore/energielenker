@@ -103,18 +103,18 @@ function check_text_and_or_alternativ(item) {
 
 function set_item_typ(item) {
     if (item.textposition == 1) {
-        item.typ = 'T';
+        item.typ = 'Txt';
     } else {
         if (item.alternative_position == 1) {
-            item.typ = 'A';
+            item.typ = 'Alt.';
         } else {
             if (item.interne_position == 1) {
-                item.typ = 'I';
+                item.typ = 'Int. ';
             } else {
                 if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'K';
+                    item.typ = 'KS';
                 } else {
-                    item.typ = 'N';
+                    item.typ = 'Norm.';
                 }
             }
         }
