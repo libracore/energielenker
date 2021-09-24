@@ -98,6 +98,11 @@ frappe.ui.form.on("Project", {
                 }
             });
         }
+    },
+    commercial_contact: function(frm) {
+        if (!cur_frm.doc.commercial_contact) {
+            cur_frm.set_value("commercial_contact_name", '');
+        }
     }
 });
 
