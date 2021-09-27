@@ -24,21 +24,18 @@ class PowerProject():
         self.update_erpnext_kpis()
         self.update_custom_kpis()
         self.update_dates()
+        
+        self.project.estimated_costing = self.project.geschaetzte_kosten
+        
         self.project.calculate_gross_margin()
         self.update_payment_schedule()
 
     def update_custom_kpis(self):
         custom_kpis = [
-            "open_quotation_amount",
-            "expected_time", #--> wurde ersetzt durch zeit_geplant_in_aufgaben
+            "open_quotation_amount", # wird behalten
             "expected_billable_amount",
-            "open_time", # --> wurde ersetzt durch noch_zu_erwarten
             "open_billable_amount",
-            "time_trend", # --> wurde ersetzt durch voraussichtliche_abweichung
-            "billable_amount_trend",
             "expected_purchase_cost",
-            "purchase_cost_trend",
-            "overall_trend",
             "total_amount",
             "zeit_geplant_in_aufgaben", # neu
             "zeit_gebucht_ueber_zeiterfassung", # neu
@@ -47,7 +44,18 @@ class PowerProject():
             "zeit_geplant_in_aufgaben_eur", # neu
             "zeit_gebucht_ueber_zeiterfassung_eur", # neu
             "noch_zu_erwarten_eur", # neu
-            "voraussichtliche_abweichung_eur" # neu
+            "voraussichtliche_abweichung_eur", # neu
+            "erwartete_fremdkosten_aus_auftraegen_eur", # neu
+            "summe_einkaufskosten_via_einkaufsrechnung", # neu
+            'auftragsummen_gesamt', # neu
+            'gesamtkosten_aktuell', # neu
+            'ergebnis_aktuell', # neu
+            'marge_aktuell_prozent', # neu
+            'ausgangsrechnungen_summe', # neu
+            'geschaetzte_kosten_klon', # neu
+            'ergebnis_geplant', # neu
+            'marge_geplant_prozent', # neu
+            'noch_nicht_in_rechnung_gestellt_summe' # neu
         ]
 
         for kpi in custom_kpis:
@@ -123,12 +131,6 @@ class PowerProject():
 
         self.project.set(kpi, value_project + value_subprojects)
 
-    def get_overall_trend(self):
-        return self.get_purchase_cost_trend() + self.get_billable_amount_trend()
-
-    def get_purchase_cost_trend(self):
-        return self.get_expected_purchase_cost() - (self.project.total_purchase_cost or 0)
-
     def get_expected_purchase_cost(self):
         return frappe.get_all(
             "Purchase Order Item",
@@ -139,19 +141,6 @@ class PowerProject():
             fields=["sum(base_net_amount) as sum"],
         )[0].sum or 0
 
-# zum löschen
-    def get_time_trend(self):
-        time_trend = (self.get_expected_time() - self.project.actual_time) - self.get_open_time()
-        return time_trend
-# -------------------------------------------------------------------------------------------------
-
-    def get_billable_amount_trend(self):
-        return (
-            self.get_expected_billable_amount()
-            - (self.project.total_billable_amount or 0)
-            + self.get_open_billable_amount()
-        )
-
     def get_open_quotation_amount(self):
         return frappe.get_all(
             "Quotation",
@@ -161,18 +150,6 @@ class PowerProject():
             },
             fields=["sum(grand_total) as sum"],
         )[0].sum or 0
-
-# zum löschen
-    def get_expected_time(self):
-        return frappe.get_all(
-            "Task",
-            filters={
-                "project": self.project.name,
-                "status": ["not in", ["Cancelled"]]
-            },
-            fields=["sum(expected_time) as sum"]
-        )[0].sum or 0
-# -----------------------------------------------------
 
     def get_open_billable_amount(self):
         open_tasks = frappe.get_all(
@@ -212,23 +189,6 @@ class PowerProject():
             )
         
         return expected_billable_amount
-
-    
-
-# zum löschen
-    def get_open_time(self):
-        open_tasks = frappe.get_all(
-            "Task",
-            filters={
-                "project": self.project.name,
-                "status": ["not in", ["Completed", "Cancelled"]]
-            },
-            fields=["expected_time", "actual_time"],
-            as_list=True
-        )
-        
-        return sum(map(lambda task: (task[0] - task[1]), open_tasks))
-#----------------------------------------------------------------------------
     
     def get_total_amount(self):
         return self.project.total_sales_amount
@@ -353,6 +313,45 @@ class PowerProject():
     def get_voraussichtliche_abweichung_eur(self):
         eur = self.get_voraussichtliche_abweichung() * self.project.default_external_rate
         return eur
+        
+    def get_erwartete_fremdkosten_aus_auftraegen_eur(self):
+        amount = frappe.db.sql("""SELECT IFNULL(SUM(`amount`), 0) AS `amount` FROM `tabSales Order Item`
+                                    WHERE `parent` IN (
+                                        SELECT `name` FROM `tabSales Order` WHERE `project` = '{project}' AND `docstatus` = 1
+                                    )
+                                    AND `item_group` != 'Produkt Verkauf energielenker Arbeitszeit'""".format(project=self.project.name), as_dict=True)[0].amount
+        return amount
+    
+    def get_summe_einkaufskosten_via_einkaufsrechnung(self):
+        return self.project.total_purchase_cost
+    
+    def get_auftragsummen_gesamt(self):
+        return self.project.total_sales_amount
+        
+    def get_gesamtkosten_aktuell(self):
+        return self.project.total_purchase_cost
+    
+    def get_ergebnis_aktuell(self):
+        return self.get_auftragsummen_gesamt() - self.get_gesamtkosten_aktuell()
+    
+    def get_marge_aktuell_prozent(self):
+        percent = (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_aktuell()
+        return percent
+    
+    def get_ausgangsrechnungen_summe(self):
+        return self.project.total_billed_amount
+    
+    def get_geschaetzte_kosten_klon(self):
+        return self.project.geschaetzte_kosten
+    
+    def get_ergebnis_geplant(self):
+        return self.get_auftragsummen_gesamt() - self.get_geschaetzte_kosten_klon()
+    
+    def get_marge_geplant_prozent(self):
+        return (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_geplant()
+    
+    def get_noch_nicht_in_rechnung_gestellt_summe(self):
+        return self.get_auftragsummen_gesamt() - self.get_ausgangsrechnungen_summe()
         
 # /NEU -----------------------------------------------------------------------
 
