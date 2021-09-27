@@ -247,7 +247,8 @@ class PowerProject():
         from_time_sheet = frappe.db.sql("""SELECT
             SUM(`hours`) as `time`
             FROM `tabTimesheet Detail` WHERE `project` = '{project}' AND `docstatus` = 1""".format(project=self.project.name), as_dict=True)[0]
-        return from_time_sheet.time or 0
+        stunden = from_time_sheet.time or 0
+        return stunden + self.project.gebuchte_stunden_in_rhapsody
     
     def get_zeit_geplant_in_aufgaben_eur(self):
         eur = 0
@@ -323,7 +324,7 @@ class PowerProject():
         return amount
     
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
-        return self.project.total_purchase_cost
+        return self.project.total_purchase_cost + self.project.erfasste_externe_kosten_in_rhapsody
     
     def get_auftragsummen_gesamt(self):
         return self.project.total_sales_amount
