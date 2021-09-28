@@ -330,7 +330,7 @@ class PowerProject():
         return self.project.total_sales_amount
         
     def get_gesamtkosten_aktuell(self):
-        return self.project.total_purchase_cost
+        return self.get_zeit_gebucht_ueber_zeiterfassung_eur() + self.get_summe_einkaufskosten_via_einkaufsrechnung()
     
     def get_ergebnis_aktuell(self):
         return self.get_auftragsummen_gesamt() - self.get_gesamtkosten_aktuell()
@@ -346,7 +346,7 @@ class PowerProject():
         return self.project.total_billed_amount
     
     def get_geschaetzte_kosten_klon(self):
-        return self.project.geschaetzte_kosten
+        return self.project.geschaetzte_kosten + self.get_zeit_geplant_in_aufgaben_eur()
     
     def get_ergebnis_geplant(self):
         return self.get_auftragsummen_gesamt() - self.get_geschaetzte_kosten_klon()
