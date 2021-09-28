@@ -3,7 +3,7 @@
 # For license information, please see license.txt
 
 import frappe
-from energielenker.energielenker.timesheet_manager import get_employee_rate_external
+from energielenker.energielenker.timesheet_manager import get_employee_rate_external, get_employee_rate_internal
 from frappe import _
 from frappe.model.naming import make_autoname
 from frappe.utils.data import get_datetime
@@ -263,19 +263,27 @@ class PowerProject():
         
         for task in tasks:
             eur += (
-                self.get_employee_rate(task.completed_by) * task.expected_time
+                self.get_employee_rate(task.completed_by, internal=True) * task.expected_time
             )
         
         return eur
     
-    def get_employee_rate(self, employee):
+    def get_employee_rate(self, employee, internal=False):
         employee = frappe.get_value("Employee", {"user_id": employee}, "name")
-
-        return (
-            get_employee_rate_external(employee) 
-            if employee
-            else self.project.default_external_rate
-        )
+        
+        if internal:
+            return (
+                get_employee_rate_internal(employee) 
+                if employee
+                else self.project.default_external_rate
+            )
+        
+        else:
+            return (
+                get_employee_rate_external(employee) 
+                if employee
+                else self.project.default_external_rate
+            )
     
     def get_zeit_gebucht_ueber_zeiterfassung_eur(self):
         eur = 0
@@ -288,7 +296,7 @@ class PowerProject():
                                     GROUP BY `ts`.`employee`""".format(project=self.project.name), as_dict=True)
         for emp_hour in emp_hours:
             eur += (
-                get_employee_rate_external(emp_hour.employee) * emp_hour.hours
+                get_employee_rate_internal(emp_hour.employee) * emp_hour.hours
             )
         
         return eur
@@ -306,7 +314,7 @@ class PowerProject():
         
         for task in open_tasks:
             eur += (
-                max(task.expected_time - task.actual_time, 0) * self.get_employee_rate(task.completed_by)
+                max(task.expected_time - task.actual_time, 0) * self.get_employee_rate(task.completed_by, internal=True)
             )
         
         return eur
