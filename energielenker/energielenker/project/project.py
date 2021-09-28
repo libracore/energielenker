@@ -336,7 +336,10 @@ class PowerProject():
         return self.get_auftragsummen_gesamt() - self.get_gesamtkosten_aktuell()
     
     def get_marge_aktuell_prozent(self):
-        percent = (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_aktuell()
+        if self.get_auftragsummen_gesamt() > 0:
+            percent = (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_aktuell()
+        else:
+            return 0
         return percent
     
     def get_ausgangsrechnungen_summe(self):
@@ -349,7 +352,10 @@ class PowerProject():
         return self.get_auftragsummen_gesamt() - self.get_geschaetzte_kosten_klon()
     
     def get_marge_geplant_prozent(self):
-        return (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_geplant()
+        if self.get_auftragsummen_gesamt() > 0:
+            return (100 / self.get_auftragsummen_gesamt()) * self.get_ergebnis_geplant()
+        else:
+            return 0
     
     def get_noch_nicht_in_rechnung_gestellt_summe(self):
         return self.get_auftragsummen_gesamt() - self.get_ausgangsrechnungen_summe()
