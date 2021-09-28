@@ -45,12 +45,21 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
-        cur_frm.set_value('project', cur_frm.doc.project_clone);
+        if (cur_frm.doc.project_clone) {
+            cur_frm.set_value('project', cur_frm.doc.project_clone);
+        } else {
+            cur_frm.set_value('project_clone', cur_frm.doc.project);
+        }
         check_vielfaches(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
         fetch_customer_from_project(frm);
+    },
+    onload: function(frm) {
+        if (cur_frm.doc.project) {
+            cur_frm.set_value('project_clone', cur_frm.doc.project);
+        }
     }
 });
 
@@ -103,18 +112,18 @@ function check_text_and_or_alternativ(item) {
 
 function set_item_typ(item) {
     if (item.textposition == 1) {
-        item.typ = 'T';
+        item.typ = 'Txt';
     } else {
         if (item.alternative_position == 1) {
-            item.typ = 'A';
+            item.typ = 'Alt.';
         } else {
             if (item.interne_position == 1) {
-                item.typ = 'I';
+                item.typ = 'Int. ';
             } else {
                 if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'K';
+                    item.typ = 'KS';
                 } else {
-                    item.typ = 'N';
+                    item.typ = 'Norm.';
                 }
             }
         }
@@ -152,8 +161,33 @@ function check_navision(frm) {
     });
 }
 
+
 function check_vielfaches(frm) {
     var items = cur_frm.doc.items;
+    // check if vielfaches is defined
+    items.forEach(function(entry) {
+        if (!entry.vielfaches) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Item",
+                    'name': entry.item_code
+                },
+                'async': false,
+                'callback': function(response) {
+                    var item = response.message;
+                    entry.vielfaches = item.verkauf_vielfaches;
+                }
+            });
+        } 
+    });
+    cur_frm.refresh_field('items');
+    validate_vielfaches(frm);
+}
+
+function validate_vielfaches(frm) {
+    var items = cur_frm.doc.items;
+    // validate vielfaches
     items.forEach(function(entry) {
         if (entry.vielfaches != 0) {
             var rest = entry.qty % entry.vielfaches;

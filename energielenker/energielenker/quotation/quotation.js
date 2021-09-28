@@ -69,18 +69,18 @@ function check_text_and_or_alternativ(item) {
 
 function set_item_typ(item) {
     if (item.textposition == 1) {
-        item.typ = 'T';
+        item.typ = 'Txt';
     } else {
         if (item.alternative_position == 1) {
-            item.typ = 'A';
+            item.typ = 'Alt.';
         } else {
             if (item.interne_position == 1) {
-                item.typ = 'I';
+                item.typ = 'Int. ';
             } else {
                 if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'K';
+                    item.typ = 'KS';
                 } else {
-                    item.typ = 'N';
+                    item.typ = 'Norm.';
                 }
             }
         }
@@ -103,6 +103,30 @@ function shipping_address_query(frm) {
 
 function check_vielfaches(frm) {
     var items = cur_frm.doc.items;
+    // check if vielfaches is defined
+    items.forEach(function(entry) {
+        if (!entry.vielfaches) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Item",
+                    'name': entry.item_code
+                },
+                'async': false,
+                'callback': function(response) {
+                    var item = response.message;
+                    entry.vielfaches = item.verkauf_vielfaches;
+                }
+            });
+        } 
+    });
+    cur_frm.refresh_field('items');
+    validate_vielfaches(frm);
+}
+
+function validate_vielfaches(frm) {
+    var items = cur_frm.doc.items;
+    // validate vielfaches
     items.forEach(function(entry) {
         if (entry.vielfaches != 0) {
             var rest = entry.qty % entry.vielfaches;

@@ -50,7 +50,8 @@ doctype_js = {
     "Item": "energielenker/item/item.js",
     "Material Request": "energielenker/material_request/material_request.js",
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt.js",
-    "Issue": "energielenker/issue/issue.js"
+    "Issue": "energielenker/issue/issue.js",
+    "Task": "energielenker/task/task.js"
 }
 
 doctype_list_js = {
