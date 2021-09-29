@@ -31,8 +31,16 @@ frappe.ui.form.on("Sales Invoice", {
                 'callback': function(response) {
                     var project = response.message;
                     cur_frm.set_value('customer', project.customer);
+                    cur_frm.set_value('cost_center', project.cost_center);
                 }
             });
+        }
+    },
+    onload: function(frm) {
+        if (cur_frm.doc.items) {
+            if (cur_frm.doc.items[0].delivery_note) {
+                cur_frm.set_value("is_pos", 1);
+            }
         }
     }
 });
