@@ -513,3 +513,23 @@ def fetch_payment_schedule(project, sales_order, payment_schedule=False):
 def clear_payment_schedule(project, sales_order):
     frappe.db.sql("""DELETE FROM `tabPayment Forecast` WHERE `parent` = '{project}' AND `order` = '{sales_order}'""".format(project=project, sales_order=sales_order), as_list=True)
     return
+    
+@frappe.whitelist()
+def make_sales_invoice(order, p_amount):
+    from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+    percent = 100
+    si = make_sales_invoice(order, ignore_permissions=True)
+    si = si.insert(ignore_permissions=True)
+    
+    for ps in si.payment_schedule:
+        if float(ps.payment_amount) == float(p_amount):
+            percent = ps.invoice_portion
+
+    si.payment_schedule = []
+    si.payment_terms_template = ''
+    
+    for item in si.items:
+        item.qty = (item.qty / 100) * percent
+    
+    si.save(ignore_permissions=True)
+    return si.name

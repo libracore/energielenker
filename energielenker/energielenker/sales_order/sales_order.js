@@ -45,12 +45,21 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
-        cur_frm.set_value('project', cur_frm.doc.project_clone);
+        if (cur_frm.doc.project_clone) {
+            cur_frm.set_value('project', cur_frm.doc.project_clone);
+        } else {
+            cur_frm.set_value('project_clone', cur_frm.doc.project);
+        }
         check_vielfaches(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
         fetch_customer_from_project(frm);
+    },
+    onload: function(frm) {
+        if (cur_frm.doc.project) {
+            cur_frm.set_value('project_clone', cur_frm.doc.project);
+        }
     }
 });
 

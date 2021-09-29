@@ -122,7 +122,19 @@ frappe.ui.form.on("Payment Forecast", {
         }
     },
     create_invoice: function(frm, cdt, cdn) {
-        frappe.msgprint("TBD");
+        //frappe.msgprint("TBD");
+        let row = frappe.get_doc(cdt, cdn);
+        frappe.call({
+            "method": "energielenker.energielenker.project.project.make_sales_invoice",
+            "args": {
+                "order": row.order,
+                'p_amount': row.amount
+            },
+            "async": false,
+            "callback": function(response) {
+                frappe.set_route("Form", "Sales Invoice", response.message);
+            }
+        });
     }
 });
 
