@@ -32,6 +32,10 @@ frappe.ui.form.on("Project", {
         };
         
         format_time_trend_field(frm);
+        
+        if ((!frm.doc.__islocal) && (frm.doc.project_template)) {
+            load_template(frm);
+        }
     },
     customer: function (frm) {
         frm.set_value("contact", null);
@@ -103,6 +107,9 @@ frappe.ui.form.on("Project", {
         if (!cur_frm.doc.commercial_contact) {
             cur_frm.set_value("commercial_contact_name", '');
         }
+    },
+    project_template: function(frm) {
+        load_template(frm);
     }
 });
 
@@ -155,4 +162,20 @@ function format_time_trend_field(frm) {
     } else {
         time_trend_field_eur.css("color","green");
     }
+}
+
+function load_template(frm) {
+    frappe.call({
+        "method": "frappe.client.get",
+        "args": {
+            "doctype": "Project Template",
+            "name": frm.doc.project_template
+        },
+        "callback": function(response) {
+            var template = response.message;
+            cur_frm.set_value("project_type", template.project_type);
+            cur_frm.set_value("contract_type", template.contract_type);
+            cur_frm.set_value("cost_center", template.default_cost_center);
+        }
+    });
 }
