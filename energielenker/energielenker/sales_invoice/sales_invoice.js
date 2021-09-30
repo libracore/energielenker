@@ -21,20 +21,7 @@ frappe.ui.form.on("Sales Invoice", {
         check_vielfaches(frm);
     },
     project: function(frm) {
-       if (frm.doc.__islocal && cur_frm.doc.project) {
-           frappe.call({
-                'method': "frappe.client.get",
-                'args': {
-                    'doctype': "Project",
-                    'name': cur_frm.doc.project
-                },
-                'callback': function(response) {
-                    var project = response.message;
-                    cur_frm.set_value('customer', project.customer);
-                    cur_frm.set_value('cost_center', project.cost_center);
-                }
-            });
-        }
+       fetch_customer_an_cost_center(frm);
     },
     onload: function(frm) {
         if (cur_frm.doc.items) {
@@ -42,6 +29,7 @@ frappe.ui.form.on("Sales Invoice", {
                 cur_frm.set_value("is_pos", 1);
             }
         }
+        fetch_customer_an_cost_center(frm);
     }
 });
 
@@ -66,6 +54,35 @@ frappe.ui.form.on("Sales Invoice Item", "kalkulationssumme_interner_positionen",
     var item = locals[cdt][cdn];
     set_item_typ(item);
 });
+
+function fetch_customer_an_cost_center(frm) {
+    if (cur_frm.doc.project) {
+       frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Project",
+                'name': cur_frm.doc.project
+            },
+            'callback': function(response) {
+                var project = response.message;
+                if (!cur_frm.doc.customer) {
+                    cur_frm.set_value('customer', project.customer);
+                }
+                frappe.call({
+                    'method': "frappe.client.get",
+                    'args': {
+                        'doctype': "Project Type",
+                        'name': project.project_type
+                    },
+                    'callback': function(response) {
+                        var project_type = response.message;
+                        cur_frm.set_value('cost_center', project_type.cost_center);
+                    }
+                });
+            }
+        });
+    }
+}
 
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
