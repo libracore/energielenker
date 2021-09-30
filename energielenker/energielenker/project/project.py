@@ -269,8 +269,14 @@ class PowerProject():
         return eur
     
     def get_employee_rate(self, employee, internal=False):
-        employee = frappe.get_value("Employee", {"user_id": employee}, "name")
-        
+        # fix permission issue
+        #employee = frappe.get_value("Employee", {"user_id": employee}, "name")
+        employee = frappe.db.sql("""SELECT `name` FROM `tabEmployee` WHERE `user_id` = '{user_id}'""".format(user_id=employee), as_dict=True)
+        if len(employee) > 0:
+            employee = employee[0].name
+        else:
+            employee = False
+            
         if internal:
             return (
                 get_employee_rate_internal(employee) 
