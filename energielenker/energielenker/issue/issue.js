@@ -15,3 +15,16 @@ frappe.ui.form.on('Issue', {
         }
     }
 })
+
+frappe.ui.form.on('Issue', {
+    refresh: function(frm) {
+           cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
+            var d = locals[cdt][cdn];         
+            return {
+                filters: {
+                    "link_name": frm.doc.customer 
+                }                      
+            }
+           }
+    }
+})
