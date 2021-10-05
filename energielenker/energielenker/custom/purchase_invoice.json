@@ -380,14 +380,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2021-10-05 22:01:02.964837",
+   "creation": "2021-10-06 00:14:31.997230",
    "default_value": null,
    "doc_type": "Purchase Invoice",
    "docstatus": 0,
    "doctype_or_field": "DocField",
    "field_name": "credit_to",
    "idx": 0,
-   "modified": "2021-10-05 22:01:02.964837",
+   "modified": "2021-10-06 00:14:31.997230",
    "modified_by": "Administrator",
    "name": "Purchase Invoice-credit_to-default",
    "owner": "Administrator",
@@ -396,7 +396,7 @@
    "parenttype": null,
    "property": "default",
    "property_type": "Text",
-   "value": "3300 - Verb. aus Lieferungen und Leistungen - S"
+   "value": ""
   },
   {
    "_assign": null,
