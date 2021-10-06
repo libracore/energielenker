@@ -1,0 +1,53 @@
+{
+ "creation": "2021-10-06 04:53:35.280807",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "creation_date",
+  "billing_portion",
+  "amount",
+  "due_date"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Erstellt am"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "billing_portion",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Verrechneter Anteil %"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Teilbetrag"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "F\u00e4llig am"
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-10-06 04:59:30.443902",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Sales Order Anzahlung",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
