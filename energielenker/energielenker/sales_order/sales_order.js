@@ -102,10 +102,13 @@ frappe.ui.form.on("Sales Order Item", "kalkulationssumme_interner_positionen", f
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
+        item.discount_amount = item.price_list_rate;
+        item.rate = 0.00;
         cur_frm.refresh_field('items');
     } else {
         item.discount_percentage = 0.00;
         item.discount_amount = 0.00;
+        item.rate = item.price_list_rate;
         cur_frm.refresh_field('items');
     }
 }
