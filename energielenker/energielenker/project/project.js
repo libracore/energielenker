@@ -129,19 +129,27 @@ frappe.ui.form.on("Payment Forecast", {
         }
     },
     create_invoice: function(frm, cdt, cdn) {
-        //frappe.msgprint("TBD");
         let row = frappe.get_doc(cdt, cdn);
-        frappe.call({
-            "method": "energielenker.energielenker.project.project.make_sales_invoice",
-            "args": {
-                "order": row.order,
-                'p_amount': row.amount
-            },
-            "async": false,
-            "callback": function(response) {
-                frappe.set_route("Form", "Sales Invoice", response.message);
-            }
-        });
+        if (!row.invoice_date) {
+            frappe.msgprint("Bitte zuerst das Rechnungsdatum definieren.");
+        } else {
+            frappe.call({
+                "method": "energielenker.energielenker.project.project.make_sales_invoice",
+                "args": {
+                    "order": row.order,
+                    'percent': row.percent,
+                    'amount': row.amount,
+                    'invoice_date': row.invoice_date
+                },
+                "async": false,
+                "callback": function(response) {
+                    row.invoice_created = 1
+                    cur_frm.refresh_field("payment_schedule");
+                    cur_frm.save();
+                    frappe.set_route("Form", "Sales Order", response.message);
+                }
+            });
+        }
     }
 });
 

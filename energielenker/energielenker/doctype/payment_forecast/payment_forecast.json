@@ -10,7 +10,8 @@
   "percent",
   "postpone",
   "invoice_date",
-  "create_invoice"
+  "create_invoice",
+  "invoice_created"
  ],
  "fields": [
   {
@@ -59,13 +60,21 @@
    "label": "Invoice Date"
   },
   {
+   "depends_on": "eval:!doc.invoice_created",
    "fieldname": "create_invoice",
    "fieldtype": "Button",
    "label": "Create Invoice"
+  },
+  {
+   "default": "0",
+   "fieldname": "invoice_created",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Invoice created"
   }
  ],
  "istable": 1,
- "modified": "2021-06-28 10:09:56.841442",
+ "modified": "2021-10-11 08:56:51.128474",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",
