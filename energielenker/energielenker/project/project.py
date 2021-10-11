@@ -6,7 +6,7 @@ import frappe
 from energielenker.energielenker.timesheet_manager import get_employee_rate_external, get_employee_rate_internal
 from frappe import _
 from frappe.model.naming import make_autoname
-from frappe.utils.data import get_datetime
+from frappe.utils.data import get_datetime, today
 
 
 class PowerProject():
@@ -521,21 +521,16 @@ def clear_payment_schedule(project, sales_order):
     return
     
 @frappe.whitelist()
-def make_sales_invoice(order, p_amount):
-    from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
-    percent = 100
-    si = make_sales_invoice(order, ignore_permissions=True)
-    si = si.insert(ignore_permissions=True)
+def make_sales_invoice(order, percent, amount, invoice_date):
+    so = frappe.get_doc("Sales Order", order)
     
-    for ps in si.payment_schedule:
-        if float(ps.payment_amount) == float(p_amount):
-            percent = ps.invoice_portion
-
-    si.payment_schedule = []
-    si.payment_terms_template = ''
+    so.verrechnungslevel = len(so.billing_overview) + 1
     
-    for item in si.items:
-        item.qty = (item.qty / 100) * percent
+    invoice_row = so.append('billing_overview', {})
+    invoice_row.creation_date = today()
+    invoice_row.billing_portion = percent
+    invoice_row.amount = amount
+    invoice_row.due_date = invoice_date
     
-    si.save(ignore_permissions=True)
-    return si.name
+    so.save(ignore_permissions=True)
+    return so.name
