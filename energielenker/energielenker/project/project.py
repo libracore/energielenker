@@ -305,6 +305,19 @@ class PowerProject():
                 get_employee_rate_internal(emp_hour.employee) * emp_hour.hours
             )
         
+        # rhapsody std
+        median = 0
+        alle_std_saetze = 0
+        anz_members = 0
+        for member in self.project.members:
+            member_satz = self.get_employee_rate(member.employee, internal=True)
+            if member_satz > 0:
+                alle_std_saetze += member_satz
+                anz_members += 1
+        if anz_members > 0:
+            median = (alle_std_saetze / anz_members)
+        eur += (self.project.gebuchte_stunden_in_rhapsody * median)
+        
         return eur
     
     def get_noch_zu_erwarten_eur(self):
