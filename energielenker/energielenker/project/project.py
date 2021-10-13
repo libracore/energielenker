@@ -330,11 +330,19 @@ class PowerProject():
         return eur
         
     def get_erwartete_fremdkosten_aus_auftraegen_eur(self):
-        amount = frappe.db.sql("""SELECT IFNULL(SUM(`amount`), 0) AS `amount` FROM `tabSales Order Item`
+        amount = 0.00
+        items = frappe.db.sql("""SELECT `item_code`, `qty` FROM `tabSales Order Item`
                                     WHERE `parent` IN (
                                         SELECT `name` FROM `tabSales Order` WHERE `project` = '{project}' AND `docstatus` = 1
                                     )
-                                    AND `item_group` != 'Produkt Verkauf energielenker Arbeitszeit'""".format(project=self.project.name), as_dict=True)[0].amount
+                                    AND `item_group` != 'Produkt Verkauf energielenker Arbeitszeit'""".format(project=self.project.name), as_dict=True)
+                                    
+        for item in items:
+            price = frappe.get_all("Item Price", fields=["price_list_rate"],
+                filters={"price_list": 'Standard Einkauf', "item_code": item.item_code})
+            if price:
+                amount += (price[0].price_list_rate * item.qty)
+        
         return amount
     
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
