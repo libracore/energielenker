@@ -19,6 +19,7 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
+        cur_frm.set_value("apply_discount_on", "Net Total");
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
