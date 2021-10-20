@@ -152,6 +152,7 @@ function check_navision(frm) {
 
 
 function check_vielfaches(frm) {
+    if (cur_frm.doc.billing_type == 'Rechnung') {
     var items = cur_frm.doc.items;
     // check if vielfaches is defined
     items.forEach(function(entry) {
@@ -172,6 +173,7 @@ function check_vielfaches(frm) {
     });
     cur_frm.refresh_field('items');
     validate_vielfaches(frm);
+    }
 }
 
 function validate_vielfaches(frm) {
