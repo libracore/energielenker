@@ -546,7 +546,7 @@ def make_sales_invoice(order, percent, amount, invoice_date):
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
     percent = 100
     si = make_sales_invoice(order, ignore_permissions=True)
-    si.billing_type = 'Teilrechnung / Schlussrechnung'
+    si.billing_type = 'Teilrechnung'
     si.set_posting_time = 1
     si.posting_date = invoice_date
     si.apply_discount_on = 'Net Total'
