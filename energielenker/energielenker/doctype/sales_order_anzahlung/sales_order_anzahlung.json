@@ -7,7 +7,8 @@
   "creation_date",
   "billing_portion",
   "amount",
-  "due_date"
+  "due_date",
+  "sales_invoice"
  ],
  "fields": [
   {
@@ -37,10 +38,18 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "F\u00e4llig am"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
   }
  ],
  "istable": 1,
- "modified": "2021-10-06 04:59:30.443902",
+ "modified": "2021-10-20 09:47:06.681331",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Sales Order Anzahlung",
