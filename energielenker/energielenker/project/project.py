@@ -543,15 +543,34 @@ def clear_payment_schedule(project, sales_order):
     
 @frappe.whitelist()
 def make_sales_invoice(order, percent, amount, invoice_date):
-    so = frappe.get_doc("Sales Order", order)
+    from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+    percent = 100
+    si = make_sales_invoice(order, ignore_permissions=True)
+    si.billing_type = 'Teilrechnung / Schlussrechnung'
+    si.set_posting_time = 1
+    si.posting_date = invoice_date
+    si.apply_discount_on = 'Net Total'
+    si = si.insert(ignore_permissions=True)
+
+    for ps in si.payment_schedule:
+        if float(ps.payment_amount) == float(amount):
+            percent = ps.invoice_portion
+
+    si.payment_schedule = []
+    si.payment_terms_template = ''
+
+    for item in si.items:
+        item.qty = (item.qty / 100) * percent
+
+    si.save(ignore_permissions=True)
     
-    so.verrechnungslevel = len(so.billing_overview) + 1
-    
-    invoice_row = so.append('billing_overview', {})
+    order = frappe.get_doc("Sales Order", order)
+    invoice_row = order.append('billing_overview', {})
     invoice_row.creation_date = today()
     invoice_row.billing_portion = percent
     invoice_row.amount = amount
     invoice_row.due_date = invoice_date
+    invoice_row.sales_invoice = si.name
+    order.save(ignore_permissions=True)
     
-    so.save(ignore_permissions=True)
-    return so.name
+    return si.name

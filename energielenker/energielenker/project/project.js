@@ -146,7 +146,7 @@ frappe.ui.form.on("Payment Forecast", {
                     row.invoice_created = 1
                     cur_frm.refresh_field("payment_schedule");
                     cur_frm.save();
-                    frappe.set_route("Form", "Sales Order", response.message);
+                    frappe.set_route("Form", "Sales Invoice", response.message);
                 }
             });
         }
