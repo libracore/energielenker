@@ -52,7 +52,8 @@ doctype_js = {
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt.js",
     "Issue": "energielenker/issue/issue.js",
     "Task": "energielenker/task/task.js",
-    "Customer": "energielenker/customer/customer.js"
+    "Customer": "energielenker/customer/customer.js",
+    "Timesheet": "energielenker/timesheet/timesheet.js"
 }
 
 doctype_list_js = {

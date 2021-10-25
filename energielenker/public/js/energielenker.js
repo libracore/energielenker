@@ -46,6 +46,14 @@ $(document).ready(function(){
                 }
             }
         });
+        
+        // mark navbar of test system red
+        var navbars = document.getElementsByClassName("navbar");
+        if (navbars.length > 0) {
+            if ((window.location.hostname.includes("erp-test")) || (window.location.hostname.includes("192.168.0.150"))) {
+                navbars[0].style.backgroundColor = "#d68080";
+            }
+        }
     }, 1000);
 });
 
@@ -88,25 +96,29 @@ function timesheet_manager_start(ts) {
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}
     ],
     function(values){
-        frappe.call({
-            "method": "energielenker.energielenker.timesheet_manager.start_timer",
-            "args": {
-                    'ts': ts,
-                    'details': values
-                },
-            "async": false,
-            "callback": function(response) {
-                // remove start-buttons, add stop-button
-                $("#timesheet_manager_start").remove();
-                $("#timesheet_manager_quick_start").remove();
-                $("#timesheet_manager_add_timeblock").remove();
-                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">' + __("Stop Timer") + '</button>');
-                $("#timesheet_manager_stop").click(function(){
-                    timesheet_manager_stop(response.message);
-                });
-                $("#ts_indicator").addClass("pending-ts");
-            }
-        });
+        if (!values.issue && !values.task) {
+            frappe.msgprint( __("Please set a task or issue"), __("Validation") );
+        } else {
+            frappe.call({
+                "method": "energielenker.energielenker.timesheet_manager.start_timer",
+                "args": {
+                        'ts': ts,
+                        'details': values
+                    },
+                "async": false,
+                "callback": function(response) {
+                    // remove start-buttons, add stop-button
+                    $("#timesheet_manager_start").remove();
+                    $("#timesheet_manager_quick_start").remove();
+                    $("#timesheet_manager_add_timeblock").remove();
+                    $("#timesheet_manager").append('<button type="button" id="timesheet_manager_stop" class="btn btn-danger timesheet-manager-stop">' + __("Stop Timer") + '</button>');
+                    $("#timesheet_manager_stop").click(function(){
+                        timesheet_manager_stop(response.message);
+                    });
+                    $("#ts_indicator").addClass("pending-ts");
+                }
+            });
+        }
     },
     'Timelog Detail',
     'Start'
@@ -159,32 +171,36 @@ function timesheet_manager_stop_from_quick_entry(ts) {
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}
     ],
     function(values){
-        frappe.call({
-            "method": "energielenker.energielenker.timesheet_manager.stop_timer_from_quick_start",
-            "args": {
-                    'ts': ts,
-                    'details': values
-                },
-            "async": false,
-            "callback": function(response) {
-                // remove stop-button, add start-buttons
-                $("#timesheet_manager_stop").remove();
-                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">' + __("Quick Start Timer") + '</button>');
-                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">' + __("Start Timer") + '</button>');
-                $("#timesheet_manager").append('<button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">' + __("Add Timeblock") + '</button>');
-                $("#timesheet_manager_start").click(function(){
-                    timesheet_manager_start(response.message);
-                });
-                $("#timesheet_manager_quick_start").click(function(){
-                    timesheet_manager_quick_start(response.message);
-                });
-                
-                $("#timesheet_manager_add_timeblock").click(function(){
-                    timesheet_manager_add_timeblock(response.message);
-                });
-                $("#ts_indicator").removeClass("pending-ts");
-            }
-        });
+        if (!values.issue && !values.task) {
+            frappe.msgprint( __("Please set a task or issue"), __("Validation") );
+        } else {
+            frappe.call({
+                "method": "energielenker.energielenker.timesheet_manager.stop_timer_from_quick_start",
+                "args": {
+                        'ts': ts,
+                        'details': values
+                    },
+                "async": false,
+                "callback": function(response) {
+                    // remove stop-button, add start-buttons
+                    $("#timesheet_manager_stop").remove();
+                    $("#timesheet_manager").append('<button type="button" id="timesheet_manager_quick_start" class="btn btn-success timesheet-manager-start">' + __("Quick Start Timer") + '</button>');
+                    $("#timesheet_manager").append('<button type="button" id="timesheet_manager_start" class="btn btn-success timesheet-manager-start">' + __("Start Timer") + '</button>');
+                    $("#timesheet_manager").append('<button type="button" id="timesheet_manager_add_timeblock" class="btn btn-warning timesheet-manager-start">' + __("Add Timeblock") + '</button>');
+                    $("#timesheet_manager_start").click(function(){
+                        timesheet_manager_start(response.message);
+                    });
+                    $("#timesheet_manager_quick_start").click(function(){
+                        timesheet_manager_quick_start(response.message);
+                    });
+                    
+                    $("#timesheet_manager_add_timeblock").click(function(){
+                        timesheet_manager_add_timeblock(response.message);
+                    });
+                    $("#ts_indicator").removeClass("pending-ts");
+                }
+            });
+        }
     },
     'Timelog Detail',
     'Stop'
@@ -210,15 +226,19 @@ function timesheet_manager_add_timeblock(ts) {
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}
     ],
     function(values){
-        frappe.call({
-            "method": "energielenker.energielenker.timesheet_manager.add_timeblock",
-            "args": {
-                    'ts': ts,
-                    'details': values
-                },
-            "async": false,
-            "callback": function(response) {}
-        });
+        if (!values.issue && !values.task) {
+            frappe.msgprint( __("Please set a task or issue"), __("Validation") );
+        } else {
+            frappe.call({
+                "method": "energielenker.energielenker.timesheet_manager.add_timeblock",
+                "args": {
+                        'ts': ts,
+                        'details': values
+                    },
+                "async": false,
+                "callback": function(response) {}
+            });
+        }
     },
     'Add Timeblock',
     'Add'
