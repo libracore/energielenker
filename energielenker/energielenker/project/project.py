@@ -542,35 +542,45 @@ def clear_payment_schedule(project, sales_order):
     return
     
 @frappe.whitelist()
-def make_sales_invoice(order, percent, amount, invoice_date):
+def make_sales_invoice(order, percent, amount, percent_billed, invoice_date, invoice_type):
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
-    percent = 100
-    si = make_sales_invoice(order, ignore_permissions=True)
-    si.billing_type = 'Teilrechnung'
-    si.set_posting_time = 1
-    si.posting_date = invoice_date
-    si.apply_discount_on = 'Net Total'
-    si = si.insert(ignore_permissions=True)
+    if invoice_type == 'Teilrechnung':
+        si = make_sales_invoice(order, ignore_permissions=True)
+        si.billing_type = 'Teilrechnung'
+        si.set_posting_time = 1
+        si.posting_date = invoice_date
+        si.apply_discount_on = 'Net Total'
+        si = si.insert(ignore_permissions=True)
+        si.payment_schedule = []
+        si.payment_terms_template = ''
 
-    for ps in si.payment_schedule:
-        if float(ps.payment_amount) == float(amount):
-            percent = ps.invoice_portion
+        for item in si.items:
+            item.qty = (item.qty / (100 - float(percent_billed))) * float(percent)
 
-    si.payment_schedule = []
-    si.payment_terms_template = ''
+        si.save(ignore_permissions=True)
+        
+        order = frappe.get_doc("Sales Order", order)
+        invoice_row = order.append('billing_overview', {})
+        invoice_row.creation_date = today()
+        invoice_row.billing_portion = percent
+        invoice_row.amount = amount
+        invoice_row.due_date = invoice_date
+        invoice_row.sales_invoice = si.name
+        order.save(ignore_permissions=True)
+        
+        return si.name
 
-    for item in si.items:
-        item.qty = (item.qty / 100) * percent
-
-    si.save(ignore_permissions=True)
-    
+@frappe.whitelist()
+def get_order_payment_forecast_details(order, amount):
     order = frappe.get_doc("Sales Order", order)
-    invoice_row = order.append('billing_overview', {})
-    invoice_row.creation_date = today()
-    invoice_row.billing_portion = percent
-    invoice_row.amount = amount
-    invoice_row.due_date = invoice_date
-    invoice_row.sales_invoice = si.name
-    order.save(ignore_permissions=True)
+    data = {
+        'percent_to_bill': 0,
+        'percent_already_billed': order.per_billed,
+        'grand_total': order.grand_total
+    }
     
-    return si.name
+    for entry in order.payment_schedule:
+        if float(entry.payment_amount) == float(amount):
+            data['percent_to_bill'] = entry.invoice_portion
+    
+    return data

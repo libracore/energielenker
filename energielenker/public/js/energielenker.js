@@ -50,7 +50,7 @@ $(document).ready(function(){
         // mark navbar of test system red
         var navbars = document.getElementsByClassName("navbar");
         if (navbars.length > 0) {
-            if ((window.location.hostname.includes("erp-test")) || (window.location.hostname.includes("192.168.0.150"))) {
+            if ((window.location.hostname.includes("erp-test"))) {
                 navbars[0].style.backgroundColor = "#d68080";
             }
         }
