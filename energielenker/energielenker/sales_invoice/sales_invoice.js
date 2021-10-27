@@ -4,13 +4,15 @@
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
        setTimeout(function(){ 
-        cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
-            function() {                                                                      
-            return {
-                    query: "energielenker.energielenker.item.item.item_query",
-                    filters: {'is_sales_item': 1}
-                }
-            }
+            try {
+                cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
+                    function() {                                                                      
+                    return {
+                            query: "energielenker.energielenker.item.item.item_query",
+                            filters: {'is_sales_item': 1}
+                        }
+                    }
+            } catch (err) {}
         }, 1000);
     },
     customer: function(frm) {
@@ -19,7 +21,9 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
-        cur_frm.set_value("apply_discount_on", "Net Total");
+        try {
+            cur_frm.set_value("apply_discount_on", "Net Total");
+        } catch (err) {}
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
