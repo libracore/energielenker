@@ -177,7 +177,7 @@ frappe.ui.form.on("Payment Forecast", {
                             }
                         },
                         {'fieldname': 'invoice_date', 'label': 'Rechnungsdatum', 'fieldtype': 'Date', 'default': frappe.datetime.nowdate(), 'reqd': 1},
-                        {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': data.percent_to_bill, 'reqd': 1, 'read_only': 0,
+                        {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': data.percent_to_bill, 'precision': 9, 'reqd': 1, 'read_only': 0,
                             'change': function() {
                                 if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
                                     if ((d.get_value('invoice_percent') + percent_already_billed) <= 100) {
@@ -196,7 +196,7 @@ frappe.ui.form.on("Payment Forecast", {
                                 if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'Als Betrag') {
                                     if ((d.get_value('invoice_amount') + order_amount_total) <= data.grand_total) {
                                             var new_percent = (100 / d.get_value('order_amount_grand_total')) * d.get_value('invoice_amount');
-                                            d.set_value('invoice_percent',  new_percent);
+                                            d.set_value('invoice_percent', new_percent);
                                     } else {
                                         frappe.msgprint("Es können total maximal 100% verrechnet werden.");
                                         d.set_value('invoice_amount',  row.amount);

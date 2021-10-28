@@ -45,7 +45,8 @@
    "fieldname": "percent",
    "fieldtype": "Percent",
    "hidden": 1,
-   "label": "Percent"
+   "label": "Percent",
+   "precision": "9"
   },
   {
    "fieldname": "postpone",
@@ -74,7 +75,7 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Invoice created",
-   "read_only": 1
+   "permlevel": 2
   },
   {
    "columns": 2,
@@ -83,11 +84,11 @@
    "in_list_view": 1,
    "label": "Invoice",
    "options": "Sales Invoice",
-   "read_only": 1
+   "permlevel": 2
   }
  ],
  "istable": 1,
- "modified": "2021-10-27 10:37:42.897633",
+ "modified": "2021-10-28 20:08:28.557939",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",
