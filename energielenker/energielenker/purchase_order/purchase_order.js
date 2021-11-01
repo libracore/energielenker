@@ -5,11 +5,43 @@ frappe.ui.form.on('Purchase Order', {
 	drop_ship_check: function(frm) {
 	    cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');
 	},
+	supplier_ship_check: function(frm) {
+	    cur_frm.add_fetch('supplier_to_supplier','supplier_name','supplier_to_supplier_name');
+	},
 	customer_address: function(frm) {
 	    if (cur_frm.doc.customer_address) {
 	        cur_frm.set_value('shipping_address', cur_frm.doc.customer_address);
 	    } else {
 	        cur_frm.set_value('shipping_address', '');
+	    }
+	},
+	/*fill in address in field shipping_address*/
+	supplier_to_supplier_address: function(frm) {
+	    if (cur_frm.doc.supplier_to_supplier_address) {
+	        cur_frm.set_value('shipping_address', cur_frm.doc.supplier_to_supplier_address);
+	    } else {
+	        cur_frm.set_value('shipping_address', '');
+	    }
+	},
+	/*show only address of that supplier*/
+	supplier_to_supplier: function(frm) {
+   	    cur_frm.fields_dict['supplier_to_supplier_address'].get_query = function(doc, cdt, cdn) {
+	        var d = locals[cdt][cdn];          
+        	    return {
+             		filters: {
+              	     		"link_name": frm.doc.supplier_to_supplier
+			}                       
+            	    }
+	    }
+	},
+	customer_shipping: function(frm) {
+   	    cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
+	        var d = locals[cdt][cdn];          
+        	    return {
+             		filters: {
+              	     		"link_name": frm.doc.customer_shipping
+			}                       
+            	    }
 	    }
 	},
     validate: function(frm) {
