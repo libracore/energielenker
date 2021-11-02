@@ -90,7 +90,11 @@ function timesheet_manager_start(ts) {
                 }
             }
         },
-        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'},
+        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue',
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}
@@ -165,7 +169,11 @@ function timesheet_manager_stop_from_quick_entry(ts) {
                 }
             }
         },
-        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'},
+        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue',
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}
@@ -220,7 +228,11 @@ function timesheet_manager_add_timeblock(ts) {
                 }
             }
         },
-        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue'},
+        {'fieldname': 'issue', 'fieldtype': 'Link', 'label': 'Issue', 'reqd': 0, 'options': 'Issue',
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 0, 'default': ''}

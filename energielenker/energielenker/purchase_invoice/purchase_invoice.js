@@ -2,6 +2,17 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Invoice', {
+    refresh: function(frm) {
+        setTimeout(function(){ 
+        cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
+            function() {                                                                      
+            return {
+                    query: "energielenker.energielenker.item.item.item_query",
+                    filters: {'is_purchase_item': 1}
+                }
+            }
+        }, 1000);
+    },
     validate: function(frm) {
         if (cur_frm.doc.project) {
             var items = cur_frm.doc.items;

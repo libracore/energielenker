@@ -31,6 +31,12 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+    },
+    wahrscheindlichkeit: function(frm) {
+        if (cur_frm.doc.wahrscheindlichkeit > 100) {
+            cur_frm.set_value('wahrscheindlichkeit', 100);
+            frappe.msgprint( "Die Wahrscheindlichkeit kann nicht über 100% liegen", __("Validation") );
+        }
     }
 })
 
