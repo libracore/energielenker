@@ -12,5 +12,10 @@ frappe.ui.form.on("Item", {
             var suchliste = suchliste_list.join();
             frm.set_value("suchfeld", suchliste);
         }
+    },
+    item_name: function(frm) {
+	if (cur_frm.doc.item_name) {
+	 cur_frm.set_value("item_purchasing_name", cur_frm.doc.item_name);
+	}
     }
 });
