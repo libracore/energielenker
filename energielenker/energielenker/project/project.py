@@ -586,10 +586,6 @@ def get_order_payment_forecast_details(order, amount):
     
     return data
 
-<<<<<<< HEAD
-
-    
-=======
 @frappe.whitelist()
 def make_final_sales_invoice(order, invoice_date):
     sales_order = frappe.get_doc("Sales Order", order)
@@ -658,4 +654,3 @@ def make_final_sales_invoice(order, invoice_date):
         'invoice': si.name,
         'amount': si.outstanding_amount
     }
->>>>>>> c736301418ae51311487c6bb133ce1b6637f2a0d
