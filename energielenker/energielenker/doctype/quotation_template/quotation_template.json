@@ -1,0 +1,94 @@
+{
+ "autoname": "field:title",
+ "creation": "2021-11-10 13:39:00.500937",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "ansprechpartner",
+  "items",
+  "payment_terms",
+  "payment_terms_template",
+  "payment_schedule",
+  "terms_section_break",
+  "tc_name",
+  "terms"
+ ],
+ "fields": [
+  {
+   "fieldname": "ansprechpartner",
+   "fieldtype": "Link",
+   "label": "Ansprechpartner",
+   "options": "User"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Artikel",
+   "options": "Quotation Item"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Section Break",
+   "label": "Payment Terms"
+  },
+  {
+   "fieldname": "payment_terms_template",
+   "fieldtype": "Link",
+   "label": "Payment Terms Template",
+   "options": "Payment Terms Template"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Payment Schedule"
+  },
+  {
+   "fieldname": "terms_section_break",
+   "fieldtype": "Section Break",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "tc_name",
+   "fieldtype": "Link",
+   "label": "Terms",
+   "options": "Terms and Conditions"
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Text Editor",
+   "label": "Term Details"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Titel",
+   "unique": 1
+  }
+ ],
+ "modified": "2021-11-10 14:24:22.200970",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Quotation Template",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -22,7 +22,7 @@ frappe.ui.form.on('Quotation', {
                     cur_frm.set_value('party_name', project.customer);
                 }
             });
-        }
+        }        
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {

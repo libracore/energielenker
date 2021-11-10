@@ -584,3 +584,6 @@ def get_order_payment_forecast_details(order, amount):
             data['percent_to_bill'] = entry.invoice_portion
     
     return data
+
+
+    
