@@ -579,11 +579,83 @@ def get_order_payment_forecast_details(order, amount):
         'grand_total': order.grand_total
     }
     
-    for entry in order.payment_schedule:
-        if float(entry.payment_amount) == float(amount):
-            data['percent_to_bill'] = entry.invoice_portion
+    if order.per_billed < 100:
+        for entry in order.payment_schedule:
+            if float(entry.payment_amount) == float(amount):
+                data['percent_to_bill'] = entry.invoice_portion
     
     return data
 
+<<<<<<< HEAD
 
     
+=======
+@frappe.whitelist()
+def make_final_sales_invoice(order, invoice_date):
+    sales_order = frappe.get_doc("Sales Order", order)
+    
+    # ammend all existing payments of pre invoices from sales order and link it from sinv to sales order
+    for entry in sales_order.billing_overview:
+        pre_invoice = entry.sales_invoice
+        payment_entries = frappe.get_all('Payment Entry Reference', filters={'reference_name': pre_invoice, 'reference_doctype': 'Sales Invoice'}, fields=['parent'])
+        for _payment_entry in payment_entries:
+            # cancel old payment entry
+            payment_entry = frappe.get_doc("Payment Entry", _payment_entry.parent)
+            payment_entry.cancel()
+            frappe.db.commit()
+            
+            # copy old payment erntry
+            new_payment_entry = frappe.copy_doc(payment_entry)
+            new_payment_entry.save(ignore_permissions=True)
+            
+            # link new payment entry with sales order
+            new_payment_entry.references = []
+            row = new_payment_entry.append('references', {})
+            row.reference_doctype = "Sales Order"
+            row.reference_name = sales_order.name
+            row.allocated_amount = new_payment_entry.paid_amount
+            
+            new_payment_entry.save(ignore_permissions=True)
+            new_payment_entry.submit()
+            frappe.db.commit()
+            
+    
+    # make return to all pre invoices
+    for entry in sales_order.billing_overview:
+        # create return invoice
+        from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_sales_return
+        pre_invoice_return = make_sales_return(entry.sales_invoice)
+        pre_invoice_return.update_billed_amount_in_sales_order = 1
+        pre_invoice_return.save(ignore_permissions=True)
+        pre_invoice_return.submit()
+        frappe.db.commit()
+        
+    
+    # create final invoice
+    from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+    si = make_sales_invoice(order, ignore_permissions=True)
+    si.billing_type = 'Schlussrechnung'
+    si.allocate_advances_automatically = 1
+    si.set_posting_time = 1
+    si.posting_date = invoice_date
+    si.apply_discount_on = 'Net Total'
+    si = si.insert(ignore_permissions=True)
+    si.payment_schedule = []
+    si.payment_terms_template = ''
+    si.save(ignore_permissions=True)
+    
+    # update sales order
+    order = frappe.get_doc("Sales Order", order)
+    invoice_row = order.append('billing_overview', {})
+    invoice_row.creation_date = today()
+    invoice_row.billing_portion = 100
+    invoice_row.amount = si.grand_total
+    invoice_row.due_date = invoice_date
+    invoice_row.sales_invoice = si.name
+    order.save(ignore_permissions=True)
+    
+    return {
+        'invoice': si.name,
+        'amount': si.outstanding_amount
+    }
+>>>>>>> c736301418ae51311487c6bb133ce1b6637f2a0d
