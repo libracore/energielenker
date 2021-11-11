@@ -31,6 +31,26 @@ frappe.ui.form.on("Project", {
           }
         };
         
+        frm.add_custom_button(__("Rename Project"), function() {
+            frappe.prompt([
+                {'fieldname': 'project_name', 'fieldtype': 'Data', 'label': 'Project Name'}
+            ],
+            function(values){
+                cur_frm.set_value("project_name", values.project_name);
+                cur_frm.save();
+            },
+            'Set New Project Name',
+            'Save'
+            )
+        });
+        //prevent renaming of title
+        var elements = document.getElementsByClassName("title-text");
+        var old_element = elements[0];
+        var new_element = old_element.cloneNode(true);
+        old_element.parentNode.replaceChild(new_element, old_element);
+        //remove 'rename' in menu
+        $("span[data-label='Rename']").parent().parent().remove();
+        
         format_time_trend_field(frm);
         
         if ((!frm.doc.__islocal) && (frm.doc.project_template)) {
