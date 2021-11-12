@@ -2,7 +2,9 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Quotation Template', {
-//
+    tc_name: function(frm) {
+        cur_frm.add_fetch('tc_name', 'terms', 'terms');
+    }
 });
 
 frappe.ui.form.on('Quotation Item', {
