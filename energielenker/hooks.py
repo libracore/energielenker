@@ -53,7 +53,10 @@ doctype_js = {
     "Issue": "energielenker/issue/issue.js",
     "Task": "energielenker/task/task.js",
     "Customer": "energielenker/customer/customer.js",
-    "Timesheet": "energielenker/timesheet/timesheet.js"
+    "Timesheet": "energielenker/timesheet/timesheet.js",
+    "Stock Entry": "energielenker/stock_entry/stock_entry.js",
+    "Request for Quotation": "energielenker/request_for_quotation/request_for_quotation.js",
+    "BOM": "energielenker/bom/bom.js"
 }
 
 doctype_list_js = {

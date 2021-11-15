@@ -2,7 +2,18 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Order', {
-	drop_ship_check: function(frm) {
+	refresh: function(frm) {
+        setTimeout(function(){ 
+        cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
+            function() {                                                                      
+            return {
+                    query: "energielenker.energielenker.item.item.item_query",
+                    filters: {'is_purchase_item': 1}
+                }
+            }
+        }, 1000);
+    },
+    drop_ship_check: function(frm) {
 	    cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');
 	},
 	supplier_ship_check: function(frm) {
