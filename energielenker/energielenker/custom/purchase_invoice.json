@@ -373,14 +373,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2021-11-17 09:54:16.250921",
+   "creation": "2021-11-19 09:40:20.666931",
    "default_value": null,
    "doc_type": "Purchase Invoice",
    "docstatus": 0,
    "doctype_or_field": "DocField",
    "field_name": "credit_to",
    "idx": 0,
-   "modified": "2021-11-17 09:54:16.250921",
+   "modified": "2021-11-19 09:40:20.666931",
    "modified_by": "Administrator",
    "name": "Purchase Invoice-credit_to-default",
    "owner": "Administrator",
@@ -389,7 +389,7 @@
    "parenttype": null,
    "property": "default",
    "property_type": "Text",
-   "value": "1800 - Bank - S"
+   "value": ""
   },
   {
    "_assign": null,
