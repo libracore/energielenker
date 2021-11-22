@@ -1,0 +1,65 @@
+<style>
+    table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f5f7fa;
+        padding-right: 5px;
+        padding-left: 5px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    td {
+        padding-right: 5px;
+        padding-left: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+    tr {
+        border-bottom: 1px solid silver;
+    }
+</style>
+<table style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Belegart</th>
+            <th>Belegnr.</th>
+            <th>Zeilennr.</th>
+            <th>Art</th>
+            <th>Nr.</th>
+            <th>Lagerortcode</th>
+            <th>Beschreibung</th>
+            <th>Einheit</th>
+            <th>Menge</th>
+            <th>VK-Preis</th>
+            <th>Shortcutdimensionscode 1</th>
+            <th>MwSt.-Geschäftsbuchungsgruppe</th>
+            <th>MwSt.-Produktbuchungsgruppe</th>
+            <th>Einheitencode</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice[0] }}</td>
+                <td>{{ invoice[1] }}</td>
+                <td>{{ invoice[2] }}</td>
+                <td>{{ invoice[3] }}</td>
+                <td>{{ invoice[4] }}</td>
+                <td>{{ invoice[5] }}</td>
+                <td>{{ invoice[6] }}</td>
+                <td>{{ invoice[7] }}</td>
+                <td>{{ invoice[8] }}</td>
+                <td>{{ invoice[9] }}</td>
+                <td>{{ invoice[10] }}</td>
+                <td>{{ invoice[11] }}</td>
+                <td>{{ invoice[12] }}</td>
+                <td>{{ invoice[13] }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

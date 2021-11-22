@@ -22,12 +22,13 @@ def get_data(suchparameter, exportieren=False):
             if suchparameter["ansicht_auswahl"] == 'SalesHeader':
                 return frappe.render_template('templates/navision_export/navision_exp_salesheader.html', {'invoices': data})
             else:
-                return False
+                return frappe.render_template('templates/navision_export/navision_exp_salesline.html', {'invoices': data})
         else:
             return False
     else:
         if exist_navisionexport_folder():
             # SalesHeader
+            suchparameter["ansicht_auswahl"] = 'SalesHeader'
             salesheader_raw_data = get_datas(suchparameter)
             salesheader_data = [["Belegart","Nr.","Verk. an Deb.-Nr.","Rech. an Deb.-Nr.","Buchungsdatum","Buchungsbeschreibung","Fälligkeitsdatum","Shortcutdimensionscode 1","Belegdatum","Externe Belegnummer","Datum der Leistung von","Datum der Leistung bis"]]
             
@@ -45,7 +46,12 @@ def get_data(suchparameter, exportieren=False):
                 data.append(sinv["sinv"])
                 salesheader_data.append(data)
             
+            # SalesLine
+            suchparameter["ansicht_auswahl"] = 'SalesLine'
+            salesline_raw_data = get_datas(suchparameter)
             salesline_data = [["Belegart","Belegnr.","Zeilennr.","Art","Nr.","Lagerortcode","Beschreibung","Einheit","Menge","VK-Preis","Shortcutdimensionscode 1","MwSt.-Geschäftsbuchungsgruppe","MwSt.-Produktbuchungsgruppe","Einheitencode"]]
+            for _salesline_data in salesline_raw_data:
+                salesline_data.append(_salesline_data)
             
             xlsx_file = make_navision_xlsx(salesheader_data, salesline_data)
             file_data = xlsx_file.getvalue()
@@ -108,28 +114,125 @@ def make_navision_xlsx(salesheader_data, salesline_data):
 
 def get_datas(suchparameter):
     if suchparameter["ansicht_auswahl"] == 'SalesHeader':
-        # SalesHeader
-        sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
-        datas = []
-        for sinv in sinvs:
-            navision_kundennummer = frappe.get_doc("Customer", sinv.customer).navision_nr
-            buchungsbeschreibung = sinv.billing_type
-            if buchungsbeschreibung != 'Rechnung':
-                buchungsbeschreibung += ' zu Projekt Nr. {projekt}'.format(projekt=sinv.project)
-            data = {
-                'sinv': sinv.name,
-                'navision_kundennummer': navision_kundennummer,
-                'rechnungsdatum': sinv.posting_date,
-                'buchungsbeschreibung': buchungsbeschreibung,
-                'due_date': sinv.due_date
-            }
-            datas.append(data)
-        if len(datas) > 0:
-            return datas
-        else:
-            return False
+        return _get_salesheader_datas(suchparameter)
     else:
-        # SalesLine
+        return _get_salesline_datas(suchparameter)
+
+def _get_salesheader_datas(suchparameter):
+    # SalesHeader
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    datas = []
+    for sinv in sinvs:
+        navision_kundennummer = frappe.get_doc("Customer", sinv.customer).navision_nr
+        buchungsbeschreibung = sinv.billing_type
+        if buchungsbeschreibung != 'Rechnung':
+            buchungsbeschreibung += ' zu Projekt Nr. {projekt}'.format(projekt=sinv.project)
+        data = {
+            'sinv': sinv.name,
+            'navision_kundennummer': navision_kundennummer,
+            'rechnungsdatum': sinv.posting_date,
+            'buchungsbeschreibung': buchungsbeschreibung,
+            'due_date': sinv.due_date
+        }
+        datas.append(data)
+    if len(datas) > 0:
+        return datas
+    else:
         return False
-    # fallback
-    return False
+
+def _get_salesline_datas(suchparameter):
+    # SalesLine
+    invoices = _get_salesheader_datas(suchparameter)
+    
+    datas = []
+    for sinv in invoices:
+        sinv = frappe.get_doc("Sales Invoice", sinv["sinv"])
+        if sinv.billing_type == 'Rechnung':
+            loop = 0
+            for lineitem in sinv.items:
+                data = []
+                data.append("Rechnung")
+                data.append("212ERP" + sinv.name.replace("RE", ""))
+                data.append("1000" + str(loop))
+                loop += 1
+                data.append("Sachkonto")
+                data.append(sinv.navision_kontonummer)
+                data.append("")
+                data.append(lineitem.item_name[:50])
+                data.append("")
+                data.append(lineitem.qty)
+                data.append(lineitem.rate)
+                data.append("1000800")
+                data.append("INL")
+                if len(sinv.taxes) > 0:
+                    data.append(sinv.taxes[0].rate)
+                else:
+                    data.append("")
+                data.append("")
+                datas.append(data)
+        if sinv.billing_type == 'Teilrechnung':
+            data = []
+            data.append("Rechnung")
+            data.append("212ERP" + sinv.name.replace("RE", ""))
+            data.append("10000")
+            data.append("Sachkonto")
+            data.append("17200")
+            data.append("")
+            data.append("Teilzahlung zu Projekt " + sinv.project)
+            data.append("")
+            data.append("1")
+            data.append(sinv.grand_total)
+            data.append("1000800")
+            data.append("INL")
+            data.append("0")
+            data.append("")
+            datas.append(data)
+        if sinv.billing_type == 'Schlussrechnung':
+            loop = 0
+            for lineitem in sinv.items:
+                data = []
+                data.append("Rechnung")
+                data.append("212ERP" + sinv.name.replace("RE", ""))
+                data.append("1000" + str(loop))
+                loop += 1
+                data.append("Sachkonto")
+                data.append(sinv.navision_kontonummer)
+                data.append("")
+                data.append(lineitem.item_name[:50])
+                data.append("")
+                data.append(lineitem.qty)
+                data.append(lineitem.rate)
+                data.append("1000800")
+                data.append("INL")
+                if len(sinv.taxes) > 0:
+                    data.append(sinv.taxes[0].rate)
+                else:
+                    data.append("")
+                data.append("")
+                datas.append(data)
+            sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
+            for teilrechnung in sales_order.billing_overview:
+                data = []
+                data.append("Rechnung")
+                data.append("212ERP" + sinv.name.replace("RE", ""))
+                data.append("1000" + str(loop))
+                loop += 1
+                data.append("Sachkonto")
+                data.append("17100")
+                data.append("")
+                data.append("Abschlag RE Nr. " + teilrechnung.sales_invoice + " vom " + str(teilrechnung.creation_date))
+                data.append("")
+                data.append("1")
+                data.append("-" + str(teilrechnung.amount))
+                data.append("1000800")
+                data.append("INL")
+                if len(sinv.taxes) > 0:
+                    data.append(sinv.taxes[0].rate)
+                else:
+                    data.append("")
+                data.append("")
+                datas.append(data)
+    if len(datas) > 0:
+        return datas
+    else:
+        return False
