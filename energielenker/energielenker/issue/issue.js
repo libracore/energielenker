@@ -28,3 +28,23 @@ frappe.ui.form.on('Issue', {
            }
     }
 })
+
+frappe.ui.form.on('Issue', {
+    customer_contact: function(frm) {
+        if (cur_frm.doc.customer_contact) {
+            if (cur_frm.doc.__islocal) {
+                frappe.call({
+                    'method': "frappe.client.get",
+                    'args': {
+                        'doctype': "Contact",
+                        'name': frm.doc.customer_contact
+                    },
+                    'callback': function(response) {
+                        var contact = response.message;
+                        cur_frm.set_value("raised_by", contact.email_ids[0].email_id);
+                    }
+                });
+            }
+       }
+    }
+})
