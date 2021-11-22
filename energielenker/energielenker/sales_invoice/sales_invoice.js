@@ -35,6 +35,11 @@ frappe.ui.form.on("Sales Invoice", {
             }
         }
         fetch_customer_an_cost_center(frm);
+    },
+    navision_konto: function(frm) {
+        if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
+            cur_frm.set_value('navision_kontonummer', '');
+        }
     }
 });
 

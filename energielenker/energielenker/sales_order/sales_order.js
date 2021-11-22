@@ -60,6 +60,11 @@ frappe.ui.form.on("Sales Order", {
         if (cur_frm.doc.project) {
             cur_frm.set_value('project_clone', cur_frm.doc.project);
         }
+    },
+    navision_konto: function(frm) {
+        if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
+            cur_frm.set_value('navision_kontonummer', '');
+        }
     }
 });
 
