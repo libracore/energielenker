@@ -14,6 +14,27 @@ frappe.ui.form.on("Sales Invoice", {
                     }
             } catch (err) {}
         }, 1000);
+        if (cur_frm.doc.customer) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Customer",
+                    'name': cur_frm.doc.customer
+                },
+                'async': false,
+                'callback': function(response) {
+                    var customer = response.message;
+                    cur_frm.fields_dict['navision_konto'].get_query = function(doc) {
+                         return {
+                             filters: {
+                                 "ic": customer.navision_internal_ic,
+                                 "deaktiviert": 0
+                             }
+                         }
+                    }
+                }
+            });
+        }
     },
     customer: function(frm) {
         shipping_address_query(frm);
