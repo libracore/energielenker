@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2021-11-22 13:25:09.483931",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-11-22 13:25:09.483931",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "navision-export",
+ "owner": "Administrator",
+ "page_name": "Navision Export",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Navision Export"
+}
