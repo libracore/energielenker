@@ -8,7 +8,7 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2021-08-10 14:51:02.175713",
+   "creation": "2021-11-22 10:48:02.175713",
    "default_value": null,
    "doc_type": "Auto Repeat",
    "docstatus": 0,
@@ -24,7 +24,7 @@
    "parenttype": null,
    "property": "default",
    "property_type": "Text",
-   "value": "1"
+   "value": "0"
   }
  ],
  "sync_on_migrate": 1
