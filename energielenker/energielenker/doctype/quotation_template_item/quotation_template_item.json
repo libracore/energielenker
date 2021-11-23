@@ -1,0 +1,145 @@
+{
+ "creation": "2021-11-23 16:14:46.799201",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "typ",
+  "item_code",
+  "textposition",
+  "alternative_position",
+  "interne_position",
+  "kalkulationssumme_interner_positionen",
+  "preis_alternative_position",
+  "col_break1",
+  "item_name",
+  "section_break_5",
+  "description",
+  "quantity_and_uom",
+  "qty",
+  "uom"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "oldfieldname": "item_code",
+   "oldfieldtype": "Link",
+   "options": "Item",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "col_break1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Item Name",
+   "oldfieldname": "item_name",
+   "oldfieldtype": "Data",
+   "print_hide": 1,
+   "print_width": "150px",
+   "reqd": 1,
+   "width": "150px"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description",
+   "oldfieldname": "description",
+   "oldfieldtype": "Small Text",
+   "print_width": "300px",
+   "reqd": 1,
+   "width": "300px"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "oldfieldname": "qty",
+   "oldfieldtype": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity_and_uom",
+   "fieldtype": "Section Break",
+   "label": "Quantity and UOM"
+  },
+  {
+   "columns": 1,
+   "fieldname": "typ",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Typ",
+   "options": "Norm.\nTxt\nAlt.\nInt.\nKS",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.alternative_position && !doc.interne_position && !doc.kalkulationssumme_interner_positionen",
+   "fieldname": "textposition",
+   "fieldtype": "Check",
+   "label": "Textposition"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.textposition && !doc.interne_position && !doc.kalkulationssumme_interner_positionen",
+   "fieldname": "alternative_position",
+   "fieldtype": "Check",
+   "label": "Alternative Position"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.textposition && !doc.alternative_position && !doc.kalkulationssumme_interner_positionen",
+   "fieldname": "interne_position",
+   "fieldtype": "Check",
+   "label": "Interne Position"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:!doc.textposition && !doc.alternative_position && !doc.interne_position",
+   "fieldname": "kalkulationssumme_interner_positionen",
+   "fieldtype": "Check",
+   "label": "Kalkulationssumme interner Positionen"
+  },
+  {
+   "depends_on": "eval:doc.alternative_position",
+   "fieldname": "preis_alternative_position",
+   "fieldtype": "Currency",
+   "label": "Preis Alternative Position",
+   "options": "Company:company:default_currency"
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-11-23 16:27:09.360683",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Quotation Template Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

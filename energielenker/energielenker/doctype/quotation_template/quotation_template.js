@@ -4,20 +4,25 @@
 frappe.ui.form.on('Quotation Template', {
     tc_name: function(frm) {
         cur_frm.add_fetch('tc_name', 'terms', 'terms');
+        if (cur_frm.doc.tc_name) {
+            frappe.call({
+                "method": "frappe.client.get",
+                args: {
+                    doctype: "Terms and Conditions",
+                    name: cur_frm.doc.tc_name
+                },
+                callback: function (r) {
+                    if (r.message) {
+                        cur_frm.set_value('terms', r.message.terms);
+                    }
+                }
+            });
+        }
     }
 });
 
-frappe.ui.form.on('Quotation Item', {
-    item_code: function(frm) {
-        cur_frm.add_fetch('item_code', 'item_name', 'item_name');
-        cur_frm.add_fetch('item_code', 'description', 'description');
-        cur_frm.add_fetch('item_code', 'stock_uom', 'uom');
-    }
-});
-
-frappe.ui.form.on('Payment Schedule', {
-    item_code: function(frm) {
-        cur_frm.add_fetch('payment_terms_template', 'payment_term', 'payment_term');
-        cur_frm.add_fetch('payment_terms_template', 'description', 'description');
+frappe.ui.form.on('Quotation Template Item', {
+    item_code: function(frm, dt, dn) {
+        console.log(frappe.model.get_value(dt, dn, 'item_code'));
     }
 });
