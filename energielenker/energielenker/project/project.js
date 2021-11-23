@@ -19,6 +19,7 @@ frappe.ui.form.on("Project", {
     onload: function (frm) {
         frm.trigger("set_contact_query");
         frm.trigger("render_contact");
+        prevent_renaming(frm);
     },
     refresh: function(frm) {
         cur_frm.fields_dict.participants.grid.get_field('participant_contact').get_query = function(doc, cdt, cdn) {
@@ -43,13 +44,7 @@ frappe.ui.form.on("Project", {
             'Save'
             )
         });
-        //prevent renaming of title
-        var elements = document.getElementsByClassName("title-text");
-        var old_element = elements[0];
-        var new_element = old_element.cloneNode(true);
-        old_element.parentNode.replaceChild(new_element, old_element);
-        //remove 'rename' in menu
-        $("span[data-label='Rename']").parent().parent().remove();
+        prevent_renaming(frm);
         
         format_time_trend_field(frm);
         
@@ -321,4 +316,13 @@ function load_template(frm) {
             cur_frm.set_value("cost_center", template.default_cost_center);
         }
     });
+}
+
+
+function prevent_renaming(frm) {
+    //prevent renaming of title
+    $(".title-text").off("click");
+    //remove 'rename' in menu
+    $("span[data-label='Rename']").parent().parent().remove();
+    $("span[data-label='Umbenennen']").parent().parent().remove();
 }
