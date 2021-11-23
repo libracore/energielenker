@@ -631,6 +631,8 @@ def make_final_sales_invoice(order, invoice_date):
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
     si = make_sales_invoice(order, ignore_permissions=True)
     si.billing_type = 'Schlussrechnung'
+    si.navision_konto = sales_order.navision_konto
+    si.navision_kontonummer = sales_order.navision_kontonummer
     si.allocate_advances_automatically = 1
     si.set_posting_time = 1
     si.posting_date = invoice_date

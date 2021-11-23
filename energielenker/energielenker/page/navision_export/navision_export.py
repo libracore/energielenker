@@ -120,11 +120,16 @@ def get_datas(suchparameter):
 
 def _get_salesheader_datas(suchparameter):
     # SalesHeader
-    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
         navision_kundennummer = frappe.get_doc("Customer", sinv.customer).navision_nr
-        buchungsbeschreibung = sinv.billing_type
+        buchungsbeschreibung = ''
+        if sinv.billing_type == 'Teilrechnung':
+            xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
+            if len(xte_rechnung) > 0:
+                buchungsbeschreibung += '{xte_rechnung}. '.format(xte_rechnung=xte_rechnung[0].idx)
+        buchungsbeschreibung += sinv.billing_type
         if buchungsbeschreibung != 'Rechnung':
             buchungsbeschreibung += ' zu Projekt Nr. {projekt}'.format(projekt=sinv.project)
         data = {
@@ -171,6 +176,11 @@ def _get_salesline_datas(suchparameter):
                 data.append("")
                 datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
+            xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
+            if len(xte_rechnung) > 0:
+                xte_rechnung = str(xte_rechnung[0].idx) + ". "
+            else:
+                xte_rechnung = ''
             data = []
             data.append("Rechnung")
             data.append("212ERP" + sinv.name.replace("RE", ""))
@@ -178,7 +188,7 @@ def _get_salesline_datas(suchparameter):
             data.append("Sachkonto")
             data.append("17200")
             data.append("")
-            data.append("Teilzahlung zu Projekt " + sinv.project)
+            data.append(xte_rechnung + "Teilrechnung zu Projekt " + sinv.project)
             data.append("")
             data.append("1")
             data.append(sinv.grand_total)
@@ -212,26 +222,31 @@ def _get_salesline_datas(suchparameter):
                 datas.append(data)
             sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
             for teilrechnung in sales_order.billing_overview:
-                data = []
-                data.append("Rechnung")
-                data.append("212ERP" + sinv.name.replace("RE", ""))
-                data.append("1000" + str(loop))
-                loop += 1
-                data.append("Sachkonto")
-                data.append("17100")
-                data.append("")
-                data.append("Abschlag RE Nr. " + teilrechnung.sales_invoice + " vom " + str(teilrechnung.creation_date))
-                data.append("")
-                data.append("1")
-                data.append("-" + str(teilrechnung.amount))
-                data.append("1000800")
-                data.append("INL")
-                if len(sinv.taxes) > 0:
-                    data.append(sinv.taxes[0].rate)
-                else:
+                if teilrechnung.sales_invoice != sinv.name:
+                    _teilrechnung = frappe.get_doc("Sales Invoice", teilrechnung.sales_invoice)
+                    data = []
+                    data.append("Rechnung")
+                    data.append("212ERP" + sinv.name.replace("RE", ""))
+                    data.append("1000" + str(loop))
+                    loop += 1
+                    data.append("Sachkonto")
+                    data.append("17100")
                     data.append("")
-                data.append("")
-                datas.append(data)
+                    if not teilrechnung.invoice_rhapsody:
+                        data.append("Abschlag RE Nr. " + teilrechnung.sales_invoice + " vom " + str(_teilrechnung.posting_date))
+                    else:
+                        data.append("Abschlag RE Nr. " + teilrechnung.invoice_rhapsody + " vom " + str(_teilrechnung.posting_date))
+                    data.append("")
+                    data.append("1")
+                    data.append("-" + str(teilrechnung.amount))
+                    data.append("1000800")
+                    data.append("INL")
+                    if len(sinv.taxes) > 0:
+                        data.append(sinv.taxes[0].rate)
+                    else:
+                        data.append("")
+                    data.append("")
+                    datas.append(data)
     if len(datas) > 0:
         return datas
     else:
