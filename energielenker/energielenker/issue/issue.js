@@ -48,3 +48,12 @@ frappe.ui.form.on('Issue', {
        }
     }
 })
+
+try {
+    cur_frm.dashboard.add_transactions([
+        {
+            'label': 'Timesheet',
+            'items': ['Timesheet']
+        }
+    ]);
+} catch { /*do nothing for older versions */ }
