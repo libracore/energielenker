@@ -2,7 +2,10 @@ frappe.ui.form.on('Customer', {
     refresh: function(frm) {
        frappe.contacts.clear_address_and_contact(cur_frm);
        render_address_and_contact(cur_frm);
-    }
+    },
+    customer_primary_contact: function(frm) {
+		fetch_email(frm);
+	}
 })
 
 function render_address_and_contact(frm) {
@@ -27,3 +30,5 @@ function render_address_and_contact(frm) {
         );
     }
 }
+
+
