@@ -179,8 +179,8 @@ def _get_salesline_datas(suchparameter):
     invoices = _get_salesheader_datas(suchparameter)
     
     datas = []
-    for sinv in invoices:
-        sinv = frappe.get_doc("Sales Invoice", sinv["sinv"])
+    for _sinv in invoices:
+        sinv = frappe.get_doc("Sales Invoice", _sinv["sinv"])
         if sinv.billing_type == 'Rechnung':
             loop = 0
             for lineitem in sinv.items:
@@ -196,7 +196,7 @@ def _get_salesline_datas(suchparameter):
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
-                data.append("1000800")
+                data.append(_sinv["navision_shortcutdimensionscode_1"])
                 data.append("INL")
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
@@ -217,11 +217,11 @@ def _get_salesline_datas(suchparameter):
             data.append("Sachkonto")
             data.append("17200")
             data.append("")
-            data.append(xte_rechnung + "Teilrechnung zu Projekt " + sinv.project)
+            data.append(_sinv["buchungsbeschreibung"])
             data.append("")
             data.append("1")
             data.append(sinv.grand_total)
-            data.append("1000800")
+            data.append(_sinv["navision_shortcutdimensionscode_1"])
             data.append("INL")
             data.append("0")
             data.append("")
@@ -241,7 +241,7 @@ def _get_salesline_datas(suchparameter):
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
-                data.append("1000800")
+                data.append(_sinv["navision_shortcutdimensionscode_1"])
                 data.append("INL")
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
@@ -268,7 +268,7 @@ def _get_salesline_datas(suchparameter):
                     data.append("")
                     data.append("1")
                     data.append("-" + str(teilrechnung.amount))
-                    data.append("1000800")
+                    data.append(_sinv["navision_shortcutdimensionscode_1"])
                     data.append("INL")
                     if len(sinv.taxes) > 0:
                         data.append(sinv.taxes[0].rate)
