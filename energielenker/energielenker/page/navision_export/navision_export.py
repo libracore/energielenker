@@ -123,15 +123,39 @@ def _get_salesheader_datas(suchparameter):
     sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_navision_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
+        if sinv.project:
+            projekt = frappe.get_doc("Project", sinv.project)
+            projektnummer_rhapsody = projekt.projektnummer_rhapsody
+            contract_type = projekt.contract_type
+            if contract_type == 'Werkvertrag':
+                contract_type = 'WV'
+            else:
+                contract_type = 'DV'
+            projektnummer = str(int(str(projekt.name).replace("P", "")))
+        else:
+            projekt = False
+            projektnummer_rhapsody = False
+            contract_type = 'DV'
+            projektnummer = False
+        
         navision_kundennummer = frappe.get_doc("Customer", sinv.customer).navision_nr
+        
         buchungsbeschreibung = ''
-        if sinv.billing_type == 'Teilrechnung':
-            xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
-            if len(xte_rechnung) > 0:
-                buchungsbeschreibung += '{xte_rechnung}. '.format(xte_rechnung=xte_rechnung[0].idx)
-        buchungsbeschreibung += sinv.billing_type
-        if buchungsbeschreibung != 'Rechnung':
-            buchungsbeschreibung += ' zu Projekt Nr. {projekt}'.format(projekt=sinv.project)
+        if sinv.billing_type == 'Rechnung':
+            buchungsbeschreibung += sinv.billing_type + " " + contract_type
+        else:
+            if sinv.billing_type == 'Teilrechnung':
+                xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
+                if len(xte_rechnung) > 0:
+                    buchungsbeschreibung += '{xte_rechnung}.'.format(xte_rechnung=xte_rechnung[0].idx)
+                buchungsbeschreibung += " TR"
+            if sinv.billing_type == 'Schlussrechnung':
+                buchungsbeschreibung += "SR"
+            if projekt:
+                buchungsbeschreibung += " zu P{projektnummer}".format(projektnummer=projektnummer)
+                if projektnummer_rhapsody:
+                    buchungsbeschreibung += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
+        
         data = {
             'sinv': sinv.name,
             'navision_kundennummer': navision_kundennummer,
@@ -139,7 +163,9 @@ def _get_salesheader_datas(suchparameter):
             'buchungsbeschreibung': buchungsbeschreibung,
             'due_date': sinv.due_date
         }
+        
         datas.append(data)
+        
     if len(datas) > 0:
         return datas
     else:
