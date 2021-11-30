@@ -125,7 +125,18 @@ frappe.ui.form.on("Project", {
     },
     project_template: function(frm) {
         load_template(frm);
-    }
+    },
+    /*show only address of that customer*/
+	customer: function(frm) {
+   	    cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
+	        var d = locals[cdt][cdn];          
+        	    return {
+             		filters: {
+              	     		"link_name": frm.doc.customer
+					}                       
+            	}
+	    }
+	}
 });
 
 frappe.ui.form.on("Payment Forecast", {
