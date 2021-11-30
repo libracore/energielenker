@@ -50,7 +50,7 @@
                 <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
                 <td>{{ invoice.buchungsbeschreibung }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.due_date).strftime('%d.%m.%Y') }}</td>
-                <td>1000800</td>
+                <td>{{ invoice.navision_shortcutdimensionscode_1 }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
                 <td>{{ invoice.sinv }}</td>
                 <td></td>

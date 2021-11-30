@@ -41,7 +41,7 @@ def get_data(suchparameter, exportieren=False):
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
                 data.append(sinv["buchungsbeschreibung"])
                 data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
-                data.append("1000800")
+                data.append(sinv["navision_shortcutdimensionscode_1"])
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
                 data.append(sinv["sinv"])
                 salesheader_data.append(data)
@@ -120,9 +120,11 @@ def get_datas(suchparameter):
 
 def _get_salesheader_datas(suchparameter):
     # SalesHeader
-    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_navision_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_navision_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
+        cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
+        
         if sinv.project:
             projekt = frappe.get_doc("Project", sinv.project)
             projektnummer_rhapsody = projekt.projektnummer_rhapsody
@@ -161,7 +163,8 @@ def _get_salesheader_datas(suchparameter):
             'navision_kundennummer': navision_kundennummer,
             'rechnungsdatum': sinv.posting_date,
             'buchungsbeschreibung': buchungsbeschreibung,
-            'due_date': sinv.due_date
+            'due_date': sinv.due_date,
+            'navision_shortcutdimensionscode_1': cost_center.navision_shortcutdimensionscode_1 if cost_center.navision_shortcutdimensionscode_1 else '1000800'
         }
         
         datas.append(data)
