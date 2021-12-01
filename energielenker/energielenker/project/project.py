@@ -551,7 +551,10 @@ def make_sales_invoice(order, percent, amount, percent_billed, invoice_date, inv
         si.posting_date = invoice_date
         si.apply_discount_on = 'Net Total'
         si = si.insert(ignore_permissions=True)
+        #biher: 
         si.payment_schedule = []
+        #neu:
+        #si.payment_schedule = if order.is_internal_customer '100% 14Tage' else '100% 21Tage'
         si.payment_terms_template = ''
 
         for item in si.items:

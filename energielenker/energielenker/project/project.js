@@ -48,6 +48,8 @@ frappe.ui.form.on("Project", {
         
         format_time_trend_field(frm);
         
+        filter_address(frm);
+        
         if ((!frm.doc.__islocal) && (frm.doc.project_template)) {
             load_template(frm);
         }
@@ -125,18 +127,7 @@ frappe.ui.form.on("Project", {
     },
     project_template: function(frm) {
         load_template(frm);
-    },
-    /*show only address of that customer*/
-	customer: function(frm) {
-   	    cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
-	        var d = locals[cdt][cdn];          
-        	    return {
-             		filters: {
-              	     		"link_name": frm.doc.customer
-					}                       
-            	}
-	    }
-	}
+    }
 });
 
 frappe.ui.form.on("Payment Forecast", {
@@ -336,4 +327,15 @@ function prevent_renaming(frm) {
     //remove 'rename' in menu
     $("span[data-label='Rename']").parent().parent().remove();
     $("span[data-label='Umbenennen']").parent().parent().remove();
+}
+
+function filter_address(frm) {
+	cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
+		var d = locals[cdt][cdn];          
+			return {
+				filters: {
+						"link_name": frm.doc.customer
+				}                       
+			}
+	}
 }
