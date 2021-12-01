@@ -83,7 +83,10 @@ def exist_navisionexport_folder():
         
         
 def make_navision_xlsx(salesheader_data, salesline_data):
-
+    for sinv in salesheader_data:
+        if sinv[9] != 'Externe Belegnummer':
+            update_export_cb = frappe.db.sql("""UPDATE `tabSales Invoice` SET `rechnung_nach_navision_exportiert` = 1 WHERE `name` = '{sinv}'""".format(sinv=sinv[9]), as_list=True)
+    
     wb = openpyxl.Workbook(write_only=True)
     
     # SalesHeader
