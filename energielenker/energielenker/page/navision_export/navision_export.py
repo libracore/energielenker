@@ -83,7 +83,10 @@ def exist_navisionexport_folder():
         
         
 def make_navision_xlsx(salesheader_data, salesline_data):
-
+    for sinv in salesheader_data:
+        if sinv[9] != 'Externe Belegnummer':
+            update_export_cb = frappe.db.sql("""UPDATE `tabSales Invoice` SET `rechnung_nach_navision_exportiert` = 1 WHERE `name` = '{sinv}'""".format(sinv=sinv[9]), as_list=True)
+    
     wb = openpyxl.Workbook(write_only=True)
     
     # SalesHeader
@@ -237,7 +240,7 @@ def _get_salesline_datas(suchparameter):
                 data.append("Sachkonto")
                 data.append(sinv.navision_kontonummer)
                 data.append("")
-                data.append(lineitem.item_name[:50])
+                data.append(_sinv["buchungsbeschreibung"])
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
@@ -253,6 +256,14 @@ def _get_salesline_datas(suchparameter):
             for teilrechnung in sales_order.billing_overview:
                 if teilrechnung.sales_invoice != sinv.name:
                     _teilrechnung = frappe.get_doc("Sales Invoice", teilrechnung.sales_invoice)
+                    projekt_zusatz = ''
+                    if sales_order.project:
+                        projekt = frappe.get_doc("Project", sales_order.project)
+                        projektnummer = str(int(str(projekt.name).replace("P", "")))
+                        projektnummer_rhapsody = projekt.projektnummer_rhapsody
+                        projekt_zusatz += " zu P{projektnummer}".format(projektnummer=projektnummer)
+                        if projektnummer_rhapsody:
+                            projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
                     data.append("Rechnung")
                     data.append("212ERP" + sinv.name.replace("RE", ""))
@@ -262,9 +273,9 @@ def _get_salesline_datas(suchparameter):
                     data.append("17100")
                     data.append("")
                     if not teilrechnung.invoice_rhapsody:
-                        data.append("Abschlag RE Nr. " + teilrechnung.sales_invoice + " vom " + str(_teilrechnung.posting_date))
+                        data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.sales_invoice + projekt_zusatz)
                     else:
-                        data.append("Abschlag RE Nr. " + teilrechnung.invoice_rhapsody + " vom " + str(_teilrechnung.posting_date))
+                        data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     data.append("")
                     data.append("1")
                     data.append("-" + str(teilrechnung.amount))

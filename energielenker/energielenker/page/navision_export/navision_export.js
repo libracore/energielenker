@@ -122,39 +122,47 @@ frappe.navision_export = {
         }
     },
     daten_exportieren: function(page) {
-        datum_von = page.search_fields.date_von.get_value();
-        datum_bis = page.search_fields.date_bis.get_value();
-        
-        if (datum_von&&datum_bis) {
-            console.log("export....");
-            frappe.show_alert("Der Export wurde gestartet, bitte warten...", 5);
-            var search_data = {};
-            for (const [ key, value ] of Object.entries(page.search_fields)) {
-                if (value.get_value()) {
-                    search_data[key] = value.get_value();
-                } else {
-                    search_data[key] = false;
-                }
-            }
-            frappe.call({
-                method: "energielenker.energielenker.page.navision_export.navision_export.get_data",
-                args:{
-                        'suchparameter': search_data,
-                        'exportieren': 1 
-                },
-                freeze: true,
-                freeze_message: 'Exportiere Rechnungen...',
-                callback: function(r)
-                {
-                    if (r.message) {
-                        frappe.show_alert({message:"Der Export wurde abgeschlossen.", indicator:'green'}, 5);
-                        frappe.set_route('List/File/Home/NavisionExport');
+        frappe.confirm(
+            'Wollen Sie die Daten exportieren?<br>Dadurch werden die Rechnungen als exportiert markiert.',
+            function(){
+                // on yes
+                datum_von = page.search_fields.date_von.get_value();
+                datum_bis = page.search_fields.date_bis.get_value();
+                
+                if (datum_von&&datum_bis) {
+                    frappe.show_alert("Der Export wurde gestartet, bitte warten...", 5);
+                    var search_data = {};
+                    for (const [ key, value ] of Object.entries(page.search_fields)) {
+                        if (value.get_value()) {
+                            search_data[key] = value.get_value();
+                        } else {
+                            search_data[key] = false;
+                        }
                     }
+                    frappe.call({
+                        method: "energielenker.energielenker.page.navision_export.navision_export.get_data",
+                        args:{
+                                'suchparameter': search_data,
+                                'exportieren': 1 
+                        },
+                        freeze: true,
+                        freeze_message: 'Exportiere Rechnungen...',
+                        callback: function(r)
+                        {
+                            if (r.message) {
+                                frappe.show_alert({message:"Der Export wurde abgeschlossen.", indicator:'green'}, 5);
+                                frappe.set_route('List/File/Home/NavisionExport');
+                            }
+                        }
+                    });
+                } else {
+                    frappe.msgprint("Bitte Von- und Bis-Datum auswählen", "Fehlende Kriterien");
                 }
-            });
-        } else {
-            frappe.msgprint("Bitte Von- und Bis-Datum auswählen", "Fehlende Kriterien");
-        }
+            },
+            function(){
+                // on no
+            }
+        );
     },
     daten_nachladen: function(page) {
         datum_von = page.search_fields.date_von.get_value();
