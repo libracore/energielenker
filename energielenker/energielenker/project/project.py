@@ -546,21 +546,20 @@ def make_sales_invoice(order, percent, amount, percent_billed, invoice_date, inv
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
     if invoice_type == 'Teilrechnung':
         si = make_sales_invoice(order, ignore_permissions=True)
+        order = frappe.get_doc("Sales Order", order)
         si.billing_type = 'Teilrechnung'
         si.set_posting_time = 1
         si.posting_date = invoice_date
         si.apply_discount_on = 'Net Total'
         si = si.insert(ignore_permissions=True)
         si.payment_schedule = []
-        si.payment_terms_template = '100% 14Tage' if order.navision_internal_ic else '100% 21Tage'
-        #bisher si.payment_terms_template = ''
+        si.payment_terms_template = '100% 14 Tage' if order.navision_interal_ic == 1 else '100% 21 Tage'
 
         for item in si.items:
             item.qty = (item.qty / (100 - float(percent_billed))) * float(percent)
 
         si.save(ignore_permissions=True)
         
-        order = frappe.get_doc("Sales Order", order)
         invoice_row = order.append('billing_overview', {})
         invoice_row.creation_date = today()
         invoice_row.billing_portion = percent
