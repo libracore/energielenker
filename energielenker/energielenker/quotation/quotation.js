@@ -22,7 +22,13 @@ frappe.ui.form.on('Quotation', {
                     cur_frm.set_value('party_name', project.customer);
                 }
             });
-        }        
+        }    
+        
+        if (frm.doc.__islocal) {
+            frm.add_custom_button(__("Get Quotation Template"), function() {
+                get_quotation_template(frm);
+            });
+        }    
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {
@@ -145,4 +151,60 @@ function validate_vielfaches(frm) {
             }
         } 
     });
+}
+
+function get_quotation_template(frm) {
+    frappe.prompt([
+        {'fieldname': 'tpl', 'fieldtype': 'Link', 'options': 'Quotation Template', 'label': 'Quotation Template', 'reqd': 1}  
+    ],
+    function(values){
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Quotation Template",
+                'name': values.tpl
+            },
+            'callback': function(response) {
+                var template = response.message;
+                var tbl = cur_frm.doc.items || [];
+                var i = tbl.length;
+                while (i--)
+                {
+                    cur_frm.get_field("items").grid.grid_rows[i].remove();
+                }
+                cur_frm.refresh();
+                template.items.forEach(function(entry) {
+                    if (entry.item_code != null) {
+                        var child = cur_frm.add_child('items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', entry.item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'description', entry.description);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', entry.qty);
+                        frappe.model.set_value(child.doctype, child.name, 'textposition', entry.textposition);
+                        frappe.model.set_value(child.doctype, child.name, 'alternative_position', entry.alternative_position);
+                        frappe.model.set_value(child.doctype, child.name, 'interne_position', entry.interne_position);
+                        frappe.model.set_value(child.doctype, child.name, 'kalkulationssumme_interner_positionen', entry.kalkulationssumme_interner_positionen);
+                        frappe.model.set_value(child.doctype, child.name, 'typ', entry.typ);
+                        cur_frm.refresh_field('items');
+                         if (entry.textposition == 1 || entry.alternative_position == 1) {
+                            
+                            setTimeout(function(){
+                                frappe.model.set_value(child.doctype, child.name, "discount_percentage", 100.00);
+                                frappe.model.set_value(child.doctype, child.name, "rate", 0.00);
+                                cur_frm.refresh_field('items');
+                            }, 1000);
+                        }
+                    } 
+                });
+                cur_frm.set_value('ansprechpartner', template.ansprechpartner);
+                cur_frm.refresh_field('ansprechpartner');
+                cur_frm.set_value('payment_terms_template', template.payment_terms_template);
+                cur_frm.refresh_field('payment_terms_template');
+                cur_frm.set_value('terms', template.terms);
+                cur_frm.refresh_field('terms');
+            }
+        });
+    },
+    'Quotation Template',
+    'Get'
+    )
 }
