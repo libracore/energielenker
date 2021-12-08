@@ -32,6 +32,7 @@
             <th>Rech. an Deb.-Nr.</th>
             <th>Buchungsdatum</th>
             <th>Buchungsbeschreibung</th>
+            <th>Zlg.-Bedingungscode</th>
             <th>Fälligkeitsdatum</th>
             <th>Shortcutdimensionscode 1</th>
             <th>Belegdatum</th>
@@ -44,11 +45,12 @@
         {% for invoice in invoices %}
             <tr>
                 <td>Rechnung</td>
-                <td>212ERP{{ invoice.sinv | replace("RE", "") }}</td>
+                <td>{{ invoice.sinv }}</td>
                 <td>{{ invoice.navision_kundennummer }}</td>
                 <td>{{ invoice.navision_kundennummer }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
                 <td>{{ invoice.buchungsbeschreibung }}</td>
+                <td>{{ invoice.zlg_bedingungscode }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.due_date).strftime('%d.%m.%Y') }}</td>
                 <td>{{ invoice.navision_shortcutdimensionscode_1 }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>

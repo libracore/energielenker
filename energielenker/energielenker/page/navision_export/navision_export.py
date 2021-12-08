@@ -30,16 +30,17 @@ def get_data(suchparameter, exportieren=False):
             # SalesHeader
             suchparameter["ansicht_auswahl"] = 'SalesHeader'
             salesheader_raw_data = get_datas(suchparameter)
-            salesheader_data = [["Belegart","Nr.","Verk. an Deb.-Nr.","Rech. an Deb.-Nr.","Buchungsdatum","Buchungsbeschreibung","Fälligkeitsdatum","Shortcutdimensionscode 1","Belegdatum","Externe Belegnummer","Datum der Leistung von","Datum der Leistung bis"]]
+            salesheader_data = [["Belegart","Nr.","Verk. an Deb.-Nr.","Rech. an Deb.-Nr.","Buchungsdatum","Buchungsbeschreibung","Zlg.-Bedingungscode","Fälligkeitsdatum","Shortcutdimensionscode 1","Belegdatum","Externe Belegnummer","Datum der Leistung von","Datum der Leistung bis"]]
             
             for sinv in salesheader_raw_data:
                 data = []
                 data.append("Rechnung")
-                data.append("212ERP" + sinv["sinv"].replace("RE", ""))
+                data.append(sinv["sinv"])
                 data.append(sinv["navision_kundennummer"])
                 data.append(sinv["navision_kundennummer"])
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
                 data.append(sinv["buchungsbeschreibung"])
+                data.append(sinv["zlg_bedingungscode"])
                 data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
                 data.append(sinv["navision_shortcutdimensionscode_1"])
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
@@ -63,6 +64,9 @@ def get_data(suchparameter, exportieren=False):
             "is_private": 1,
             "content": file_data})
             _file.save()
+            
+            for sinv in salesheader_raw_data:
+                mark_as_exportet = frappe.db.sql("""UPDATE `tabSales Invoice` SET `rechnung_nach_navision_exportiert` = 1 WHERE `name` = '{sinv}'""".format(sinv=sinv["sinv"]), as_list=True)
             
             return True
     # fallback
@@ -123,7 +127,7 @@ def get_datas(suchparameter):
 
 def _get_salesheader_datas(suchparameter):
     # SalesHeader
-    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_navision_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_navision_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
         cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
@@ -161,11 +165,18 @@ def _get_salesheader_datas(suchparameter):
                 if projektnummer_rhapsody:
                     buchungsbeschreibung += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
         
+        zlg_bedingungscode = ''
+        if sinv.payment_terms_template:
+            payment_terms_template = frappe.get_doc("Payment Terms Template", sinv.payment_terms_template)
+            if len(payment_terms_template.terms) > 0:
+                zlg_bedingungscode = payment_terms_template.terms[0].credit_days
+        
         data = {
             'sinv': sinv.name,
             'navision_kundennummer': navision_kundennummer,
             'rechnungsdatum': sinv.posting_date,
             'buchungsbeschreibung': buchungsbeschreibung,
+            'zlg_bedingungscode': zlg_bedingungscode,
             'due_date': sinv.due_date,
             'navision_shortcutdimensionscode_1': cost_center.navision_shortcutdimensionscode_1 if cost_center.navision_shortcutdimensionscode_1 else '1000800'
         }
@@ -189,7 +200,7 @@ def _get_salesline_datas(suchparameter):
             for lineitem in sinv.items:
                 data = []
                 data.append("Rechnung")
-                data.append("212ERP" + sinv.name.replace("RE", ""))
+                data.append(sinv.name)
                 data.append("1000" + str(loop))
                 loop += 1
                 data.append("Sachkonto")
@@ -215,7 +226,7 @@ def _get_salesline_datas(suchparameter):
                 xte_rechnung = ''
             data = []
             data.append("Rechnung")
-            data.append("212ERP" + sinv.name.replace("RE", ""))
+            data.append(sinv.name)
             data.append("10000")
             data.append("Sachkonto")
             data.append("17200")
@@ -234,7 +245,7 @@ def _get_salesline_datas(suchparameter):
             for lineitem in sinv.items:
                 data = []
                 data.append("Rechnung")
-                data.append("212ERP" + sinv.name.replace("RE", ""))
+                data.append(sinv.name)
                 data.append("1000" + str(loop))
                 loop += 1
                 data.append("Sachkonto")
@@ -266,7 +277,7 @@ def _get_salesline_datas(suchparameter):
                             projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
                     data.append("Rechnung")
-                    data.append("212ERP" + sinv.name.replace("RE", ""))
+                    data.append(sinv.name)
                     data.append("1000" + str(loop))
                     loop += 1
                     data.append("Sachkonto")
