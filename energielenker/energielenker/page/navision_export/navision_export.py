@@ -169,7 +169,7 @@ def _get_salesheader_datas(suchparameter):
         if sinv.payment_terms_template:
             payment_terms_template = frappe.get_doc("Payment Terms Template", sinv.payment_terms_template)
             if len(payment_terms_template.terms) > 0:
-                zlg_bedingungscode = payment_terms_template.terms[0].credit_days
+                zlg_bedingungscode = str(payment_terms_template.terms[0].credit_days) + "T"
         
         data = {
             'sinv': sinv.name,
@@ -289,7 +289,7 @@ def _get_salesline_datas(suchparameter):
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     data.append("")
                     data.append("1")
-                    data.append("-" + str(teilrechnung.amount))
+                    data.append("-" + str(_teilrechnung.total))
                     data.append(_sinv["navision_shortcutdimensionscode_1"])
                     data.append("INL")
                     if len(sinv.taxes) > 0:
