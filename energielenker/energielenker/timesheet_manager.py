@@ -47,6 +47,7 @@ def quick_start_timer(ts):
         row.to_time= get_datetime()
         row.hours = 0
         row.quick_entry = 1
+        row.remarks = '...'
         
         ts.save()
         frappe.db.commit()
@@ -64,7 +65,8 @@ def quick_start_timer(ts):
                     "from_time": get_datetime(),
                     "to_time": get_datetime(),
                     "hours": 0,
-                    "quick_entry": 1
+                    "quick_entry": 1,
+                    "remarks": "..."
                 }
             ]
         })
@@ -101,6 +103,12 @@ def start_timer(ts, details):
                 row.issue = details[key]
             if key == "remarks":
                 row.remarks = details[key]
+            if key == "typisierung":
+                row.typisierung = details[key]
+            if key == "rufbereitschaft_von":
+                row.rufbereitschaft_von = details[key]
+            if key == "rufbereitschaft_bis":
+                row.rufbereitschaft_bis = details[key]
                 
         if int(details["bill"]) == 1:
             rates = get_employee_rate(ts.employee)
@@ -220,6 +228,12 @@ def stop_timer_from_quick_start(ts, details):
                         time_log.tbd = details[key]
                     if key == "remarks":
                         time_log.remarks = details[key]
+                    if key == "typisierung":
+                        time_log.typisierung = details[key]
+                    if key == "rufbereitschaft_von":
+                        time_log.rufbereitschaft_von = details[key]
+                    if key == "rufbereitschaft_bis":
+                        time_log.rufbereitschaft_bis = details[key]
                         
                 
                 if int(details["bill"]) == 1:
@@ -265,6 +279,12 @@ def add_timeblock(ts, details):
                 row.issue = details[key]
             if key == "remarks":
                 row.remarks = details[key]
+            if key == "typisierung":
+                row.typisierung = details[key]
+            if key == "rufbereitschaft_von":
+                row.rufbereitschaft_von = details[key]
+            if key == "rufbereitschaft_bis":
+                row.rufbereitschaft_bis = details[key]
                 
         if int(details["bill"]) == 1:
             rates = get_employee_rate(ts.employee)
