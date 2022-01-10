@@ -127,7 +127,11 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
-
+scheduler_events = {
+    "daily": [
+        "energielenker.energielenker.project.project.auto_kpi_refresh"
+    ]
+}
 # scheduler_events = {
 # 	"all": [
 # 		"energielenker.tasks.all"
