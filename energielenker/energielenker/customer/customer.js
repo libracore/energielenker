@@ -4,8 +4,18 @@ frappe.ui.form.on('Customer', {
        render_address_and_contact(cur_frm);
     },
     customer_primary_contact: function(frm) {
-		fetch_email(frm);
-	}
+        fetch_email(frm);
+    },
+    adresse_verknupfen: function(frm) {
+        adresse_verknupfen(frm);
+    },
+    kontakt_verknupfen: function(frm) {
+        kontakt_verknupfen(frm);
+    },
+    validate: function(frm) {
+        cur_frm.set_value("adresse_lookup", "");
+        cur_frm.set_value("kontakt_lookup", "");
+    }
 })
 
 function render_address_and_contact(frm) {
@@ -28,6 +38,36 @@ function render_address_and_contact(frm) {
                 frappe.new_doc("Contact");
             }
         );
+    }
+}
+
+function adresse_verknupfen(frm) {
+    if (cur_frm.doc.adresse_lookup) {
+        frappe.call({
+            method: "energielenker.energielenker.customer.customer.adresse_verknupfen",
+            args: {
+                "address": cur_frm.doc.adresse_lookup,
+                "customer": cur_frm.doc.name
+            },
+            callback: function (r) {
+                cur_frm.reload_doc();
+            }
+        });
+    }
+}
+
+function kontakt_verknupfen(frm) {
+    if (cur_frm.doc.kontakt_lookup) {
+        frappe.call({
+            method: "energielenker.energielenker.customer.customer.kontakt_verknupfen",
+            args: {
+                "contact": cur_frm.doc.kontakt_lookup,
+                "customer": cur_frm.doc.name
+            },
+            callback: function (r) {
+                cur_frm.reload_doc();
+            }
+        });
     }
 }
 
