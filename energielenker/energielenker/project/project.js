@@ -142,6 +142,7 @@ frappe.ui.form.on("Payment Forecast", {
             "async": true,
             "callback": function(response) {
                 var data = response.message;
+                var percent_to_bill = data.percent_to_bill;
                 if (data.percent_already_billed > 0) {
                     var percent_already_billed = data.percent_already_billed
                 } else {
@@ -149,6 +150,10 @@ frappe.ui.form.on("Payment Forecast", {
                 }
                 if (percent_already_billed > 0) {
                     var order_amount_total = (data.grand_total / 100) * percent_already_billed;
+                    // fallback
+                    if (percent_to_bill == 0) {
+                        percent_to_bill = 100 - percent_already_billed;
+                    }
                 } else {
                     var order_amount_total = 0.00;
                 }
@@ -158,7 +163,7 @@ frappe.ui.form.on("Payment Forecast", {
                     var d = new frappe.ui.Dialog({
                         'fields': [
                             {'fieldname': 'section_auftrag', 'label': 'Auftrags Details', 'fieldtype': 'Section Break'},
-                            {'fieldname': 'order_percent', 'label': 'Zu Verrechnen in Prozent', 'fieldtype': 'Percent', 'default': data.percent_to_bill, 'read_only': 1},
+                            {'fieldname': 'order_percent', 'label': 'Zu Verrechnen in Prozent', 'fieldtype': 'Percent', 'default': percent_to_bill, 'read_only': 1},
                             {'fieldname': 'order_amount', 'label': 'Zu Verrechnen als Betrag', 'fieldtype': 'Currency', 'default': row.amount, 'read_only': 1},
                             {'fieldname': 'cb_1', 'fieldtype': 'Column Break'},
                             {'fieldname': 'order_percent_total', 'label': 'Bereits Verrechnet in Prozent', 'fieldtype': 'Percent', 'default': percent_already_billed, 'read_only': 1},
@@ -197,7 +202,7 @@ frappe.ui.form.on("Payment Forecast", {
                                 }
                             },
                             {'fieldname': 'invoice_date', 'label': 'Rechnungsdatum', 'fieldtype': 'Date', 'default': frappe.datetime.nowdate(), 'reqd': 1},
-                            {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': data.percent_to_bill, 'precision': 9, 'reqd': 1, 'read_only': 0,
+                            {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': percent_to_bill, 'precision': 9, 'reqd': 1, 'read_only': 0,
                                 'change': function() {
                                     if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
                                         if ((d.get_value('invoice_percent') + percent_already_billed) <= 100) {
