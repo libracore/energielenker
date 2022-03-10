@@ -318,7 +318,9 @@ function load_template(frm) {
         },
         "callback": function(response) {
             var template = response.message;
-            cur_frm.set_value("project_type", template.project_type);
+            if (!cur_frm.doc.project_type) {
+                cur_frm.set_value("project_type", template.project_type);
+            }
             cur_frm.set_value("contract_type", template.contract_type);
             cur_frm.set_value("cost_center", template.default_cost_center);
         }
