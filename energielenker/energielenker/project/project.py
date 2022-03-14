@@ -492,9 +492,14 @@ def get_contact_details(doc):
 
 @frappe.whitelist()
 def fetch_payment_schedule(project, sales_order, payment_schedule=False):
-    if payment_schedule:
-        import json
+    if 'basestring' not in globals():
+        basestring = str
+    import json
+    if payment_schedule and isinstance(payment_schedule, basestring):
         payment_schedule = json.loads(payment_schedule)
+    else:
+        if payment_schedule:
+            payment_schedule = frappe.get_doc("Sales Order", sales_order).payment_schedule
     
     project = frappe.get_doc("Project", project)
         
@@ -511,6 +516,7 @@ def fetch_payment_schedule(project, sales_order, payment_schedule=False):
     if not found_so:
         # add SO
         for so_ps in payment_schedule:
+            so_ps = so_ps.as_dict()
             new_ps = project.append('payment_schedule', {})
             new_ps.order = sales_order
             new_ps.date = so_ps["due_date"]

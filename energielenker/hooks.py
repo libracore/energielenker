@@ -122,6 +122,9 @@ doc_events = {
     },
     "Task": {
         "on_update": "energielenker.energielenker.task.task.on_update"
+    },
+    "Sales Order": {
+        "on_submit": "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so"
     }
 }
 
