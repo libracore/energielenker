@@ -93,7 +93,7 @@ function erstelle_supportrechnung(frm) {
                     'bis': values.bis,
                     'adresse': values.adresse
                 },
-            "async": false,
+            "async": true,
             "freeze": true,
             "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
             "callback": function(r) {
