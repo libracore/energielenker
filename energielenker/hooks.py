@@ -125,6 +125,9 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit": "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so"
+    },
+    "Timesheet": {
+        "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"
     }
 }
 
