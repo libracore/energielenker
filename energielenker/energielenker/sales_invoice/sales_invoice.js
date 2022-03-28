@@ -14,6 +14,7 @@ frappe.ui.form.on("Sales Invoice", {
                     }
             } catch (err) {}
         }, 1000);
+        
         if (cur_frm.doc.customer) {
             frappe.call({
                 'method': "frappe.client.get",
@@ -31,6 +32,20 @@ frappe.ui.form.on("Sales Invoice", {
                                  "deaktiviert": 0
                              }
                          }
+                    }
+                    
+                    if (cur_frm.doc.docstatus == 0) {
+                        // prüfung der Zahlungsbedingung
+                        if ((customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 14 Tage')) {
+                            cur_frm.set_value("payment_schedule", []);
+                            cur_frm.set_value("payment_terms_template", "");
+                            cur_frm.set_value("payment_terms_template", "100% 14 Tage");
+                        }
+                        if ((!customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 21 Tage')) {
+                            cur_frm.set_value("payment_schedule", []);
+                            cur_frm.set_value("payment_terms_template", "");
+                            cur_frm.set_value("payment_terms_template", "100% 21 Tage");
+                        }
                     }
                 }
             });
