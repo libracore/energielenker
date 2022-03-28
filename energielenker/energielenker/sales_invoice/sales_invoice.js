@@ -35,6 +35,13 @@ frappe.ui.form.on("Sales Invoice", {
                 }
             });
         }
+        
+        // hack für server seitig erstelle rechnungen: neu setzen mwst template damit die mwst Tabelle befüllt wird.
+        if ((cur_frm.doc.taxes_and_charges)&&(cur_frm.doc.taxes.length < 1)) {
+            var taxes = cur_frm.doc.taxes_and_charges;
+            cur_frm.set_value("taxes_and_charges", "");
+            cur_frm.set_value("taxes_and_charges", taxes);
+        }
     },
     customer: function(frm) {
         shipping_address_query(frm);
