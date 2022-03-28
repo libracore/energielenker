@@ -34,13 +34,15 @@ def erstelle_supportrechnung(customer, von, bis, adresse):
                                         `tabTimesheet Detail`.`hours` AS `hours`,
                                         `tabTimesheet Detail`.`from_time` AS `from_time`,
                                         `tabTimesheet Detail`.`remarks` AS `remarks`,
+                                        `tabTimesheet Detail`.`name` AS `time_log_name`,
                                         `tabTimesheet`.`employee` AS `employee`,
                                         `tabTimesheet`.`employee_name` AS `employee_name`
                                     FROM `tabTimesheet Detail`
                                     LEFT JOIN `tabTimesheet`
                                     ON `tabTimesheet Detail`.`parent` = `tabTimesheet`.`name`
                                     WHERE `from_time` >= '{von} 00:00:00' AND `from_time` <= '{bis} 23:59:59'
-                                    AND `tabTimesheet Detail`.`issue` = '{ticket}'""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
+                                    AND `tabTimesheet Detail`.`issue` = '{ticket}'
+                                    AND `tabTimesheet Detail`.`billed_with_support` != 1""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
         for time_log in time_logs:
             if float(time_log.hours) > 0:
                 if not sinv:
@@ -52,6 +54,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse):
                 beschreibung = '{employee_name}, {from_time}, {hours}h:<br>{remarks}'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks)
                 row.description = beschreibung
                 row.qty = float(time_log.hours)
+                mark_timelog_as_billed = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_support` = 1 WHERE `name` = '{time_log_name}'""".format(time_log_name=time_log.time_log_name), as_list=True)
     
     if sinv:
         sinv.flags.ignore_mandatory = True
