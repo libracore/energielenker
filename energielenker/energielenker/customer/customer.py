@@ -74,3 +74,17 @@ def get_item(employee):
         return frappe.db.get_single_value('energielenker Settings', 'support_3')
     else:
         return frappe.db.get_single_value('energielenker Settings', 'support_1')
+
+@frappe.whitelist()
+def get_adressen_zum_verrechnen(customer):
+    adressen_zum_verrechnen = frappe.db.sql("""SELECT DISTINCT `issue`.`address` FROM `tabIssue` AS `issue` WHERE
+                                                `issue`.`name` IN (
+                                                    SELECT `ts`.`issue` FROM `tabTimesheet Detail` AS `ts` WHERE `ts`.`billed_with_support` != 1
+                                                )
+                                                AND `issue`.`customer` = '{customer}'
+                                                AND `issue`.`address` IS NOT NULL""".format(customer=customer), as_list=True)
+    adress_liste = []
+    for a in adressen_zum_verrechnen:
+        adress_liste.append(a[0])
+    return adress_liste
+    

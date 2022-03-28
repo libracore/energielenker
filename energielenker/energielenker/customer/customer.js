@@ -75,37 +75,52 @@ function kontakt_verknupfen(frm) {
 }
 
 function erstelle_supportrechnung(frm) {
-    frappe.prompt([
-        {'fieldname': 'von', 'fieldtype': 'Date', 'label': 'Von', 'reqd': 1},
-        {'fieldname': 'bis', 'fieldtype': 'Date', 'label': 'Bis', 'reqd': 1},
-        {'fieldname': 'adresse', 'fieldtype': 'Link', 'label': 'Adresse (Produktionsstandort)', 'reqd': 1, 'options': 'Address',
-            'get_query': function() {
-                return { 'filters': { 'link_doctype': "Customer", "link_name": frm.doc.name } };
-            }
-        }
-    ],
-    function(values){
-        frappe.call({
-            "method": "energielenker.energielenker.customer.customer.erstelle_supportrechnung",
-            "args": {
-                    'customer': frm.doc.name,
-                    'von': values.von,
-                    'bis': values.bis,
-                    'adresse': values.adresse
-                },
-            "async": true,
-            "freeze": true,
-            "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
-            "callback": function(r) {
-                if (r.message != 'no sinv') {
-                    frappe.set_route("Form", "Sales Invoice", r.message)
-                } else {
-                    frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+    frappe.call({
+        "method": "energielenker.energielenker.customer.customer.get_adressen_zum_verrechnen",
+        "args": {
+                'customer': frm.doc.name
+            },
+        "async": true,
+        "callback": function(res) {
+            var kunden = res.message;
+            frappe.prompt([
+                {'fieldname': 'von', 'fieldtype': 'Date', 'label': 'Von', 'reqd': 1},
+                {'fieldname': 'bis', 'fieldtype': 'Date', 'label': 'Bis', 'reqd': 1},
+                {'fieldname': 'adresse', 'fieldtype': 'Link', 'label': 'Adresse (Produktionsstandort)', 'reqd': 1, 'options': 'Address',
+                    'get_query': function() {
+                        return { 'filters': {
+                                'link_doctype': "Customer",
+                                "link_name": frm.doc.name,
+                                'name': ['in', kunden]
+                            }
+                        };
+                    }
                 }
-            }
-        });
-    },
-    'Erstelle Supportrechnung',
-    'Erstellen'
-    )
+            ],
+            function(values){
+                frappe.call({
+                    "method": "energielenker.energielenker.customer.customer.erstelle_supportrechnung",
+                    "args": {
+                            'customer': frm.doc.name,
+                            'von': values.von,
+                            'bis': values.bis,
+                            'adresse': values.adresse
+                        },
+                    "async": true,
+                    "freeze": true,
+                    "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
+                    "callback": function(r) {
+                        if (r.message != 'no sinv') {
+                            frappe.set_route("Form", "Sales Invoice", r.message)
+                        } else {
+                            frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+                        }
+                    }
+                });
+            },
+            'Erstelle Supportrechnung',
+            'Erstellen'
+            )
+        }
+    });
 }
