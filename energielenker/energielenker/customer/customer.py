@@ -49,6 +49,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse):
                     sinv = frappe.new_doc("Sales Invoice")
                     sinv.customer = customer
                     sinv.customer_address = adresse
+                    sinv.shipping_address_name = adresse
                 row = sinv.append('items', {})
                 row.item_code = get_item(time_log.employee)
                 beschreibung = '{employee_name}, {from_time}, {hours}h:<br>{remarks}'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or '')
