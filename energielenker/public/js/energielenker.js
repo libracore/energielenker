@@ -57,6 +57,13 @@ $(document).ready(function(){
     }, 1000);
 });
 
+$(window).on('hashchange', function() {
+    // redirect from #query-report/Stock Ledger
+    if(frappe._cur_route=="#query-report/Stock%20Ledger") {
+        window.location.href = "#query-report/energielenker%20Lagerbuch";
+    }
+});
+
 function timesheet_manager_quick_start(ts) {
     frappe.call({
         "method": "energielenker.energielenker.timesheet_manager.quick_start_timer",
