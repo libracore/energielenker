@@ -63,6 +63,13 @@ doctype_js = {
 doctype_list_js = {
     "Project" : "energielenker/project/project_list.js"
 }
+
+jenv = {
+    "methods": [
+        "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items"
+    ]
+}
+
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
