@@ -133,6 +133,9 @@ def start_timer(ts, details):
         task = ''
         issue = ''
         remarks = ''
+        typisierung = ''
+        rufbereitschaft_von = ''
+        rufbereitschaft_bis = ''
         for key in details:
             if key == 'project':
                 project = details[key]
@@ -142,6 +145,12 @@ def start_timer(ts, details):
                 issue = details[key]
             if key == "remarks":
                 remarks = details[key]
+            if key == "typisierung":
+                typisierung = details[key]
+            if key == "rufbereitschaft_von":
+                rufbereitschaft_von = details[key]
+            if key == "rufbereitschaft_bis":
+                rufbereitschaft_bis = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -176,7 +185,10 @@ def start_timer(ts, details):
                     "billable": billable,
                     "billing_hours": billing_hours,
                     "billing_rate": billing_rate,
-                    "costing_rate": costing_rate
+                    "costing_rate": costing_rate,
+                    "typisierung": typisierung,
+                    "rufbereitschaft_von": rufbereitschaft_von,
+                    "rufbereitschaft_bis": rufbereitschaft_bis
                 }
             ]
         })
@@ -312,6 +324,9 @@ def add_timeblock(ts, details):
         task = ''
         issue = ''
         remarks = ''
+        typisierung = ''
+        rufbereitschaft_von = ''
+        rufbereitschaft_bis = ''
         
         for key in details:
             if key == 'project':
@@ -322,6 +337,12 @@ def add_timeblock(ts, details):
                 issue = details[key]
             if key == "remarks":
                 remarks = details[key]
+            if key == "typisierung":
+                typisierung = details[key]
+            if key == "rufbereitschaft_von":
+                rufbereitschaft_von = details[key]
+            if key == "rufbereitschaft_bis":
+                rufbereitschaft_bis = details[key]
                 
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
@@ -362,7 +383,10 @@ def add_timeblock(ts, details):
                     "billing_rate": billing_rate,
                     "costing_rate": costing_rate,
                     "billing_amount": billing_amount,
-                    "costing_amount": costing_amount
+                    "costing_amount": costing_amount,
+                    "typisierung": typisierung,
+                    "rufbereitschaft_von": rufbereitschaft_von,
+                    "rufbereitschaft_bis": rufbereitschaft_bis
                 }
             ]
         })

@@ -231,7 +231,7 @@ class PowerProject():
                 if task.actual_time > task.expected_time:
                     voraussichtliche_abweichung += task.expected_time - task.actual_time
         
-        return voraussichtliche_abweichung
+        return voraussichtliche_abweichung - self.project.gebuchte_stunden_in_rhapsody
     
     def get_zeit_geplant_in_aufgaben(self):
         return frappe.get_all(

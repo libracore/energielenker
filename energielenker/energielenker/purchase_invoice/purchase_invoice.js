@@ -14,7 +14,6 @@ frappe.ui.form.on('Purchase Invoice', {
         }, 1000);
     },
     validate: function(frm) {
-        cur_frm.set_value("update_stock", 1);
         if (cur_frm.doc.project) {
             var items = cur_frm.doc.items;
             items.forEach(function(entry) {
@@ -25,6 +24,11 @@ frappe.ui.form.on('Purchase Invoice', {
         }
         check_vielfaches(frm);
         return
+    },
+    onload: function(frm) {
+        if (cur_frm.doc.docstatus == 0) {
+            cur_frm.set_value("update_stock", 1);
+        }
     }
 })
 

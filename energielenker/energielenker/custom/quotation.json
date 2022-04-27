@@ -321,14 +321,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2022-04-26 15:53:27.433016",
+   "creation": "2022-04-27 09:42:54.207144",
    "default_value": null,
    "doc_type": "Quotation",
    "docstatus": 0,
    "doctype_or_field": "DocType",
    "field_name": null,
    "idx": 0,
-   "modified": "2022-04-26 15:53:27.433016",
+   "modified": "2022-04-27 09:42:54.207144",
    "modified_by": "Administrator",
    "name": "Quotation-max_attachments",
    "owner": "Administrator",
@@ -337,7 +337,7 @@
    "parenttype": null,
    "property": "max_attachments",
    "property_type": "Int",
-   "value": "5"
+   "value": "10"
   },
   {
    "_assign": null,
