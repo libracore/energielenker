@@ -7,6 +7,6 @@ import frappe
 
 def fetch_payment_schedule_from_so(so, event):
     if so.project:
-        from energielenker.energielenker.project.project import fetch_payment_schedule
-        fetch_payment_schedule(project=so.project, sales_order=so.name, payment_schedule=so.payment_schedule)
+        from energielenker.energielenker.zahlungsplan.zahlungsplan import so_to_project
+        so_to_project(project=so.project, sales_order=so.name, payment_schedule=so.payment_schedule)
     return

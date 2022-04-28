@@ -34,21 +34,6 @@ frappe.ui.form.on("Sales Order", {
             });
         }
     },
-    //~ --> Siehe Hooks.py --> energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so
-    //~ on_submit: function (frm) {
-        //~ if (cur_frm.doc.project) {
-            //~ // add fetch payment forecast
-            //~ frappe.call({
-                //~ method: "energielenker.energielenker.project.project.fetch_payment_schedule",
-                //~ args: {
-                    //~ "project": cur_frm.doc.project,
-                    //~ "sales_order": cur_frm.doc.name,
-                    //~ "payment_schedule": cur_frm.doc.payment_schedule
-                //~ },
-                //~ callback: function (r) {}
-            //~ });
-        //~ }
-    //~ },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
             // clear fetched payment forecast
@@ -87,6 +72,104 @@ frappe.ui.form.on("Sales Order", {
         if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
             cur_frm.set_value('navision_kontonummer', '');
         }
+    },
+    zahlungsplan_anpassen: function(frm) {
+        var data = [];
+        cur_frm.doc.payment_schedule.forEach(function(entry) {
+            var row_data = {
+                name: entry.name,
+                due_date: entry.due_date,
+                invoice_portion: entry.invoice_portion,
+                payment_amount: entry.payment_amount,
+                description: entry.description
+            }
+            data.push(row_data)
+        });
+        var d = new frappe.ui.Dialog({
+            title: 'Anpassungen Zahlungsplan',
+            fields: [
+                {'fieldname': 'ht', 'fieldtype': 'HTML'},
+                {
+                    fieldname: 'payment_schedule_table',
+                    fieldtype: 'Table',
+                    data: cur_frm.doc.payment_schedule,
+                    label: "Zahlungsplan",
+                    cannot_add_rows: false,
+                    in_place_edit: true,
+                    reqd: 1,
+                    data: data,
+                    fields: [
+                        {
+                            fieldtype:'Data',
+                            fieldname:"name",
+                            hidden: 1
+                        },
+                        {
+                            fieldtype:'Small Text',
+                            fieldname:"description",
+                            in_list_view: 1
+                        },
+                        {
+                            fieldtype:'Date',
+                            fieldname:"due_date",
+                            in_list_view: 1,
+                            read_only: 0,
+                            reqd: 1,
+                            label: __('Due Date')
+                        },
+                        {
+                            fieldtype:'Percent',
+                            fieldname:"invoice_portion",
+                            read_only: 0,
+                            in_list_view: 1,
+                            reqd: 1,
+                            label: __('Invoice Portion')
+                        },
+                        {
+                            fieldtype:'Currency',
+                            fieldname:"payment_amount",
+                            read_only: 0,
+                            in_list_view: 1,
+                            reqd: 1,
+                            label: __('Payment Amount')
+                        }
+                    ]
+                }
+            ],
+            primary_action: function(){
+                var betrag = 0;
+                var warning = false;
+                d.get_values().payment_schedule_table.forEach(function(entry){
+                    if(!entry.due_date||!entry.invoice_portion||!entry.payment_amount) {
+                        warning = true;
+                    } else {
+                        betrag += entry.payment_amount;
+                    }
+                });
+                if (!warning) {
+                    //~ if (betrag == cur_frm.doc.grand_total) {
+                        d.hide();
+                        frappe.call({
+                            "method": "energielenker.energielenker.zahlungsplan.zahlungsplan.change_in_so",
+                            "args": {
+                                "payment_schedule": d.get_values().payment_schedule_table,
+                                "so": cur_frm.doc.name
+                            },
+                            "callback": function(r) {
+                                
+                            }
+                        });
+                    //~ } else {
+                        //~ frappe.msgprint("Bitte prüfen Sie die Beträge<br>Gesamttotal Zahlungsplan: " + String(betrag) + "<br>Gesamttotal Auftrag: " + String(cur_frm.doc.grand_total) + "<br><b>Differenz: " + String(betrag - cur_frm.doc.grand_total) + "</b>");
+                    //~ }
+                } else {
+                    frappe.msgprint("Bitte alle Pflichtfelder befüllen");
+                }
+            },
+            primary_action_label: __('Übernehmen')
+        });
+        d.fields_dict.ht.$wrapper.html('Hier können Sie Änderungen am Zahlungsplan vornehmen.<br>Die Änderungen werden an das, insofern vorhanden, verknüpfte Projekt übertragen.');
+        d.show();
     }
 });
 

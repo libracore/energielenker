@@ -28,7 +28,6 @@ class PowerProject():
         self.project.estimated_costing = self.project.geschaetzte_kosten
         
         self.project.calculate_gross_margin()
-        self.update_payment_schedule()
 
     def update_custom_kpis(self):
         custom_kpis = [
@@ -75,26 +74,6 @@ class PowerProject():
 
         for kpi in erpnext_kpis:
             self.update_erpnext_kpi(kpi)
-
-    def update_payment_schedule(self):
-        if self.project.sales_order:
-            sales_order = frappe.get_doc("Sales Order", self.project.sales_order)
-            found_so = False
-            if len(self.project.payment_schedule) > 0:
-                # check if SO already exist
-                for ps in self.project.payment_schedule:
-                    if ps.order == sales_order.name:
-                        found_so = True
-            if not found_so:
-                # add SO
-                for so_ps in sales_order.payment_schedule:
-                    new_ps = self.project.append('payment_schedule', {})
-                    new_ps.order = sales_order.name
-                    new_ps.date = so_ps.due_date
-                    new_ps.amount = so_ps.payment_amount
-                    if self.project.total_amount:
-                        percent_of_total_amount = so_ps.payment_amount / self.project.total_amount * 100;
-                        new_ps.percent = percent_of_total_amount
     
     def update_dates(self):
         dates = [
@@ -489,58 +468,6 @@ def get_contact_details(doc):
         contact["address"] = get_condensed_address(address)
 
     return {"contact_list": [contact]}
-
-@frappe.whitelist()
-def fetch_payment_schedule(project, sales_order, payment_schedule=False):
-    if 'basestring' not in globals():
-        basestring = str
-    import json
-    if payment_schedule and isinstance(payment_schedule, basestring):
-        payment_schedule = json.loads(payment_schedule)
-    else:
-        if payment_schedule:
-            payment_schedule = frappe.get_doc("Sales Order", sales_order).payment_schedule
-    
-    project = frappe.get_doc("Project", project)
-        
-    if not payment_schedule:
-        payment_schedule = project.payment_schedule
-        
-    found_so = False
-    
-    if len(project.payment_schedule) > 0:
-        # check if SO already exist
-        for ps in project.payment_schedule:
-            if ps.order == sales_order:
-                found_so = True
-    if not found_so:
-        # add SO
-        for so_ps in payment_schedule:
-            so_ps = so_ps.as_dict()
-            new_ps = project.append('payment_schedule', {})
-            new_ps.order = sales_order
-            new_ps.date = so_ps["due_date"]
-            new_ps.amount = so_ps["payment_amount"]
-            if project.total_amount:
-                percent_of_total_amount = so_ps["payment_amount"] / project.total_amount * 100;
-                new_ps.percent = percent_of_total_amount
-        project.save()
-        
-        try:
-            # create assignment
-            from frappe.desk.form.assign_to import add
-            add(args = {
-                'assign_to': project.project_manager,
-                'doctype': 'Project',
-                'name': project.name,
-                'description': _('Check the Payment Forecast Table')
-            })
-        except frappe.desk.form.assign_to.DuplicateToDoError:
-            frappe.local.message_log = []
-        
-        frappe.db.commit()
-    
-    return
 
 @frappe.whitelist()
 def clear_payment_schedule(project, sales_order):
