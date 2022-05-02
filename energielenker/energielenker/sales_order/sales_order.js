@@ -156,7 +156,7 @@ frappe.ui.form.on("Sales Order", {
                                 "so": cur_frm.doc.name
                             },
                             "callback": function(r) {
-                                
+                                cur_frm.reload_doc();
                             }
                         });
                     //~ } else {
