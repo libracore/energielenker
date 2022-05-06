@@ -35,16 +35,25 @@ frappe.ui.form.on("Sales Invoice", {
                     }
                     
                     if (cur_frm.doc.docstatus == 0) {
-                        // prüfung der Zahlungsbedingung
-                        if ((customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 14 Tage')) {
-                            cur_frm.set_value("payment_schedule", []);
-                            cur_frm.set_value("payment_terms_template", "");
-                            cur_frm.set_value("payment_terms_template", "100% 14 Tage");
-                        }
-                        if ((!customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 21 Tage')) {
-                            cur_frm.set_value("payment_schedule", []);
-                            cur_frm.set_value("payment_terms_template", "");
-                            cur_frm.set_value("payment_terms_template", "100% 21 Tage");
+                        // Kundenspezifische Zahlungsbedingung hat vorrang
+                        if (customer.payment_terms) {
+                            if (cur_frm.doc.payment_terms_template != customer.payment_terms) {
+                                cur_frm.set_value("payment_schedule", []);
+                                cur_frm.set_value("payment_terms_template", "");
+                                cur_frm.set_value("payment_terms_template", customer.payment_terms);
+                            }
+                        } else {
+                            // prüfung der Zahlungsbedingung
+                            if ((customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 14 Tage')) {
+                                cur_frm.set_value("payment_schedule", []);
+                                cur_frm.set_value("payment_terms_template", "");
+                                cur_frm.set_value("payment_terms_template", "100% 14 Tage");
+                            }
+                            if ((!customer.navision_internal_ic)&&(cur_frm.doc.payment_terms_template != '100% 21 Tage')) {
+                                cur_frm.set_value("payment_schedule", []);
+                                cur_frm.set_value("payment_terms_template", "");
+                                cur_frm.set_value("payment_terms_template", "100% 21 Tage");
+                            }
                         }
                     }
                 }
