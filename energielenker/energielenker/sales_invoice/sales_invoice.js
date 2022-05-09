@@ -83,7 +83,9 @@ frappe.ui.form.on("Sales Invoice", {
     onload: function(frm) {
         if (cur_frm.doc.items) {
             if (cur_frm.doc.items[0].delivery_note) {
-                cur_frm.set_value("is_pos", 1);
+                if (cur_frm.doc.docstatus == 0) {
+                    cur_frm.set_value("is_pos", 1);
+                }
             }
         }
         fetch_customer_an_cost_center(frm);
