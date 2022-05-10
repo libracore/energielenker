@@ -57,7 +57,8 @@ doctype_js = {
     "Stock Entry": "energielenker/stock_entry/stock_entry.js",
     "Request for Quotation": "energielenker/request_for_quotation/request_for_quotation.js",
     "BOM": "energielenker/bom/bom.js",
-    "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js"
+    "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js",
+    "Lead": "energielenker/lead/lead.js"
 }
 
 doctype_list_js = {
