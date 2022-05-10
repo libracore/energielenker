@@ -338,7 +338,27 @@ class PowerProject():
         return amount
     
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
-        return self.project.total_purchase_cost + self.project.erfasste_externe_kosten_in_rhapsody
+        # alt
+        # ~ return self.project.total_purchase_cost + self.project.erfasste_externe_kosten_in_rhapsody
+        
+        # neu (PINV + Material Issue)
+        total_purchase_cost = frappe.db.sql("""SELECT SUM(`grand_total`)
+            FROM `tabPurchase Invoice` WHERE `project` = '{0}' AND `docstatus` = 1""".format(self.project.name), as_list=True)
+        
+        total_material_issue = frappe.db.sql("""SELECT SUM(`total_outgoing_value`)
+            FROM `tabStock Entry` WHERE `project` = '{0}' AND `docstatus` = 1 AND `stock_entry_type` = 'Material Issue'""".format(self.project.name), as_list=True)
+        
+        if len(total_purchase_cost) > 0:
+            total_purchase_cost = total_purchase_cost[0][0]
+        else:
+            total_purchase_cost = 0
+        
+        if len(total_material_issue) > 0:
+            total_material_issue = total_material_issue[0][0]
+        else:
+            total_material_issue = 0
+        
+        return total_purchase_cost + total_material_issue + self.project.erfasste_externe_kosten_in_rhapsody
     
     def get_auftragsummen_gesamt(self):
         return self.project.total_sales_amount
