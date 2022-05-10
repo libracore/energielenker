@@ -82,7 +82,9 @@ frappe.ui.form.on("Sales Order", {
                 name: entry.name,
                 due_date: entry.due_date,
                 invoice_portion: entry.invoice_portion,
+                original_invoice_portion: entry.invoice_portion,
                 payment_amount: entry.payment_amount,
+                original_payment_amount: entry.payment_amount,
                 description: entry.description
             }
             data.push(row_data)
@@ -125,7 +127,28 @@ frappe.ui.form.on("Sales Order", {
                             read_only: 0,
                             in_list_view: 1,
                             reqd: 1,
-                            label: __('Invoice Portion')
+                            label: __('Invoice Portion'),
+                            change: function() {
+                                if (this.doc.original_invoice_portion) {
+                                    var old_value = this.doc.original_invoice_portion;
+                                    var new_value = this.doc.invoice_portion;
+                                    var old_currency = this.doc.payment_amount;
+                                    var new_currency = (old_currency / old_value) * new_value;
+                                    this.doc.payment_amount = new_currency;
+                                    this.doc.original_invoice_portion = new_value;
+                                    this.doc.original_payment_amount = new_currency;
+                                    cur_dialog.fields_dict.payment_schedule_table.grid.refresh();
+                                } else {
+                                    var old_value = 100;
+                                    var new_value = this.doc.invoice_portion;
+                                    var old_currency = cur_frm.doc.rounded_total;
+                                    var new_currency = (old_currency / old_value) * new_value;
+                                    this.doc.payment_amount = new_currency;
+                                    this.doc.original_invoice_portion = new_value;
+                                    this.doc.original_payment_amount = new_currency;
+                                    cur_dialog.fields_dict.payment_schedule_table.grid.refresh();
+                                }
+                            }
                         },
                         {
                             fieldtype:'Currency',
@@ -133,6 +156,39 @@ frappe.ui.form.on("Sales Order", {
                             read_only: 0,
                             in_list_view: 1,
                             reqd: 1,
+                            label: __('Payment Amount'),
+                            change: function() {
+                                if (this.doc.original_payment_amount) {
+                                    var old_value = this.doc.original_payment_amount;
+                                    var new_value = this.doc.payment_amount;
+                                    var old_percent = this.doc.invoice_portion;
+                                    var new_percent = (old_percent / old_value) * new_value;
+                                    this.doc.invoice_portion = new_percent;
+                                    this.doc.original_payment_amount = new_value;
+                                    this.doc.original_invoice_portion = new_percent;
+                                    cur_dialog.fields_dict.payment_schedule_table.grid.refresh();
+                                } else {
+                                    var old_value = cur_frm.doc.rounded_total;
+                                    var new_value = this.doc.payment_amount;
+                                    var old_percent = 100;
+                                    var new_percent = (old_percent / old_value) * new_value;
+                                    this.doc.invoice_portion = new_percent;
+                                    this.doc.original_payment_amount = new_value;
+                                    this.doc.original_invoice_portion = new_percent;
+                                    cur_dialog.fields_dict.payment_schedule_table.grid.refresh();
+                                }
+                            }
+                        },
+                        {
+                            fieldtype:'Percent',
+                            fieldname:"original_invoice_portion",
+                            hidden: 1,
+                            label: __('Invoice Portion')
+                        },
+                        {
+                            fieldtype:'Currency',
+                            fieldname:"original_payment_amount",
+                            hidden: 1,
                             label: __('Payment Amount')
                         }
                     ]
@@ -145,11 +201,11 @@ frappe.ui.form.on("Sales Order", {
                     if(!entry.due_date||!entry.invoice_portion||!entry.payment_amount) {
                         warning = true;
                     } else {
-                        betrag += entry.payment_amount;
+                        betrag += entry.invoice_portion;
                     }
                 });
                 if (!warning) {
-                    //~ if (betrag == cur_frm.doc.grand_total) {
+                    if (betrag == 100) {
                         d.hide();
                         frappe.call({
                             "method": "energielenker.energielenker.zahlungsplan.zahlungsplan.change_in_so",
@@ -161,9 +217,9 @@ frappe.ui.form.on("Sales Order", {
                                 cur_frm.reload_doc();
                             }
                         });
-                    //~ } else {
-                        //~ frappe.msgprint("Bitte prüfen Sie die Beträge<br>Gesamttotal Zahlungsplan: " + String(betrag) + "<br>Gesamttotal Auftrag: " + String(cur_frm.doc.grand_total) + "<br><b>Differenz: " + String(betrag - cur_frm.doc.grand_total) + "</b>");
-                    //~ }
+                    } else {
+                        frappe.msgprint("Bitte prüfen Sie die Einträge<br>Aktueller Prozentsatz gem. Zahlungsplan: " + String(betrag) + "%");
+                    }
                 } else {
                     frappe.msgprint("Bitte alle Pflichtfelder befüllen");
                 }
