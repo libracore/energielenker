@@ -33,6 +33,8 @@ frappe.ui.form.on("Sales Order", {
                 }
             });
         }
+        
+        cost_center_query(frm);
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -310,4 +312,14 @@ function validate_vielfaches(frm) {
             }
         } 
     });
+}
+
+function cost_center_query(frm) {
+    cur_frm.fields_dict['cost_center'].get_query = function(doc) {
+        return {
+            filters: {
+                'auswahl_unterbinden': 0
+            }
+        }
+    };
 }

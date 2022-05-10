@@ -66,6 +66,8 @@ frappe.ui.form.on("Sales Invoice", {
             cur_frm.set_value("taxes_and_charges", "");
             cur_frm.set_value("taxes_and_charges", taxes);
         }
+        
+        cost_center_query(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -251,4 +253,14 @@ function validate_vielfaches(frm) {
             }
         } 
     });
+}
+
+function cost_center_query(frm) {
+    cur_frm.fields_dict['cost_center'].get_query = function(doc) {
+        return {
+            filters: {
+                'auswahl_unterbinden': 0
+            }
+        }
+    };
 }

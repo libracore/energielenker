@@ -1,12 +1,11 @@
 frappe.ui.form.on('Quotation', {
     refresh: function(frm) {
        setTimeout(function(){ 
-        cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
-            function() {                                                                      
-            return {
-                    query: "energielenker.energielenker.item.item.item_query",
-                    filters: {'is_sales_item': 1}
-                }
+            cur_frm.fields_dict.items.grid.get_field('item_code').get_query = function(doc) {                                                                      
+                    return {
+                        query: "energielenker.energielenker.item.item.item_query",
+                        filters: {'is_sales_item': 1}
+                    }
             }
         }, 1000);
         
@@ -28,7 +27,9 @@ frappe.ui.form.on('Quotation', {
             frm.add_custom_button(__("Get Quotation Template"), function() {
                 get_quotation_template(frm);
             });
-        }    
+        }
+        
+        cost_center_query(frm);
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {
@@ -111,6 +112,16 @@ function shipping_address_query(frm) {
                 'link_doctype': cur_frm.doc.quotation_to,
                 'link_name': cur_frm.doc.party_name,
                 'produktionsstandort': 1
+            }
+        }
+    };
+}
+
+function cost_center_query(frm) {
+    cur_frm.fields_dict['cost_center'].get_query = function(doc) {
+        return {
+            filters: {
+                'auswahl_unterbinden': 0
             }
         }
     };
