@@ -205,7 +205,7 @@ frappe.ui.form.on("Sales Order", {
                     }
                 });
                 if (!warning) {
-                    if (betrag == 100) {
+                    if (betrag >= 99.99999) {
                         d.hide();
                         frappe.call({
                             "method": "energielenker.energielenker.zahlungsplan.zahlungsplan.change_in_so",
