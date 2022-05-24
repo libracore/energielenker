@@ -66,6 +66,16 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
+                    
                     positions_nummer += 1
                     table += tr
                 
@@ -97,6 +107,16 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
+                    
                     positions_nummer += 1
                     table += tr
                     summe_interne_positionen = 0
@@ -126,6 +146,16 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
                     
                     positions_nummer += 1
                     table += tr
@@ -165,6 +195,16 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
                     
                     positions_nummer += 1
                     table += tr
@@ -307,6 +347,16 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
+                    
                     positions_nummer += 1
                     table += tr
                 
@@ -338,6 +388,16 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
+                    
                     positions_nummer += 1
                     table += tr
                     summe_interne_positionen = 0
@@ -367,6 +427,16 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
                     
                     positions_nummer += 1
                     table += tr
@@ -406,6 +476,16 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    if lieferscheine:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lieferscheine=lieferscheine)
                     
                     positions_nummer += 1
                     table += tr
@@ -918,3 +998,29 @@ def get_print_items(dt, dn):
         table += tr
     
     return table
+
+def get_lieferschein(disable=False, item=None):
+    if not item:
+        return None
+    if disable:
+        if int(disable) == 0:
+            disable = False
+    if not disable:
+        if item.delivery_note:
+            return item.delivery_note
+        elif item.so_detail:
+            lieferscheine = frappe.db.sql("""SELECT `parent` FROM `tabDelivery Note Item` WHERE `docstatus` = 1 AND `so_detail` = '{so_detail}'""".format(so_detail=item.so_detail), as_dict=True)
+            if len(lieferscheine) > 0:
+                ls = []
+                for lieferschein in lieferscheine:
+                    ls.append(lieferschein.parent)
+                
+                lieferscheine = ", ".join(ls)
+                return lieferscheine
+            
+            else:
+                return None
+        else:
+            return None
+    else:
+        return None
