@@ -89,8 +89,6 @@ function erstelle_supportrechnung(frm) {
                 {'fieldname': 'adresse', 'fieldtype': 'Link', 'label': 'Adresse (Produktionsstandort)', 'reqd': 1, 'options': 'Address',
                     'get_query': function() {
                         return { 'filters': {
-                                'link_doctype': "Customer",
-                                "link_name": frm.doc.name,
                                 'name': ['in', kunden]
                             }
                         };
@@ -104,7 +102,8 @@ function erstelle_supportrechnung(frm) {
                             'customer': frm.doc.name,
                             'von': values.von,
                             'bis': values.bis,
-                            'adresse': values.adresse
+                            'adresse': values.adresse,
+                            'support_kunde': cur_frm.doc.ist_support_kunde
                         },
                     "async": true,
                     "freeze": true,

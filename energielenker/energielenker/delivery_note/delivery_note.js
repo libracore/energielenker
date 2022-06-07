@@ -46,6 +46,13 @@ frappe.ui.form.on("Delivery Note", {
             cur_frm.set_value("kontakt_aus_lieferadresse", '');
             cur_frm.set_value("kontaktname_aus_lieferadresse", '');
         }
+        
+        if (cur_frm.doc.ignore_pricing_rule) {
+            var items = cur_frm.doc.items;
+            items.forEach(function(entry){
+                entry.pricing_rules = null;
+            });
+        }
     }
 });
 
