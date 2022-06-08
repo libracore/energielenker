@@ -20,6 +20,20 @@ frappe.ui.form.on("Project", {
         frm.trigger("set_contact_query");
         frm.trigger("render_contact");
         prevent_renaming(frm);
+        
+        if (!cur_frm.doc.default_external_rate) {
+            frappe.call({
+                "method": "frappe.client.get",
+                "args": {
+                    "doctype": "energielenker Settings",
+                    "name": "energielenker Settings"
+                },
+                "callback": function(response) {
+                    console.log("Overbilling allowance: " + response.message.over_billing_allowance);
+                    cur_frm.set_value("default_external_rate", response.message.interner_standardtarif);
+                }
+            });
+        }
     },
     refresh: function(frm) {
         cur_frm.fields_dict.participants.grid.get_field('participant_contact').get_query = function(doc, cdt, cdn) {

@@ -6,7 +6,8 @@
  "field_order": [
   "support_1",
   "support_2",
-  "support_3"
+  "support_3",
+  "interner_standardtarif"
  ],
  "fields": [
   {
@@ -32,10 +33,17 @@
    "label": "3rd Level Support Artikel",
    "options": "Item",
    "reqd": 1
+  },
+  {
+   "default": "120",
+   "fieldname": "interner_standardtarif",
+   "fieldtype": "Data",
+   "label": "Interner Standardtarif",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2022-01-30 21:42:28.640954",
+ "modified": "2022-06-08 09:30:03.301636",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

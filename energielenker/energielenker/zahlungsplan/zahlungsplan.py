@@ -42,7 +42,7 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
         except:
             pass
         aop += ps["invoice_portion"]
-    if aop != 100:
+    if aop < 99.998:
         frappe.throw("In Summe muss der Zahlungsplann 100% ergeben.")
         return
     

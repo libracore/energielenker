@@ -78,6 +78,13 @@ frappe.ui.form.on("Sales Invoice", {
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
         } catch (err) {}
+        
+        if (cur_frm.doc.ignore_pricing_rule) {
+            var items = cur_frm.doc.items;
+            items.forEach(function(entry){
+                entry.pricing_rules = null;
+            });
+        }
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
