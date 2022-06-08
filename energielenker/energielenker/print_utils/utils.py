@@ -13,7 +13,7 @@ def get_print_items(dt, dn):
     positions_nummer = 1
     cur_icon = '&euro;' if doc.currency == 'EUR' else doc.currency
     country = frappe.db.get_value('Address', doc.shipping_address_name, 'country')
-    if country not in ('Germany', 'Deutschland'):
+    if country.lower() not in ('germany', 'deutschland'):
         ztn = True
     else:
         ztn = False
@@ -81,6 +81,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(lieferscheine=lieferscheine)
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -132,6 +141,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(lieferscheine=lieferscheine)
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -181,6 +199,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(lieferscheine=lieferscheine)
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
@@ -240,6 +267,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(lieferscheine=lieferscheine)
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
@@ -402,6 +438,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(lieferscheine=lieferscheine)
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -453,6 +498,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(lieferscheine=lieferscheine)
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -502,6 +556,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(lieferscheine=lieferscheine)
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
@@ -561,6 +624,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(lieferscheine=lieferscheine)
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
@@ -785,6 +857,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -826,6 +907,15 @@ def get_print_items(dt, dn):
                             </tr>
                         """.format(line=line + '</div>')
                     
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
+                    
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
                         tr += """
@@ -865,6 +955,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
@@ -914,6 +1013,15 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
+                    
+                    if item.serial_no:
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Serien-Nummer:<br>{serial_no}</td>
+                                <td></td>
+                            </tr>
+                        """.format(serial_no=item.serial_no.replace("\n", "<br>"))
                     
                     if ztn:
                         zolltarifnummer = frappe.db.get_value('Item', item.item_code, 'customs_tariff_number')
