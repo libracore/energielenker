@@ -17,6 +17,9 @@ frappe.ui.form.on("Project", {
         frm.set_value("total_amount", cur_frm.doc.total_sales_amount);
     },
     onload: function (frm) {
+        if (cur_frm.doc.__islocal) {
+           cur_frm.set_df_property('project_name','read_only', 0);
+        }
         frm.trigger("set_contact_query");
         frm.trigger("render_contact");
         prevent_renaming(frm);
@@ -29,7 +32,6 @@ frappe.ui.form.on("Project", {
                     "name": "energielenker Settings"
                 },
                 "callback": function(response) {
-                    console.log("Overbilling allowance: " + response.message.over_billing_allowance);
                     cur_frm.set_value("default_external_rate", response.message.interner_standardtarif);
                 }
             });

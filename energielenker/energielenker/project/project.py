@@ -285,7 +285,7 @@ class PowerProject():
             )
         
         # rhapsody std
-        eur += (self.project.gebuchte_stunden_in_rhapsody * self.project.default_external_rate)
+        eur += (self.project.gebuchte_stunden_in_rhapsody * float(self.project.default_external_rate))
         
         return eur
     
@@ -308,7 +308,7 @@ class PowerProject():
         return eur
         
     def get_voraussichtliche_abweichung_eur(self):
-        eur = self.get_voraussichtliche_abweichung() * self.project.default_external_rate
+        eur = self.get_voraussichtliche_abweichung() * float(self.project.default_external_rate)
         return eur
         
     def get_erwartete_fremdkosten_aus_auftraegen_eur(self):
