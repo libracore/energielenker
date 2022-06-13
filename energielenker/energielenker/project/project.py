@@ -144,8 +144,7 @@ class PowerProject():
 
         for task in open_tasks:
             open_billable_amount += (
-                max(task.expected_time - task.actual_time, 0) 
-                * self.get_employee_rate(task.completed_by)
+                float(max(task.expected_time - task.actual_time, 0)) * float(self.get_employee_rate(task.completed_by))
             )
         
         return open_billable_amount
@@ -163,8 +162,7 @@ class PowerProject():
 
         for task in tasks:
             expected_billable_amount += (
-                task.expected_time 
-                * self.get_employee_rate(task.completed_by)
+                float(task.expected_time) * float(self.get_employee_rate(task.completed_by))
             )
         
         return expected_billable_amount
@@ -242,7 +240,7 @@ class PowerProject():
         
         for task in tasks:
             eur += (
-                self.get_employee_rate(task.completed_by, internal=True) * task.expected_time
+                float(self.get_employee_rate(task.completed_by, internal=True)) * float(task.expected_time)
             )
         
         return eur
@@ -302,7 +300,7 @@ class PowerProject():
         
         for task in open_tasks:
             eur += (
-                max(task.expected_time - task.actual_time, 0) * self.get_employee_rate(task.completed_by, internal=True)
+                float(max(task.expected_time - task.actual_time, 0)) * float(self.get_employee_rate(task.completed_by, internal=True))
             )
         
         return eur
