@@ -82,43 +82,47 @@ function erstelle_supportrechnung(frm) {
             },
         "async": true,
         "callback": function(res) {
-            var kunden = res.message;
-            frappe.prompt([
+            var adressen = res.message;
+            var fieldlist = [
                 {'fieldname': 'von', 'fieldtype': 'Date', 'label': 'Von', 'reqd': 1},
-                {'fieldname': 'bis', 'fieldtype': 'Date', 'label': 'Bis', 'reqd': 1},
-                {'fieldname': 'adresse', 'fieldtype': 'Link', 'label': 'Adresse (Produktionsstandort)', 'reqd': 1, 'options': 'Address',
+                {'fieldname': 'bis', 'fieldtype': 'Date', 'label': 'Bis', 'reqd': 1}
+            ];
+            if (!cur_frm.doc.ist_support_kunde) {
+                fieldlist.push({'fieldname': 'adresse', 'fieldtype': 'Link', 'label': 'Adresse (Produktionsstandort)', 'reqd': 1, 'options': 'Address',
                     'get_query': function() {
                         return { 'filters': {
-                                'name': ['in', kunden]
+                                'name': ['in', adressen]
                             }
                         };
                     }
-                }
-            ],
-            function(values){
-                frappe.call({
-                    "method": "energielenker.energielenker.customer.customer.erstelle_supportrechnung",
-                    "args": {
+                });
+            }
+            frappe.prompt(
+                fieldlist,
+                function(values){
+                    frappe.call({
+                        "method": "energielenker.energielenker.customer.customer.erstelle_supportrechnung",
+                        "args": {
                             'customer': frm.doc.name,
                             'von': values.von,
                             'bis': values.bis,
                             'adresse': values.adresse,
                             'support_kunde': cur_frm.doc.ist_support_kunde
                         },
-                    "async": true,
-                    "freeze": true,
-                    "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
-                    "callback": function(r) {
-                        if (r.message != 'no sinv') {
-                            frappe.set_route("Form", "Sales Invoice", r.message)
-                        } else {
-                            frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+                        "async": true,
+                        "freeze": true,
+                        "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
+                        "callback": function(r) {
+                            if (r.message != 'no sinv') {
+                                frappe.set_route("Form", "Sales Invoice", r.message)
+                            } else {
+                                frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+                            }
                         }
-                    }
-                });
-            },
-            'Erstelle Supportrechnung',
-            'Erstellen'
+                    });
+                },
+                'Erstelle Supportrechnung',
+                'Erstellen'
             )
         }
     });

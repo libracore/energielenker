@@ -25,25 +25,38 @@ def kontakt_verknupfen(contact, customer):
     return
 
 @frappe.whitelist()
-def erstelle_supportrechnung(customer, von, bis, adresse, support_kunde):
+def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
     sinv = False
     if int(support_kunde) == 1:
         sup_1 = {
             'qty': 0.00,
-            'beschreibung': []
+            'beschreibung': {}
         }
         sup_2 = {
             'qty': 0.00,
-            'beschreibung': []
+            'beschreibung': {}
         }
         sup_3 = {
             'qty': 0.00,
-            'beschreibung': []
+            'beschreibung': {}
         }
-    
-    tickets = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `address` = '{adresse}'""".format(adresse=adresse), as_dict=True)
+        tickets = frappe.db.sql("""SELECT `name`, `address` FROM `tabIssue` WHERE `address` IN (
+                                                                                    SELECT `name`
+                                                                                    FROM `tabAddress`
+                                                                                    WHERE `support_wird_verrechnet_ueber` = '{customer}'
+                                                                                )
+                                    ORDER BY `address`""".format(customer=customer), as_dict=True)
+        current_address = None
+    else:
+        tickets = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `address` = '{adresse}'""".format(adresse=adresse), as_dict=True)
     
     for ticket in tickets:
+        if current_address != ticket.address:
+            current_address = ticket.address
+            sup_1['beschreibung'][current_address] = []
+            sup_2['beschreibung'][current_address] = []
+            sup_3['beschreibung'][current_address] = []
+        
         time_logs = frappe.db.sql("""SELECT
                                         `tabTimesheet Detail`.`hours` AS `hours`,
                                         `tabTimesheet Detail`.`from_time` AS `from_time`,
@@ -64,17 +77,17 @@ def erstelle_supportrechnung(customer, von, bis, adresse, support_kunde):
                     support_level = int(employee.support_level)
                     if support_level == 1:
                         sup_1['qty'] = float(sup_1['qty']) + float(time_log.hours)
-                        sup_1['beschreibung'].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
+                        sup_1['beschreibung'][current_address].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
                     elif support_level == 2:
                         sup_2['qty'] = float(sup_2['qty']) + float(time_log.hours)
-                        sup_2['beschreibung'].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
+                        sup_2['beschreibung'][current_address].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
                     elif support_level == 3:
                         x = sup_3['qty']
                         sup_3['qty'] = float(sup_3['qty']) + float(time_log.hours)
-                        sup_3['beschreibung'].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
+                        sup_3['beschreibung'][current_address].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
                     else:
                         sup_1['qty'] = float(sup_1['qty']) + float(time_log.hours)
-                        sup_1['beschreibung'].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
+                        sup_1['beschreibung'][current_address].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
                     
                     mark_timelog_as_billed = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_support` = 1 WHERE `name` = '{time_log_name}'""".format(time_log_name=time_log.time_log_name), as_list=True)
         else:
@@ -93,6 +106,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse, support_kunde):
                     mark_timelog_as_billed = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_support` = 1 WHERE `name` = '{time_log_name}'""".format(time_log_name=time_log.time_log_name), as_list=True)
     
     if int(support_kunde) == 1:
+        # ~ frappe.throw(str(sup_3))
         if (sup_1['qty'] + sup_2['qty'] + sup_3['qty']) > 0:
             sinv = frappe.new_doc("Sales Invoice")
             sinv.customer = customer
@@ -102,22 +116,37 @@ def erstelle_supportrechnung(customer, von, bis, adresse, support_kunde):
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_1')
             row.qty = float(sup_1['qty'])
-            beschreibung = '<b>1st-Level Support: {qty}h</b><br>'.format(qty=sup_1['qty'])
-            beschreibung += '<br>'.join(sup_1['beschreibung'])
+            beschreibung = '<b>1st-Level Support: {qty}h</b><hr>'.format(qty=sup_1['qty'])
+            for key, value in sup_1['beschreibung'].items():
+                if len(value) > 0:
+                    address = frappe.get_doc("Address", key)
+                    beschreibung += '{0} {1}<br>{2} {3}<hr>'.format(address.address_line1, address.hausnummer, address.plz, address.city)
+                    beschreibung += '<br>'.join(value)
+                    beschreibung += '<hr>'
             row.description = beschreibung
         if sup_2['qty'] > 0:
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_2')
             row.qty = float(sup_2['qty'])
-            beschreibung = '<b>2nd-Level Support: {qty}h</b><br>'.format(qty=sup_2['qty'])
-            beschreibung += '<br>'.join(sup_2['beschreibung'])
+            beschreibung = '<b>2nd-Level Support: {qty}h</b><hr>'.format(qty=sup_2['qty'])
+            for key, value in sup_2['beschreibung'].items():
+                if len(value) > 0:
+                    address = frappe.get_doc("Address", key)
+                    beschreibung += '{0} {1}<br>{2} {3}<hr>'.format(address.address_line1, address.hausnummer, address.plz, address.city)
+                    beschreibung += '<br>'.join(value)
+                    beschreibung += '<hr>'
             row.description = beschreibung
         if sup_3['qty'] > 0:
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_3')
             row.qty = float(sup_3['qty'])
-            beschreibung = '<b>3rd-Level Support: {qty}h</b><br>'.format(qty=sup_3['qty'])
-            beschreibung += '<br>'.join(sup_3['beschreibung'])
+            beschreibung = '<b>3rd-Level Support: {qty}h</b><hr>'.format(qty=sup_3['qty'])
+            for key, value in sup_3['beschreibung'].items():
+                if len(value) > 0:
+                    address = frappe.get_doc("Address", key)
+                    beschreibung += '{0} {1}<br>{2} {3}<hr>'.format(address.address_line1, address.hausnummer, address.plz, address.city)
+                    beschreibung += '<br>'.join(value)
+                    beschreibung += '<hr>'
             row.description = beschreibung
         
         if sinv:
