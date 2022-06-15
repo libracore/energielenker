@@ -12,7 +12,10 @@ def get_print_items(dt, dn):
     table = ''
     positions_nummer = 1
     cur_icon = '&euro;' if doc.currency == 'EUR' else doc.currency
-    country = frappe.db.get_value('Address', doc.shipping_address_name, 'country')
+    if doc.shipping_address_name:
+        country = frappe.db.get_value('Address', doc.shipping_address_name, 'country')
+    else:
+        country = frappe.db.get_value('Address', doc.customer_address, 'country')
     if country.lower() not in ('germany', 'deutschland'):
         ztn = True
     else:
