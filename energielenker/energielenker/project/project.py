@@ -6,7 +6,7 @@ import frappe
 from energielenker.energielenker.timesheet_manager import get_employee_rate_external, get_employee_rate_internal
 from frappe import _
 from frappe.model.naming import make_autoname
-from frappe.utils.data import get_datetime, today
+from frappe.utils.data import get_datetime, today, add_days
 
 
 class PowerProject():
@@ -104,11 +104,23 @@ class PowerProject():
 
     def update_kpi(self, kpi, value_project):
         value_subprojects = 0
+        if len(self.subprojects) > 0:
+            if kpi in ('ergebnis_aktuell'):
+                value_project = self.project.auftragsummen_gesamt - self.project.gesamtkosten_aktuell
+            elif kpi in ('marge_aktuell_prozent'):
+                value_project = (100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_aktuell
+            elif kpi in ('ergebnis_geplant'):
+                value_project = self.project.auftragsummen_gesamt - self.project.geschaetzte_kosten_klon
+            elif kpi in ('marge_geplant_prozent'):
+                value_project = (100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_geplant
+        
+        if kpi not in ('auftragsummen_gesamt', 'ergebnis_aktuell', 'marge_aktuell_prozent', 'ergebnis_geplant', 'marge_geplant_prozent', 'noch_nicht_in_rechnung_gestellt_summe'):
+            for subproject in self.subprojects:
+                value_subprojects += subproject.get(kpi)
+        
+        total = value_project + value_subprojects
 
-        for subproject in self.subprojects:
-            value_subprojects += subproject.get(kpi)
-
-        self.project.set(kpi, value_project + value_subprojects)
+        self.project.set(kpi, total)
 
     def get_expected_purchase_cost(self):
         return frappe.get_all(
@@ -349,7 +361,7 @@ class PowerProject():
         return total_purchase_cost + total_material_issue + float(self.project.erfasste_externe_kosten_in_rhapsody) or 0
     
     def get_auftragsummen_gesamt(self):
-        return self.project.total_sales_amount
+        return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
         
     def get_gesamtkosten_aktuell(self):
         return self.get_zeit_gebucht_ueber_zeiterfassung_eur() + self.get_summe_einkaufskosten_via_einkaufsrechnung()
@@ -495,6 +507,7 @@ def make_sales_invoice(order, percent, amount, percent_billed, invoice_date, inv
         si = si.insert(ignore_permissions=True)
         si.payment_schedule = []
         si.payment_terms_template = '100% 14 Tage' if order.navision_interal_ic == 1 else '100% 21 Tage'
+        si.due_date = add_days(si.posting_date, 14) if si.payment_terms_template == '100% 14 Tage' else add_days(si.posting_date, 21)
 
         for item in si.items:
             item.qty = (item.qty / (100 - float(percent_billed))) * float(percent)
@@ -604,3 +617,6 @@ def auto_kpi_refresh():
         project = frappe.get_doc("Project", _project.name)
         PowerProject(project).update_kpis()
         project.save()
+
+def get_projektbewertung_ignorieren_amount(self):
+    return float(frappe.db.sql("""SELECT IFNULL(SUM(`base_net_total`), 0) AS `qty` FROM `tabSales Order` WHERE `project` = '{0}' AND `docstatus` = 1 AND `projektbewertung_ignorieren` = 1""".format(self.project.name), as_dict=True)[0].qty)

@@ -14,6 +14,18 @@ frappe.ui.form.on("Project", {
         ]);
     },
     validate: function(frm) {
+        if (!cur_frm.doc.default_external_rate) {
+            frappe.call({
+                "method": "frappe.client.get",
+                "args": {
+                    "doctype": "energielenker Settings",
+                    "name": "energielenker Settings"
+                },
+                "callback": function(response) {
+                    cur_frm.set_value("default_external_rate", response.message.interner_standardtarif);
+                }
+            });
+        }
         frm.set_value("total_amount", cur_frm.doc.total_sales_amount);
     },
     onload: function (frm) {
@@ -357,12 +369,12 @@ function prevent_renaming(frm) {
 }
 
 function filter_address(frm) {
-	cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
-		var d = locals[cdt][cdn];          
-			return {
-				filters: {
-						"link_name": frm.doc.customer
-				}                       
-			}
-	}
+    cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
+        var d = locals[cdt][cdn];          
+            return {
+                filters: {
+                        "link_name": frm.doc.customer
+                }                       
+            }
+    }
 }
