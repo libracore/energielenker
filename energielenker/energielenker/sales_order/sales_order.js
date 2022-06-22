@@ -35,6 +35,14 @@ frappe.ui.form.on("Sales Order", {
         }
         
         cost_center_query(frm);
+        
+        if (!cur_frm.doc.vertriebsgruppe) {
+            frappe.call({
+                method: "energielenker.energielenker.sales_order.sales_order.get_employee",
+                args: {},
+                callback: function (r) {cur_frm.set_value("vertriebsgruppe", r.message);}
+            });
+        }
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
