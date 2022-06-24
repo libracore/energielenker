@@ -108,11 +108,11 @@ class PowerProject():
             if kpi in ('ergebnis_aktuell'):
                 value_project = self.project.auftragsummen_gesamt - self.project.gesamtkosten_aktuell
             elif kpi in ('marge_aktuell_prozent'):
-                value_project = (100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_aktuell
+                value_project = ((100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_aktuell) if self.project.auftragsummen_gesamt > 0 else 0
             elif kpi in ('ergebnis_geplant'):
                 value_project = self.project.auftragsummen_gesamt - self.project.geschaetzte_kosten_klon
             elif kpi in ('marge_geplant_prozent'):
-                value_project = (100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_geplant
+                value_project = ((100 / self.project.auftragsummen_gesamt) * self.project.ergebnis_geplant) if self.project.auftragsummen_gesamt > 0 else 0
         
         if kpi not in ('auftragsummen_gesamt', 'ergebnis_aktuell', 'marge_aktuell_prozent', 'ergebnis_geplant', 'marge_geplant_prozent', 'noch_nicht_in_rechnung_gestellt_summe'):
             for subproject in self.subprojects:
