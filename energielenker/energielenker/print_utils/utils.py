@@ -948,7 +948,7 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(serial_no=item.serial_no.replace("\n", "<br>"))
-                    elif lieferscheine:
+                    else:
                         serial_no = get_seriennummer(item)
                         if serial_no:
                             tr += """
@@ -1008,7 +1008,7 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(serial_no=item.serial_no.replace("\n", "<br>"))
-                    elif lieferscheine:
+                    else:
                         serial_no = get_seriennummer(item)
                         if serial_no:
                             tr += """
@@ -1067,7 +1067,7 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(serial_no=item.serial_no.replace("\n", "<br>"))
-                    elif lieferscheine:
+                    else:
                         serial_no = get_seriennummer(item)
                         if serial_no:
                             tr += """
@@ -1135,7 +1135,7 @@ def get_print_items(dt, dn):
                                 <td></td>
                             </tr>
                         """.format(serial_no=item.serial_no.replace("\n", "<br>"))
-                    elif lieferscheine:
+                    else:
                         serial_no = get_seriennummer(item)
                         if serial_no:
                             tr += """
