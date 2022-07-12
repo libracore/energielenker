@@ -202,7 +202,10 @@ def get_kostenstelle(sle):
             item_kst = []
         
         if len(item_kst) > 0:
-            kst.update({'voucher_kst': item_kst[0][0]})
+            if item_kst[0][0] == 'Main - S' and sle.voucher_type == 'Delivery Note':
+                kst = get_fallback_dn_kst_from_so(sle, kst)
+            else:
+                kst.update({'voucher_kst': item_kst[0][0]})
         else:
             if sle.voucher_type == 'Purchase Invoice':
                 # direkt aus voucher
@@ -246,14 +249,20 @@ def get_kostenstelle(sle):
                                         WHERE `name` = '{voucher_detail_no}'""".format(voucher_detail_no=sle.voucher_detail_no), as_dict=True)
                 if len(items) > 0:
                     if items[0].cost_center:
-                        kst.update({'voucher_kst': items[0].cost_center})
+                        if items[0].cost_center == 'Main - S':
+                            kst = get_fallback_dn_kst_from_so(sle, kst)
+                        else:
+                            kst.update({'voucher_kst': items[0].cost_center})
                     elif items[0].so_detail:
                         item_kst = frappe.db.sql("""SELECT
                                                         `cost_center`
                                                     FROM `tabSales Order Item`
                                                     WHERE `name` = '{so_detail}'""".format(so_detail=items[0].so_detail), as_list=True)
                         if len(item_kst) > 0:
-                            kst.update({'voucher_kst': item_kst[0][0]})
+                            if item_kst[0][0] == 'Main - S':
+                                kst = get_fallback_dn_kst_from_so(sle, kst)
+                            else:
+                                kst.update({'voucher_kst': item_kst[0][0]})
                     elif items[0].si_detail:
                         item_kst = frappe.db.sql("""SELECT
                                                         `cost_center`
@@ -293,3 +302,23 @@ def get_kostenstelle(sle):
                             kst.update({'voucher_kst': item_kst[0][0]})
                 
     return kst
+
+def get_fallback_dn_kst_from_so(sle, kst):
+    so = frappe.db.sql("""SELECT
+                                `against_sales_order`
+                            FROM `tabDelivery Note Item`
+                            WHERE `name` = '{voucher_detail_no}'""".format(voucher_detail_no=sle.voucher_detail_no), as_dict=True)
+    if len(so) > 0:
+        if so[0].against_sales_order and so[0].against_sales_order != 'None':
+            so = frappe.get_doc("Sales Order", so[0].against_sales_order)
+            if so.cost_center:
+                kst.update({'voucher_kst': so.cost_center})
+            else:
+                kst.update({'voucher_kst': 'Main - S'})
+        else:
+            kst.update({'voucher_kst': 'Main - S'})
+    else:
+        kst.update({'voucher_kst': 'Main - S'})
+    
+    return kst
+        
