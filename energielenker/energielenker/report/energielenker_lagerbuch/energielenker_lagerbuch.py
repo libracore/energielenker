@@ -304,8 +304,12 @@ def get_kostenstelle(sle):
     return kst
 
 def get_fallback_dn_kst_from_so(sle, kst):
+    found = False
+    
+    # from Sales Order
     so = frappe.db.sql("""SELECT
-                                `against_sales_order`
+                                `against_sales_order`,
+                                `si_detail`
                             FROM `tabDelivery Note Item`
                             WHERE `name` = '{voucher_detail_no}'""".format(voucher_detail_no=sle.voucher_detail_no), as_dict=True)
     if len(so) > 0:
@@ -313,12 +317,27 @@ def get_fallback_dn_kst_from_so(sle, kst):
             so = frappe.get_doc("Sales Order", so[0].against_sales_order)
             if so.cost_center:
                 kst.update({'voucher_kst': so.cost_center})
-            else:
-                kst.update({'voucher_kst': 'Main - S'})
-        else:
-            kst.update({'voucher_kst': 'Main - S'})
-    else:
-        kst.update({'voucher_kst': 'Main - S'})
+                found = True
     
+    if not found:
+        # from Sales Invoice
+        sinv = frappe.db.sql("""SELECT
+                                    `parent`
+                                FROM `tabSales Invoice Item`
+                                WHERE `delivery_note` = '{delivery_note}'
+                                AND `docstatus` = 1""".format(delivery_note=sle.voucher_no), as_dict=True)
+        if len(sinv) > 0:
+            item_kst = frappe.db.sql("""SELECT
+                                            `cost_center`
+                                        FROM `tabSales Invoice`
+                                        WHERE `name` = '{parent}'
+                                        AND `docstatus` = 1""".format(parent=sinv[0].parent), as_dict=True)
+            if len(item_kst) > 0:
+                if item_kst[0].cost_center and item_kst[0].cost_center !=  'Main - S':
+                    kst.update({'voucher_kst': item_kst[0].cost_center})
+                    found = True
+    
+    
+    if not found:
+        kst.update({'voucher_kst': 'Main - S'})
     return kst
-        
