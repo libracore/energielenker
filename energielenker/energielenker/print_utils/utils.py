@@ -120,6 +120,7 @@ def get_print_items(dt, dn):
                     summe_interne_positionen += item.amount
                 
                 elif int(item.kalkulationssumme_interner_positionen) == 1:
+                    summe_interne_positionen += item.amount
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
@@ -517,6 +518,7 @@ def get_print_items(dt, dn):
                     summe_interne_positionen += item.amount
                 
                 elif int(item.kalkulationssumme_interner_positionen) == 1:
+                    summe_interne_positionen += item.amount
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
@@ -976,6 +978,7 @@ def get_print_items(dt, dn):
                     summe_interne_positionen += item.amount
                 
                 elif int(item.kalkulationssumme_interner_positionen) == 1:
+                    summe_interne_positionen += item.amount
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
