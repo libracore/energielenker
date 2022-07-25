@@ -123,7 +123,7 @@ def get_print_items(dt, dn):
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
-                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">Optional:<br>{item_name}</td>
+                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">{item_name}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{qty}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
@@ -520,7 +520,7 @@ def get_print_items(dt, dn):
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
-                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">Optional:<br>{item_name}</td>
+                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">{item_name}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{qty}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
@@ -979,7 +979,7 @@ def get_print_items(dt, dn):
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>{position}</b></td>
-                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">Optional:<br>{item_name}</td>
+                            <td style="border-right: 1px solid rgb(186, 210, 226) !important;">{item_name}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{qty}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
                             <td style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;">{cur_icon} {rate}</td>
