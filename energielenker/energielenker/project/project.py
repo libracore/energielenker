@@ -35,7 +35,6 @@ class PowerProject():
             "expected_billable_amount",
             "open_billable_amount",
             "expected_purchase_cost",
-            "total_amount",
             "zeit_geplant_in_aufgaben", # neu
             "zeit_gebucht_ueber_zeiterfassung", # neu
             "noch_zu_erwarten", # neu
@@ -47,6 +46,7 @@ class PowerProject():
             "erwartete_fremdkosten_aus_auftraegen_eur", # neu
             "summe_einkaufskosten_via_einkaufsrechnung", # neu
             'auftragsummen_gesamt', # neu
+            # ~ "total_amount",
             'gesamtkosten_aktuell', # neu
             'ergebnis_aktuell', # neu
             'marge_aktuell_prozent', # neu
@@ -119,7 +119,10 @@ class PowerProject():
                 value_subprojects += subproject.get(kpi)
         
         total = value_project + value_subprojects
-
+        
+        if kpi == 'auftragsummen_gesamt':
+            self.project.set('total_amount', total)
+        
         self.project.set(kpi, total)
 
     def get_expected_purchase_cost(self):
@@ -179,8 +182,8 @@ class PowerProject():
         
         return expected_billable_amount
     
-    def get_total_amount(self):
-        return self.project.total_sales_amount
+    # ~ def get_total_amount(self):
+        # ~ return self.project.auftragsummen_gesamt
     
 # NEU -----------------------------------------------------------------------
     

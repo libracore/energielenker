@@ -26,7 +26,7 @@ frappe.ui.form.on("Project", {
                 }
             });
         }
-        frm.set_value("total_amount", cur_frm.doc.total_sales_amount);
+        frm.set_value("total_amount", cur_frm.doc.auftragsummen_gesamt);
     },
     onload: function (frm) {
         if (cur_frm.doc.__islocal) {
