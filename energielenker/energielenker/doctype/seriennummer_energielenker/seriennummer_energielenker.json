@@ -1,0 +1,158 @@
+{
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "creation": "2022-07-26 10:14:53.960688",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_allgemein",
+  "attribut_1",
+  "attribut_2",
+  "cb_1",
+  "attribut_3",
+  "attribut_4",
+  "section_artikel",
+  "item",
+  "section_lieferung",
+  "lieferdokumententyp",
+  "lieferdokumentennummer",
+  "liefertermin",
+  "lieferung_zeitpunkt",
+  "cb_2",
+  "customer",
+  "kundenname",
+  "section_details",
+  "details",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_allgemein",
+   "fieldtype": "Section Break",
+   "label": "Allgemein"
+  },
+  {
+   "fieldname": "attribut_1",
+   "fieldtype": "Data",
+   "label": "Attribut 1"
+  },
+  {
+   "fieldname": "attribut_2",
+   "fieldtype": "Data",
+   "label": "Attribut 2"
+  },
+  {
+   "fieldname": "cb_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attribut_3",
+   "fieldtype": "Data",
+   "label": "Attribut 3"
+  },
+  {
+   "fieldname": "attribut_4",
+   "fieldtype": "Data",
+   "label": "Attribut 4"
+  },
+  {
+   "fieldname": "section_artikel",
+   "fieldtype": "Section Break",
+   "label": "Artikel"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Artikel",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_lieferung",
+   "fieldtype": "Section Break",
+   "label": "Lieferung"
+  },
+  {
+   "fieldname": "lieferdokumententyp",
+   "fieldtype": "Link",
+   "label": "Lieferdokumententyp",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "lieferdokumentennummer",
+   "fieldtype": "Dynamic Link",
+   "label": "Lieferdokumentennummer",
+   "options": "lieferdokumententyp"
+  },
+  {
+   "fieldname": "liefertermin",
+   "fieldtype": "Date",
+   "label": "Liefertermin",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lieferung_zeitpunkt",
+   "fieldtype": "Time",
+   "label": "Zeitpunkt der Lieferung",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Kunde",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "kundenname",
+   "fieldtype": "Data",
+   "label": "Kundenname",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_details",
+   "fieldtype": "Section Break",
+   "label": "Details zur Seriennummer"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Text",
+   "label": "Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "EL.YYYY.######"
+  }
+ ],
+ "modified": "2022-07-26 10:47:34.579077",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Seriennummer energielenker",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
