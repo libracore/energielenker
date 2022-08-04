@@ -63,3 +63,17 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
                 "start": start,
                 "page_len": page_len
             }, as_dict=as_dict)
+
+def check_item_code(item, event):
+    # ~ frappe.throw(item.name)
+    item_number = item.name.replace("A", "")
+    item_number = item_number.replace("-", "")
+    item_number = int(item_number)
+    
+    existing_item_number = frappe.db.sql("""SELECT COUNT(`name`) AS `qty` FROM `tabItem` WHERE `name` != '{item}' AND `name` LIKE '%{item_number}'""".format(item=item.name, item_number=item_number), as_dict=True)[0].qty
+    if existing_item_number > 0:
+        new_number = frappe.rename_doc("Item", item.name, 'A-' + '{num:07d}'.format(num=item_number + 1))
+        new_number = new_number.replace("A", "")
+        new_number = new_number.replace("-", "")
+        
+        frappe.db.sql("""UPDATE `tabSeries` SET `current` = '{new_number}' WHERE `name` = 'A-'""".format(new_number=new_number), as_list=True)
