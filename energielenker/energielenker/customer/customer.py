@@ -69,7 +69,8 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
                                     ON `tabTimesheet Detail`.`parent` = `tabTimesheet`.`name`
                                     WHERE `from_time` >= '{von} 00:00:00' AND `from_time` <= '{bis} 23:59:59'
                                     AND `tabTimesheet Detail`.`issue` = '{ticket}'
-                                    AND `tabTimesheet Detail`.`billed_with_support` != 1""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
+                                    AND `tabTimesheet Detail`.`billed_with_support` != 1
+                                    AND `tabTimesheet Detail`.`typisierung` = 'Support gem. Rahmenvertrag'""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
         if int(support_kunde) == 1:
             for time_log in time_logs:
                 if float(time_log.hours) > 0:
@@ -119,7 +120,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_1')
             row.qty = float(sup_1['qty'])
-            beschreibung = '<b>1st-Level Support: {qty}h</b><hr>'.format(qty=sup_1['qty'])
+            beschreibung = '<b>1st-Level Support: {qty}h</b><br>{von} - {bis}<hr>'.format(qty=sup_1['qty'], von=von, bis=bis)
             for key, value in sup_1['beschreibung'].items():
                 if len(value['beschreibung']) > 0:
                     address = frappe.get_doc("Address", key)
@@ -131,7 +132,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_2')
             row.qty = float(sup_2['qty'])
-            beschreibung = '<b>2nd-Level Support: {qty}h</b><hr>'.format(qty=sup_2['qty'])
+            beschreibung = '<b>2nd-Level Support: {qty}h</b><br>{von} - {bis}<hr>'.format(qty=sup_2['qty'], von=von, bis=bis)
             for key, value in sup_2['beschreibung'].items():
                 if len(value['beschreibung']) > 0:
                     address = frappe.get_doc("Address", key)
@@ -143,7 +144,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
             row = sinv.append('items', {})
             row.item_code = frappe.db.get_single_value('energielenker Settings', 'support_3')
             row.qty = float(sup_3['qty'])
-            beschreibung = '<b>3rd-Level Support: {qty}h</b><hr>'.format(qty=sup_3['qty'])
+            beschreibung = '<b>3rd-Level Support: {qty}h</b><br>{von} - {bis}<hr>'.format(qty=sup_3['qty'], von=von, bis=bis)
             for key, value in sup_3['beschreibung'].items():
                 if len(value['beschreibung']) > 0:
                     address = frappe.get_doc("Address", key)
