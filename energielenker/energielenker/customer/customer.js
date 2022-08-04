@@ -18,6 +18,30 @@ frappe.ui.form.on('Customer', {
     validate: function(frm) {
         cur_frm.set_value("adresse_lookup", "");
         cur_frm.set_value("kontakt_lookup", "");
+        
+        // calc and set sha256 hash
+        var value;
+        if (cur_frm.doc.website) {
+            value = cur_frm.doc.website;
+        } else {
+            if(cur_frm.doc.keine_domain_vorhanden) {
+                value = cur_frm.doc.email_id;
+            } else {
+                frappe.msgprint( __('Bitte hinterlegen Sie eine Website oder markieren Sie die Checkbox "Keine Domain vorhanden"'), __("Validation") );
+                frappe.validated=false;
+            }
+        }
+        
+        frappe.call({
+            "method": "energielenker.energielenker.utils.customer_hash.get_customer_hash",
+            "args": {
+                'value': value
+            },
+            "async": true,
+            "callback": function(r) {
+                cur_frm.set_value("hash", r.message);
+            }
+        });
     }
 })
 
