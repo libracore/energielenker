@@ -68,6 +68,10 @@ frappe.ui.form.on("Sales Invoice", {
         }
         
         cost_center_query(frm);
+        
+        if (cur_frm.doc.navision_deviation) {
+            frappe.msgprint("Achtung, folgende Positionen besitzen eine abweichende Navision Kontonummer:<br>" + cur_frm.doc.navision_deviation, "Abweichende Navision Kontonummern");
+        }
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -75,7 +79,7 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
-        validate_navision(frm);
+        
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
         } catch (err) {}
@@ -271,52 +275,4 @@ function cost_center_query(frm) {
             }
         }
     };
-}
-
-function validate_navision(frm) {
-    var items = cur_frm.doc.items;
-    var flag = [];
-    items.forEach(function(entry, i) {
-        frappe.call({
-            'method': "frappe.client.get",
-            'args': {
-                'doctype': "Item",
-                'name': entry.item_code
-            },
-            'async': false,
-            'callback': function(response) {
-                var item = response.message;
-                item.item_defaults.forEach(function(item_de) {
-                	if (cur_frm.doc.company == item_de.company) {
-                    	if (frm.doc.navision_kontonummer == item_de.navision || item_de.navision === undefined ) {
-                            console.log("same navision", frm.doc.navision_kontonummer, "and", item_de.navision);
-                           
-                        } else {
-                            console.log("not same navision", frm.doc.navision_kontonummer, "and", item_de.navision);
-                            flag.push(i);
-                        }
-                    }
-                });
-            }
-        });
-    
-    });
-    
-    if (flag.length > 0) {
-        pop_up(frm, flag);
-    }
-}
-
-function pop_up(frm, flag) {
-    frappe.confirm(
-        `<strong>Die Tabelle enthält Artikel mit einer anderen NAVISION-Kontonummer als der ausgewählten.</strong> <br><br> Wählen Sie <strong>"Yes"</strong>, wenn Sie damit fortfahren möchten. <br> Andernfalls wählen Sie <strong>"No"</strong>, um diese Artikel automatisch aus der Tabelle zu entfernen.`,
-        function(){
-            frappe.validated = true;
-        },
-        function(){
-            for (var i = flag.length - 1; i >= 0; i--) {
-                cur_frm.get_field("items").grid.grid_rows[flag[i]].remove();
-            }
-        }
-    );
 }

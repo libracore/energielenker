@@ -22,3 +22,27 @@ frappe.ui.form.on("Item", {
         }
     }
 });
+
+frappe.ui.form.on('Item Default', {
+    navision_konto: function(frm, cdt, cdn) {
+        var item_defaults = locals[cdt][cdn];
+        if (item_defaults.navision_konto) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Navision Kontenplan",
+                    'name': item_defaults.navision_konto
+                },
+                'async': false,
+                'callback': function(response) {
+                    var navision_kontonummer = response.message.konto;
+                    item_defaults.navision_kontonummer = navision_kontonummer;
+                    cur_frm.refresh_field('item_defaults');
+                }
+            });
+        } else {
+            item_defaults.navision_kontonummer = '';
+            cur_frm.refresh_field('item_defaults');
+        }
+    }
+})

@@ -140,6 +140,9 @@ doc_events = {
     },
     "Item": {
         "after_insert": "energielenker.energielenker.item.item.check_item_code"
+    },
+    "Sales Invoice": {
+        "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items"
     }
 }
 
