@@ -137,6 +137,9 @@ doc_events = {
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"
+    },
+    "Item": {
+        "after_insert": "energielenker.energielenker.item.item.check_item_code"
     }
 }
 

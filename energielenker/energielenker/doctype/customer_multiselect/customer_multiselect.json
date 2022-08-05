@@ -1,0 +1,30 @@
+{
+ "creation": "2022-08-04 14:33:25.752255",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2022-08-04 14:33:25.752255",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Customer Multiselect",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

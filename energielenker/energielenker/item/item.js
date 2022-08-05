@@ -3,6 +3,9 @@
 
 frappe.ui.form.on("Item", {
     validate: function(frm) {
+        if (frm.doc.__islocal) {
+           cur_frm.set_value("naming_series", 'A-.#######');
+        }
         if (cur_frm.doc.supplier_items) {
             var supplier_items = cur_frm.doc.supplier_items;
             var suchliste_list = [];
@@ -14,8 +17,8 @@ frappe.ui.form.on("Item", {
         }
     },
     item_name: function(frm) {
-	if (cur_frm.doc.item_name) {
-	 cur_frm.set_value("item_purchasing_name", cur_frm.doc.item_name);
-	}
+        if (cur_frm.doc.item_name) {
+            cur_frm.set_value("item_purchasing_name", cur_frm.doc.item_name);
+        }
     }
 });
