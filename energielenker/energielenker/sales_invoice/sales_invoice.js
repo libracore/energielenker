@@ -68,6 +68,10 @@ frappe.ui.form.on("Sales Invoice", {
         }
         
         cost_center_query(frm);
+        
+        if (cur_frm.doc.navision_deviation) {
+            frappe.msgprint("Achtung, folgende Positionen besitzen eine abweichende Navision Kontonummer:<br>" + cur_frm.doc.navision_deviation, "Abweichende Navision Kontonummern");
+        }
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -75,6 +79,7 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
+        
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
         } catch (err) {}
