@@ -3,7 +3,9 @@
 
 frappe.ui.form.on("Item", {
     validate: function(frm) {
-        cur_frm.set_value("naming_series", 'A-.#######');
+        if (frm.doc.__islocal) {
+           cur_frm.set_value("naming_series", 'A-.#######');
+        }
         if (cur_frm.doc.supplier_items) {
             var supplier_items = cur_frm.doc.supplier_items;
             var suchliste_list = [];
