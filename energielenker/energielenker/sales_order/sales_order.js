@@ -198,6 +198,12 @@ frappe.ui.form.on("Sales Order", {
                             fieldname:"original_payment_amount",
                             hidden: 1,
                             label: __('Payment Amount')
+                        },
+                        {
+                            fieldtype:'Check',
+                            fieldname:"to_delete",
+                            in_list_view: 1,
+                            label: 'Löschen'
                         }
                     ]
                 }
