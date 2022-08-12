@@ -4,10 +4,20 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "section_projekt_support",
   "support_1",
   "support_2",
   "support_3",
-  "interner_standardtarif"
+  "interner_standardtarif",
+  "section_cfos",
+  "cfos_ssh_username",
+  "cfos_ssh_pkey",
+  "cfos_api_username",
+  "cfos_license_keyphrase",
+  "cb_1",
+  "cfso_ssh_gateway_ip",
+  "cfos_ssh_public_key",
+  "cfos_api_secret"
  ],
  "fields": [
   {
@@ -40,10 +50,59 @@
    "fieldtype": "Data",
    "label": "Interner Standardtarif",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_projekt_support",
+   "fieldtype": "Section Break",
+   "label": "Projekt / Support"
+  },
+  {
+   "fieldname": "section_cfos",
+   "fieldtype": "Section Break",
+   "label": "cFos Schnittstelle"
+  },
+  {
+   "fieldname": "cfos_ssh_username",
+   "fieldtype": "Data",
+   "label": "SSH Username"
+  },
+  {
+   "fieldname": "cfos_ssh_pkey",
+   "fieldtype": "Attach",
+   "label": "SSH Private Key"
+  },
+  {
+   "fieldname": "cfos_api_username",
+   "fieldtype": "Data",
+   "label": "API Username"
+  },
+  {
+   "fieldname": "cb_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cfso_ssh_gateway_ip",
+   "fieldtype": "Data",
+   "label": "SSH Gateway IP"
+  },
+  {
+   "fieldname": "cfos_ssh_public_key",
+   "fieldtype": "Attach",
+   "label": "SSH Public Key"
+  },
+  {
+   "fieldname": "cfos_api_secret",
+   "fieldtype": "Data",
+   "label": "API Secret"
+  },
+  {
+   "fieldname": "cfos_license_keyphrase",
+   "fieldtype": "Data",
+   "label": "License Keyphrase"
   }
  ],
  "issingle": 1,
- "modified": "2022-06-22 13:22:09.211327",
+ "modified": "2022-08-10 13:54:28.510747",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
