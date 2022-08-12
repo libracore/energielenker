@@ -61,17 +61,18 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
                     pps.amount = ps["payment_amount"]
                     pps.percent = ps["invoice_portion"]
         else:
-            # create
-            try:
-                ps = ps.as_dict()
-            except:
-                pass
-            new_ps = project.append('payment_schedule', {})
-            new_ps.order = sales_order
-            new_ps.date = ps["due_date"]
-            new_ps.amount = ps["payment_amount"]
-            new_ps.percent = ps["invoice_portion"]
-            new_ps.so_ref = ps["name"]
+            if not 'to_delete' in ps:
+                # create
+                try:
+                    ps = ps.as_dict()
+                except:
+                    pass
+                new_ps = project.append('payment_schedule', {})
+                new_ps.order = sales_order
+                new_ps.date = ps["due_date"]
+                new_ps.amount = ps["payment_amount"]
+                new_ps.percent = ps["invoice_portion"]
+                new_ps.so_ref = ps["name"]
     project.save()
 
 # changes after submit
@@ -101,16 +102,21 @@ def change_in_so(so, payment_schedule):
             ps['name'] = so_ps.name
             ps_idx += 1
         else:
-            frappe.db.sql("""UPDATE `tabPayment Schedule` SET
-                                `due_date` = '{due_date}',
-                                `payment_amount` = '{payment_amount}',
-                                `invoice_portion` = '{invoice_portion}',
-                                `description` = '{description}'
-                            WHERE `name` = '{name}'""".format(due_date=ps['due_date'], \
-                            payment_amount=ps['payment_amount'], \
-                            invoice_portion=ps['invoice_portion'], \
-                            name=ps['name'], \
-                            description=ps['description']), as_list=True)
+            if 'to_delete' in ps:
+                if int(ps['to_delete']) == 1:
+                    frappe.db.sql("""DELETE FROM `tabPayment Schedule` WHERE `name` = '{0}'""".format(ps['name']), as_list=True)
+                    frappe.db.sql("""DELETE FROM `tabPayment Forecast` WHERE `so_ref` = '{0}'""".format(ps['name']), as_list=True)
+            else:
+                frappe.db.sql("""UPDATE `tabPayment Schedule` SET
+                                    `due_date` = '{due_date}',
+                                    `payment_amount` = '{payment_amount}',
+                                    `invoice_portion` = '{invoice_portion}',
+                                    `description` = '{description}'
+                                WHERE `name` = '{name}'""".format(due_date=ps['due_date'], \
+                                payment_amount=ps['payment_amount'], \
+                                invoice_portion=ps['invoice_portion'], \
+                                name=ps['name'], \
+                                description=ps['description']), as_list=True)
     
     so_to_project(sales_order=so, payment_schedule=payment_schedule, project=False)
 
