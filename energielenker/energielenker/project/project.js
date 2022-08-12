@@ -14,6 +14,7 @@ frappe.ui.form.on("Project", {
         ]);
     },
     validate: function(frm) {
+        set_main_project_title(frm);
         if (!cur_frm.doc.default_external_rate) {
             frappe.call({
                 "method": "frappe.client.get",
@@ -377,4 +378,23 @@ function filter_address(frm) {
                 }                       
             }
     }
+}
+
+
+//set the name of the main project in the subprojects 
+function set_main_project_title(frm) {
+    var subprojects = cur_frm.doc.subprojects;
+    
+    subprojects.forEach(function(entry, i) {
+        frappe.call({
+            'method': "frappe.client.set_value",
+            'args': {
+                'doctype': "Project",
+                'name': entry.subproject,
+                "fieldname": {
+                    "main_project": cur_frm.doc.project_name
+                },
+            },
+        });
+    });
 }
