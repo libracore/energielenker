@@ -14,7 +14,7 @@ frappe.ui.form.on("Project", {
         ]);
     },
     validate: function(frm) {
-		set_main_project_title(frm);
+        set_main_project_title(frm);
         if (!cur_frm.doc.default_external_rate) {
             frappe.call({
                 "method": "frappe.client.get",
@@ -392,9 +392,8 @@ function set_main_project_title(frm) {
                 'doctype': "Project",
                 'name': entry.subproject,
                 "fieldname": {
-					//You can update as many fields as you want.  
-					"main_project": cur_frm.doc.project_name
-				},
+                    "main_project": cur_frm.doc.project_name
+                },
             },
         });
     });
