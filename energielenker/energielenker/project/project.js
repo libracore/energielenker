@@ -383,9 +383,9 @@ function filter_address(frm) {
 
 //set the name of the main project in the subprojects 
 function set_main_project_title(frm) {
-    var subprojects = cur_frm.doc.subprojects;
+    var subprojects = cur_frm.doc.subprojects || [];    // set to empty list in case this child table is empty
     
-    subprojects.forEach(function(entry, i) {
+    subprojects.forEach(function(entry) {
         frappe.call({
             'method': "frappe.client.set_value",
             'args': {
