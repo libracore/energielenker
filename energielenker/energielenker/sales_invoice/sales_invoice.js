@@ -73,6 +73,9 @@ frappe.ui.form.on("Sales Invoice", {
             frappe.msgprint("Achtung, folgende Positionen besitzen eine abweichende Navision Kontonummer:<br>" + cur_frm.doc.navision_deviation, "Abweichende Navision Kontonummern");
         }
     },
+    before_save(frm) {
+	    get_customer_inovice_note(frm);
+	},
     customer: function(frm) {
         shipping_address_query(frm);
     },
@@ -275,4 +278,29 @@ function cost_center_query(frm) {
             }
         }
     };
+}
+
+function get_customer_inovice_note(frm) {
+
+    frappe.call({
+        'method': "frappe.client.get_list",
+        'args':{
+     	    'doctype': "Customer",
+         	'filters': [
+         	    ["name","IN", [cur_frm.doc.customer]]
+         	],
+            'fields': ["leave_invoice_note", "invoice_note_box"]
+        },
+        'callback': function (r) {
+            var customer = r.message[0];
+            
+            if (customer.leave_invoice_note === 1) {
+                frappe.msgprint({
+                    title: __('Dieser Kunde hat einen Rechnungsvermerk hinterlassen:'),
+                    indicator: 'red',
+                    message: __(` &nbsp;  &nbsp; ${ customer.invoice_note_box }`)
+                });
+            }
+        }
+    });
 }
