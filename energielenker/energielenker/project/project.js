@@ -392,7 +392,7 @@ function set_main_project_title(frm) {
                 'doctype': "Project",
                 'name': entry.subproject,
                 "fieldname": {
-                    "main_project": cur_frm.doc.project_name
+                    "main_project": cur_frm.doc.name
                 },
             },
         });
