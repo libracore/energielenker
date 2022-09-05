@@ -75,7 +75,6 @@ frappe.ui.form.on("Sales Invoice", {
     },
     before_save(frm) {
 	    get_customer_inovice_note(frm);
-	    set_leistungsdatum(frm);
 	},
     customer: function(frm) {
         shipping_address_query(frm);
@@ -83,7 +82,7 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
-   
+   	    set_leistungsdatum(frm);
         
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
