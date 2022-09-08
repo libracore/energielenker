@@ -82,6 +82,7 @@ frappe.ui.form.on("Sales Invoice", {
     validate: function(frm) {
         check_navision(frm);
         check_vielfaches(frm);
+   	    set_leistungsdatum(frm);
         
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
@@ -281,7 +282,6 @@ function cost_center_query(frm) {
 }
 
 function get_customer_inovice_note(frm) {
-
     frappe.call({
         'method': "frappe.client.get_list",
         'args':{
@@ -303,4 +303,22 @@ function get_customer_inovice_note(frm) {
             }
         }
     });
+}
+
+function set_leistungsdatum(frm) {
+	var dnote = frm.doc.items[0].delivery_note;
+	if (dnote) {
+		frappe.call({
+			"method": "frappe.client.get",
+			"args": {
+				"doctype": "Delivery Note",
+				"name": dnote
+			},
+			"callback": function(r) {
+				var response = r.message;
+				
+				cur_frm.set_value("leistungsdatum", response.posting_date);
+			}
+		});
+	}	
 }
