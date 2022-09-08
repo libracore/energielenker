@@ -42,6 +42,7 @@ frappe.ui.form.on('Purchase Order', {
 	},
 	/*show only address of that supplier*/
 	supplier_to_supplier: function(frm) {
+		filter_additional_contact(frm, "supplier");
    	    cur_frm.fields_dict['supplier_to_supplier_address'].get_query = function(doc, cdt, cdn) {
 	        var d = locals[cdt][cdn];          
         	    return {
@@ -52,6 +53,7 @@ frappe.ui.form.on('Purchase Order', {
 	    }
 	},
 	customer_shipping: function(frm) {
+		filter_additional_contact(frm, "customer");
    	    cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
 	        var d = locals[cdt][cdn];          
         	    return {
@@ -68,6 +70,27 @@ frappe.ui.form.on('Purchase Order', {
         }
     }
 })
+
+function filter_additional_contact(frm, filter) {
+    var contact_filter = "";
+    
+	if (filter == "customer") {
+	   contact_filter = cur_frm.doc.customer_shipping;
+	} else {
+		
+		contact_filter = cur_frm.doc.supplier_to_supplier;
+	}
+	console.log("filter", contact_filter);
+	frm.set_query("zusaetzlicher_kontakt", function() {
+		return {
+			filters: {
+				link_name: contact_filter
+			}                       
+            	    
+		}
+	}) 
+
+}
 
 function check_vielfaches(frm) {
     var items = cur_frm.doc.items;
