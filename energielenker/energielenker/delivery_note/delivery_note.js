@@ -91,7 +91,56 @@ frappe.ui.form.on("Delivery Note", {
                 entry.pricing_rules = null;
             });
         }
-    }
+    },
+    
+    deliver_to(frm) {
+	    //set default customer and clearing the fields when re-selecting
+	    cur_frm.set_value('customer', "Sample Customer");
+	    
+	    if (frm.doc.deliver_to == "Customer") {
+	        cur_frm.set_value('customer', "");
+	        cur_frm.set_value('supplier', "");
+	        cur_frm.set_value('lead', "");
+	    } else if (frm.doc.deliver_to == "Lead") {
+	        cur_frm.set_value('supplier', "");
+	        cur_frm.set_value('tax_id', "");
+	    } else if (frm.doc.deliver_to == "Supplier") {
+	        cur_frm.set_value('lead', "");
+	        cur_frm.set_value('tax_id', "");
+	    }
+	    
+	    cur_frm.set_value('new_address_name', "");
+	    cur_frm.set_value('new_contact_name', "");
+	    cur_frm.set_value('new_customer_address', "");
+	    cur_frm.set_value('shipping_address_name', "");
+	    cur_frm.set_value('contact_person', "");
+	    cur_frm.set_value('customer_address', "");
+	    
+	    //Set new tax_id if exist for the supplier
+	    cur_frm.add_fetch('supplier','tax_id','tax_id');
+	},
+	lead(frm) {
+	    set_new_address_and_contact_filter(frm, "Lead");
+	},
+	supplier(frm) {
+	    set_new_address_and_contact_filter(frm, "Supplier");
+	},
+	//Setting the new values into the original fields to be displayed and fetch in the print-format
+	new_address_name(frm) {
+	    if (frm.doc.new_address_name) {
+            cur_frm.set_value('shipping_address_name', frm.doc.new_address_name);
+        }
+	},
+	new_contact_name (frm) {
+	    if (frm.doc.new_contact_name) {
+            cur_frm.set_value('contact_person', frm.doc.new_contact_name);
+        }
+	},
+	new_customer_address (frm) {
+	    if (frm.doc.new_customer_address) {
+            cur_frm.set_value('customer_address', frm.doc.new_customer_address);
+        }
+	}
 });
 
 function shipping_address_query(frm) {
@@ -136,3 +185,28 @@ function update_so_status(frm) {
 	});
 }
 
+function set_new_address_and_contact_filter(frm, filter) {
+    var deliver_to = "";
+    
+    if (filter == "Supplier") {
+        deliver_to = frm.doc.supplier;
+    } else {
+        deliver_to = frm.doc.lead;
+    }
+    
+    frm.set_query("new_address_name", function() {
+		return {
+			filters: {
+				link_name: deliver_to
+			}                       
+		}
+	});
+	
+	frm.set_query("new_contact_name", function() {
+		return {
+			filters: {
+				link_name: deliver_to
+			}                       
+		}
+	});
+}
