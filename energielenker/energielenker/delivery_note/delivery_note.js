@@ -95,7 +95,7 @@ frappe.ui.form.on("Delivery Note", {
     
     deliver_to(frm) {
 	    //set default customer and clearing the fields when re-selecting
-	    cur_frm.set_value('customer', "Sample Customer");
+	    cur_frm.set_value('customer', "Dummy-Kunde (nicht deaktivieren!)");
 	    
 	    if (frm.doc.deliver_to == "Customer") {
 	        cur_frm.set_value('customer', "");
