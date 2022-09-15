@@ -19,6 +19,8 @@ class PowerProject():
             pp.project.update_costing()
             pp.update_kpis()
             self.subprojects.append(pp.project)
+        
+        self.check_completion()
 
     def update_kpis(self):
         self.update_erpnext_kpis()
@@ -398,6 +400,10 @@ class PowerProject():
     
     def get_noch_nicht_in_rechnung_gestellt_summe(self):
         return self.get_auftragsummen_gesamt() - self.get_ausgangsrechnungen_summe()
+    
+    def check_completion(self):
+        if self.project.percent_complete == 100:
+            self.project.set('actual_end_date', today())
         
 # /NEU -----------------------------------------------------------------------
 
