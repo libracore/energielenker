@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import get_datetime
 
 def get_print_items(dt, dn):
     doc = frappe.get_doc(dt, dn)
@@ -75,14 +76,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -146,14 +148,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -215,14 +218,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -293,14 +297,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -473,14 +478,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -544,14 +550,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -613,14 +620,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -691,14 +699,15 @@ def get_print_items(dt, dn):
                         """.format(line=line + '</div>')
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
+                    lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferscheine}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
                                 <td></td>
                             </tr>
-                        """.format(lieferscheine=lieferscheine)
+                        """.format(lieferdata=lieferdata)
                     
                     if item.serial_no:
                         tr += """
@@ -1407,4 +1416,23 @@ def get_seriennummer(item):
     else:
         return False
 
-
+def get_lieferdata(lieferscheine):
+	lieferdata = None
+	
+	if lieferscheine:
+		if "," in lieferscheine:
+			ls_datum_arr = []
+			ls_arr = lieferscheine.split(",")
+			
+			for ls in ls_arr:
+				lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", " ".join(ls.split())).posting_date)).strftime('%d.%m.%Y')
+				ls_datum_str = "{0} v. {1}".format(ls, lieferdatum)
+				ls_datum_arr.append(ls_datum_str)
+			
+			lieferdata = ' - '.join(ls_datum_arr)		
+			return lieferdata
+		else:
+			lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", lieferscheine).posting_date)).strftime('%d.%m.%Y')
+			lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)		
+			return lieferdata
+	
