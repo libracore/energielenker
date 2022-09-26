@@ -43,7 +43,6 @@ frappe.ui.form.on("Delivery Note", {
 		}
 	},
 	
-
 	on_submit: function(frm) {
 		if (cur_frm.doc.so_return){
 			update_so_status(frm);
@@ -69,6 +68,7 @@ frappe.ui.form.on("Delivery Note", {
             });
         }
     },
+    
     shipping_address_name: function(frm) {
         if (cur_frm.doc.shipping_address_name) {
             fetch_kontakt_aus_lieferadresse(frm);
@@ -77,6 +77,7 @@ frappe.ui.form.on("Delivery Note", {
             cur_frm.set_value("kontaktname_aus_lieferadresse", '');
         }
     },
+    
     validate: function(frm) {
         if (cur_frm.doc.shipping_address_name) {
             fetch_kontakt_aus_lieferadresse(frm);
@@ -142,6 +143,63 @@ frappe.ui.form.on("Delivery Note", {
         }
 	}
 });
+
+frappe.ui.form.on("Delivery Note Item", "textposition", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    check_text_and_or_alternativ(item);
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Delivery Note Item", "alternative_position", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    check_text_and_or_alternativ(item);
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Delivery Note Item", "interne_position", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Delivery Notey Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
+function check_text_and_or_alternativ(item) {
+    if (item.textposition == 1 || item.alternative_position == 1) {
+        item.discount_percentage = 100.00;
+        item.discount_amount = item.price_list_rate;
+        item.rate = 0.00;
+        cur_frm.refresh_field('items');
+    } else {
+        item.discount_percentage = 0.00;
+        item.discount_amount = 0.00;
+        item.rate = item.price_list_rate;
+        cur_frm.refresh_field('items');
+    }
+}
+
+function set_item_typ(item) {
+    if (item.textposition == 1) {
+        item.typ = 'Txt';
+    } else {
+        if (item.alternative_position == 1) {
+            item.typ = 'Alt.';
+        } else {
+            if (item.interne_position == 1) {
+                item.typ = 'Int. ';
+            } else {
+                if (item.kalkulationssumme_interner_positionen == 1) {
+                    item.typ = 'KS';
+                } else {
+                    item.typ = 'Norm.';
+                }
+            }
+        }
+    }
+    cur_frm.refresh_field('items');
+}
 
 function shipping_address_query(frm) {
     cur_frm.fields_dict['shipping_address_name'].get_query = function(doc) {
