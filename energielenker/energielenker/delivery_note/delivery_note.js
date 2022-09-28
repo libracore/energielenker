@@ -121,9 +121,29 @@ frappe.ui.form.on("Delivery Note", {
 	},
 	lead(frm) {
 	    set_new_address_and_contact_filter(frm, "Lead");
+	    if (frm.doc.lead) {
+			frappe.call({
+				'method': "frappe.client.get_list",
+				'args':{
+					'doctype': "Lead",
+					'filters': [
+						["name","IN", [cur_frm.doc.lead]]
+					],
+					'fields': ["company_name"]
+				},
+				'callback': function (response) {
+					var lead_name = response.message;
+					cur_frm.set_value('title', lead_name[0].company_name);
+				}
+			});
+		}    
+
 	},
 	supplier(frm) {
 	    set_new_address_and_contact_filter(frm, "Supplier");
+	    if (frm.doc.supplier) {
+			cur_frm.set_value('title', cur_frm.doc.supplier);
+		}
 	},
 	//Setting the new values into the original fields to be displayed and fetch in the print-format
 	new_address_name(frm) {
