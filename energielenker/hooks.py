@@ -150,7 +150,8 @@ doc_events = {
 # ---------------
 scheduler_events = {
     "daily": [
-        "energielenker.energielenker.project.project.auto_kpi_refresh"
+        "energielenker.energielenker.project.project.auto_kpi_refresh",
+        "energielenker.energielenker.quotation.quotation.change_status_from_old_angebote"
     ]
 }
 # scheduler_events = {
