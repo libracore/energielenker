@@ -68,6 +68,11 @@ frappe.ui.form.on('Purchase Order', {
         if (cur_frm.doc.project) {
             copy_project(frm);
         }
+        // if items come from a SO then display the so_name in the doc and viceversa
+		if ( cur_frm.doc.items[0].sales_order ) {
+		    var so_ref = cur_frm.doc.items[0].sales_order;
+			set_po_reference(frm, so_ref);
+		}
     }
 })
 
@@ -227,4 +232,22 @@ function get_cfos_lizenz(frm) {
         title: "Bestellung cFos Lizenzen"
     });
     d.show();
+}
+
+function set_po_reference(frm, so_ref) {
+    console.log("po_ref", cur_frm.doc.name)
+    setTimeout(function(){
+		console.log("po_ref two", cur_frm.doc.name)
+		frappe.call({
+			'method': "frappe.client.set_value",
+			'args':{
+			 'doctype': "Sales Order",
+			  'name': so_ref,
+			  "fieldname": {
+					"lieferantenauftrag": cur_frm.doc.name
+				},
+			},
+		});
+    }, 1000);
+    cur_frm.set_value("sales_order", so_ref);
 }
