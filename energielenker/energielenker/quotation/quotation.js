@@ -1,5 +1,6 @@
 frappe.ui.form.on('Quotation', {
     refresh: function(frm) {
+       set_timestamps(frm)
        setTimeout(function(){ 
             cur_frm.fields_dict.items.grid.get_field('item_code').get_query = function(doc) {                                                                      
                     return {
@@ -8,6 +9,13 @@ frappe.ui.form.on('Quotation', {
                     }
             }
         }, 1000);
+        
+        if (cur_frm.doc.docstatus == 1 ) {
+			if( frappe.datetime.get_diff(cur_frm.doc.valid_till, frappe.datetime.get_today()) <= 0) {
+				cur_frm.add_custom_button(__('Sales Order'),
+				cur_frm.cscript['Make Expired Sales Order'], __('Create'));
+			}
+		}
         
         if (frm.doc.__islocal && cur_frm.doc.project) {
            frappe.call({
@@ -46,6 +54,29 @@ frappe.ui.form.on('Quotation', {
         }
     }
 })
+
+// Allow Expired Quotation to be transferable to Sales Order
+cur_frm.cscript['Make Expired Sales Order'] = function() {
+    console.log("click make expired so")
+	frappe.model.open_mapped_doc({
+		method: "energielenker.energielenker.quotation.quotation._make_sales_order",
+		args: {
+		    'source_name': cur_frm.doc.name,
+		},
+		frm: cur_frm
+	})
+}
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+			timestamps[i].innerHTML = timestamps[i].title
+		}
+    }, 1000);
+}
 
 frappe.ui.form.on("Quotation Item", "textposition", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
