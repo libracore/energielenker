@@ -620,6 +620,7 @@ def make_final_sales_invoice(order, invoice_date):
         'amount': si.outstanding_amount
     }
 
+@frappe.whitelist()
 def auto_kpi_refresh():
     projects = frappe.db.sql("""SELECT `name` FROM `tabProject`""", as_dict=True)
     for _project in projects:
