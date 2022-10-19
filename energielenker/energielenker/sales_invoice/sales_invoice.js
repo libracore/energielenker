@@ -16,6 +16,7 @@ frappe.ui.form.on("Sales Invoice", {
         }, 1000);
         
         if (cur_frm.doc.customer) {
+			filter_contact(frm);
             frappe.call({
                 'method': "frappe.client.get",
                 'args': {
@@ -112,8 +113,52 @@ frappe.ui.form.on("Sales Invoice", {
         if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
             cur_frm.set_value('navision_kontonummer', '');
         }
+    },
+    contact_person_two: function(frm) {
+        frappe.call({
+            'method': "frappe.client.get_list",
+            'args':{
+                'doctype': "Contact",
+                'filters': [
+                    ["name","IN", [frm.doc.contact_person_two]]
+                 ],
+                'fields': ["salutation", "first_name", "last_name", "email_id" ,"phone"]
+            },
+            'callback': function (response) {
+                var res = response.message;
+                var info;
+                var full_name = res[0].first_name + " " + res[0].last_name;
+                
+                if ( res[0].salutation ) {
+                    full_name = `${res[0].salutation} ${full_name}`;
+                }
+                
+                if ( res[0].email_id && res[0].phone) {
+                    info = `${full_name} <br> Email: ${res[0].email_id} <br> Phone: ${res[0].phone}`;
+                    cur_frm.set_value("contact_display_two", info);
+                } else if ( res[0].email_id ) {
+                    info = `${full_name} <br> Email: ${res[0].email_id}`;
+                    cur_frm.set_value("contact_display_two", info);
+                } else if ( res[0].phone ) {
+                    info = `${full_name} <br> Phone: ${res[0].phone}`;
+                    cur_frm.set_value("contact_display_two", info);
+                } else {
+                    cur_frm.set_value("contact_display_two", full_name);
+                }
+            }
+        });
     }
 });
+
+function filter_contact(frm) {
+    frm.set_query("contact_person_two" , function() {
+        return {
+            filters: {
+                link_name: frm.doc.customer
+            }
+        }
+    }) 
+}
 
 frappe.ui.form.on("Sales Invoice Item", "textposition", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
