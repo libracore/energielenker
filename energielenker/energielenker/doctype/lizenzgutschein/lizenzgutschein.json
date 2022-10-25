@@ -4,9 +4,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "purchase_order",
   "geraete_id",
   "lizenzgutschein",
-  "status"
+  "status",
+  "lizenzen"
  ],
  "fields": [
   {
@@ -28,9 +30,22 @@
    "label": "Status",
    "options": "G\u00fcltig\nBezogen\nUng\u00fcltig",
    "reqd": 1
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Purchase Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lizenzen",
+   "fieldtype": "Table",
+   "label": "Lizenzen",
+   "options": "Lizenzgutschein Lizenzen"
   }
  ],
- "modified": "2022-10-05 16:45:37.847201",
+ "modified": "2022-10-25 14:17:48.617850",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",

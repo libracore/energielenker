@@ -9,7 +9,7 @@ from frappe.utils import get_site_name
 import json
 
 @frappe.whitelist()
-def get_license(order=None, position=None, test=0, activation=1, evse_count=1):
+def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False):
     '''
         Beschreibung
         ----------------
@@ -100,17 +100,32 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1):
     if r.status_code == 200:
         # get license as JSON
         license_file_data = json.dumps(r.json()['license'])
-        license_file = frappe.get_doc({
-            "doctype": "File",
-            "file_name": 'license_{order}_{position}.json'.format(order=order, position=position),
-            "folder": "Home/Attachments",
-            "is_private": 1,
-            "content": license_file_data,
-            "attached_to_doctype": 'Purchase Order',
-            "attached_to_name": order
-        })
-            
-        license_file.save(ignore_permissions=True)
+        if not voucher:
+            license_file = frappe.get_doc({
+                "doctype": "File",
+                "file_name": 'license_{order}_{position}.json'.format(order=order, position=position),
+                "folder": "Home/Attachments",
+                "is_private": 1,
+                "content": license_file_data,
+                "attached_to_doctype": 'Purchase Order',
+                "attached_to_name": order
+            })
+                
+            license_file.save(ignore_permissions=True)
+        else:
+            license_file = frappe.get_doc({
+                "doctype": "File",
+                "file_name": 'license_{order}_{position}.json'.format(order=order, position=position),
+                "folder": "Home/Attachments",
+                "is_private": 1,
+                "content": license_file_data,
+                "attached_to_doctype": 'Lizenzgutschein',
+                "attached_to_name": voucher
+            })
+            voucher = frappe.get_doc("Lizenzgutschein", voucher)
+            row = voucher.append('lizenzen', {})
+            row.lizenz = license_file_data
+            voucher.save()
         
     else:
         frappe.throw("<b>Es ist etwas schief gelaufen.</b><br><br><br>Die Antwort der Schnittstelle lautet:<br>Status: {status}<br>Error: {error}".format(status=r.status_code, error=r.text))

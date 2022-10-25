@@ -1,8 +1,17 @@
 // Copyright (c) 2021, libracore AG and contributors
 // For license information, please see license.txt
 
+cur_frm.dashboard.add_transactions([
+    {
+        'label': 'Lizenzen',
+        'items': [
+            'Lizenzgutschein'
+        ]
+    }
+]);
+
 frappe.ui.form.on('Purchase Order', {
-	refresh: function(frm) {
+    refresh: function(frm) {
         setTimeout(function(){ 
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
             function() {                                                                      
@@ -17,6 +26,8 @@ frappe.ui.form.on('Purchase Order', {
             frm.add_custom_button(__("Beziehe Lizenzfile von cFos"), function() {
                 get_cfos_lizenz(frm);
             });
+            
+            
         }
     },
     drop_ship_check: function(frm) {

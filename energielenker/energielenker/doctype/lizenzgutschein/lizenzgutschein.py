@@ -32,7 +32,7 @@ def validity_check(**data):
                 lg.save(ignore_permissions=True)
                 frappe.local.response.http_status_code = 200
                 frappe.local.response.message = "Success"
-                return ['200 Success', 'Success']
+                return ['200 Success', lg.lizenzen]
             elif lizenzgutschein[0].status == 'Bezogen':
                 # Gültige, aber bereits bezogene Lizenz
                 frappe.local.response.http_status_code = 202

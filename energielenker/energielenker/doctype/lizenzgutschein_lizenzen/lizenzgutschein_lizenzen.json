@@ -1,0 +1,27 @@
+{
+ "creation": "2022-10-25 14:17:30.797214",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lizenz"
+ ],
+ "fields": [
+  {
+   "fieldname": "lizenz",
+   "fieldtype": "Code",
+   "in_list_view": 1,
+   "label": "Lizenz",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2022-10-25 14:17:30.797214",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Lizenzgutschein Lizenzen",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
