@@ -110,6 +110,15 @@ frappe.ui.form.on("Delivery Note", {
 	        cur_frm.set_value('tax_id', "");
 	    }
 	    
+	    // Saving without customer address must not be possible.
+	    if (frm.doc.deliver_to == "Customer") {
+			frm.set_df_property("customer_address", "reqd", 1);
+			frm.set_df_property("new_customer_address", "reqd", 0);
+	    } else {
+			frm.set_df_property("customer_address", "reqd", 0);
+			frm.set_df_property("new_customer_address", "reqd", 1);
+	    } 
+	    
 	    cur_frm.set_value('new_address_name', "");
 	    cur_frm.set_value('new_contact_name', "");
 	    cur_frm.set_value('new_customer_address', "");
