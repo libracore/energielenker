@@ -97,7 +97,7 @@ class PowerProject():
         if len(end_dates) > 0:
             self.project.set('actual_end_date', max(end_dates))
         else:
-            self.project.set('actual_end_date', None)
+            self.project.set('actual_end_date', self.project.expected_end_date)
 
     def update_custom_kpi(self, kpi):
         value_project = getattr(self, "get_{kpi}".format(kpi=kpi))()
@@ -648,7 +648,7 @@ def get_lowest_project_start_date(project):
                                         MIN(`exp_start_date`) AS `lowest_start_date`
                                     FROM `tabTask`
                                     WHERE `project` = '{project}'""".format(project=project), as_dict=True)
-        if lstart_date[0].lowest_start_date:
+        if start_date[0].lowest_start_date:
             return [start_date[0].lowest_start_date]
         else:
             # Fallback 2: creation von Task

@@ -17,6 +17,7 @@ def get_columns():
         {"label": _("Project Name"), "fieldname": "project_name", "fieldtype": "Data", "width": 150},
         {"label": _("Project Type"), "fieldname": "project_type", "fieldtype": "Link", "options": "Project Type", "width": 95},
         {"label": _("Project Completion"), "fieldname": "actual_end_date", "fieldtype": "Date", "width": 95},
+        {"label": _("Project Status"), "fieldname": "status", "fieldtype": "Data", "width": 95},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 200},
         {"label": _("Salutation"), "fieldname": "salutation", "fieldtype": "Data", "width": 60},
         {"label": _("First Name"), "fieldname": "first_name", "fieldtype": "Data", "width": 95},
@@ -36,16 +37,17 @@ def get_data(filters):
                                     `contact`,
                                     `project_type`,
                                     `project_name`,
-                                    `actual_end_date`
-                                FROM `tabProject`
-                                WHERE `status` = 'Completed'""", as_dict=True)
+                                    `actual_end_date`,
+                                    `status`
+                                FROM `tabProject`""", as_dict=True)
     for project in projects:
         _data = {
             'project': project.name,
             'customer': project.customer,
             'project_name': project.project_name,
             'project_type': project.project_type,
-            'actual_end_date': project.actual_end_date
+            'actual_end_date': project.actual_end_date,
+            'status': project.status
         }
         
         if project.contact:
