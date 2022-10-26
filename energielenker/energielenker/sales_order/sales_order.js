@@ -43,6 +43,35 @@ frappe.ui.form.on("Sales Order", {
                 callback: function (r) {cur_frm.set_value("vertriebsgruppe", r.message);}
             });
         }
+        
+        //Allow Lead to be use to create an Order
+        setTimeout(function() {
+            if (cur_frm.doc.docstatus===0) {
+                cur_frm.remove_custom_button('Quotation', 'Get items from');
+                cur_frm.add_custom_button(__('Quotations'),
+                    function() {
+                        erpnext.utils.map_current_doc({
+                            method: "erpnext.selling.doctype.quotation.quotation.make_sales_order",
+                            source_doctype: "Quotation",
+                            target: me.frm,
+                            setters: [
+                                {
+                                    label: "Customer",
+                                    fieldname: "customer_name",
+                                    fieldtype: "Link",
+                                    options: "Customer",
+                                    default: cur_frm.doc.customer || undefined
+                                }
+                            ],
+                            get_query_filters: {
+                                company: me.frm.doc.company,
+                                docstatus: 1,
+                                status: ["!=", "Lost"]
+                            }
+                        })
+                    }, __("Get items from"));
+            }
+        }, 1000);
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
