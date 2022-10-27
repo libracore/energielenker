@@ -45,8 +45,9 @@ def get_data(filters):
                                                     FROM `tabPayment Forecast` AS `pf`
                                                     LEFT JOIN `tabProject` AS `p` ON `pf`.`parent` = `p`.`name`
                                                     WHERE `pf`.`order` = '{sales_order}'
+                                                    AND `pf`.`date` <= '{date}'
                                                     AND `pf`.`invoice_created` != 1
-                                                    GROUP BY `pf`.`order`""".format(sales_order=order.sales_order), as_dict=True)
+                                                    GROUP BY `pf`.`order`""".format(sales_order=order.sales_order, date=filters.date), as_dict=True)
         if len(project_payment_forecast) > 0:
             project_payment_forecast = project_payment_forecast[0]
             outstanding_amount = project_payment_forecast.outstanding_amount
