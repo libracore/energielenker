@@ -346,27 +346,63 @@ class PowerProject():
         return amount
     
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
-        # alt
-        # ~ return self.project.total_purchase_cost + self.project.erfasste_externe_kosten_in_rhapsody
+        '''
+        Anforderungen energielenker:
+        - alle Einkaufsrechnungspositionen OHNE LAGERARTIKEL (Lagerartikel werden über Lagerbuchung oder Lieferschein bewertet)
+          --> summe_einkaufsrechnungspositionen
+        - Lagerbuchungspositionen (alle Buchungen ohne Eingangslager = Entnahme)
+          --> summe_lagerbuchungspositionen
+        - Lieferscheinpositionen (NUR LAGERARTIKEL)
+          -> summe_Lieferscheinpositionen
+        '''
         
-        # neu (PINV + Material Issue)
-        total_purchase_cost = frappe.db.sql("""SELECT IFNULL(SUM(`grand_total`), 0)
-            FROM `tabPurchase Invoice` WHERE `project` = '{0}' AND `docstatus` = 1""".format(self.project.name), as_list=True)
+        summe_einkaufsrechnungspositionen = frappe.db.sql("""SELECT
+                                                                SUM(`amount`) AS `amount`
+                                                            FROM `tabPurchase Invoice Item`
+                                                            WHERE `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabPurchase Invoice`
+                                                                WHERE `project` = '{project}'
+                                                                AND `docstatus` = 1
+                                                            )
+                                                            AND `item_code` NOT IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabItem`
+                                                                WHERE `is_stock_item` = 1
+                                                            )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        total_material_issue = frappe.db.sql("""SELECT IFNULL(SUM(`total_outgoing_value`), 0)
-            FROM `tabStock Entry` WHERE `project` = '{0}' AND `docstatus` = 1 AND `stock_entry_type` = 'Material Issue'""".format(self.project.name), as_list=True)
+        summe_lagerbuchungspositionen = frappe.db.sql("""SELECT
+                                                            SUM(`amount`) AS `amount`
+                                                        FROM `tabStock Entry Detail`
+                                                        WHERE `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabStock Entry`
+                                                            WHERE `project` = '{project}'
+                                                            AND `docstatus` = 1
+                                                            AND `stock_entry_type` = 'Material Issue'
+                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        if len(total_purchase_cost) > 0:
-            total_purchase_cost = float(total_purchase_cost[0][0])
-        else:
-            total_purchase_cost = 0
+        summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
+                                                            SUM(`amount`) AS `amount`
+                                                        FROM `tabDelivery Note Item`
+                                                        WHERE `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabDelivery Note`
+                                                            WHERE `project` = '{project}'
+                                                            AND `docstatus` = 1
+                                                        )
+                                                        AND `item_code` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabItem`
+                                                            WHERE `is_stock_item` = 1
+                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        if len(total_material_issue) > 0:
-            total_material_issue = float(total_material_issue[0][0])
-        else:
-            total_material_issue = 0
-        
-        return total_purchase_cost + total_material_issue + float(self.project.erfasste_externe_kosten_in_rhapsody) or 0
+        return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
     
     def get_auftragsummen_gesamt(self):
         return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
