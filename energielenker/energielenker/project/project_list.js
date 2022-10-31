@@ -30,5 +30,8 @@ frappe.listview_settings['Project'] = {
                 }
             )
         });
+        
+        var pg_button = document.getElementById('page-List/Project/List').getElementsByClassName("btn-paging")[2];
+        pg_button.click();
     }
 };
