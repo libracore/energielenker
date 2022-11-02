@@ -639,6 +639,8 @@ def make_final_sales_invoice(order, invoice_date):
     si.set_posting_time = 1
     si.posting_date = invoice_date
     si.apply_discount_on = 'Net Total'
+    for item in si.items:
+        item.qty = frappe.db.sql("""SELECT `qty` FROM `tabSales Order Item` WHERE `name` = '{so_detail}'""".format(so_detail=item.so_detail), as_dict=True)[0].qty
     si = si.insert(ignore_permissions=True)
     si.payment_schedule = []
     si.payment_terms_template = ''
