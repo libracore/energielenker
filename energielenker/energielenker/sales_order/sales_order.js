@@ -13,7 +13,9 @@ frappe.ui.form.on("Sales Order", {
             }
         }, 1000);
         if (cur_frm.doc.customer) {
-			filter_contact(frm);
+            filter_contact(frm, "contact_person_two" , cur_frm.doc.customer);
+            filter_contact(frm, "shipping_contact", cur_frm.doc.customer);
+
             frappe.call({
                 'method': "frappe.client.get",
                 'args': {
@@ -274,50 +276,59 @@ frappe.ui.form.on("Sales Order", {
         d.show();
     },
     contact_person_two: function(frm) {
-        frappe.call({
-            'method': "frappe.client.get_list",
-            'args':{
-                'doctype': "Contact",
-                'filters': [
-                    ["name","IN", [frm.doc.contact_person_two]]
-                 ],
-                'fields': ["salutation", "first_name", "last_name", "email_id" ,"phone"]
-            },
-            'callback': function (response) {
-                var res = response.message;
-                var info;
-                var full_name = res[0].first_name + " " + res[0].last_name;
-                
-                if ( res[0].salutation ) {
-                    full_name = `${res[0].salutation} ${full_name}`;
-                }
-                
-                if ( res[0].email_id && res[0].phone) {
-                    info = `${full_name} <br> Email: ${res[0].email_id} <br> Phone: ${res[0].phone}`;
-                    cur_frm.set_value("contact_display_two", info);
-                } else if ( res[0].email_id ) {
-                    info = `${full_name} <br> Email: ${res[0].email_id}`;
-                    cur_frm.set_value("contact_display_two", info);
-                } else if ( res[0].phone ) {
-                    info = `${full_name} <br> Phone: ${res[0].phone}`;
-                    cur_frm.set_value("contact_display_two", info);
-                } else {
-                    cur_frm.set_value("contact_display_two", full_name);
-                }
-            }
-        });
+        contact_info_display(frm, cur_frm.doc.contact_person_two, "contact_display_two") 
+    },
+    shipping_contact: function(frm) {
+        contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
     },
 });
 
-function filter_contact(frm) {
-    frm.set_query("contact_person_two" , function() {
+function filter_contact(frm, field, filter) {
+
+    frm.set_query(field , function() {
         return {
             filters: {
-                link_name: frm.doc.customer
+                link_name: filter
             }
         }
     }) 
 }
+
+function contact_info_display(frm, name, field) {
+    frappe.call({
+        'method': "frappe.client.get_list",
+        'args':{
+            'doctype': "Contact",
+            'filters': [
+                ["name","IN", [name]]
+            ],
+            'fields': ["salutation", "first_name", "last_name", "email_id" ,"phone"]
+        },
+        'callback': function (response) {
+            var res = response.message;
+            var info;
+            var full_name = res[0].first_name + " " + res[0].last_name;
+
+            if ( res[0].salutation ) {
+                full_name = `${res[0].salutation} ${full_name}`;
+            }
+
+            if ( res[0].email_id && res[0].phone) {
+                info = `${full_name} <br> Email: ${res[0].email_id} <br> Phone: ${res[0].phone}`;
+                cur_frm.set_value(field, info);
+            } else if ( res[0].email_id ) {
+                info = `${full_name} <br> Email: ${res[0].email_id}`;
+                cur_frm.set_value(field, info);
+            } else if ( res[0].phone ) {
+                info = `${full_name} <br> Phone: ${res[0].phone}`;
+                cur_frm.set_value(field, info);
+            } else {
+                cur_frm.set_value(field, full_name);
+            }
+        }
+    });
+}
+
 
 function fetch_customer_from_project(frm) {
     frappe.call({
