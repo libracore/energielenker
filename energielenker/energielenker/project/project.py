@@ -78,23 +78,26 @@ class PowerProject():
             self.update_erpnext_kpi(kpi)
     
     def update_dates(self):
-        dates = [
-            ("actual_start_date", False),
-            ("actual_end_date", True)
-        ]
-
-        for (date, startdate) in dates:
-            self.update_date(date, startdate)
-
-    def update_date(self, date, startdate):
-        dates = [subproject.get(date) for subproject in self.subprojects if subproject.get(date)]
-        project_date = self.project.get(date)
-
-        if project_date:
-            dates.append(get_datetime(project_date))
-
-        if dates:
-            self.project.set(date, max(dates) if startdate else min(dates))
+        # Schritt 1: Lesen / Setzen des tiefsten Startdatum
+        start_dates = []
+        for subproject in self.subprojects:
+            start_dates += get_lowest_project_start_date(subproject.name)
+        
+        start_dates += get_lowest_project_start_date(self.project.name)
+        
+        self.project.set('actual_start_date', min(start_dates))
+        
+        # Schritt 2: Lesen / Setzen des höchsten Enddatums
+        end_dates = []
+        for subproject in self.subprojects:
+            end_dates += get_highest_project_end_date(subproject.name)
+        
+        end_dates += get_highest_project_end_date(self.project.name)
+        
+        if len(end_dates) > 0:
+            self.project.set('actual_end_date', max(end_dates))
+        else:
+            self.project.set('actual_end_date', self.project.expected_end_date)
 
     def update_custom_kpi(self, kpi):
         value_project = getattr(self, "get_{kpi}".format(kpi=kpi))()
@@ -343,27 +346,63 @@ class PowerProject():
         return amount
     
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
-        # alt
-        # ~ return self.project.total_purchase_cost + self.project.erfasste_externe_kosten_in_rhapsody
+        '''
+        Anforderungen energielenker:
+        - alle Einkaufsrechnungspositionen OHNE LAGERARTIKEL (Lagerartikel werden über Lagerbuchung oder Lieferschein bewertet)
+          --> summe_einkaufsrechnungspositionen
+        - Lagerbuchungspositionen (alle Buchungen ohne Eingangslager = Entnahme)
+          --> summe_lagerbuchungspositionen
+        - Lieferscheinpositionen (NUR LAGERARTIKEL)
+          -> summe_Lieferscheinpositionen
+        '''
         
-        # neu (PINV + Material Issue)
-        total_purchase_cost = frappe.db.sql("""SELECT IFNULL(SUM(`grand_total`), 0)
-            FROM `tabPurchase Invoice` WHERE `project` = '{0}' AND `docstatus` = 1""".format(self.project.name), as_list=True)
+        summe_einkaufsrechnungspositionen = frappe.db.sql("""SELECT
+                                                                SUM(`amount`) AS `amount`
+                                                            FROM `tabPurchase Invoice Item`
+                                                            WHERE `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabPurchase Invoice`
+                                                                WHERE `project` = '{project}'
+                                                                AND `docstatus` = 1
+                                                            )
+                                                            AND `item_code` NOT IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabItem`
+                                                                WHERE `is_stock_item` = 1
+                                                            )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        total_material_issue = frappe.db.sql("""SELECT IFNULL(SUM(`total_outgoing_value`), 0)
-            FROM `tabStock Entry` WHERE `project` = '{0}' AND `docstatus` = 1 AND `stock_entry_type` = 'Material Issue'""".format(self.project.name), as_list=True)
+        summe_lagerbuchungspositionen = frappe.db.sql("""SELECT
+                                                            SUM(`amount`) AS `amount`
+                                                        FROM `tabStock Entry Detail`
+                                                        WHERE `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabStock Entry`
+                                                            WHERE `project` = '{project}'
+                                                            AND `docstatus` = 1
+                                                            AND `stock_entry_type` = 'Material Issue'
+                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        if len(total_purchase_cost) > 0:
-            total_purchase_cost = float(total_purchase_cost[0][0])
-        else:
-            total_purchase_cost = 0
+        summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
+                                                            SUM(`amount`) AS `amount`
+                                                        FROM `tabDelivery Note Item`
+                                                        WHERE `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabDelivery Note`
+                                                            WHERE `project` = '{project}'
+                                                            AND `docstatus` = 1
+                                                        )
+                                                        AND `item_code` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabItem`
+                                                            WHERE `is_stock_item` = 1
+                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        if len(total_material_issue) > 0:
-            total_material_issue = float(total_material_issue[0][0])
-        else:
-            total_material_issue = 0
-        
-        return total_purchase_cost + total_material_issue + float(self.project.erfasste_externe_kosten_in_rhapsody) or 0
+        return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
     
     def get_auftragsummen_gesamt(self):
         return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
@@ -600,6 +639,8 @@ def make_final_sales_invoice(order, invoice_date):
     si.set_posting_time = 1
     si.posting_date = invoice_date
     si.apply_discount_on = 'Net Total'
+    for item in si.items:
+        item.qty = frappe.db.sql("""SELECT `qty` FROM `tabSales Order Item` WHERE `name` = '{so_detail}'""".format(so_detail=item.so_detail), as_dict=True)[0].qty
     si = si.insert(ignore_permissions=True)
     si.payment_schedule = []
     si.payment_terms_template = ''
@@ -630,3 +671,69 @@ def auto_kpi_refresh():
 
 def get_projektbewertung_ignorieren_amount(self):
     return float(frappe.db.sql("""SELECT IFNULL(SUM(`base_net_total`), 0) AS `qty` FROM `tabSales Order` WHERE `project` = '{0}' AND `docstatus` = 1 AND `projektbewertung_ignorieren` = 1""".format(self.project.name), as_dict=True)[0].qty)
+
+def get_lowest_project_start_date(project):
+    # act_start_date von Task
+    start_date = frappe.db.sql("""SELECT 
+                                    MIN(`act_start_date`) AS `lowest_start_date`
+                                FROM `tabTask`
+                                WHERE `project` = '{project}'""".format(project=project), as_dict=True)
+    if start_date[0].lowest_start_date:
+        return [start_date[0].lowest_start_date]
+    else:
+        # Fallback 1: exp_start_date von Task
+        start_date = frappe.db.sql("""SELECT 
+                                        MIN(`exp_start_date`) AS `lowest_start_date`
+                                    FROM `tabTask`
+                                    WHERE `project` = '{project}'""".format(project=project), as_dict=True)
+        if start_date[0].lowest_start_date:
+            return [start_date[0].lowest_start_date]
+        else:
+            # Fallback 2: creation von Task
+            start_date = frappe.db.sql("""SELECT 
+                                            MIN(`creation`) AS `lowest_start_date`
+                                        FROM `tabTask`
+                                        WHERE `project` = '{project}'""".format(project=project), as_dict=True)
+            if start_date[0].lowest_start_date:
+                return [start_date[0].lowest_start_date.date()]
+            else:
+                # Fallback 3: tiefstes creation Datum von Projekt und dazugehörigen Tasks
+                start_date = frappe.db.sql("""SELECT 
+                                                MIN(`date`) AS `lowest_start_date`
+                                            FROM (
+                                            SELECT 
+                                                `creation` AS `date`
+                                            FROM `tabTask`
+                                            WHERE `project` = '{project}'
+                                            UNION
+                                            SELECT 
+                                                `creation` AS `date`
+                                            FROM `tabProject`
+                                            WHERE `name` = '{project}'
+                                            ) AS `tbl`""".format(project=project), as_dict=True)
+                if start_date[0].lowest_start_date:
+                    return [start_date[0].lowest_start_date.date()]
+                else:
+                    # Last Fallback
+                    return ['1900-01-01']
+
+def get_highest_project_end_date(project):
+    # act_end_date von abgeschlossenem Task
+    end_date = frappe.db.sql("""SELECT 
+                                    MAX(`act_end_date`) AS `highest_end_date`
+                                FROM `tabTask`
+                                WHERE `project` = '{project}'
+                                AND `status` = 'Completed'""".format(project=project), as_dict=True)
+    if end_date[0].highest_end_date:
+        return [end_date[0].highest_end_date]
+    else:
+        # Fallback 1: exp_end_date von abgeschlossenem Task
+        end_date = frappe.db.sql("""SELECT 
+                                        MAX(`exp_end_date`) AS `highest_end_date`
+                                    FROM `tabTask`
+                                    WHERE `project` = '{project}'
+                                    AND `status` = 'Completed'""".format(project=project), as_dict=True)
+        if end_date[0].highest_end_date:
+            return [end_date[0].highest_end_date]
+        else:
+            return []

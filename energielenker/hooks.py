@@ -63,7 +63,14 @@ doctype_js = {
 }
 
 doctype_list_js = {
-    "Project" : "energielenker/project/project_list.js"
+    "Project" : "energielenker/project/project_list.js",
+    "Sales Invoice" : "energielenker/sales_invoice/sales_invoice_list.js",
+    "Sales Order" : "energielenker/sales_order/sales_order_list.js",
+    "Quotation": "energielenker/quotation/quotation_list.js",
+    "Purchase Order": "energielenker/purchase_order/purchase_order_list.js",
+    "Purchase Invoice": "energielenker/purchase_invoice/purchase_invoice_list.js",
+    "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt_list.js",
+    "Delivery Note": "energielenker/delivery_note/delivery_note_list.js",
 }
 
 jenv = {
@@ -151,7 +158,8 @@ doc_events = {
 scheduler_events = {
     "daily": [
         "energielenker.energielenker.project.project.auto_kpi_refresh",
-        "energielenker.energielenker.quotation.quotation.change_status_from_old_angebote"
+        "energielenker.energielenker.quotation.quotation.change_status_from_old_angebote",
+        "energielenker.energielenker.utils.auto_reminder.check_for_reminder"
     ]
 }
 # scheduler_events = {
