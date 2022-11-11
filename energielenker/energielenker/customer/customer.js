@@ -1,5 +1,6 @@
 frappe.ui.form.on('Customer', {
     refresh: function(frm) {
+       set_timestamps(frm);
        frappe.contacts.clear_address_and_contact(cur_frm);
        render_address_and_contact(cur_frm);
        frm.add_custom_button(__("Erstelle Supportrechnung"), function() {
@@ -45,6 +46,17 @@ frappe.ui.form.on('Customer', {
     }
 })
 
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
+        }
+    }, 1000);
+}
+
 function render_address_and_contact(frm) {
     // render address
     if(cur_frm.fields_dict['address_html'] && "addr_list" in cur_frm.doc.__onload) {
@@ -59,7 +71,7 @@ function render_address_and_contact(frm) {
     // render contact
     if(cur_frm.fields_dict['contact_html'] && "contact_list" in cur_frm.doc.__onload) {
         $(cur_frm.fields_dict['contact_html'].wrapper)
-            .html(frappe.render_template("contact_list",
+            .html(frappe.render_template("kontakt_template",
                 cur_frm.doc.__onload))
             .find(".btn-contact").on("click", function() {
                 frappe.new_doc("Contact");

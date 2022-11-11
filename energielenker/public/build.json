@@ -1,6 +1,7 @@
 {
     "js/energielenkertemplates.min.js": [
         "public/html/ts_navbar.html",
-        "public/templates/energielenker_address_list.html"
+        "public/templates/energielenker_address_list.html",
+        "public/templates/kontakt_template.html"
     ]
 }
