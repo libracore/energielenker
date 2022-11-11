@@ -3,11 +3,23 @@
 
 frappe.ui.form.on('Lizenzgutschein', {
     refresh: function(frm) {
+        set_timestamps(frm);
         frm.add_custom_button(__("Beziehe Lizenzfile von cFos"), function() {
             get_license_items(frm);
         });
     }
 });
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
+        }
+    }, 1000);
+}
 
 function get_license_items(frm) {
     frappe.call({
