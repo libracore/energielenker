@@ -18,6 +18,7 @@ frappe.ui.form.on('Issue', {
 
 frappe.ui.form.on('Issue', {
     refresh: function(frm) {
+           set_timestamps(frm);
            cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
             var d = locals[cdt][cdn];         
             return {
@@ -57,3 +58,15 @@ try {
         }
     ]);
 } catch { /*do nothing for older versions */ }
+
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
+        }
+    }, 1000);
+}

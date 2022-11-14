@@ -3,6 +3,7 @@
 
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
+       set_timestamps(frm);
        setTimeout(function(){ 
             try {
                 cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
@@ -149,6 +150,17 @@ frappe.ui.form.on("Sales Invoice", {
         });
     }
 });
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
+        }
+    }, 1000);
+}
 
 function filter_contact(frm) {
     frm.set_query("contact_person_two" , function() {
