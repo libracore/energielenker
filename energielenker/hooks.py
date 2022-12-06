@@ -71,6 +71,7 @@ doctype_list_js = {
     "Purchase Invoice": "energielenker/purchase_invoice/purchase_invoice_list.js",
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt_list.js",
     "Delivery Note": "energielenker/delivery_note/delivery_note_list.js",
+    "Task": "energielenker/task/task_list.js",
 }
 
 jenv = {
