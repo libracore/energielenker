@@ -22,14 +22,14 @@ def validity_check(**data):
         lizenzgutschein = frappe.db.sql("""SELECT
                                                 *
                                             FROM `tabLizenzgutschein`
-                                            WHERE `lizenzgutschein` = '{lizenzgutschein}'
-                                            AND `geraete_id` = '{geraete_id}'""".format(lizenzgutschein=data['lizenzgutschein'], geraete_id=data['geraete_id']), as_dict=True)
+                                            WHERE `lizenzgutschein` = '{lizenzgutschein}'""".format(lizenzgutschein=data['lizenzgutschein']), as_dict=True)
         
         if len(lizenzgutschein) > 0:
             if lizenzgutschein[0].status == 'Gültig':
                 # Gültige Lizenz
                 lg = frappe.get_doc("Lizenzgutschein", lizenzgutschein[0].name)
                 lg.status = 'Bezogen'
+                lg.geraete_id = data['geraete_id']
                 lg.save(ignore_permissions=True)
                 frappe.local.response.http_status_code = 200
                 frappe.local.response.message = "Success"

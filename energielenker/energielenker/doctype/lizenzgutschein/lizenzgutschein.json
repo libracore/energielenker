@@ -15,8 +15,7 @@
    "fieldname": "geraete_id",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Ger\u00e4te ID",
-   "reqd": 1
+   "label": "Ger\u00e4te ID"
   },
   {
    "fieldname": "lizenzgutschein",
@@ -45,7 +44,7 @@
    "options": "Lizenzgutschein Lizenzen"
   }
  ],
- "modified": "2022-10-25 14:17:48.617850",
+ "modified": "2022-12-16 08:41:53.158452",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",
