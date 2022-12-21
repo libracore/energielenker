@@ -282,6 +282,15 @@ frappe.ui.form.on("Sales Order", {
     shipping_contact: function(frm) {
         contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
     },
+    delivery_date (frm) {
+		console.log("in the file")
+        if ( frm.doc.delivery_date != frm.doc.items[0].delivery_date ) {
+            var items = frm.doc.items || [];
+            for (var i = 0; i < items.length; i++) {
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'delivery_date', frm.doc.delivery_date);
+            }
+        } 
+    }
 });
 
 // Change the timeline specification, from "X days ago" to the exact date and time
