@@ -153,7 +153,12 @@ doc_events = {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items"
     },
     "Issue": {
-        "onload": "energielenker.energielenker.issue.issue.add_mail_as_description"
+        "onload": "energielenker.energielenker.issue.issue.onload_functions",
+        "after_insert": "energielenker.energielenker.issue.issue.send_creation_notification_to_customer"
+    },
+    "ToDo": {
+        "after_insert": "energielenker.energielenker.todo.todo.check_for_assigment",
+        "on_update": "energielenker.energielenker.todo.todo.check_for_assigment"
     }
 }
 
