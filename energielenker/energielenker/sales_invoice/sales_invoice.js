@@ -16,8 +16,37 @@ frappe.ui.form.on("Sales Invoice", {
             } catch (err) {}
         }, 1000);
         
+        //po_no number is automatically set if the sinv is duplicated.
+        if(frm.doc.docstatus!=0) {
+			
+			// remove button "Duplicate" in Menu
+			if($("[data-label='Duplicate']").length > 0) {
+				$("[data-label='Duplicate']")[0].parentElement.remove();
+			}
+
+            cur_frm.page.add_menu_item(__("Duplicate"), function() {
+                frm.copy_doc();
+                var last_route = frappe.route_history[0][2];
+                if (last_route) {
+                    console.log("route", last_route)
+
+                    frappe.call({
+                        'method': "frappe.client.get",
+                        'args': {
+                            'doctype': "Sales Invoice",
+                            'name': last_route
+                        },
+                        'callback': function(response) {
+                            var sinv = response.message;
+                            cur_frm.set_value('po_no', sinv.po_no);
+                        }
+                    });
+                }
+          });
+        }
+        
         if (cur_frm.doc.customer) {
-			filter_contact(frm);
+            filter_contact(frm);
             frappe.call({
                 'method': "frappe.client.get",
                 'args': {
@@ -57,7 +86,7 @@ frappe.ui.form.on("Sales Invoice", {
                                 cur_frm.set_value("payment_terms_template", "100% 21 Tage");
                             }
                         }
-                    }
+                    } 
                 }
             });
         }
@@ -109,6 +138,7 @@ frappe.ui.form.on("Sales Invoice", {
             }
         }
         fetch_customer_an_cost_center(frm);
+
     },
     navision_konto: function(frm) {
         if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
