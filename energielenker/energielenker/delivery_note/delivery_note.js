@@ -4,6 +4,30 @@
 var so_return;
 
 frappe.ui.form.on("Delivery Note", {
+	onload: function(frm) {
+		// If you create an DN from the project, it will make sure to take the address set on the project than the customer primary address.
+		var last_route = frappe.route_history.slice(-2, -1)[0];
+		if (last_route) {
+			if (last_route[1] == "Project") {
+				frappe.call({
+					'method': "frappe.client.get",
+					'args': {
+						'doctype': "Project",
+						'name': last_route[2]
+					},
+					'callback': function(response) {
+						var project_address = response.message.shipping_address;
+						console.log("PROJECT", project_address)
+						if (project_address) {
+							setTimeout(() => {
+								cur_frm.set_value('shipping_address_name', project_address);
+							}, 1500);
+						}
+					}
+				});
+			}
+		}
+	},
 	
 	refresh: function(frm) {
 		set_timestamps(frm);
