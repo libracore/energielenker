@@ -9,7 +9,7 @@ from frappe.utils import get_site_name
 import json
 
 @frappe.whitelist()
-def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False):
+def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False, position_id=None, geraete_id=None):
     '''
         Beschreibung
         ----------------
@@ -85,7 +85,7 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         "test": test,
         "keyphrase": credentials['cfos_license_keyphrase'],
         "entity": 1,
-        "order_id": "{order}:{position}".format(order=order, position=position),
+        "order_id": "{order}:{position}:{position_id}".format(order=order, position=position or 'no_pos', position_id=position_id or 'no_id'),
         "activation": True if activation == 1 else False,
         "evse_count": int(evse_count)
     }
@@ -99,11 +99,14 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
     # check request
     if r.status_code == 200:
         # get license as JSON
-        license_file_data = json.dumps(r.json()['license'])
+        try:
+            license_file_data = json.dumps(r.json()['license'])
+        except:
+            license_file_data = json.dumps(r.json())
         if not voucher:
             license_file = frappe.get_doc({
                 "doctype": "File",
-                "file_name": 'license_{order}_{position}.json'.format(order=order, position=position),
+                "file_name": 'license_{order}_{position}_{position_id}.json'.format(order=order, position=position, position_id=position_id or 'no_id'),
                 "folder": "Home/Attachments",
                 "is_private": 1,
                 "content": license_file_data,
@@ -115,13 +118,14 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         else:
             license_file = frappe.get_doc({
                 "doctype": "File",
-                "file_name": 'license_{order}_{position}.json'.format(order=order, position=position),
+                "file_name": 'license_{order}_{position}_{position_id}.json'.format(order=order, position=position, position_id=position_id or 'no_id'),
                 "folder": "Home/Attachments",
                 "is_private": 1,
                 "content": license_file_data,
                 "attached_to_doctype": 'Lizenzgutschein',
                 "attached_to_name": voucher
             })
+            license_file.save(ignore_permissions=True)
             voucher = frappe.get_doc("Lizenzgutschein", voucher)
             row = voucher.append('lizenzen', {})
             row.lizenz = license_file_data
@@ -129,3 +133,17 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         
     else:
         frappe.throw("<b>Es ist etwas schief gelaufen.</b><br><br><br>Die Antwort der Schnittstelle lautet:<br>Status: {status}<br>Error: {error}".format(status=r.status_code, error=r.text))
+
+@frappe.whitelist()
+def create_lizenzgutschein(purchase_order=None, positions_nummer=None, position_id=None, test=0, aktivierung=1, evse_count=1):
+    lizenzgutschein = frappe.get_doc({
+        "doctype": "Lizenzgutschein",
+        "purchase_order": purchase_order,
+        "positions_nummer": positions_nummer,
+        "position_id": position_id,
+        "test": test,
+        "aktivierung": aktivierung,
+        "evse_count": evse_count
+    })
+    lizenzgutschein.save()
+    frappe.db.commit()

@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import json
+from energielenker.energielenker.utils.c_fos_schnittstelle import get_license
 
 class Lizenzgutschein(Document):
     def after_insert(self):
@@ -26,7 +27,22 @@ def validity_check(**data):
         
         if len(lizenzgutschein) > 0:
             if lizenzgutschein[0].status == 'Gültig':
-                # Gültige Lizenz
+                # Gültiger Lizenzgutschein
+                # bezeiehe Lizenz
+                try:
+                    lg_1 = frappe.get_doc("Lizenzgutschein", lizenzgutschein[0].name)
+                    if len(lg_1.lizenzen) < 1:
+                        get_license(order=lg_1.purchase_order, position=lg_1.positions_nummer, test=0, activation=lg_1.aktivierung, evse_count=lg_1.evse_count, voucher=lg_1.name, position_id=lg_1.position_id, geraete_id=data['geraete_id'])
+                except:
+                    # Lizenzbezug fehlgeschlagen
+                    frappe.local.response.http_status_code = 503
+                    frappe.local.response.message = "Service Unavailable"
+                    return ['503 Service Unavailable', {
+                        "error": {
+                            "code": 503,
+                            "message": "Service Unavailable"
+                        }
+                    }]
                 lg = frappe.get_doc("Lizenzgutschein", lizenzgutschein[0].name)
                 lg.status = 'Bezogen'
                 lg.geraete_id = data['geraete_id']

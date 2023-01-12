@@ -4,10 +4,22 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "section_referenz",
   "purchase_order",
-  "geraete_id",
-  "lizenzgutschein",
+  "cb_1",
+  "positions_nummer",
+  "position_id",
+  "section_kunden_abruf",
   "status",
+  "lizenzgutschein",
+  "cb_2",
+  "geraete_id",
+  "section_lizenzdaten",
+  "evse_count",
+  "cb_3",
+  "aktivierung",
+  "test",
+  "section_lizenzen",
   "lizenzen"
  ],
  "fields": [
@@ -40,11 +52,71 @@
   {
    "fieldname": "lizenzen",
    "fieldtype": "Table",
-   "label": "Lizenzen",
    "options": "Lizenzgutschein Lizenzen"
+  },
+  {
+   "fieldname": "section_referenz",
+   "fieldtype": "Section Break",
+   "label": "Bestell-Referenzen"
+  },
+  {
+   "fieldname": "positions_nummer",
+   "fieldtype": "Data",
+   "label": "Position-Nr."
+  },
+  {
+   "fieldname": "position_id",
+   "fieldtype": "Data",
+   "label": "Position-ID"
+  },
+  {
+   "fieldname": "section_lizenzdaten",
+   "fieldtype": "Section Break",
+   "label": "Lizenzdaten"
+  },
+  {
+   "fieldname": "cb_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cb_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_lizenzen",
+   "fieldtype": "Section Break",
+   "label": "Lizenzen"
+  },
+  {
+   "fieldname": "section_kunden_abruf",
+   "fieldtype": "Section Break",
+   "label": "Kundendaten (Abruf)"
+  },
+  {
+   "default": "0",
+   "description": "Der Wert von Aktivierung kann True oder False sein und entscheidet dar\u00fcber, ob die Lizenz vor der Benutzung auf dem Kundenrechner aktiviert werden muss.",
+   "fieldname": "aktivierung",
+   "fieldtype": "Check",
+   "label": "Aktivierung"
+  },
+  {
+   "fieldname": "cb_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Das Feld Evse Count gibt die Anzahl der Ladepunkte (resp. OCPP-Gateways) an, welche vom Charging Manager unterst\u00fctzt werden k\u00f6nnen.",
+   "fieldname": "evse_count",
+   "fieldtype": "Int",
+   "label": "Evse Count"
+  },
+  {
+   "fieldname": "test",
+   "fieldtype": "Select",
+   "label": "Teststufe",
+   "options": "0\n1\n2\n3\n4"
   }
  ],
- "modified": "2022-12-16 08:41:53.158452",
+ "modified": "2023-01-11 16:13:46.760428",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",

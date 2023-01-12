@@ -12,7 +12,7 @@ cur_frm.dashboard.add_transactions([
 
 frappe.ui.form.on('Purchase Order', {
     refresh: function(frm) {
-		set_timestamps(frm)
+        set_timestamps(frm)
         setTimeout(function(){ 
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
             function() {                                                                      
@@ -24,67 +24,65 @@ frappe.ui.form.on('Purchase Order', {
         }, 1000);
         
         if ((cur_frm.doc.supplier == 'cFos Software GmbH')&&(cur_frm.doc.docstatus==1)) {
-            frm.add_custom_button(__("Beziehe Lizenzfile von cFos"), function() {
-                get_cfos_lizenz(frm);
+            frm.add_custom_button(__("Erzeuge Lizenzgutschein"), function() {
+                erzeuge_lizenzgutschein(frm);
             });
-            
-            
         }
     },
     drop_ship_check: function(frm) {
-	    cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');
-	},
-	supplier_ship_check: function(frm) {
-	    cur_frm.add_fetch('supplier_to_supplier','supplier_name','supplier_to_supplier_name');
-	},
-	customer_address: function(frm) {
-	    if (cur_frm.doc.customer_address) {
-	        cur_frm.set_value('shipping_address', cur_frm.doc.customer_address);
-	    } else {
-	        cur_frm.set_value('shipping_address', '');
-	    }
-	},
-	/*fill in address in field shipping_address*/
-	supplier_to_supplier_address: function(frm) {
-	    if (cur_frm.doc.supplier_to_supplier_address) {
-	        cur_frm.set_value('shipping_address', cur_frm.doc.supplier_to_supplier_address);
-	    } else {
-	        cur_frm.set_value('shipping_address', '');
-	    }
-	},
-	/*show only address of that supplier*/
-	supplier_to_supplier: function(frm) {
-		filter_additional_contact(frm, "supplier_to_supplier_contact", cur_frm.doc.supplier_to_supplier);
-   	    cur_frm.fields_dict['supplier_to_supplier_address'].get_query = function(doc, cdt, cdn) {
-	        var d = locals[cdt][cdn];          
-        	    return {
-             		filters: {
-              	     		"link_name": frm.doc.supplier_to_supplier
-			}                       
-            	    }
-	    }
-	},
-	customer_shipping: function(frm) {
-		filter_additional_contact(frm, "customer_contact", cur_frm.doc.customer_shipping);
-   	    cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
-	        var d = locals[cdt][cdn];          
-        	    return {
-             		filters: {
-              	     		"link_name": frm.doc.customer_shipping
-			}                       
-            	    }
-	    }
-	},
+        cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');
+    },
+    supplier_ship_check: function(frm) {
+        cur_frm.add_fetch('supplier_to_supplier','supplier_name','supplier_to_supplier_name');
+    },
+    customer_address: function(frm) {
+        if (cur_frm.doc.customer_address) {
+            cur_frm.set_value('shipping_address', cur_frm.doc.customer_address);
+        } else {
+            cur_frm.set_value('shipping_address', '');
+        }
+    },
+    /*fill in address in field shipping_address*/
+    supplier_to_supplier_address: function(frm) {
+        if (cur_frm.doc.supplier_to_supplier_address) {
+            cur_frm.set_value('shipping_address', cur_frm.doc.supplier_to_supplier_address);
+        } else {
+            cur_frm.set_value('shipping_address', '');
+        }
+    },
+    /*show only address of that supplier*/
+    supplier_to_supplier: function(frm) {
+        filter_additional_contact(frm, "supplier_to_supplier_contact", cur_frm.doc.supplier_to_supplier);
+        cur_frm.fields_dict['supplier_to_supplier_address'].get_query = function(doc, cdt, cdn) {
+            var d = locals[cdt][cdn];          
+            return {
+                filters: {
+                    "link_name": frm.doc.supplier_to_supplier
+                }
+            }
+        }
+    },
+    customer_shipping: function(frm) {
+        filter_additional_contact(frm, "customer_contact", cur_frm.doc.customer_shipping);
+        cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
+            var d = locals[cdt][cdn];          
+            return {
+                filters: {
+                    "link_name": frm.doc.customer_shipping
+                }
+            }
+        }
+    },
     validate: function(frm) {
         check_vielfaches(frm);
         if (cur_frm.doc.project) {
             copy_project(frm);
         }
         // if items come from a SO then display the so_name in the doc and viceversa
-		if ( cur_frm.doc.items[0].sales_order ) {
-		    var so_ref = cur_frm.doc.items[0].sales_order;
-			set_po_reference(frm, so_ref);
-		}
+        if ( cur_frm.doc.items[0].sales_order ) {
+            var so_ref = cur_frm.doc.items[0].sales_order;
+            set_po_reference(frm, so_ref);
+        }
     }
 })
 
@@ -100,17 +98,13 @@ function set_timestamps(frm){
 }
 
 function filter_additional_contact(frm, field, filter) {
-	
-	console.log("filter", field, filter);
-	frm.set_query(field, function() {
-		return {
-			filters: {
-				link_name: filter
-			}                       
-            	    
-		}
-	}) 
-
+    frm.set_query(field, function() {
+        return {
+            filters: {
+                link_name: filter
+            }
+        }
+    }) 
 }
 
 function check_vielfaches(frm) {
@@ -158,16 +152,55 @@ function copy_project(frm) {
     cur_frm.refresh_field('items');
 }
 
-function get_cfos_lizenz(frm) {
+function erzeuge_lizenzgutschein(frm) {
     var items = []
     cur_frm.doc.items.forEach(function(entry) {
-        items.push({
-           'idx': entry.idx,
-            'item_code': entry.item_code,
-            'activation': 1,
-            'item_name': entry.item_name,
-            'evse_count': entry.qty
-        });
+        if (entry.uom == 'Stück') {
+            items.push({
+               'idx': entry.idx,
+                'item_code': entry.item_code,
+                'activation': 1,
+                'item_name': entry.item_name,
+                'evse_count': entry.qty,
+                'positions_id': entry.name
+            });
+        } else {
+            if (entry.uom == '5er Los') {
+                for (var i = 1; i <= entry.qty; i++) {
+                    if (i > 1) {
+                        var idx_string = String(entry.idx) + "." + String(i - 1);
+                    } else {
+                        var idx_string = String(entry.idx);
+                    }
+                    items.push({
+                       'idx': idx_string,
+                        'item_code': entry.item_code,
+                        'activation': 1,
+                        'item_name': entry.item_name,
+                        'evse_count': 5,
+                        'positions_id': entry.name
+                    });
+                }
+            } else {
+                if (entry.uom == '10er Los') {
+                    for (var i = 1; i <= entry.qty; i++) {
+                        if (i > 1) {
+                            var idx_string = String(entry.idx) + "." + String(i - 1);
+                        } else {
+                            var idx_string = String(entry.idx);
+                        }
+                        items.push({
+                           'idx': idx_string,
+                            'item_code': entry.item_code,
+                            'activation': 1,
+                            'item_name': entry.item_name,
+                            'evse_count': 10,
+                            'positions_id': entry.name
+                        });
+                    }
+                }
+            }
+        }
     });
     var d = new frappe.ui.Dialog({
         'fields': [
@@ -221,6 +254,13 @@ function get_cfos_lizenz(frm) {
                     in_list_view: 1,
                     read_only: 1,
                     label: __('Item Name')
+                },
+                {
+                    fieldtype:'Data',
+                    fieldname:"positions_id",
+                    in_list_view: 0,
+                    read_only: 1,
+                    label: __('Positions ID')
                 }]
             }
         ],
@@ -230,17 +270,18 @@ function get_cfos_lizenz(frm) {
             var loop = 1;
             values.lizenz_items.forEach(function(lizenz_item) {
                frappe.call({
-                    'method': "energielenker.energielenker.utils.c_fos_schnittstelle.get_license",
+                    'method': "energielenker.energielenker.utils.c_fos_schnittstelle.create_lizenzgutschein",
                     'args': {
-                        'order': values.order,
-                        'position': lizenz_item.idx,
+                        'purchase_order': values.order,
+                        'positions_nummer': lizenz_item.idx,
                         'test': values.test,
-                        'activation': lizenz_item.activation,
-                        'evse_count': lizenz_item.evse_count
+                        'aktivierung': lizenz_item.activation,
+                        'evse_count': lizenz_item.evse_count,
+                        'position_id': lizenz_item.positions_id
                     },
                     'async': true,
                     freeze: true,
-                    freeze_message: "Bitte warten, Lizenzen werden bestellt...",
+                    freeze_message: "Bitte warten, Lizenzgutscheine werden erzeugt...",
                     'callback': function(response) {
                         if (loop == values.lizenz_items.length) {
                             cur_frm.reload_doc();
@@ -251,8 +292,8 @@ function get_cfos_lizenz(frm) {
                 });
             });
         },
-        primary_action_label: __('Bestellen'),
-        title: "Bestellung cFos Lizenzen"
+        primary_action_label: __('Erzeugen'),
+        title: "Erzeugung Lizenzgutscheine"
     });
     d.show();
 }
@@ -260,17 +301,17 @@ function get_cfos_lizenz(frm) {
 function set_po_reference(frm, so_ref) {
     console.log("po_ref", cur_frm.doc.name)
     setTimeout(function(){
-		console.log("po_ref two", cur_frm.doc.name)
-		frappe.call({
-			'method': "frappe.client.set_value",
-			'args':{
-			 'doctype': "Sales Order",
-			  'name': so_ref,
-			  "fieldname": {
-					"lieferantenauftrag": cur_frm.doc.name
-				},
-			},
-		});
+        console.log("po_ref two", cur_frm.doc.name)
+        frappe.call({
+            'method': "frappe.client.set_value",
+            'args':{
+             'doctype': "Sales Order",
+              'name': so_ref,
+              "fieldname": {
+                    "lieferantenauftrag": cur_frm.doc.name
+                },
+            },
+        });
     }, 1000);
     cur_frm.set_value("sales_order", so_ref);
 }
