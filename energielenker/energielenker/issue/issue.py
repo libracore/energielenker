@@ -33,8 +33,8 @@ def send_creation_notification_to_customer(self, event):
 def check_for_assigment(self):
     zuweisungen = frappe.db.sql("""SELECT `creation` FROM `tabToDo` WHERE `status` = 'Open' AND `reference_type` = 'Issue' AND `reference_name` = '{0}' ORDER BY `creation` ASC""".format(self.name), as_dict=True)
     if len(zuweisungen) > 0:
-        frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', zuweisungen[0].creation)
+        frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', zuweisungen[0].creation, update_modified=False)
         frappe.db.commit()
     else:
-        frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None)
+        frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
