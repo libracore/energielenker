@@ -165,7 +165,7 @@ function erzeuge_lizenzgutschein(frm) {
                 'positions_id': entry.name
             });
         } else {
-            if (entry.uom == '5er Los') {
+            if (entry.uom == '5er-Los') {
                 for (var i = 1; i <= entry.qty; i++) {
                     if (i > 1) {
                         var idx_string = String(entry.idx) + "." + String(i - 1);
@@ -182,7 +182,7 @@ function erzeuge_lizenzgutschein(frm) {
                     });
                 }
             } else {
-                if (entry.uom == '10er Los') {
+                if (entry.uom == '10er-Los') {
                     for (var i = 1; i <= entry.qty; i++) {
                         if (i > 1) {
                             var idx_string = String(entry.idx) + "." + String(i - 1);
@@ -299,7 +299,6 @@ function erzeuge_lizenzgutschein(frm) {
 }
 
 function set_po_reference(frm, so_ref) {
-    console.log("po_ref", cur_frm.doc.name)
     setTimeout(function(){
         console.log("po_ref two", cur_frm.doc.name)
         frappe.call({

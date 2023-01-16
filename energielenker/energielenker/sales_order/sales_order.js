@@ -76,6 +76,12 @@ frappe.ui.form.on("Sales Order", {
                     }, __("Get items from"));
             }
         }, 1000);
+        
+        if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
+            frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
+                hinterlege_cfos_als_lieferant(frm);
+            });
+        }
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -92,6 +98,11 @@ frappe.ui.form.on("Sales Order", {
     },
     customer: function(frm) {
         shipping_address_query(frm);
+        if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
+            frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
+                hinterlege_cfos_als_lieferant(frm);
+            });
+        }
     },
     validate: function(frm) {
         check_navision(frm);
@@ -283,7 +294,6 @@ frappe.ui.form.on("Sales Order", {
         contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
     },
     delivery_date (frm) {
-		console.log("in the file")
         if ( frm.doc.delivery_date != frm.doc.items[0].delivery_date ) {
             var items = frm.doc.items || [];
             for (var i = 0; i < items.length; i++) {
@@ -498,4 +508,12 @@ function cost_center_query(frm) {
             }
         }
     };
+}
+
+function hinterlege_cfos_als_lieferant(frm) {
+    var items = cur_frm.doc.items;
+    items.forEach(function(entry) {
+        entry.supplier = 'cFos Software GmbH';
+    });
+    cur_frm.refresh_field('items');
 }

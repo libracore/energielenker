@@ -76,7 +76,8 @@ doctype_list_js = {
 
 jenv = {
     "methods": [
-        "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items"
+        "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items",
+        "get_delivery_note_lizenzgutschein:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_delivery_note_lizenzgutschein"
     ]
 }
 

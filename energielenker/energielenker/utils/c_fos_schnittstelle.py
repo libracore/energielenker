@@ -87,7 +87,8 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         "entity": 1,
         "order_id": "{order}:{position}:{position_id}".format(order=order, position=position or 'no_pos', position_id=position_id or 'no_id'),
         "activation": True if activation == 1 else False,
-        "evse_count": int(evse_count)
+        "evse_count": int(evse_count),
+        "hardware_id": geraete_id or None
     }
 
     # post API request

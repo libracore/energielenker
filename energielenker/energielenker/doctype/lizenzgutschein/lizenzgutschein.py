@@ -89,3 +89,19 @@ def validity_check(**data):
                 "message": "Bad Request"
             }
         }]
+
+def get_delivery_note_lizenzgutschein(item_ref):
+    lizenzgutschein = frappe.db.sql("""SELECT
+                            `lizenzgutschein`
+                        FROM `tabLizenzgutschein`
+                        WHERE `position_id` IN (
+                            SELECT
+                                `name`
+                            FROM `tabPurchase Order Item`
+                            WHERE `sales_order_item` = '{item_ref}'
+                        )""".format(item_ref=item_ref), as_dict=True)
+    if len(lizenzgutschein) > 0:
+        return """<b>Lizenzgutschein: {0}</b>""".format(lizenzgutschein[0].lizenzgutschein)
+    else:
+        return ''
+    
