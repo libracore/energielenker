@@ -101,7 +101,10 @@ def get_delivery_note_lizenzgutschein(item_ref):
                             WHERE `sales_order_item` = '{item_ref}'
                         )""".format(item_ref=item_ref), as_dict=True)
     if len(lizenzgutschein) > 0:
-        return """<b>Lizenzgutschein: {0}</b>""".format(lizenzgutschein[0].lizenzgutschein)
+        return_string = """<b>Lizenzgutschein:</b>"""
+        for l in lizenzgutschein:
+            return_string += """<br>{0}""".format(l.lizenzgutschein)
+        return return_string
     else:
         return ''
     
