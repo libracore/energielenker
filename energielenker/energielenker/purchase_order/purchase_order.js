@@ -156,14 +156,21 @@ function erzeuge_lizenzgutschein(frm) {
     var items = []
     cur_frm.doc.items.forEach(function(entry) {
         if (entry.uom == 'Stück') {
-            items.push({
-               'idx': entry.idx,
-                'item_code': entry.item_code,
-                'activation': 1,
-                'item_name': entry.item_name,
-                'evse_count': entry.qty,
-                'positions_id': entry.name
-            });
+            for (var i = 1; i <= entry.qty; i++) {
+                if (i > 1) {
+                    var idx_string = String(entry.idx) + "." + String(i - 1);
+                } else {
+                    var idx_string = String(entry.idx);
+                }
+                items.push({
+                   'idx': idx_string,
+                    'item_code': entry.item_code,
+                    'activation': 1,
+                    'item_name': entry.item_name,
+                    'evse_count': 1,
+                    'positions_id': entry.name
+                });
+            }
         } else {
             if (entry.uom == '5er-Los') {
                 for (var i = 1; i <= entry.qty; i++) {
