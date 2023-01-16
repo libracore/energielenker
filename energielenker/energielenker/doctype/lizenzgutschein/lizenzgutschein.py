@@ -90,7 +90,7 @@ def validity_check(**data):
             }
         }]
 
-def get_delivery_note_lizenzgutschein(item_ref):
+def get_delivery_note_lizenzgutschein(item_ref, uom=None):
     lizenzgutschein = frappe.db.sql("""SELECT
                             `lizenzgutschein`
                         FROM `tabLizenzgutschein`
@@ -104,6 +104,13 @@ def get_delivery_note_lizenzgutschein(item_ref):
         return_string = """<b>Lizenzgutschein:</b>"""
         for l in lizenzgutschein:
             return_string += """<br>{0}""".format(l.lizenzgutschein)
+        if uom:
+            if uom == 'Stück':
+                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 1"""
+            elif uom == '5er-Los':
+                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 5"""
+            elif uom == '10er-Los':
+                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 10"""
         return return_string
     else:
         return ''
