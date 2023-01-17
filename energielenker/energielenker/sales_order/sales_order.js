@@ -77,7 +77,7 @@ frappe.ui.form.on("Sales Order", {
             }
         }, 1000);
         
-        if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
+        if (['WAGO GmbH & Co. KG', 'WAGO Kontakttechnik GmbH & Co. KG'].includes(cur_frm.doc.customer)) {
             frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
                 hinterlege_cfos_als_lieferant(frm);
             });
