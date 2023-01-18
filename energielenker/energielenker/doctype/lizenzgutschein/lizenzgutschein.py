@@ -101,17 +101,23 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
                             WHERE `sales_order_item` = '{item_ref}'
                         )""".format(item_ref=item_ref), as_dict=True)
     if len(lizenzgutschein) > 0:
+        uom_evse_count = get_evse_count_qty()
         return_string = """<b>Lizenzgutschein:</b>"""
         for l in lizenzgutschein:
             return_string += """<br>{0}""".format(l.lizenzgutschein)
         if uom:
-            if uom == 'Stück':
-                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 1"""
-            elif uom == '5er-Los':
-                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 5"""
-            elif uom == '10er-Los':
-                return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: 10"""
+            return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: {0}""".format(uom_evse_count[uom])
         return return_string
     else:
         return ''
-    
+
+@frappe.whitelist()
+def get_evse_count_qty():
+    uoms = frappe.db.sql("""SELECT * FROM `tabUOM`""", as_dict=True)
+    uom_evse_count = {}
+    for uom in uoms:
+        if int(uom.manuelle_evse_count_definition) == 1:
+            uom_evse_count[uom.name] = int(uom.evse_count)
+        else:
+            uom_evse_count[uom.name] = 1
+    return uom_evse_count

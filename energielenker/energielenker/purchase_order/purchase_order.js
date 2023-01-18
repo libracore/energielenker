@@ -154,25 +154,11 @@ function copy_project(frm) {
 
 function erzeuge_lizenzgutschein(frm) {
     var items = []
-    cur_frm.doc.items.forEach(function(entry) {
-        if (entry.uom == 'Stück') {
-            for (var i = 1; i <= entry.qty; i++) {
-                if (i > 1) {
-                    var idx_string = String(entry.idx) + "." + String(i - 1);
-                } else {
-                    var idx_string = String(entry.idx);
-                }
-                items.push({
-                   'idx': idx_string,
-                    'item_code': entry.item_code,
-                    'activation': 1,
-                    'item_name': entry.item_name,
-                    'evse_count': 1,
-                    'positions_id': entry.name
-                });
-            }
-        } else {
-            if (entry.uom == '5er-Los') {
+    frappe.call({
+        'method': "energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_evse_count_qty",
+        'callback': function(response) {
+            var uom_evse_count = response.message;
+            cur_frm.doc.items.forEach(function(entry) {
                 for (var i = 1; i <= entry.qty; i++) {
                     if (i > 1) {
                         var idx_string = String(entry.idx) + "." + String(i - 1);
@@ -184,125 +170,107 @@ function erzeuge_lizenzgutschein(frm) {
                         'item_code': entry.item_code,
                         'activation': 1,
                         'item_name': entry.item_name,
-                        'evse_count': 5,
+                        'evse_count': uom_evse_count[entry.uom],
                         'positions_id': entry.name
                     });
                 }
-            } else {
-                if (entry.uom == '10er-Los') {
-                    for (var i = 1; i <= entry.qty; i++) {
-                        if (i > 1) {
-                            var idx_string = String(entry.idx) + "." + String(i - 1);
-                        } else {
-                            var idx_string = String(entry.idx);
-                        }
-                        items.push({
-                           'idx': idx_string,
-                            'item_code': entry.item_code,
-                            'activation': 1,
-                            'item_name': entry.item_name,
-                            'evse_count': 10,
-                            'positions_id': entry.name
-                        });
+            });
+            var d = new frappe.ui.Dialog({
+                'fields': [
+                    {'fieldname': 'section_allgemein', 'label': 'Allgemein', 'fieldtype': 'Section Break'},
+                    {'fieldname': 'order', 'label': 'Bestellreferenz', 'fieldtype': 'Data', 'default': cur_frm.doc.name, 'read_only': 1},
+                    {'fieldname': 'test', 'label': 'Teststufe', 'fieldtype': 'Select', 'default': '0', 'options': '0\n1\n2\n3\n4', 'reqd': 1, 'description': '1: Der Benutzer wird authentisiert und der JSON-String der Anfrage wird gelesen.<br>2: Wie 1, zusätzlich werden alle Felder des Requests überprüft und in die Lizenz übernommen.<br>3: Wie 2, zusätzlich wird der Schlüssel zum Signieren mittels des Passworts in keyphrase gelesen.<br>4: Wie 3, zusätzlich wird die Bestellung gespeichert, aber nicht signiert. Diesen Aufruf bitte selten ausführen, da jeweils eine Seriennummer verbraucht wird.<br><b>0: Der Prozess wird vollständig durchlaufen. Die Bestellung wird gespeichert und es wird eine signierte Lizenz zurückgegeben.</b>'},
+                    {'fieldname': 'section_lizenzen', 'label': 'Lizenzen', 'fieldtype': 'Section Break'},
+                    {
+                        label: "Lizenz Details",
+                        fieldname: "lizenz_items", 
+                        fieldtype: "Table", 
+                        cannot_add_rows: true,
+                        in_place_edit: false, 
+                        data: items,
+                        get_data: () => {
+                            return items;
+                        },
+                        fields: [
+                        {
+                            label: 'Position',
+                            fieldtype:'Data',
+                            fieldname:"idx",
+                            in_list_view: 1,
+                            read_only: 1,
+                        },
+                        {
+                            label: 'Aktivierung',
+                            fieldtype:'Check',
+                            fieldname:"activation",
+                            in_list_view: 1,
+                            description: 'Der Wert von Aktivierung kann True oder False sein und entscheidet darüber, ob die Lizenz vor der Benutzung auf dem Kundenrechner aktiviert werden muss.'
+                        },
+                        {
+                            label: 'Evse Count',
+                            fieldtype:'Int',
+                            fieldname:"evse_count",
+                            in_list_view: 1,
+                            description: 'Das Feld Evse Count gibt die Anzahl der Ladepunkte (resp. OCPP-Gateways) an, welche vom Charging Manager unterstützt werden können.'
+                        },
+                        {
+                            fieldtype:'Link',
+                            fieldname:"item_code",
+                            options: 'Item',
+                            in_list_view: 0,
+                            read_only: 1,
+                            label: __('Item Code')
+                        },
+                        {
+                            fieldtype:'Data',
+                            fieldname:"item_name",
+                            in_list_view: 1,
+                            read_only: 1,
+                            label: __('Item Name')
+                        },
+                        {
+                            fieldtype:'Data',
+                            fieldname:"positions_id",
+                            in_list_view: 0,
+                            read_only: 1,
+                            label: __('Positions ID')
+                        }]
                     }
-                }
-            }
+                ],
+                primary_action: function(){
+                    d.hide();
+                    var values = d.get_values();
+                    var loop = 1;
+                    values.lizenz_items.forEach(function(lizenz_item) {
+                       frappe.call({
+                            'method': "energielenker.energielenker.utils.c_fos_schnittstelle.create_lizenzgutschein",
+                            'args': {
+                                'purchase_order': values.order,
+                                'positions_nummer': lizenz_item.idx,
+                                'test': values.test,
+                                'aktivierung': lizenz_item.activation,
+                                'evse_count': lizenz_item.evse_count,
+                                'position_id': lizenz_item.positions_id
+                            },
+                            'async': true,
+                            freeze: true,
+                            freeze_message: "Bitte warten, Lizenzgutscheine werden erzeugt...",
+                            'callback': function(response) {
+                                if (loop == values.lizenz_items.length) {
+                                    cur_frm.reload_doc();
+                                } else {
+                                    loop += 1;
+                                }
+                            }
+                        });
+                    });
+                },
+                primary_action_label: __('Erzeugen'),
+                title: "Erzeugung Lizenzgutscheine"
+            });
+            d.show();
         }
     });
-    var d = new frappe.ui.Dialog({
-        'fields': [
-            {'fieldname': 'section_allgemein', 'label': 'Allgemein', 'fieldtype': 'Section Break'},
-            {'fieldname': 'order', 'label': 'Bestellreferenz', 'fieldtype': 'Data', 'default': cur_frm.doc.name, 'read_only': 1},
-            {'fieldname': 'test', 'label': 'Teststufe', 'fieldtype': 'Select', 'default': '0', 'options': '0\n1\n2\n3\n4', 'reqd': 1, 'description': '1: Der Benutzer wird authentisiert und der JSON-String der Anfrage wird gelesen.<br>2: Wie 1, zusätzlich werden alle Felder des Requests überprüft und in die Lizenz übernommen.<br>3: Wie 2, zusätzlich wird der Schlüssel zum Signieren mittels des Passworts in keyphrase gelesen.<br>4: Wie 3, zusätzlich wird die Bestellung gespeichert, aber nicht signiert. Diesen Aufruf bitte selten ausführen, da jeweils eine Seriennummer verbraucht wird.<br><b>0: Der Prozess wird vollständig durchlaufen. Die Bestellung wird gespeichert und es wird eine signierte Lizenz zurückgegeben.</b>'},
-            {'fieldname': 'section_lizenzen', 'label': 'Lizenzen', 'fieldtype': 'Section Break'},
-            {
-                label: "Lizenz Details",
-                fieldname: "lizenz_items", 
-                fieldtype: "Table", 
-                cannot_add_rows: true,
-                in_place_edit: false, 
-                data: items,
-                get_data: () => {
-                    return items;
-                },
-                fields: [
-                {
-                    label: 'Position',
-                    fieldtype:'Data',
-                    fieldname:"idx",
-                    in_list_view: 1,
-                    read_only: 1,
-                },
-                {
-                    label: 'Aktivierung',
-                    fieldtype:'Check',
-                    fieldname:"activation",
-                    in_list_view: 1,
-                    description: 'Der Wert von Aktivierung kann True oder False sein und entscheidet darüber, ob die Lizenz vor der Benutzung auf dem Kundenrechner aktiviert werden muss.'
-                },
-                {
-                    label: 'Evse Count',
-                    fieldtype:'Int',
-                    fieldname:"evse_count",
-                    in_list_view: 1,
-                    description: 'Das Feld Evse Count gibt die Anzahl der Ladepunkte (resp. OCPP-Gateways) an, welche vom Charging Manager unterstützt werden können.'
-                },
-                {
-                    fieldtype:'Link',
-                    fieldname:"item_code",
-                    options: 'Item',
-                    in_list_view: 0,
-                    read_only: 1,
-                    label: __('Item Code')
-                },
-                {
-                    fieldtype:'Data',
-                    fieldname:"item_name",
-                    in_list_view: 1,
-                    read_only: 1,
-                    label: __('Item Name')
-                },
-                {
-                    fieldtype:'Data',
-                    fieldname:"positions_id",
-                    in_list_view: 0,
-                    read_only: 1,
-                    label: __('Positions ID')
-                }]
-            }
-        ],
-        primary_action: function(){
-            d.hide();
-            var values = d.get_values();
-            var loop = 1;
-            values.lizenz_items.forEach(function(lizenz_item) {
-               frappe.call({
-                    'method': "energielenker.energielenker.utils.c_fos_schnittstelle.create_lizenzgutschein",
-                    'args': {
-                        'purchase_order': values.order,
-                        'positions_nummer': lizenz_item.idx,
-                        'test': values.test,
-                        'aktivierung': lizenz_item.activation,
-                        'evse_count': lizenz_item.evse_count,
-                        'position_id': lizenz_item.positions_id
-                    },
-                    'async': true,
-                    freeze: true,
-                    freeze_message: "Bitte warten, Lizenzgutscheine werden erzeugt...",
-                    'callback': function(response) {
-                        if (loop == values.lizenz_items.length) {
-                            cur_frm.reload_doc();
-                        } else {
-                            loop += 1;
-                        }
-                    }
-                });
-            });
-        },
-        primary_action_label: __('Erzeugen'),
-        title: "Erzeugung Lizenzgutscheine"
-    });
-    d.show();
 }
 
 function set_po_reference(frm, so_ref) {
