@@ -1,2 +1,3 @@
 energielenker.patches.v2_31_0.main_project_in_subprojects
 energielenker.patches.v2_60_1.main_project_in_subprojects
+energielenker.patches.v2_89_10.pinv_lagerfuehrung
