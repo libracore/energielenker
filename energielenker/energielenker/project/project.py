@@ -385,8 +385,9 @@ class PowerProject():
                                                             AND `stock_entry_type` = 'Material Issue'
                                                         )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
-                                                            SUM(`amount`) AS `amount`
+        _summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
+                                                            `qty` AS `qty`,
+                                                            `valuation_rate` AS `valuation_rate`
                                                         FROM `tabDelivery Note Item`
                                                         WHERE `parent` IN (
                                                             SELECT
@@ -400,7 +401,10 @@ class PowerProject():
                                                                 `name`
                                                             FROM `tabItem`
                                                             WHERE `is_stock_item` = 1
-                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+                                                        )""".format(project=self.project.name), as_dict=True)
+        summe_Lieferscheinpositionen = 0
+        for value in _summe_Lieferscheinpositionen:
+            summe_Lieferscheinpositionen += (value.qty * value.valuation_rate)
         
         return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
     
