@@ -153,6 +153,9 @@ doc_events = {
     "Sales Invoice": {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items"
     },
+    "Purchase Invoice": {
+        "validate": "energielenker.energielenker.purchase_invoice.purchase_invoice.validate_lagerfuehrung_of_items"
+    },
     "Issue": {
         "onload": "energielenker.energielenker.issue.issue.onload_functions",
         "after_insert": "energielenker.energielenker.issue.issue.send_creation_notification_to_customer"
