@@ -668,10 +668,16 @@ def make_final_sales_invoice(order, invoice_date):
 @frappe.whitelist()
 def auto_kpi_refresh():
     projects = frappe.db.sql("""SELECT `name` FROM `tabProject`""", as_dict=True)
+    errors = []
     for _project in projects:
-        project = frappe.get_doc("Project", _project.name)
-        PowerProject(project).update_kpis()
-        project.save()
+        try:
+            project = frappe.get_doc("Project", _project.name)
+            PowerProject(project).update_kpis()
+            project.save()
+        except:
+            errors.append(_project.name)
+    if len(errors) > 0:
+        frappe.log_error("{0}".format(str(errors)), 'auto_kpi_refresh')
 
 def get_projektbewertung_ignorieren_amount(self):
     return float(frappe.db.sql("""SELECT IFNULL(SUM(`base_net_total`), 0) AS `qty` FROM `tabSales Order` WHERE `project` = '{0}' AND `docstatus` = 1 AND `projektbewertung_ignorieren` = 1""".format(self.project.name), as_dict=True)[0].qty)
