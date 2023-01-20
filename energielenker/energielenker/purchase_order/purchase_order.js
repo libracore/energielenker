@@ -76,8 +76,21 @@ frappe.ui.form.on('Purchase Order', {
     validate: function(frm) {
         check_vielfaches(frm);
         if (cur_frm.doc.project) {
-            copy_project(frm);
-        }
+			frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Project",
+                    'name': cur_frm.doc.project
+                },
+                'callback': function(response) {
+                    var project = response.message;
+                    copy_project_und_cost_center(frm, project.name, project.cost_center);
+                }
+            });
+        } else {
+				copy_project_und_cost_center(frm, null, "Solutions - Sonderprojekte - S");
+		}
+		
         // if items come from a SO then display the so_name in the doc and viceversa
         if ( cur_frm.doc.items[0].sales_order ) {
             var so_ref = cur_frm.doc.items[0].sales_order;
@@ -144,10 +157,11 @@ function validate_vielfaches(frm) {
     });
 }
 
-function copy_project(frm) {
+function copy_project_und_cost_center(frm, project, cost_center) {
     var items = cur_frm.doc.items;
     items.forEach(function(entry) {
-        entry.project = cur_frm.doc.project
+        entry.project = project;
+        entry.cost_center = cost_center
     });
     cur_frm.refresh_field('items');
 }
