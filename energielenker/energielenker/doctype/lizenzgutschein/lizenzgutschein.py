@@ -121,3 +121,7 @@ def get_evse_count_qty():
         else:
             uom_evse_count[uom.name] = 1
     return uom_evse_count
+
+def get_lizenz_qty_so(uom):
+    uom_evse_count = get_evse_count_qty()
+    return """Maximale Anzahl Lizenzen je Lizenzdatei: {0}""".format(uom_evse_count[uom])
