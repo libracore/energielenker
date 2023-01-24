@@ -102,11 +102,14 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
                         )""".format(item_ref=item_ref), as_dict=True)
     if len(lizenzgutschein) > 0:
         uom_evse_count = get_evse_count_qty()
-        return_string = """<b>Lizenzgutschein:</b>"""
+        if uom:
+            return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Gutscheincodes können mit Hilfe der Lobas-Software eingelöst werden.<br>""".format(uom_evse_count[uom])
+            return_string += """Gutscheincodes:"""
+        else:
+            return_string = """Gutscheincodes:"""
         for l in lizenzgutschein:
             return_string += """<br>{0}""".format(l.lizenzgutschein)
-        if uom:
-            return_string += """<br>Maximale Anzahl Lizenzen je Lizenzdatei: {0}""".format(uom_evse_count[uom])
+        
         return return_string
     else:
         return ''
@@ -124,4 +127,4 @@ def get_evse_count_qty():
 
 def get_lizenz_qty_so(uom):
     uom_evse_count = get_evse_count_qty()
-    return """Maximale Anzahl Lizenzen je Lizenzdatei: {0}""".format(uom_evse_count[uom])
+    return """Anzahl der enthaltenen Ladepunkte: {0}""".format(uom_evse_count[uom])
