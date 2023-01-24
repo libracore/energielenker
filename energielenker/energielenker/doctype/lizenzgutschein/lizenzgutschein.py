@@ -103,10 +103,10 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
     if len(lizenzgutschein) > 0:
         uom_evse_count = get_evse_count_qty()
         if uom:
-            return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Gutscheincodes können mit Hilfe der Lobas-Software eingelöst werden.<br>""".format(uom_evse_count[uom])
-            return_string += """Gutscheincodes:"""
+            return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Aktivierungscodes können mit Hilfe der Lobas-Software eingelöst werden oder unter <u>https://license.energielenker.de</u>.<br>""".format(uom_evse_count[uom])
+            return_string += """Aktivierungscodes:"""
         else:
-            return_string = """Gutscheincodes:"""
+            return_string = """Aktivierungscodes:"""
         for l in lizenzgutschein:
             return_string += """<br>{0}""".format(l.lizenzgutschein)
         

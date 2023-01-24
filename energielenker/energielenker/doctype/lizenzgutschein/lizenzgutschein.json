@@ -32,7 +32,7 @@
   {
    "fieldname": "lizenzgutschein",
    "fieldtype": "Data",
-   "label": "Lizenzgutschein"
+   "label": "Aktivierungscode"
   },
   {
    "fieldname": "status",
@@ -117,7 +117,7 @@
    "options": "0\n1\n2\n3\n4"
   }
  ],
- "modified": "2023-01-17 09:41:46.920220",
+ "modified": "2023-01-24 19:37:05.030930",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",
