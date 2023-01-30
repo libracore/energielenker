@@ -25,7 +25,7 @@ def send_creation_notification_to_customer(self, event):
         make(doctype='Issue', 
         name=self.name, 
         content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.', 
-        subject='Ihr Ticket ({0}) wird bearbeitet'.format(self.name), 
+        subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(self.subject, self.name), 
         sender='testsupport@energielenker.de', 
         send_email=True, 
         recipients=[self.raised_by])
