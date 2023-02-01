@@ -16,6 +16,13 @@ frappe.query_reports["Payment Forecast bis Datum"] = {
             "label": __("Saldo > 0"),
             "fieldtype": "Check",
             "default": 1
+        },
+        {
+            "fieldname":"ausfuehrung",
+            "label": __("Ausführung"),
+            "fieldtype": "Select",
+            "options": 'Auftrag\nKostenstelle',
+            "default": "Auftrag"
         }
     ]
 };
