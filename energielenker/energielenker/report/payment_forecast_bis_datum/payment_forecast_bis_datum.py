@@ -34,6 +34,7 @@ def get_data(filters):
                             AND `parent` IN (
                                 SELECT `name` FROM `tabSales Order`
                                 WHERE `docstatus` = 1
+                                AND `status` NOT IN ('Closed', 'Completed')
                             )
                             GROUP BY `parent`""".format(date=filters.date), as_dict=True)
     
