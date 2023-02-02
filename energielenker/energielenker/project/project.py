@@ -613,10 +613,10 @@ def make_final_sales_invoice(order, invoice_date):
             
             # copy old payment erntry
             new_payment_entry = frappe.copy_doc(payment_entry)
+            new_payment_entry.references = []
             new_payment_entry.save(ignore_permissions=True)
             
             # link new payment entry with sales order
-            new_payment_entry.references = []
             row = new_payment_entry.append('references', {})
             row.reference_doctype = "Sales Order"
             row.reference_name = sales_order.name
