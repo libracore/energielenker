@@ -54,9 +54,7 @@ frappe.ui.form.on("Delivery Note", {
 			var nowdate = frappe.datetime.get_today();
 			if (frm.doc.freigabe_berechnung_ab == nowdate) {
 				cur_frm.set_value('zur_berechnung_freigegeben', 1);
-			} else {
-				cur_frm.set_value('zur_berechnung_freigegeben', 0);
-			}
+			} 
 			
 		}
 		        
