@@ -106,19 +106,19 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
         uom_evse_count = get_evse_count_qty()
         if uom:
             return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Aktivierungscodes können mit Hilfe der Lobas-Software eingelöst werden oder unter <u>https://license.energielenker.de</u>.<br>""".format(uom_evse_count[uom])
-            return_string += """Aktivierungscodes:  <table style="width: 100%; margin-top: 5px !important; "> <tr>"""
+            return_string += """Aktivierungscodes: <table style="width: 100%; margin-top: 10px !important; "> <tr> <td style="padding: 1px !important; ">"""
         else:
-            return_string = """Aktivierungscodes:  <table table style="width: 100%; margin-top: 5px !important;  "> <tr>"""
+            return_string = """Aktivierungscodes: <table table style="width: 100%; margin-top: 10px !important;  "> <tr> <td style="padding: 1px !important; ">"""
         for l in lizenzgutschein:
             total += 1
             if total == len(lizenzgutschein):
-                return_string += """<td style="padding: 1px !important; ">{0}</td></tr></table>""".format(l.lizenzgutschein)
-            elif counter == 5:
-                return_string += """</tr>"""
-                return_string += """<tr> <td style="padding: 1px !important; ">{0}</td>""".format(l.lizenzgutschein)
+                return_string += """{0}<br></td></tr></table>""".format(l.lizenzgutschein)
+            elif counter == 20:
+                return_string += """ </td>"""
+                return_string += """<td style="padding: 1px !important; ">{0}<br>""".format(l.lizenzgutschein)
                 counter = 0
             else:
-                return_string += """<td style="padding: 1px !important; ">{0}</td>""".format(l.lizenzgutschein)
+                return_string += """{0}<br>""".format(l.lizenzgutschein)
             
             counter += 1
         
