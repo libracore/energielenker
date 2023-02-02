@@ -15,6 +15,7 @@ def add_mail_as_description(self):
         FROM `tabCommunication`
         WHERE `reference_doctype` = 'Issue'
         AND `reference_name` = '{issue}'
+        AND `sent_or_received` = 'Received'
         ORDER BY `creation` ASC
     """.format(issue=self.name), as_dict=True)
     if len(communications) > 0 and not self.description:
