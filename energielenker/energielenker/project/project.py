@@ -610,7 +610,8 @@ def make_final_sales_invoice(order, invoice_date):
             payment_entry = frappe.get_doc("Payment Entry", _payment_entry.parent)
             payment_entry.cancel()
             frappe.db.commit()
-            
+        
+        for _payment_entry in payment_entries:
             # copy old payment erntry
             new_payment_entry = frappe.copy_doc(payment_entry)
             new_payment_entry.references = []
