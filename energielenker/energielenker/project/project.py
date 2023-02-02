@@ -610,7 +610,20 @@ def make_final_sales_invoice(order, invoice_date):
             payment_entry = frappe.get_doc("Payment Entry", _payment_entry.parent)
             payment_entry.cancel()
             frappe.db.commit()
-        
+    
+    # make return to all pre invoices
+    for entry in sales_order.billing_overview:
+        # create return invoice
+        from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_sales_return
+        pre_invoice_return = make_sales_return(entry.sales_invoice)
+        pre_invoice_return.update_billed_amount_in_sales_order = 1
+        pre_invoice_return.save(ignore_permissions=True)
+        pre_invoice_return.submit()
+        frappe.db.commit()
+    
+    for entry in sales_order.billing_overview:
+        pre_invoice = entry.sales_invoice
+        payment_entries = frappe.get_all('Payment Entry Reference', filters={'reference_name': pre_invoice, 'reference_doctype': 'Sales Invoice'}, fields=['parent'])
         for _payment_entry in payment_entries:
             # copy old payment erntry
             new_payment_entry = frappe.copy_doc(payment_entry)
@@ -626,18 +639,6 @@ def make_final_sales_invoice(order, invoice_date):
             new_payment_entry.save(ignore_permissions=True)
             new_payment_entry.submit()
             frappe.db.commit()
-            
-    
-    # make return to all pre invoices
-    for entry in sales_order.billing_overview:
-        # create return invoice
-        from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_sales_return
-        pre_invoice_return = make_sales_return(entry.sales_invoice)
-        pre_invoice_return.update_billed_amount_in_sales_order = 1
-        pre_invoice_return.save(ignore_permissions=True)
-        pre_invoice_return.submit()
-        frappe.db.commit()
-        
     
     # create final invoice
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
