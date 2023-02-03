@@ -18,11 +18,10 @@ frappe.ui.form.on("Sales Invoice", {
         
         //po_no number is automatically set if the sinv is duplicated.
         if(frm.doc.docstatus!=0) {
-			
-			// remove button "Duplicate" in Menu
-			if($("[data-label='Duplicate']").length > 0) {
-				$("[data-label='Duplicate']")[0].parentElement.remove();
-			}
+            // remove button "Duplicate" in Menu
+            if($("[data-label='Duplicate']").length > 0) {
+                $("[data-label='Duplicate']")[0].parentElement.remove();
+            }
 
             cur_frm.page.add_menu_item(__("Duplicate"), function() {
                 frm.copy_doc();
@@ -132,15 +131,7 @@ frappe.ui.form.on("Sales Invoice", {
        fetch_customer_an_cost_center(frm);
     },
     onload: function(frm) {
-        if (cur_frm.doc.items) {
-            if (cur_frm.doc.items[0].delivery_note) {
-                if (cur_frm.doc.docstatus == 0) {
-                    cur_frm.set_value("is_pos", 1);
-                }
-            }
-        }
         fetch_customer_an_cost_center(frm);
-
     },
     navision_konto: function(frm) {
         if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
