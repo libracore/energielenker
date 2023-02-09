@@ -1,3 +1,12 @@
+cur_frm.dashboard.add_transactions([
+    {
+        'label': 'Besuchsbericht',
+        'items': [
+            'Besuchsbericht'
+        ]
+    }
+]);
+
 frappe.ui.form.on('Customer', {
     refresh: function(frm) {
        set_timestamps(frm);

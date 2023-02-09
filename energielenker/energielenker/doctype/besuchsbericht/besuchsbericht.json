@@ -1,0 +1,169 @@
+{
+ "creation": "2023-02-09 19:18:27.600518",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_allgemein",
+  "datum",
+  "von",
+  "customer",
+  "lead",
+  "contact",
+  "cb_1",
+  "status",
+  "bis",
+  "section_weitere_daten",
+  "gespraechsanlass",
+  "weitere_daten",
+  "section_inhalt",
+  "pain_points",
+  "besprochene_punkte",
+  "betroffene_produkte",
+  "vereinbarungen",
+  "lob_kritik",
+  "chancen",
+  "aufgaben",
+  "deadlines",
+  "sonstiges"
+ ],
+ "fields": [
+  {
+   "fieldname": "datum",
+   "fieldtype": "Date",
+   "label": "Datum"
+  },
+  {
+   "fieldname": "von",
+   "fieldtype": "Time",
+   "label": "Von"
+  },
+  {
+   "fieldname": "bis",
+   "fieldtype": "Time",
+   "label": "Bis"
+  },
+  {
+   "depends_on": "eval:!doc.lead",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Kunde",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:!doc.customer",
+   "fieldname": "lead",
+   "fieldtype": "Link",
+   "label": "Lead",
+   "options": "Lead"
+  },
+  {
+   "fieldname": "weitere_daten",
+   "fieldtype": "Text Editor",
+   "label": "Weitere Daten"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Interessent\nNeukunde\nBestandskunde"
+  },
+  {
+   "fieldname": "contact",
+   "fieldtype": "Link",
+   "label": "Kontaktperson",
+   "options": "Contact"
+  },
+  {
+   "fieldname": "pain_points",
+   "fieldtype": "Text Editor",
+   "label": "Bed\u00fcrfnisse / Pain Points"
+  },
+  {
+   "fieldname": "gespraechsanlass",
+   "fieldtype": "Data",
+   "label": "Gespr\u00e4chsanlass"
+  },
+  {
+   "fieldname": "besprochene_punkte",
+   "fieldtype": "Text Editor",
+   "label": "Besprochene Punkte"
+  },
+  {
+   "fieldname": "betroffene_produkte",
+   "fieldtype": "Text Editor",
+   "label": "Betroffene Produkte/Bereiche/Leistungen"
+  },
+  {
+   "fieldname": "vereinbarungen",
+   "fieldtype": "Text Editor",
+   "label": "Vereinbahrungen"
+  },
+  {
+   "fieldname": "lob_kritik",
+   "fieldtype": "Text Editor",
+   "label": "betroffene Produkte/Bereiche/Leistungen"
+  },
+  {
+   "fieldname": "chancen",
+   "fieldtype": "Text Editor",
+   "label": "Chancen/Risiken"
+  },
+  {
+   "fieldname": "aufgaben",
+   "fieldtype": "Text Editor",
+   "label": "Chancen/Risiken"
+  },
+  {
+   "fieldname": "deadlines",
+   "fieldtype": "Text Editor",
+   "label": "Deadlines"
+  },
+  {
+   "fieldname": "sonstiges",
+   "fieldtype": "Text Editor",
+   "label": "Sonstiges"
+  },
+  {
+   "fieldname": "cb_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_inhalt",
+   "fieldtype": "Section Break",
+   "label": "Inhalte"
+  },
+  {
+   "fieldname": "section_allgemein",
+   "fieldtype": "Section Break",
+   "label": "Allgemein"
+  },
+  {
+   "fieldname": "section_weitere_daten",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "modified": "2023-02-09 19:26:59.083642",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Besuchsbericht",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
