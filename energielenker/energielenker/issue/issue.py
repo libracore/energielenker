@@ -10,28 +10,30 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description_to_issue(self, event):
-    issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1""", as_dict=True)
-    for issue in issues:
-        frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
-        frappe.db.commit()
-        send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
-        frappe.log_error("", issue.name)
+    # ~ issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1""", as_dict=True)
+    # ~ for issue in issues:
+        # ~ frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
+        # ~ frappe.db.commit()
+        # ~ send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
+        # ~ frappe.log_error("", issue.name)
+    frappe.log_error("", "add_mail_as_description_to_issue")
     
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
-    frappe.log_error("{0}, {1}, {2}, {3}".format(issue, description, sender, subject))
-    subject = subject
-    raised_by = sender
-    if raised_by:
-        make(doctype='Issue', 
-        name=issue, 
-        content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(description or '-'), 
-        subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(subject, issue), 
-        sender='testsupport@energielenker.de', 
-        send_email=True, 
-        recipients=[raised_by])
-    frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
-    frappe.db.commit()
+    # ~ frappe.log_error("{0}, {1}, {2}, {3}".format(issue, description, sender, subject))
+    # ~ subject = subject
+    # ~ raised_by = sender
+    # ~ if raised_by:
+        # ~ make(doctype='Issue', 
+        # ~ name=issue, 
+        # ~ content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(description or '-'), 
+        # ~ subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(subject, issue), 
+        # ~ sender='testsupport@energielenker.de', 
+        # ~ send_email=True, 
+        # ~ recipients=[raised_by])
+    # ~ frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
+    # ~ frappe.db.commit()
+    frappe.log_error("", "send_issue_creation_notification_to_customer")
 
 def check_for_assigment(self):
     zuweisungen = frappe.db.sql("""SELECT `creation` FROM `tabToDo` WHERE `status` = 'Open' AND `reference_type` = 'Issue' AND `reference_name` = '{0}' ORDER BY `creation` ASC""".format(self.name), as_dict=True)
@@ -43,5 +45,6 @@ def check_for_assigment(self):
         frappe.db.commit()
 
 def mark_for_reply(self, event):
-    frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
-    frappe.db.commit()
+    # ~ frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
+    # ~ frappe.db.commit()
+    frappe.log_error("", "mark_for_reply")
