@@ -15,9 +15,11 @@ def add_mail_as_description_to_issue(self, event):
         frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
         frappe.db.commit()
         send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
+        frappe.log_error("", issue.name)
     
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
+    frappe.log_error("{0}, {1}, {2}, {3}".format(issue, description, sender, subject))
     subject = subject
     raised_by = sender
     if raised_by:
