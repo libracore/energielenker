@@ -4,6 +4,7 @@
 
 import frappe
 from frappe.core.doctype.communication.email import make
+import time
 
 def onload_functions(self, event):
     check_for_assigment(self)
@@ -15,7 +16,9 @@ def add_mail_as_description(self, description):
         frappe.db.commit()
 
 def send_creation_notification_to_customer(self, event):
-    description = get_mail_as_description(self.name, self.description)
+    time.sleep(10)
+    frappe.db.commit()
+    description = get_mail_as_description(self.name)
     add_mail_as_description(self, description)
     if self.raised_by:
         make(doctype='Issue', 
@@ -35,7 +38,7 @@ def check_for_assigment(self):
         frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
 
-def get_mail_as_description(issue, description):
+def get_mail_as_description(issue):
     communications = frappe.db.sql("""
         SELECT `content`
         FROM `tabCommunication`
@@ -44,7 +47,7 @@ def get_mail_as_description(issue, description):
         AND `sent_or_received` = 'Received'
         ORDER BY `creation` ASC
     """.format(issue=issue), as_dict=True)
-    if len(communications) > 0 and not description:
+    if len(communications) > 0 :
         return communications[0].content
     else:
         return None
