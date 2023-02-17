@@ -15,13 +15,14 @@ def add_mail_as_description(self):
         # ~ frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
         # ~ frappe.db.commit()
     communications = frappe.db.sql("""
-        SELECT `content`
+        SELECT *
         FROM `tabCommunication`
         WHERE `reference_doctype` = 'Issue'
         AND `reference_name` = '{issue}'
         AND `sent_or_received` = 'Received'
         ORDER BY `creation` ASC
     """.format(issue=self.name), as_dict=True)
+    frappe.log_error("{0}".format(str(communications)), 'xxxx')
     if len(communications) > 0 :
         frappe.db.set_value("Issue", self.name, 'description', communications[0].content, update_modified=False)
         frappe.db.commit()
@@ -34,7 +35,6 @@ def send_creation_notification_to_customer(self, event):
     # ~ frappe.db.commit()
     # ~ description = get_mail_as_description(self.name)
     description = add_mail_as_description(self)
-    frappe.log_error("{0}".format(str(description)), 'xxxx')
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
