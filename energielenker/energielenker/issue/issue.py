@@ -34,7 +34,7 @@ def send_creation_notification_to_customer(self, event):
     # ~ frappe.db.commit()
     # ~ description = get_mail_as_description(self.name)
     description = add_mail_as_description(self)
-    frappe.error_log("{0}".format(str(description)), 'xxxx')
+    frappe.log_error("{0}".format(str(description)), 'xxxx')
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
