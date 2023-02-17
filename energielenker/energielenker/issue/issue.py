@@ -20,7 +20,7 @@ def add_mail_as_description_to_issue(self, event):
 def send_issue_creation_notification_to_customer(issue, description):
     subject = frappe.db.get_value("Issue", issue, 'subject')
     raised_by = frappe.db.get_value("Issue", issue, 'raised_by')
-    if self.raised_by:
+    if raised_by:
         make(doctype='Issue', 
         name=issue, 
         content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(description or '-'), 
