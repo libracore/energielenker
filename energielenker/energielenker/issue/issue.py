@@ -16,7 +16,7 @@ def add_mail_as_description(self, description):
 
 def send_creation_notification_to_customer(self, event):
     description = get_mail_as_description(self.name, self.description)
-    add_mail_as_description(self)
+    add_mail_as_description(self, description)
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
