@@ -43,7 +43,7 @@ def get_mail_as_description(issue):
         AND `reference_name` = '{issue}'
         AND `sent_or_received` = 'Received'
         ORDER BY `creation` ASC
-    """.format(issue=self.name), as_dict=True)
+    """.format(issue=issue), as_dict=True)
     if len(communications) > 0 and not self.description:
         return communications[0].content
     else:
