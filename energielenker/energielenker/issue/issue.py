@@ -9,40 +9,27 @@ from frappe.core.doctype.communication.email import make
 def onload_functions(self, event):
     check_for_assigment(self)
 
-def add_mail_as_description(self):
-    # ~ description = get_mail_as_description(self.name, self.description)
-    # ~ if description:
-        # ~ frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
-        # ~ frappe.db.commit()
-    communications = frappe.db.sql("""
-        SELECT *
-        FROM `tabCommunication`
-        WHERE `reference_doctype` = 'Issue'
-        AND `reference_name` = '{issue}'
-        AND `sent_or_received` = 'Received'
-        ORDER BY `creation` ASC
-    """.format(issue=self.name), as_dict=True)
-    frappe.log_error("{0}".format(str(communications)), 'xxxx')
-    if len(communications) > 0 :
-        frappe.db.set_value("Issue", self.name, 'description', communications[0].content, update_modified=False)
+def add_mail_as_description_to_issue(self, event):
+    issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1""", as_dict=True)
+    for issue in issues:
+        frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
         frappe.db.commit()
-        return communications[0].content
-    else:
-        return None
+        send_issue_creation_notification_to_customer(issue.name, self.content)
+    
 
-def send_creation_notification_to_customer(self, event):
-    # ~ time.sleep(10)
-    # ~ frappe.db.commit()
-    # ~ description = get_mail_as_description(self.name)
-    description = add_mail_as_description(self)
+def send_issue_creation_notification_to_customer(issue, description):
+    subject = frappe.db.get_value("Issue", issue, 'subject')
+    raised_by = frappe.db.get_value("Issue", issue, 'raised_by')
     if self.raised_by:
         make(doctype='Issue', 
-        name=self.name, 
+        name=issue, 
         content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(description or '-'), 
-        subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(self.subject, self.name), 
+        subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(subject, issue), 
         sender='testsupport@energielenker.de', 
         send_email=True, 
-        recipients=[self.raised_by])
+        recipients=[raised_by])
+    frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
+    frappe.db.commit()
 
 def check_for_assigment(self):
     zuweisungen = frappe.db.sql("""SELECT `creation` FROM `tabToDo` WHERE `status` = 'Open' AND `reference_type` = 'Issue' AND `reference_name` = '{0}' ORDER BY `creation` ASC""".format(self.name), as_dict=True)
@@ -53,16 +40,6 @@ def check_for_assigment(self):
         frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
 
-# ~ def get_mail_as_description(issue):
-    # ~ communications = frappe.db.sql("""
-        # ~ SELECT `content`
-        # ~ FROM `tabCommunication`
-        # ~ WHERE `reference_doctype` = 'Issue'
-        # ~ AND `reference_name` = '{issue}'
-        # ~ AND `sent_or_received` = 'Received'
-        # ~ ORDER BY `creation` ASC
-    # ~ """.format(issue=issue), as_dict=True)
-    # ~ if len(communications) > 0 :
-        # ~ return communications[0].content
-    # ~ else:
-        # ~ return None
+def mark_for_reply(self, event):
+    frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
+    frappe.db.commit()

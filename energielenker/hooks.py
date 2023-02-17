@@ -162,7 +162,10 @@ doc_events = {
     },
     "Issue": {
         "onload": "energielenker.energielenker.issue.issue.onload_functions",
-        "after_insert": "energielenker.energielenker.issue.issue.send_creation_notification_to_customer"
+        "after_insert": "energielenker.energielenker.issue.issue.mark_for_reply"
+    },
+    "Communication": {
+        "after_insert": "energielenker.energielenker.issue.issue.add_mail_as_description_to_issue"
     },
     "ToDo": {
         "after_insert": "energielenker.energielenker.todo.todo.check_for_assigment",
