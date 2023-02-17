@@ -4,22 +4,36 @@
 
 import frappe
 from frappe.core.doctype.communication.email import make
-import time
+# ~ import time
 
 def onload_functions(self, event):
     check_for_assigment(self)
 
-def add_mail_as_description(self, description):
+def add_mail_as_description(self):
     # ~ description = get_mail_as_description(self.name, self.description)
-    if description:
-        frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
+    # ~ if description:
+        # ~ frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
+        # ~ frappe.db.commit()
+    communications = frappe.db.sql("""
+        SELECT `content`
+        FROM `tabCommunication`
+        WHERE `reference_doctype` = 'Issue'
+        AND `reference_name` = '{issue}'
+        AND `sent_or_received` = 'Received'
+        ORDER BY `creation` ASC
+    """.format(issue=self.name), as_dict=True)
+    if len(communications) > 0 :
+        frappe.db.set_value("Issue", self.name, 'description', communications[0].content, update_modified=False)
         frappe.db.commit()
+        return communications[0].content
+    else:
+        return None
 
 def send_creation_notification_to_customer(self, event):
-    time.sleep(10)
-    frappe.db.commit()
-    description = get_mail_as_description(self.name)
-    add_mail_as_description(self, description)
+    # ~ time.sleep(10)
+    # ~ frappe.db.commit()
+    # ~ description = get_mail_as_description(self.name)
+    description = add_mail_as_description(self)
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
@@ -38,16 +52,16 @@ def check_for_assigment(self):
         frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
 
-def get_mail_as_description(issue):
-    communications = frappe.db.sql("""
-        SELECT `content`
-        FROM `tabCommunication`
-        WHERE `reference_doctype` = 'Issue'
-        AND `reference_name` = '{issue}'
-        AND `sent_or_received` = 'Received'
-        ORDER BY `creation` ASC
-    """.format(issue=issue), as_dict=True)
-    if len(communications) > 0 :
-        return communications[0].content
-    else:
-        return None
+# ~ def get_mail_as_description(issue):
+    # ~ communications = frappe.db.sql("""
+        # ~ SELECT `content`
+        # ~ FROM `tabCommunication`
+        # ~ WHERE `reference_doctype` = 'Issue'
+        # ~ AND `reference_name` = '{issue}'
+        # ~ AND `sent_or_received` = 'Received'
+        # ~ ORDER BY `creation` ASC
+    # ~ """.format(issue=issue), as_dict=True)
+    # ~ if len(communications) > 0 :
+        # ~ return communications[0].content
+    # ~ else:
+        # ~ return None
