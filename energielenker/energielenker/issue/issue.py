@@ -45,6 +45,6 @@ def check_for_assigment(self):
         frappe.db.commit()
 
 def mark_for_reply(self, event):
-    # ~ frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
-    # ~ frappe.db.commit()
+    frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
+    frappe.db.commit()
     frappe.log_error("", "mark_for_reply")
