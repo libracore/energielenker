@@ -19,7 +19,8 @@ def add_mail_as_description(self):
         ORDER BY `creation` ASC
     """.format(issue=self.name), as_dict=True)
     if len(communications) > 0 and not self.description:
-        self.description = communications[0].content
+        frappe.db.set_value("Issue", self.name, 'description', communications[0].content, update_modified=False)
+        frappe.db.commit()
 
 def send_creation_notification_to_customer(self, event):
     if self.raised_by:
