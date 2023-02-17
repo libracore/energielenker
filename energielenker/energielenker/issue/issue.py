@@ -9,7 +9,7 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description(self, description):
-    description = get_mail_as_description(self.name, self.description)
+    # ~ description = get_mail_as_description(self.name, self.description)
     if description:
         frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
         frappe.db.commit()
