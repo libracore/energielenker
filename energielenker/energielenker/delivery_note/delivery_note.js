@@ -74,6 +74,30 @@ frappe.ui.form.on("Delivery Note", {
 				}
 			)
 		}
+		
+		if (frm.doc.items[0].against_sales_order) {
+			frappe.call({
+				"method": "frappe.client.get",
+                "args": {
+					"doctype": "Sales Order",
+                    "name": frm.doc.items[0].against_sales_order
+                },
+                "callback": function(r) {
+					var so = r.message;
+                    console.log(so.items)
+                    
+                    var items = frm.doc.items || [];
+					for (var i = 0; i < items.length; i++) {
+						if (items[i].qty != so.items[i].qty) {
+							frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[i].qty);
+						}    
+					}
+				}
+            });
+			
+		}
+		
+		
 	},
 	
 	on_submit: function(frm) {
