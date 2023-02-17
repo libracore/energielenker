@@ -10,23 +10,17 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description(self):
-    communications = frappe.db.sql("""
-        SELECT `content`
-        FROM `tabCommunication`
-        WHERE `reference_doctype` = 'Issue'
-        AND `reference_name` = '{issue}'
-        AND `sent_or_received` = 'Received'
-        ORDER BY `creation` ASC
-    """.format(issue=self.name), as_dict=True)
-    if len(communications) > 0 and not self.description:
-        frappe.db.set_value("Issue", self.name, 'description', communications[0].content, update_modified=False)
+    description = get_mail_as_description(self.name)
+    if description:
+        frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
         frappe.db.commit()
 
 def send_creation_notification_to_customer(self, event):
+    description = get_mail_as_description(self.name)
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
-        content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(self.description), 
+        content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(self.description or '-'), 
         subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(self.subject, self.name), 
         sender='testsupport@energielenker.de', 
         send_email=True, 
@@ -40,3 +34,17 @@ def check_for_assigment(self):
     else:
         frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
+
+def get_mail_as_description(issue):
+    communications = frappe.db.sql("""
+        SELECT `content`
+        FROM `tabCommunication`
+        WHERE `reference_doctype` = 'Issue'
+        AND `reference_name` = '{issue}'
+        AND `sent_or_received` = 'Received'
+        ORDER BY `creation` ASC
+    """.format(issue=self.name), as_dict=True)
+    if len(communications) > 0 and not self.description:
+        return communications[0].content
+    else:
+        return None
