@@ -10,13 +10,13 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description(self):
-    description = get_mail_as_description(self.name)
+    description = get_mail_as_description(self.name, self.description)
     if description:
         frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
         frappe.db.commit()
 
 def send_creation_notification_to_customer(self, event):
-    description = get_mail_as_description(self.name)
+    description = get_mail_as_description(self.name, self.description)
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
@@ -35,7 +35,7 @@ def check_for_assigment(self):
         frappe.db.set_value("Issue", self.name, 'letzte_zuweisung', None, update_modified=False)
         frappe.db.commit()
 
-def get_mail_as_description(issue):
+def get_mail_as_description(issue, description):
     communications = frappe.db.sql("""
         SELECT `content`
         FROM `tabCommunication`
