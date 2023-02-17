@@ -6,10 +6,9 @@ import frappe
 from frappe.core.doctype.communication.email import make
 
 def onload_functions(self, event):
-    add_mail_as_description(self)
     check_for_assigment(self)
 
-def add_mail_as_description(self):
+def add_mail_as_description(self, description):
     description = get_mail_as_description(self.name, self.description)
     if description:
         frappe.db.set_value("Issue", self.name, 'description', description, update_modified=False)
@@ -17,6 +16,7 @@ def add_mail_as_description(self):
 
 def send_creation_notification_to_customer(self, event):
     description = get_mail_as_description(self.name, self.description)
+    add_mail_as_description(self)
     if self.raised_by:
         make(doctype='Issue', 
         name=self.name, 
