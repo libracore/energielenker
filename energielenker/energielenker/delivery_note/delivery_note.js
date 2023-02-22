@@ -87,16 +87,23 @@ frappe.ui.form.on("Delivery Note", {
                     console.log(so.items)
                     
                     var items = frm.doc.items || [];
+                    var affected_items = `<ul style="padding-left: 32px !important; ">`;
 					for (var i = 0; i < items.length; i++) {
 						if (items[i].qty != so.items[i].qty) {
+							affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
 							frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[i].qty);
 						}    
 					}
+					affected_items =  affected_items + `</ul>`;
+					frappe.msgprint({
+						title: __('Überlieferung aus Kundenauftrag unzulässig'),
+						indicator: 'red',
+						message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ affected_items }`),
+					});
 				}
             });
 			
 		}
-		
 		
 	},
 	
