@@ -10,13 +10,14 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description_to_issue(self, event):
-    issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1""", as_dict=True)
+    if self.reference_doctype == 'Issue':
+    issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}'""".format(self.reference_name), as_dict=True)
     for issue in issues:
         frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
         frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
         frappe.db.commit()
         send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
-        frappe.log_error("", "add_mail_as_description_to_issue")
+        frappe.log_error("Issue: {0}\nCommunication: {1}".format(self.reference_name, self.name), "add_mail_as_description_to_issue")
     
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
@@ -32,7 +33,6 @@ def send_issue_creation_notification_to_customer(issue, description, sender, sub
         recipients=[raised_by])
     
     frappe.db.commit()
-    frappe.log_error("", "send_issue_creation_notification_to_customer")
 
 def check_for_assigment(self):
     zuweisungen = frappe.db.sql("""SELECT `creation` FROM `tabToDo` WHERE `status` = 'Open' AND `reference_type` = 'Issue' AND `reference_name` = '{0}' ORDER BY `creation` ASC""".format(self.name), as_dict=True)
