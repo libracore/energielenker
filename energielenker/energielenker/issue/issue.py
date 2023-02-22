@@ -10,8 +10,8 @@ def onload_functions(self, event):
     check_for_assigment(self)
 
 def add_mail_as_description_to_issue(self, event):
-    if self.reference_doctype == 'Issue':
-        issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}'""".format(self.reference_name), as_dict=True)
+    if self.reference_doctype == 'Issue' and self.sent_or_received == 'Received':
+        issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}' AND `owner` = 'Administrator'""".format(self.reference_name), as_dict=True)
         for issue in issues:
             frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
             frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
@@ -44,6 +44,6 @@ def check_for_assigment(self):
         frappe.db.commit()
 
 def mark_for_reply(self, event):
-    if self.issue_type != 'Reklamation':
+    if self.issue_type != 'Reklamation' and self.owner == 'Administrator':
         frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
         frappe.db.commit()
