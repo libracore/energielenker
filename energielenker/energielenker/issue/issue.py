@@ -16,8 +16,10 @@ def add_mail_as_description_to_issue(self, event):
             frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
             frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
             frappe.db.commit()
-            send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
-            frappe.log_error("Issue: {0}\nCommunication: {1}".format(self.reference_name, self.name), "add_mail_as_description_to_issue")
+            
+            # ~ Wieder einkommentieren sobald Go-Live erfolgt!
+            # ~ send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
+            # ~ frappe.log_error("Issue: {0}\nCommunication: {1}".format(self.reference_name, self.name), "add_mail_as_description_to_issue")
     
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
@@ -28,7 +30,7 @@ def send_issue_creation_notification_to_customer(issue, description, sender, sub
         name=issue, 
         content='Vielen Dank für Ihre Nachricht. Ihr Ticket wird bearbeitet.<hr>{0}'.format(description or '-'), 
         subject='{0}: Ihr Ticket ({1}) wird bearbeitet'.format(subject, issue), 
-        sender='testsupport@energielenker.de', 
+        sender='support@energielenker.de', 
         send_email=True, 
         recipients=[raised_by])
     
