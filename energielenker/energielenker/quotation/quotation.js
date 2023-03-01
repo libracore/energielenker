@@ -1,5 +1,29 @@
 frappe.ui.form.on('Quotation', {
+
     refresh: function(frm) {
+	   // remove button "Duplicate" in Menu
+        if($("[data-label='Duplicate']").length > 0) {
+           $("[data-label='Duplicate']")[0].parentElement.remove();
+        }
+		
+		cur_frm.page.add_menu_item(__("Duplicate"), function() {
+			if (cur_frm.doc.preisliste_ignorieren) {
+				
+			   frappe.confirm('Sind Sie sicher, dass Sie die aktuellen Preise gemäß der gültigen Preisliste übernehmen wollen?',
+					() => {
+						// action to perform if Yes is selected
+						frm.copy_doc();
+					}, () => {
+						// action to perform if No is selected
+						cur_frm.set_value('preisliste_ignorieren', 0);
+						frm.copy_doc();
+					}
+				)
+			} else {
+				frm.copy_doc();
+			}
+		});
+	    
        set_timestamps(frm)
        setTimeout(function(){ 
             cur_frm.fields_dict.items.grid.get_field('item_code').get_query = function(doc) {                                                                      
@@ -46,6 +70,11 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+        setTimeout(function(){ 
+			if (frm.doc.preisliste_ignorieren){
+				frappe.msgprint("Dieses Duplikat enthält keine Preise aus der gültigen Preisliste")
+			}
+		}, 2500);
     },
     wahrscheindlichkeit: function(frm) {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {

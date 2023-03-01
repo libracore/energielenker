@@ -535,7 +535,7 @@ $.extend(frappe.model, {
 				&& !(df && (!from_amend && cint(df.no_copy) == 1))) {
 
 				var value = doc[key] || [];
-				if (frappe.model.table_fields.includes(df.fieldtype) && !doc.preisliste_ignorierenz) {
+				if (frappe.model.table_fields.includes(df.fieldtype)) {
 					for (var i = 0, j = value.length; i < j; i++) {
 						var d = value[i];
 						frappe.model.copy_doc(d, from_amend, newdoc, df.fieldname);
@@ -554,7 +554,8 @@ $.extend(frappe.model, {
 				for (var i = 0; i < newdoc_items.length; i++) {
 					frappe.model.set_value(newdoc.items[i].doctype, newdoc.items[i].name, 'rate', doc.items[i].rate);
 				}
-			}, 1000);
+				
+			}, 2000);
 		}
 
 		var user = frappe.session.user;
