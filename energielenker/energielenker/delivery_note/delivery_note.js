@@ -83,18 +83,23 @@ frappe.ui.form.on("Delivery Note", {
                     "name": frm.doc.items[0].against_sales_order
                 },
                 "callback": function(r) {
+
 					var so = r.message;
-                    console.log(so.items)
-                    
                     var items = frm.doc.items || [];
                     var affected_items = `<ul style="padding-left: 32px !important; ">`;
                     var overdelivery = 0;
+                    
 					for (var i = 0; i < items.length; i++) {
-						if (items[i].qty != so.items[i].qty) {
-							overdelivery = 1;
-							affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
-							frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[i].qty);
-						}    
+						for (var x = 0; x < so.items.length; x++) {
+							if (items[i].item_code === so.items[x].item_code ) {
+								console.log("item_codes", items[i].item_code, so.items[x].item_code)
+								if (items[i].qty > so.items[x].qty) {
+									overdelivery = 1;
+									affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
+									frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
+								}
+							}
+						}   
 					}
 					affected_items =  affected_items + `</ul>`;
 					if (overdelivery == 1) {
