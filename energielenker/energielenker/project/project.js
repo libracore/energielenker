@@ -172,6 +172,7 @@ frappe.ui.form.on("Payment Forecast", {
             "async": true,
             "callback": function(response) {
                 var data = response.message;
+
                 var percent_to_bill = data.percent_to_bill;
                 if (data.percent_already_billed > 0) {
                     var percent_already_billed = data.percent_already_billed
@@ -190,7 +191,54 @@ frappe.ui.form.on("Payment Forecast", {
                 if (percent_already_billed >= 100) {
                     frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
                 } else {
-                    var d = new frappe.ui.Dialog({
+					
+					//Check if the last invoice made for the order is still unpaid
+					
+					var payment_rows = frm.doc.payment_schedule;
+					var last_so_sinv;
+					
+					for (var i = 0; i < payment_rows.length; i++) {
+						if (payment_rows[i].order == row.order ) {
+							if (payment_rows[i].invoice) {
+								last_so_sinv = payment_rows[i].invoice;
+							}
+						}
+					}
+					
+					frappe.call({
+						"method": "frappe.client.get",
+						"args": {
+							"doctype": "Sales Invoice",
+							"name": last_so_sinv
+						},
+						"async": true,
+						"callback": function(response) {
+							var sinv = response.message;
+							var options;
+									  
+							if (sinv.billing_type == "Schlussrechnung" && sinv.status != "Paid") {
+								options = "message";
+							} else if (sinv.billing_type == "Teilrechnung" && sinv.status != "Paid"){
+								options = "Schlussrechnung";
+							} else {
+								options = "Teilrechnung\nSchlussrechnung";
+
+							}
+								options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options)
+
+							}
+					});
+                    
+                }
+            }
+        });
+    }
+});
+
+function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options) {
+
+	if (options != "message" ) {
+		var d = new frappe.ui.Dialog({
                         'fields': [
                             {'fieldname': 'section_auftrag', 'label': 'Auftrags Details', 'fieldtype': 'Section Break'},
                             {'fieldname': 'order_percent', 'label': 'Zu Verrechnen in Prozent', 'fieldtype': 'Percent', 'default': percent_to_bill, 'read_only': 1},
@@ -200,7 +248,7 @@ frappe.ui.form.on("Payment Forecast", {
                             {'fieldname': 'order_amount_total', 'label': 'Bereits Verrechnet als Betrag', 'fieldtype': 'Currency', 'default': order_amount_total, 'read_only': 1},
                             {'fieldname': 'order_amount_grand_total', 'label': 'Gesamtbetrag', 'fieldtype': 'Currency', 'default': data.grand_total, 'read_only': 1},
                             {'fieldname': 'section_invoice', 'label': 'Rechnungs Details', 'fieldtype': 'Section Break'},
-                            {'fieldname': 'invoice_type', 'label': 'Rechnungstyp', 'fieldtype': 'Select', 'options': 'Teilrechnung\nSchlussrechnung', 'reqd': 1, 'default': 'Teilrechnung',
+                            {'fieldname': 'invoice_type', 'label': 'Rechnungstyp', 'fieldtype': 'Select', 'options': options, 'reqd': 1, 'default': 'Teilrechnung',
                                 'change': function() {
                                     if (cur_dialog.fields_dict.invoice_type.value == 'Teilrechnung') {
                                         cur_dialog.fields_dict.invoice_percent.df.hidden = 0;
@@ -314,11 +362,10 @@ frappe.ui.form.on("Payment Forecast", {
                         primary_action_label: __('Rechnung erstellen')
                     });
                     d.show();
-                }
-            }
-        });
-    }
-});
+    } else {
+		  frappe.msgprint("Eine Schlussrechnung für diese Bestellung ist bereits erstellt worden.");
+	}
+}
 
 // Change the timeline specification, from "X days ago" to the exact date and time
 function set_timestamps(frm){
