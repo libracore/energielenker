@@ -88,17 +88,25 @@ frappe.ui.form.on("Delivery Note", {
                     var items = frm.doc.items || [];
                     var affected_items = `<ul style="padding-left: 32px !important; ">`;
                     var overdelivery = 0;
+                    var dn_current_index = 0;
+                    var so_current_index = 0;
                     
 					for (var i = 0; i < items.length; i++) {
 						for (var x = 0; x < so.items.length; x++) {
+							
 							if (items[i].item_code === so.items[x].item_code ) {
-								console.log("item_codes", items[i].item_code, so.items[x].item_code)
-								if (items[i].qty > so.items[x].qty) {
-									overdelivery = 1;
-									affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
-									frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
-								}
-							}
+															
+								if (items[i].idx != dn_current_index && so.items[x].idx != so_current_index ) {
+									dn_current_index = items[i].idx;
+									so_current_index = so.items[x].idx;
+									
+									if (items[i].qty > so.items[x].qty ) {
+										overdelivery = 1;
+										affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
+										frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
+									}
+								} 
+							} 
 						}   
 					}
 					affected_items =  affected_items + `</ul>`;
