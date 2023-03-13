@@ -221,10 +221,6 @@ frappe.ui.form.on("Payment Forecast", {
 										  
 								if (sinv.billing_type == "Schlussrechnung" && sinv.status != "Paid") {
 									options = "message";
-								} else if (sinv.billing_type == "Teilrechnung" && sinv.status != "Paid"){
-									options = "Schlussrechnung";
-									defaults = "Schlussrechnung";
-									
 								} else {
 									options = "Teilrechnung\nSchlussrechnung";
 									defaults = "Teilrechnung";
