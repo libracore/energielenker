@@ -4,6 +4,9 @@
 frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
        set_timestamps(frm);
+       
+       frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
+       
        setTimeout(function(){ 
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
             function() {                                                                      
@@ -516,4 +519,43 @@ function hinterlege_cfos_als_lieferant(frm) {
         entry.supplier = 'cFos Software GmbH';
     });
     cur_frm.refresh_field('items');
+}
+
+function make_reklamation(frm){
+	
+	frappe.prompt([
+		{
+			label: 'Betreff',
+			fieldname: 'subject',
+			fieldtype: 'Data'
+		},
+		{
+			label: 'Priorität',
+			fieldname: 'priority',
+			fieldtype: 'Link',
+			options: 'Issue Priority'
+		},
+		{
+			label: 'Beschreibung',
+			fieldname: 'details',
+			fieldtype: 'Text Editor',
+		},
+	], (values) => {
+				
+		frappe.call({
+			"method": "energielenker.energielenker.sales_order.sales_order.make_issue_from_sales_order",
+			"args": {
+				"sales_order": cur_frm.doc.name,
+				"subject": values.subject,
+				"priority": values.priority,
+				"details": values.details,
+			},
+			"callback": function(r) {
+				var issue_name = r.message
+				if (issue_name) {
+					frappe.msgprint(`Die Reklamation <a href="http://localhost:8000/desk#Form/Issue/${issue_name}" target="_blank"> <b>${issue_name}</b></a> wurde erfolgreich eingereicht`)
+				}
+			}
+		}); 
+	})
 }

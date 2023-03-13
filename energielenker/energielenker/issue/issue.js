@@ -70,7 +70,12 @@ frappe.ui.form.on('Issue', {
                 });
             }
        }
-    }
+    },
+    sales_order: function(frm) {
+		if (cur_frm.doc.sales_order) {
+			cur_frm.set_value("issue_type", "Reklamation");
+		}
+	}
 })
 
 
