@@ -554,6 +554,7 @@ function make_reklamation(frm){
 				var issue_name = r.message
 				if (issue_name) {
 					frappe.msgprint(`Die Reklamation <a href="http://localhost:8000/desk#Form/Issue/${issue_name}" target="_blank"> <b>${issue_name}</b></a> wurde erfolgreich eingereicht`)
+					cur_frm.set_value('ticket', issue_name);
 				}
 			}
 		}); 
