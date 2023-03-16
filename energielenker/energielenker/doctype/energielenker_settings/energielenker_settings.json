@@ -9,12 +9,14 @@
   "support_2",
   "support_3",
   "interner_standardtarif",
+  "cb_1",
+  "ticket_bestaetigungs_mail",
   "section_cfos",
   "cfos_ssh_username",
   "cfos_ssh_pkey",
   "cfos_api_username",
   "cfos_license_keyphrase",
-  "cb_1",
+  "cb_2",
   "cfso_ssh_gateway_ip",
   "cfos_ssh_public_key",
   "cfos_api_secret"
@@ -99,10 +101,20 @@
    "fieldname": "cfos_license_keyphrase",
    "fieldtype": "Data",
    "label": "License Keyphrase"
+  },
+  {
+   "default": "0",
+   "fieldname": "ticket_bestaetigungs_mail",
+   "fieldtype": "Check",
+   "label": "Ticket Best\u00e4tigungsmail Versand"
+  },
+  {
+   "fieldname": "cb_2",
+   "fieldtype": "Column Break"
   }
  ],
  "issingle": 1,
- "modified": "2022-08-10 13:54:28.510747",
+ "modified": "2023-03-16 15:40:29.926050",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
