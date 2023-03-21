@@ -92,7 +92,8 @@ def validity_check(**data):
 
 def get_delivery_note_lizenzgutschein(item_ref, uom=None):
     total = 0
-    counter = 0
+    codes_counter = 0
+    column_counter = 0
     lizenzgutschein = frappe.db.sql("""SELECT
                             `lizenzgutschein`
                         FROM `tabLizenzgutschein`
@@ -108,19 +109,25 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
             return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Aktivierungscodes können mit Hilfe der Lobas-Software eingelöst werden oder unter <u>https://license.energielenker.de</u>.<br>""".format(uom_evse_count[uom])
             return_string += """Aktivierungscodes: <table style="width: 100%; margin-top: 10px !important; "> <tr> <td style="padding: 1px !important; ">"""
         else:
-            return_string = """Aktivierungscodes: <table table style="width: 100%; margin-top: 10px !important;  "> <tr> <td style="padding: 1px !important; ">"""
+            return_string = """Aktivierungscodes: <table table style="width: 100%; margin-top: 10px !important;"> <tr> <td style="padding: 1px !important; ">"""
         for l in lizenzgutschein:
             total += 1
+            # ~ frappe.msgprint("lizenzgutschein {0}".format(len(lizenzgutschein)))
             if total == len(lizenzgutschein):
                 return_string += """{0}<br></td></tr></table>""".format(l.lizenzgutschein)
-            elif counter == 20:
+            elif codes_counter == 20 and column_counter == 4:
+                return_string += """</td></tr></table><table table style="width: 100%; margin-top: 10px !important; margin-bottom: 10px !important; "> <tr> <td style="padding: 1px !important; "><td style="padding: 1px !important; ">{0}<br>""".format(l.lizenzgutschein)
+                codes_counter = 0
+                column_counter = 0
+            elif codes_counter == 20:
                 return_string += """ </td>"""
                 return_string += """<td style="padding: 1px !important; ">{0}<br>""".format(l.lizenzgutschein)
-                counter = 0
+                codes_counter = 0
+                column_counter += 1
             else:
                 return_string += """{0}<br>""".format(l.lizenzgutschein)
             
-            counter += 1
+            codes_counter += 1
         
         return return_string
     else:
