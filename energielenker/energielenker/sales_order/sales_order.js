@@ -1,6 +1,15 @@
 // Copyright (c) 2021, libracore AG and contributors
 // For license information, please see license.txt
 
+cur_frm.dashboard.add_transactions([
+    {
+        'label': 'Reklamationen',
+        'items': [
+            'Issue'
+        ]
+    }
+]);
+
 frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
        set_timestamps(frm);
@@ -85,6 +94,9 @@ frappe.ui.form.on("Sales Order", {
                 hinterlege_cfos_als_lieferant(frm);
             });
         }
+        
+        // hack to remove "+" in dashboard
+        $(":button[data-doctype='Issue']").remove();
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -522,41 +534,39 @@ function hinterlege_cfos_als_lieferant(frm) {
 }
 
 function make_reklamation(frm){
-	
-	frappe.prompt([
-		{
-			label: 'Betreff',
-			fieldname: 'subject',
-			fieldtype: 'Data'
-		},
-		{
-			label: 'Priorität',
-			fieldname: 'priority',
-			fieldtype: 'Link',
-			options: 'Issue Priority'
-		},
-		{
-			label: 'Beschreibung',
-			fieldname: 'details',
-			fieldtype: 'Text Editor',
-		},
-	], (values) => {
-				
-		frappe.call({
-			"method": "energielenker.energielenker.sales_order.sales_order.make_issue_from_sales_order",
-			"args": {
-				"sales_order": cur_frm.doc.name,
-				"subject": values.subject,
-				"priority": values.priority,
-				"details": values.details,
-			},
-			"callback": function(r) {
-				var issue_name = r.message
-				if (issue_name) {
-					frappe.msgprint(`Die Reklamation <a href="http://localhost:8000/desk#Form/Issue/${issue_name}" target="_blank"> <b>${issue_name}</b></a> wurde erfolgreich eingereicht`)
-					cur_frm.set_value('ticket', issue_name);
-				}
-			}
-		}); 
-	})
+    frappe.prompt([
+        {
+            label: 'Betreff',
+            fieldname: 'subject',
+            fieldtype: 'Data'
+        },
+        {
+            label: 'Priorität',
+            fieldname: 'priority',
+            fieldtype: 'Link',
+            options: 'Issue Priority'
+        },
+        {
+            label: 'Beschreibung',
+            fieldname: 'details',
+            fieldtype: 'Text Editor',
+        },
+    ], (values) => {
+        frappe.call({
+            "method": "energielenker.energielenker.sales_order.sales_order.make_issue_from_sales_order",
+            "args": {
+                "sales_order": cur_frm.doc.name,
+                "subject": values.subject,
+                "priority": values.priority,
+                "details": values.details,
+            },
+            "callback": function(r) {
+                var issue_name = r.message
+                if (issue_name) {
+                    frappe.msgprint(`Die Reklamation <a href="https://erp.energielenker.de/desk#Form/Issue/${issue_name}" target="_blank"> <b>${issue_name}</b></a> wurde erfolgreich angelegt.`)
+                    cur_frm.reload_doc();
+                }
+            }
+        }); 
+    })
 }
