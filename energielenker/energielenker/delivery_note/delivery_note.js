@@ -4,45 +4,45 @@
 var so_return;
 
 frappe.ui.form.on("Delivery Note", {
-	onload: function(frm) {
-		// If you create an DN from the project, it will make sure to take the address set on the project than the customer primary address.
-		var last_route = frappe.route_history.slice(-2, -1)[0];
-		if (last_route) {
-			if (last_route[1] == "Project") {
-				frappe.call({
-					'method': "frappe.client.get",
-					'args': {
-						'doctype': "Project",
-						'name': last_route[2]
-					},
-					'callback': function(response) {
-						var project_address = response.message.shipping_address;
-						console.log("PROJECT", project_address)
-						if (project_address) {
-							setTimeout(() => {
-								cur_frm.set_value('shipping_address_name', project_address);
-							}, 1500);
-						}
-					}
-				});
-			}
-		}
-	},
-	
-	refresh: function(frm) {
-		set_timestamps(frm);
-		setTimeout(() => {
-			frm.remove_custom_button('Sales Return', 'Create');
-			frm.page.add_inner_button('Sales Return', function() { 
-				cur_frm.cscript.make_sales_return()
-				so_return = "Return";
-				}, 'Create')
-			
-		}, 10);
-		
+    onload: function(frm) {
+        // If you create an DN from the project, it will make sure to take the address set on the project than the customer primary address.
+        var last_route = frappe.route_history.slice(-2, -1)[0];
+        if (last_route) {
+            if (last_route[1] == "Project") {
+                frappe.call({
+                    'method': "frappe.client.get",
+                    'args': {
+                        'doctype': "Project",
+                        'name': last_route[2]
+                    },
+                    'callback': function(response) {
+                        var project_address = response.message.shipping_address;
+                        console.log("PROJECT", project_address)
+                        if (project_address) {
+                            setTimeout(() => {
+                                cur_frm.set_value('shipping_address_name', project_address);
+                            }, 1500);
+                        }
+                    }
+                });
+            }
+        }
+    },
+
+    refresh: function(frm) {
+        set_timestamps(frm);
+        setTimeout(() => {
+            frm.remove_custom_button('Sales Return', 'Create');
+            frm.page.add_inner_button('Sales Return', function() { 
+                cur_frm.cscript.make_sales_return()
+                so_return = "Return";
+                }, 'Create')
+            
+        }, 10);
+        
         setTimeout(function(){ 
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
-            function() {                                                                      
+            function() {
             return {
                     query: "energielenker.energielenker.item.item.item_query",
                     filters: {}
@@ -51,89 +51,96 @@ frappe.ui.form.on("Delivery Note", {
         }, 1000);
         
         if (frm.doc.freigabe_berechnung_ab) {
-			var nowdate = frappe.datetime.get_today();
-			if (frm.doc.freigabe_berechnung_ab == nowdate) {
-				cur_frm.set_value('zur_berechnung_freigegeben', 1);
-			} 
-			
-		}
-		        
+            var nowdate = frappe.datetime.get_today();
+            if (frm.doc.freigabe_berechnung_ab == nowdate) {
+                cur_frm.set_value('zur_berechnung_freigegeben', 1);
+            } 
+            
+        }
+        
+        // get cost_center for item from SO if no project avaible
+        if (!cur_frm.doc.project) {
+            var items = cur_frm.doc.items;
+            items.forEach(function(entry){
+                if (entry.against_sales_order) {
+                    frappe.db.get_value("Sales Order", entry.against_sales_order, "cost_center").then(function(res){
+                        entry.cost_center = res.message.cost_center;
+                    });
+                }
+            });
+        }
     },
-	
-	before_save(frm) {
-		if (so_return == "Return"){
-			frappe.confirm('<strong> Der entsprechende Kundenauftrag wurde wiedereröffnet.</strong> <br> Möchten Sie, dass der Auftrag geschlossen bleibt? ',
-				() => {
-					// action to perform if Continue is selected
-					cur_frm.set_value('so_return', 1);
-					so_return = "Leave SO Close";
-				},() => {
-					// action to perform if No is selected
-					console.log("leave open")
-					so_return = "Leave SO Open";
-				}
-			)
-		}
-		
-		if (frm.doc.items[0].against_sales_order) {
-			frappe.call({
-				"method": "frappe.client.get",
+    before_save(frm) {
+        if (so_return == "Return"){
+            frappe.confirm('<strong> Der entsprechende Kundenauftrag wurde wiedereröffnet.</strong> <br> Möchten Sie, dass der Auftrag geschlossen bleibt? ',
+                () => {
+                    // action to perform if Continue is selected
+                    cur_frm.set_value('so_return', 1);
+                    so_return = "Leave SO Close";
+                },() => {
+                    // action to perform if No is selected
+                    console.log("leave open")
+                    so_return = "Leave SO Open";
+                }
+            )
+        }
+        
+        if (frm.doc.items[0].against_sales_order) {
+            frappe.call({
+                "method": "frappe.client.get",
                 "args": {
-					"doctype": "Sales Order",
+                    "doctype": "Sales Order",
                     "name": frm.doc.items[0].against_sales_order
                 },
                 "callback": function(r) {
 
-					var so = r.message;
+                    var so = r.message;
                     var items = frm.doc.items || [];
                     var affected_items = `<ul style="padding-left: 32px !important; ">`;
                     var overdelivery = 0;
                     var dn_current_index = 0;
                     var so_current_index = 0;
                     
-					for (var i = 0; i < items.length; i++) {
-						for (var x = 0; x < so.items.length; x++) {
-							
-							if (items[i].item_code === so.items[x].item_code ) {
-															
-								if (items[i].idx != dn_current_index && so.items[x].idx != so_current_index ) {
-									dn_current_index = items[i].idx;
-									so_current_index = so.items[x].idx;
-									
-									if (items[i].qty > so.items[x].qty ) {
-										overdelivery = 1;
-										affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
-										frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
-									}
-								} 
-							} 
-						}   
-					}
-					affected_items =  affected_items + `</ul>`;
-					if (overdelivery == 1) {
-						frappe.msgprint({
-							title: __('Überlieferung aus Kundenauftrag unzulässig'),
-							indicator: 'red',
-							message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ affected_items }`),
-						});
-					}
-				}
+                    for (var i = 0; i < items.length; i++) {
+                        for (var x = 0; x < so.items.length; x++) {
+                            
+                            if (items[i].item_code === so.items[x].item_code ) {
+                                                            
+                                if (items[i].idx != dn_current_index && so.items[x].idx != so_current_index ) {
+                                    dn_current_index = items[i].idx;
+                                    so_current_index = so.items[x].idx;
+                                    
+                                    if (items[i].qty > so.items[x].qty ) {
+                                        overdelivery = 1;
+                                        affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
+                                        frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
+                                    }
+                                } 
+                            } 
+                        }   
+                    }
+                    affected_items =  affected_items + `</ul>`;
+                    if (overdelivery == 1) {
+                        frappe.msgprint({
+                            title: __('Überlieferung aus Kundenauftrag unzulässig'),
+                            indicator: 'red',
+                            message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ affected_items }`),
+                        });
+                    }
+                }
             });
-			
-		}
-		
-	},
-	
-	on_submit: function(frm) {
-		if (cur_frm.doc.so_return){
-			update_so_status(frm);
-		}
-	},
-    
+            
+        }
+        
+    },
+    on_submit: function(frm) {
+        if (cur_frm.doc.so_return){
+            update_so_status(frm);
+        }
+    },
     customer: function(frm) {
         shipping_address_query(frm);
     },
-    
     project: function(frm) {
        if (frm.doc.__islocal && cur_frm.doc.project) {
            frappe.call({
@@ -149,7 +156,6 @@ frappe.ui.form.on("Delivery Note", {
             });
         }
     },
-    
     shipping_address_name: function(frm) {
         if (cur_frm.doc.shipping_address_name) {
             fetch_kontakt_aus_lieferadresse(frm);
@@ -158,7 +164,6 @@ frappe.ui.form.on("Delivery Note", {
             cur_frm.set_value("kontaktname_aus_lieferadresse", '');
         }
     },
-    
     validate: function(frm) {
         if (cur_frm.doc.shipping_address_name) {
             fetch_kontakt_aus_lieferadresse(frm);
@@ -174,84 +179,83 @@ frappe.ui.form.on("Delivery Note", {
             });
         }
     },
-    
     deliver_to(frm) {
-	    //set default customer and clearing the fields when re-selecting
-	    cur_frm.set_value('customer', "Dummy-Kunde (nicht deaktivieren!)");
-	    
-	    if (frm.doc.deliver_to == "Customer") {
-	        cur_frm.set_value('customer', "");
-	        cur_frm.set_value('supplier', "");
-	        cur_frm.set_value('lead', "");
-	    } else if (frm.doc.deliver_to == "Lead") {
-	        cur_frm.set_value('supplier', "");
-	        cur_frm.set_value('tax_id', "");
-	    } else if (frm.doc.deliver_to == "Supplier") {
-	        cur_frm.set_value('lead', "");
-	        cur_frm.set_value('tax_id', "");
-	    }
-	    
-	    // Saving without customer address must not be possible.
-	    if (frm.doc.deliver_to == "Customer") {
-			frm.set_df_property("customer_address", "reqd", 1);
-			frm.set_df_property("new_customer_address", "reqd", 0);
-	    } else {
-			frm.set_df_property("customer_address", "reqd", 0);
-			frm.set_df_property("new_customer_address", "reqd", 1);
-	    } 
-	    
-	    cur_frm.set_value('new_address_name', "");
-	    cur_frm.set_value('new_contact_name', "");
-	    cur_frm.set_value('new_customer_address', "");
-	    cur_frm.set_value('shipping_address_name', "");
-	    cur_frm.set_value('contact_person', "");
-	    cur_frm.set_value('customer_address', "");
-	    
-	    //Set new tax_id if exist for the supplier
-	    cur_frm.add_fetch('supplier','tax_id','tax_id');
-	},
-	lead(frm) {
-	    set_new_address_and_contact_filter(frm, "Lead");
-	    if (frm.doc.lead) {
-			frappe.call({
-				'method': "frappe.client.get_list",
-				'args':{
-					'doctype': "Lead",
-					'filters': [
-						["name","IN", [cur_frm.doc.lead]]
-					],
-					'fields': ["company_name"]
-				},
-				'callback': function (response) {
-					var lead_name = response.message;
-					cur_frm.set_value('title', lead_name[0].company_name);
-				}
-			});
-		}    
+        //set default customer and clearing the fields when re-selecting
+        cur_frm.set_value('customer', "Dummy-Kunde (nicht deaktivieren!)");
+        
+        if (frm.doc.deliver_to == "Customer") {
+            cur_frm.set_value('customer', "");
+            cur_frm.set_value('supplier', "");
+            cur_frm.set_value('lead', "");
+        } else if (frm.doc.deliver_to == "Lead") {
+            cur_frm.set_value('supplier', "");
+            cur_frm.set_value('tax_id', "");
+        } else if (frm.doc.deliver_to == "Supplier") {
+            cur_frm.set_value('lead', "");
+            cur_frm.set_value('tax_id', "");
+        }
+        
+        // Saving without customer address must not be possible.
+        if (frm.doc.deliver_to == "Customer") {
+            frm.set_df_property("customer_address", "reqd", 1);
+            frm.set_df_property("new_customer_address", "reqd", 0);
+        } else {
+            frm.set_df_property("customer_address", "reqd", 0);
+            frm.set_df_property("new_customer_address", "reqd", 1);
+        } 
+        
+        cur_frm.set_value('new_address_name', "");
+        cur_frm.set_value('new_contact_name', "");
+        cur_frm.set_value('new_customer_address', "");
+        cur_frm.set_value('shipping_address_name', "");
+        cur_frm.set_value('contact_person', "");
+        cur_frm.set_value('customer_address', "");
+        
+        //Set new tax_id if exist for the supplier
+        cur_frm.add_fetch('supplier','tax_id','tax_id');
+    },
+    lead(frm) {
+        set_new_address_and_contact_filter(frm, "Lead");
+        if (frm.doc.lead) {
+            frappe.call({
+                'method': "frappe.client.get_list",
+                'args':{
+                    'doctype': "Lead",
+                    'filters': [
+                        ["name","IN", [cur_frm.doc.lead]]
+                    ],
+                    'fields': ["company_name"]
+                },
+                'callback': function (response) {
+                    var lead_name = response.message;
+                    cur_frm.set_value('title', lead_name[0].company_name);
+                }
+            });
+        }    
 
-	},
-	supplier(frm) {
-	    set_new_address_and_contact_filter(frm, "Supplier");
-	    if (frm.doc.supplier) {
-			cur_frm.set_value('title', cur_frm.doc.supplier);
-		}
-	},
-	//Setting the new values into the original fields to be displayed and fetch in the print-format
-	new_address_name(frm) {
-	    if (frm.doc.new_address_name) {
+    },
+    supplier(frm) {
+        set_new_address_and_contact_filter(frm, "Supplier");
+        if (frm.doc.supplier) {
+            cur_frm.set_value('title', cur_frm.doc.supplier);
+        }
+    },
+    //Setting the new values into the original fields to be displayed and fetch in the print-format
+    new_address_name(frm) {
+        if (frm.doc.new_address_name) {
             cur_frm.set_value('shipping_address_name', frm.doc.new_address_name);
         }
-	},
-	new_contact_name (frm) {
-	    if (frm.doc.new_contact_name) {
+    },
+    new_contact_name (frm) {
+        if (frm.doc.new_contact_name) {
             cur_frm.set_value('contact_person', frm.doc.new_contact_name);
         }
-	},
-	new_customer_address (frm) {
-	    if (frm.doc.new_customer_address) {
+    },
+    new_customer_address (frm) {
+        if (frm.doc.new_customer_address) {
             cur_frm.set_value('customer_address', frm.doc.new_customer_address);
         }
-	}
+    }
 });
 
 // Change the timeline specification, from "X days ago" to the exact date and time
@@ -354,14 +358,14 @@ function fetch_kontakt_aus_lieferadresse(frm) {
 }
 
 function update_so_status(frm) {
-	cur_frm.doc.items.forEach(function(entry) {	
-		if (entry.against_sales_order) {
-			frappe.call({
-				method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
-				args: {status: 'Closed', name: entry.against_sales_order}
-			});
-		}
-	});
+    cur_frm.doc.items.forEach(function(entry) {	
+        if (entry.against_sales_order) {
+            frappe.call({
+                method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
+                args: {status: 'Closed', name: entry.against_sales_order}
+            });
+        }
+    });
 }
 
 function set_new_address_and_contact_filter(frm, filter) {
@@ -374,18 +378,18 @@ function set_new_address_and_contact_filter(frm, filter) {
     }
     
     frm.set_query("new_address_name", function() {
-		return {
-			filters: {
-				link_name: deliver_to
-			}                       
-		}
-	});
-	
-	frm.set_query("new_contact_name", function() {
-		return {
-			filters: {
-				link_name: deliver_to
-			}                       
-		}
-	});
+        return {
+            filters: {
+                link_name: deliver_to
+            }                       
+        }
+    });
+
+    frm.set_query("new_contact_name", function() {
+        return {
+            filters: {
+                link_name: deliver_to
+            }                       
+        }
+    });
 }
