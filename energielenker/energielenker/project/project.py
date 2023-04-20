@@ -420,7 +420,12 @@ class PowerProject():
         return self.get_zeit_gebucht_ueber_zeiterfassung_eur() + self.get_summe_einkaufskosten_via_einkaufsrechnung()
     
     def get_ergebnis_aktuell(self):
-        return self.get_auftragsummen_gesamt() - self.get_gesamtkosten_aktuell()
+        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
+        gesamtkosten_aktuell = self.get_gesamtkosten_aktuell() or 0
+        if self.project.status == "Completed" and auftragsummen_gesamt < gesamtkosten_aktuell:
+            return gesamtkosten_aktuell - auftragsummen_gesamt
+        else:
+            return auftragsummen_gesamt - gesamtkosten_aktuell
     
     def get_marge_aktuell_prozent(self):
         auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
@@ -437,7 +442,12 @@ class PowerProject():
         return self.project.geschaetzte_kosten + self.get_zeit_geplant_in_aufgaben_eur()
     
     def get_ergebnis_geplant(self):
-        return self.get_auftragsummen_gesamt() - self.get_geschaetzte_kosten_klon()
+        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
+        geschaetzte_kosten_klon = self.get_geschaetzte_kosten_klon() or 0
+        if self.project.status == "Completed" and auftragsummen_gesamt < geschaetzte_kosten_klon:
+            return geschaetzte_kosten_klon - auftragsummen_gesamt
+        else:
+            return auftragsummen_gesamt - geschaetzte_kosten_klon
     
     def get_marge_geplant_prozent(self):
         auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
@@ -447,7 +457,12 @@ class PowerProject():
             return 0
     
     def get_noch_nicht_in_rechnung_gestellt_summe(self):
-        return self.get_auftragsummen_gesamt() - self.get_ausgangsrechnungen_summe()
+        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
+        ausgangsrechnungen_summe = self.get_ausgangsrechnungen_summe() or 0
+        if self.project.status == "Completed" and auftragsummen_gesamt < ausgangsrechnungen_summe:
+            return ausgangsrechnungen_summe - auftragsummen_gesamt
+        else:
+            return auftragsummen_gesamt - ausgangsrechnungen_summe
     
     def check_completion(self):
         if self.project.percent_complete == 100:
