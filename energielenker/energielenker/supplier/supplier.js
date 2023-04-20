@@ -2,6 +2,18 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Supplier', {
+	onload: function(frm) {
+		let currentDate = frappe.datetime.get_today();
+
+		if (frm.doc.creation.split(" ")[0] === currentDate && frm.doc.selbstauskunft_einholen === 0) {
+			frappe.msgprint({
+				title: __('Hinweis'),
+				indicator: 'red',
+				message: __('Selbstauskunft einholen')
+			});
+			cur_frm.set_value('selbstauskunft_einholen', 1);
+		}
+    },
     refresh: function(frm) {
         set_timestamps(frm);
         cur_frm.fields_dict['kontaktperson_lieferant'].get_query = function(doc, cdt, cdn) {
