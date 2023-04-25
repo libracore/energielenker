@@ -457,12 +457,7 @@ class PowerProject():
             return 0
     
     def get_noch_nicht_in_rechnung_gestellt_summe(self):
-        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
-        ausgangsrechnungen_summe = self.get_ausgangsrechnungen_summe() or 0
-        if self.project.status == "Completed" and auftragsummen_gesamt < ausgangsrechnungen_summe:
-            return ausgangsrechnungen_summe - auftragsummen_gesamt
-        else:
-            return auftragsummen_gesamt - ausgangsrechnungen_summe
+        return self.get_auftragsummen_gesamt() - self.get_ausgangsrechnungen_summe()
     
     def check_completion(self):
         if self.project.percent_complete == 100:
