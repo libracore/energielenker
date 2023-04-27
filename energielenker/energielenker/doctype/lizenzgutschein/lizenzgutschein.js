@@ -9,6 +9,22 @@ frappe.ui.form.on('Lizenzgutschein', {
                 beziehe_lizenz_manuell(frm);
             });
         }
+        if (cur_frm.doc.purchase_order){              
+			frappe.call({
+				method: 'frappe.client.get_value',
+                args: {
+					doctype: 'Purchase Order',
+                    filters: { name: cur_frm.doc.purchase_order },
+                    fieldname: 'sales_order'
+                },
+                callback: function(response) {
+					var sales_order = response.message.sales_order;
+                    if (sales_order) {
+						cur_frm.set_value("kundenauftrag", sales_order);
+					}
+				}
+			})
+		}
     }
 });
 
