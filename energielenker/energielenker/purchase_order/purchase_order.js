@@ -88,7 +88,7 @@ frappe.ui.form.on('Purchase Order', {
                 }
             });
         } else {
-				copy_project_und_cost_center(frm, null, "1000080 - Solutions - Sonderprojekte - S");
+				copy_project_und_cost_center(frm, null, "1000080 - Solutions - Sonderprojekte (z.B. Heizzentralen) - S");
 		}
 		
         // if items come from a SO then display the so_name in the doc and viceversa
