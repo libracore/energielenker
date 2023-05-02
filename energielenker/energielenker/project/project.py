@@ -414,7 +414,10 @@ class PowerProject():
         return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
     
     def get_auftragsummen_gesamt(self):
-        return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
+        if not self.project.auftragsumme_manuell_festsetzen == 1:
+            return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
+        else:
+            return self.project.auftragsummen_gesamt
         
     def get_gesamtkosten_aktuell(self):
         return self.get_zeit_gebucht_ueber_zeiterfassung_eur() + self.get_summe_einkaufskosten_via_einkaufsrechnung()

@@ -83,6 +83,19 @@ frappe.ui.form.on("Project", {
         if ((!frm.doc.__islocal) && (frm.doc.project_template)) {
             load_template(frm);
         }
+        
+        if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
+            cur_frm.set_df_property('auftragsummen_gesamt','read_only', 0);
+        } else {
+            cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
+        }
+    },
+    auftragsumme_manuell_festsetzen: function(frm) {
+        if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
+            cur_frm.set_df_property('auftragsummen_gesamt','read_only', 0);
+        } else {
+            cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
+        }
     },
     customer: function (frm) {
         frm.set_value("contact", null);
