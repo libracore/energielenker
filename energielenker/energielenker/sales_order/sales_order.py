@@ -21,3 +21,23 @@ def get_employee(user=None):
         return employee[0].name
     else:
         return 'MA00023'
+
+
+@frappe.whitelist()
+def make_issue_from_sales_order(sales_order, subject, priority, details):
+    """ create issue from sales order """
+
+    doc = frappe.get_doc("Sales Order", sales_order)
+    issue = frappe.get_doc({
+        "doctype": "Issue",
+        "subject": subject,
+        "priority": priority,
+        "customer": doc.customer,
+        "issue_type": 'Reklamation',
+        "raised_by": doc.owner or "",
+        "address": doc.customer_address,
+        "description": details or "",
+        "sales_order": sales_order
+    }).insert(ignore_permissions=True)
+
+    return issue.name

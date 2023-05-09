@@ -26,3 +26,8 @@ def fetch_kontakt_aus_lieferadresse(lieferadresse):
         }
     else:
         return 'keiner'
+
+def validate_valuation_rate(delivery_note, event):
+    for item in delivery_note.items:
+        item.valuation_rate = frappe.db.get_value('Item', item.item_code, 'valuation_rate') or 0
+    return

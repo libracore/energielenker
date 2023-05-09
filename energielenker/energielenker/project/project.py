@@ -385,8 +385,9 @@ class PowerProject():
                                                             AND `stock_entry_type` = 'Material Issue'
                                                         )""".format(project=self.project.name), as_dict=True)[0].amount or 0
         
-        summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
-                                                            SUM(`amount`) AS `amount`
+        _summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
+                                                            `qty` AS `qty`,
+                                                            `name` AS `voucher_detail_no`
                                                         FROM `tabDelivery Note Item`
                                                         WHERE `parent` IN (
                                                             SELECT
@@ -400,18 +401,34 @@ class PowerProject():
                                                                 `name`
                                                             FROM `tabItem`
                                                             WHERE `is_stock_item` = 1
-                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+                                                        )""".format(project=self.project.name), as_dict=True)
+        summe_Lieferscheinpositionen = 0
+        for value in _summe_Lieferscheinpositionen:
+            valuation_rate = frappe.db.sql("""SELECT `valuation_rate` FROM `tabStock Ledger Entry` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
+            if len(valuation_rate) > 0:
+                valuation_rate = valuation_rate[0].valuation_rate
+            else:
+                valuation_rate = 0
+            summe_Lieferscheinpositionen += (value.qty * valuation_rate)
         
         return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
     
     def get_auftragsummen_gesamt(self):
-        return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
+        if not self.project.auftragsumme_manuell_festsetzen == 1:
+            return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
+        else:
+            return self.project.auftragsummen_gesamt
         
     def get_gesamtkosten_aktuell(self):
         return self.get_zeit_gebucht_ueber_zeiterfassung_eur() + self.get_summe_einkaufskosten_via_einkaufsrechnung()
     
     def get_ergebnis_aktuell(self):
-        return self.get_auftragsummen_gesamt() - self.get_gesamtkosten_aktuell()
+        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
+        gesamtkosten_aktuell = self.get_gesamtkosten_aktuell() or 0
+        if self.project.status == "Completed" and auftragsummen_gesamt < gesamtkosten_aktuell:
+            return gesamtkosten_aktuell - auftragsummen_gesamt
+        else:
+            return auftragsummen_gesamt - gesamtkosten_aktuell
     
     def get_marge_aktuell_prozent(self):
         auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
@@ -428,7 +445,12 @@ class PowerProject():
         return self.project.geschaetzte_kosten + self.get_zeit_geplant_in_aufgaben_eur()
     
     def get_ergebnis_geplant(self):
-        return self.get_auftragsummen_gesamt() - self.get_geschaetzte_kosten_klon()
+        auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
+        geschaetzte_kosten_klon = self.get_geschaetzte_kosten_klon() or 0
+        if self.project.status == "Completed" and auftragsummen_gesamt < geschaetzte_kosten_klon:
+            return geschaetzte_kosten_klon - auftragsummen_gesamt
+        else:
+            return auftragsummen_gesamt - geschaetzte_kosten_klon
     
     def get_marge_geplant_prozent(self):
         auftragsummen_gesamt = self.get_auftragsummen_gesamt() or 0
@@ -601,22 +623,6 @@ def make_final_sales_invoice(order, invoice_date):
             payment_entry = frappe.get_doc("Payment Entry", _payment_entry.parent)
             payment_entry.cancel()
             frappe.db.commit()
-            
-            # copy old payment erntry
-            new_payment_entry = frappe.copy_doc(payment_entry)
-            new_payment_entry.save(ignore_permissions=True)
-            
-            # link new payment entry with sales order
-            new_payment_entry.references = []
-            row = new_payment_entry.append('references', {})
-            row.reference_doctype = "Sales Order"
-            row.reference_name = sales_order.name
-            row.allocated_amount = new_payment_entry.paid_amount
-            
-            new_payment_entry.save(ignore_permissions=True)
-            new_payment_entry.submit()
-            frappe.db.commit()
-            
     
     # make return to all pre invoices
     for entry in sales_order.billing_overview:
@@ -627,7 +633,25 @@ def make_final_sales_invoice(order, invoice_date):
         pre_invoice_return.save(ignore_permissions=True)
         pre_invoice_return.submit()
         frappe.db.commit()
-        
+    
+    for entry in sales_order.billing_overview:
+        pre_invoice = entry.sales_invoice
+        payment_entries = frappe.get_all('Payment Entry Reference', filters={'reference_name': pre_invoice, 'reference_doctype': 'Sales Invoice'}, fields=['parent'])
+        for _payment_entry in payment_entries:
+            # copy old payment erntry
+            new_payment_entry = frappe.copy_doc(payment_entry)
+            new_payment_entry.references = []
+            new_payment_entry.save(ignore_permissions=True)
+            
+            # link new payment entry with sales order
+            row = new_payment_entry.append('references', {})
+            row.reference_doctype = "Sales Order"
+            row.reference_name = sales_order.name
+            row.allocated_amount = new_payment_entry.paid_amount
+            
+            new_payment_entry.save(ignore_permissions=True)
+            new_payment_entry.submit()
+            frappe.db.commit()
     
     # create final invoice
     from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
@@ -664,10 +688,16 @@ def make_final_sales_invoice(order, invoice_date):
 @frappe.whitelist()
 def auto_kpi_refresh():
     projects = frappe.db.sql("""SELECT `name` FROM `tabProject`""", as_dict=True)
+    errors = []
     for _project in projects:
-        project = frappe.get_doc("Project", _project.name)
-        PowerProject(project).update_kpis()
-        project.save()
+        try:
+            project = frappe.get_doc("Project", _project.name)
+            PowerProject(project).update_kpis()
+            project.save()
+        except:
+            errors.append(_project.name)
+    if len(errors) > 0:
+        frappe.log_error("{0}".format(str(errors)), 'auto_kpi_refresh')
 
 def get_projektbewertung_ignorieren_amount(self):
     return float(frappe.db.sql("""SELECT IFNULL(SUM(`base_net_total`), 0) AS `qty` FROM `tabSales Order` WHERE `project` = '{0}' AND `docstatus` = 1 AND `projektbewertung_ignorieren` = 1""".format(self.project.name), as_dict=True)[0].qty)

@@ -59,7 +59,8 @@ doctype_js = {
     "Supplier": "energielenker/supplier/supplier.js",
     "BOM": "energielenker/bom/bom.js",
     "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js",
-    "Lead": "energielenker/lead/lead.js"
+    "Lead": "energielenker/lead/lead.js",
+	"Cost Center": "energielenker/cost_center/cost_center.js"
 }
 
 doctype_list_js = {
@@ -71,11 +72,14 @@ doctype_list_js = {
     "Purchase Invoice": "energielenker/purchase_invoice/purchase_invoice_list.js",
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt_list.js",
     "Delivery Note": "energielenker/delivery_note/delivery_note_list.js",
+    "Task": "energielenker/task/task_list.js",
 }
 
 jenv = {
     "methods": [
-        "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items"
+        "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items",
+        "get_delivery_note_lizenzgutschein:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_delivery_note_lizenzgutschein",
+        "get_lizenz_qty_so:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_lizenz_qty_so"
     ]
 }
 
@@ -150,6 +154,23 @@ doc_events = {
     },
     "Sales Invoice": {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items"
+    },
+    "Purchase Invoice": {
+        "validate": "energielenker.energielenker.purchase_invoice.purchase_invoice.validate_lagerfuehrung_of_items"
+    },
+    "Delivery Note": {
+        "validate": "energielenker.energielenker.delivery_note.delivery_note.validate_valuation_rate"
+    },
+    "Issue": {
+        "onload": "energielenker.energielenker.issue.issue.onload_functions",
+        "after_insert": "energielenker.energielenker.issue.issue.mark_for_reply"
+    },
+    "Communication": {
+        "after_insert": "energielenker.energielenker.issue.issue.add_mail_as_description_to_issue"
+    },
+    "ToDo": {
+        "after_insert": "energielenker.energielenker.todo.todo.check_for_assigment",
+        "on_update": "energielenker.energielenker.todo.todo.check_for_assigment"
     }
 }
 

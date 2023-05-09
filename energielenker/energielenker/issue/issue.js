@@ -1,4 +1,24 @@
+try {
+    cur_frm.dashboard.add_transactions([
+        {
+            'label': 'Timesheet',
+            'items': ['Timesheet']
+        }
+    ]);
+} catch { /*do nothing for older versions */ }
+
 frappe.ui.form.on('Issue', {
+    refresh: function(frm) {
+           set_timestamps(frm);
+           cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
+            var d = locals[cdt][cdn];         
+            return {
+                filters: {
+                    "link_name": frm.doc.customer 
+                }                      
+            }
+           }
+    },
     project: function(frm) {
        if (frm.doc.__islocal && cur_frm.doc.project) {
            frappe.call({
@@ -13,23 +33,27 @@ frappe.ui.form.on('Issue', {
                 }
             });
         }
-    }
-})
-
-frappe.ui.form.on('Issue', {
-    refresh: function(frm) {
-           cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
-            var d = locals[cdt][cdn];         
-            return {
-                filters: {
-                    "link_name": frm.doc.customer 
-                }                      
-            }
-           }
-    }
-})
-
-frappe.ui.form.on('Issue', {
+    },
+    address: function(frm) {
+        if (frm.doc.address) {
+            console.log("address", frm.doc.address)
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Address",
+                    'name': frm.doc.address
+                },
+                'callback': function(response) {
+                    var addrss_links = response.message.links;
+                    for (var i = 0; i < addrss_links.length; i++) {
+                        if (addrss_links[i].link_doctype == "Customer") {
+                            cur_frm.set_value('customer', addrss_links[i].link_name);
+                        }
+                    }
+                }
+            });
+        }
+    },
     customer_contact: function(frm) {
         if (cur_frm.doc.customer_contact) {
             if (cur_frm.doc.__islocal) {
@@ -46,14 +70,22 @@ frappe.ui.form.on('Issue', {
                 });
             }
        }
-    }
+    },
+    sales_order: function(frm) {
+		if (cur_frm.doc.sales_order) {
+			cur_frm.set_value("issue_type", "Reklamation");
+		}
+	}
 })
 
-try {
-    cur_frm.dashboard.add_transactions([
-        {
-            'label': 'Timesheet',
-            'items': ['Timesheet']
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
         }
-    ]);
-} catch { /*do nothing for older versions */ }
+    }, 1000);
+}

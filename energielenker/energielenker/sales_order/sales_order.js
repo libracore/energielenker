@@ -1,8 +1,21 @@
 // Copyright (c) 2021, libracore AG and contributors
 // For license information, please see license.txt
 
+cur_frm.dashboard.add_transactions([
+    {
+        'label': 'Reklamationen',
+        'items': [
+            'Issue'
+        ]
+    }
+]);
+
 frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
+       set_timestamps(frm);
+       
+       frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
+       
        setTimeout(function(){ 
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
             function() {                                                                      
@@ -75,6 +88,15 @@ frappe.ui.form.on("Sales Order", {
                     }, __("Get items from"));
             }
         }, 1000);
+        
+        if (['WAGO GmbH & Co. KG', 'WAGO Kontakttechnik GmbH & Co. KG'].includes(cur_frm.doc.customer)) {
+            frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
+                hinterlege_cfos_als_lieferant(frm);
+            });
+        }
+        
+        // hack to remove "+" in dashboard
+        $(":button[data-doctype='Issue']").remove();
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -91,6 +113,11 @@ frappe.ui.form.on("Sales Order", {
     },
     customer: function(frm) {
         shipping_address_query(frm);
+        if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
+            frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
+                hinterlege_cfos_als_lieferant(frm);
+            });
+        }
     },
     validate: function(frm) {
         check_navision(frm);
@@ -281,7 +308,26 @@ frappe.ui.form.on("Sales Order", {
     shipping_contact: function(frm) {
         contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
     },
+    delivery_date (frm) {
+        if ( frm.doc.delivery_date != frm.doc.items[0].delivery_date ) {
+            var items = frm.doc.items || [];
+            for (var i = 0; i < items.length; i++) {
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'delivery_date', frm.doc.delivery_date);
+            }
+        } 
+    }
 });
+
+// Change the timeline specification, from "X days ago" to the exact date and time
+function set_timestamps(frm){
+    setTimeout(function() {
+        // mark navbar
+        var timestamps = document.getElementsByClassName("frappe-timestamp");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerHTML = timestamps[i].title
+        }
+    }, 1000);
+}
 
 function filter_contact(frm, field, filter) {
 
@@ -477,4 +523,50 @@ function cost_center_query(frm) {
             }
         }
     };
+}
+
+function hinterlege_cfos_als_lieferant(frm) {
+    var items = cur_frm.doc.items;
+    items.forEach(function(entry) {
+        entry.supplier = 'cFos Software GmbH';
+    });
+    cur_frm.refresh_field('items');
+}
+
+function make_reklamation(frm){
+    frappe.prompt([
+        {
+            label: 'Betreff',
+            fieldname: 'subject',
+            fieldtype: 'Data'
+        },
+        {
+            label: 'Priorität',
+            fieldname: 'priority',
+            fieldtype: 'Link',
+            options: 'Issue Priority'
+        },
+        {
+            label: 'Beschreibung',
+            fieldname: 'details',
+            fieldtype: 'Text Editor',
+        },
+    ], (values) => {
+        frappe.call({
+            "method": "energielenker.energielenker.sales_order.sales_order.make_issue_from_sales_order",
+            "args": {
+                "sales_order": cur_frm.doc.name,
+                "subject": values.subject,
+                "priority": values.priority,
+                "details": values.details,
+            },
+            "callback": function(r) {
+                var issue_name = r.message
+                if (issue_name) {
+                    frappe.msgprint(`Die Reklamation <a href="https://erp.energielenker.de/desk#Form/Issue/${issue_name}" target="_blank"> <b>${issue_name}</b></a> wurde erfolgreich angelegt.`)
+                    cur_frm.reload_doc();
+                }
+            }
+        }); 
+    })
 }
