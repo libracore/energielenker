@@ -115,6 +115,7 @@ frappe.ui.form.on("Sales Invoice", {
         check_navision(frm);
         check_vielfaches(frm);
    	    set_leistungsdatum(frm);
+   	    check_stundensatz(frm);
         
         try {
             cur_frm.set_value("apply_discount_on", "Net Total");
@@ -401,4 +402,41 @@ function set_leistungsdatum(frm) {
 			}
 		});
 	}	
+}
+
+function check_stundensatz(frm) {
+    var items = cur_frm.doc.items;
+    var billed_hours = 0;
+    // Check Stundensatz nur direkte Weiterberechnung
+    items.forEach(function(entry) {
+        if (entry.item_code === "A-0001882") {
+			billed_hours = billed_hours + entry.qty;
+        } 
+    });
+    
+    if (billed_hours > 0) {
+		frappe.call({
+			'method': 'frappe.client.get_value',
+			'args': {
+				'doctype': 'Project',
+				'filters': { 'name': cur_frm.doc.project },
+				'fieldname': 'zeit_gebucht_ueber_zeiterfassung'
+			},
+			'callback': function(response) {
+				var booked_hours = response.message.zeit_gebucht_ueber_zeiterfassung;
+				console.log("check_stundensatz", booked_hours - billed_hours);
+				
+				frappe.call({
+					'method': 'frappe.client.set_value',
+					'args': {
+						'doctype': 'Project',
+						'name': cur_frm.doc.project,
+						'fieldname': {
+							'noch_nicht_abgerechnete_stunden': booked_hours - billed_hours
+						},
+					}
+				});
+			}
+		});
+	}
 }
