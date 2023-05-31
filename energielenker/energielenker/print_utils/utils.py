@@ -1227,14 +1227,12 @@ def get_print_items(dt, dn):
                                     <td style="width: 30%;">
                                         - Nettobetrag:<br>
                                         - Mehrwertsteuer:<br>
-                                        - Bruttobetrag:<br>
-                                        - Zahlungseingang:
+                                        - Bruttobetrag:
                                     </td>
                                     <td style="text-align: right;">
                                         {cur_icon} {tr_sales_invoice_total}<br>
                                         {cur_icon} {tr_sales_invoice_total_taxes_and_charges}<br>
-                                        {cur_icon} {tr_sales_invoice_grand_total}<br>
-                                        {tr_sales_invoice_paid_amount}
+                                        {cur_icon} {tr_sales_invoice_grand_total}
                                     </td>
                                     <td style="border-right: 1px solid rgb(186, 210, 226) !important; width: 50%;">&nbsp;</td>
                                 </tr>
@@ -1344,12 +1342,12 @@ def get_print_items(dt, dn):
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzg. bereits gezahlte Abschläge netto</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzg. Abschläge netto</b></td>
                 <td style="text-align: right;">{cur_icon} -{total_anzahlung}</td>
             </tr>
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzgl. bereits gezahlte Abschläge 19 % MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzgl. Abschläge 19 % MwSt.</b></td>
                 <td style="text-align: right;">{cur_icon} -{total_anzahlung_mwst}</td>
             </tr>
             <tr class="blue-white">
