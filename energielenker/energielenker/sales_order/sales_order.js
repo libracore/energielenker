@@ -118,6 +118,22 @@ frappe.ui.form.on("Sales Order", {
                 hinterlege_cfos_als_lieferant(frm);
             });
         }
+        if (cur_frm.doc.customer) {
+			frappe.call({
+				method: 'frappe.client.get_value',
+                args: {
+					doctype: 'Customer',
+						filters: { name: cur_frm.doc.customer },
+                        fieldname: 'ansprechpartner'
+                    },
+                    callback: function(response) {
+						var kundenbetreuung = response.message.ansprechpartner;
+						if (kundenbetreuung){
+							cur_frm.set_value('ansprechpartner', kundenbetreuung);
+						}
+                    }
+            })
+        }
     },
     validate: function(frm) {
         check_navision(frm);
