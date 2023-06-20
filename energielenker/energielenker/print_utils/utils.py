@@ -808,10 +808,14 @@ def get_print_items(dt, dn):
         
         total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
         grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        taxes_name = "zzgl. 19% MwSt."
+        if doc.taxes_and_charges == "Germany VAT 0% - S - S":
+            taxes_name = "zzgl. 0% MwSt."
+            
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>zzgl. 19% MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_name}</b></td>
                 <td style="text-align: right;">{cur_icon} {total_taxes_and_charges}</td>
             </tr>
             <tr class="blue-white">
@@ -822,7 +826,7 @@ def get_print_items(dt, dn):
             
         """.format(total_taxes_and_charges=total_taxes_and_charges, \
                 cur_icon=cur_icon, \
-                grand_total=grand_total)
+                grand_total=grand_total, taxes_name=taxes_name)
         
         table += tr
     
@@ -1317,10 +1321,16 @@ def get_print_items(dt, dn):
         
         total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
         grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        taxes_name = "zzgl. 19% MwSt."
+        taxes_abschlage_name = "abzgl. Abschläge 19 % MwSt."
+        if doc.taxes_and_charges == "Germany VAT 0% - S - S":
+            taxes_name = "zzgl. 0% MwSt."
+            taxes_abschlage_name = "abzgl. Abschläge 0% MwSt."
+            
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>zzgl. 19% MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_name}</b></td>
                 <td style="text-align: right;">{cur_icon} {total_taxes_and_charges}</td>
             </tr>
             <tr class="blue-white">
@@ -1331,7 +1341,7 @@ def get_print_items(dt, dn):
             
         """.format(total_taxes_and_charges=total_taxes_and_charges, \
                 cur_icon=cur_icon, \
-                grand_total=grand_total)
+                grand_total=grand_total, taxes_name=taxes_name)
         
         table += tr
         
@@ -1347,7 +1357,7 @@ def get_print_items(dt, dn):
             </tr>
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzgl. Abschläge 19 % MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_abschlage_name}</b></td>
                 <td style="text-align: right;">{cur_icon} -{total_anzahlung_mwst}</td>
             </tr>
             <tr class="blue-white">
@@ -1359,7 +1369,7 @@ def get_print_items(dt, dn):
         """.format(cur_icon=cur_icon, \
                     total_anzahlung=total_anzahlung, \
                     total_anzahlung_mwst=total_anzahlung_mwst, \
-                    total_brutto=total_brutto)
+                    total_brutto=total_brutto, taxes_abschlage_name=taxes_abschlage_name)
         
         table += tr
     
