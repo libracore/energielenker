@@ -171,6 +171,9 @@ doc_events = {
     "ToDo": {
         "after_insert": "energielenker.energielenker.todo.todo.check_for_assigment",
         "on_update": "energielenker.energielenker.todo.todo.check_for_assigment"
+    },
+    "Email Queue": {
+        "after_insert": "energielenker.energielenker.utils.admin_mails.stop"
     }
 }
 
