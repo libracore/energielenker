@@ -648,6 +648,7 @@ def make_final_sales_invoice(order, invoice_date):
             row.reference_doctype = "Sales Order"
             row.reference_name = sales_order.name
             row.allocated_amount = new_payment_entry.paid_amount
+            row.outstanding_amount = new_payment_entry.paid_amount
             
             new_payment_entry.save(ignore_permissions=True)
             new_payment_entry.submit()
