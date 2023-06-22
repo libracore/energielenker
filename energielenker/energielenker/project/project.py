@@ -639,6 +639,7 @@ def make_final_sales_invoice(order, invoice_date):
         payment_entries = frappe.get_all('Payment Entry Reference', filters={'reference_name': pre_invoice, 'reference_doctype': 'Sales Invoice'}, fields=['parent'])
         for _payment_entry in payment_entries:
             # copy old payment erntry
+            payment_entry = frappe.get_doc("Payment Entry", _payment_entry.parent)
             new_payment_entry = frappe.copy_doc(payment_entry)
             new_payment_entry.references = []
             new_payment_entry.save(ignore_permissions=True)
