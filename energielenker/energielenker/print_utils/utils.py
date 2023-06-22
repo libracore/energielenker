@@ -1188,7 +1188,7 @@ def get_print_items(dt, dn):
             tr = """
                 <tr style="background-color: rgb(186, 210, 226) !important;">
                     <td style="text-align: center;"><b>{position}</b></td>
-                    <td colspan = '4' style="font-size: 7.5pt;">Folgende Abschlagsrechnungen wurden Ihnen bereits zugesandt.<br>Zahlungseingänge sind aufgeführt soweit bereits gebucht.</td>
+                    <td colspan = '4' style="font-size: 7.5pt;">Folgende Abschlagsrechnungen wurden Ihnen bereits zugesandt.</td>
                 </tr>
             """.format(position=positions_nummer)
             table += tr
