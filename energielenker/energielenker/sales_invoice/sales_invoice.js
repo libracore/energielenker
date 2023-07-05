@@ -420,10 +420,12 @@ function check_stundensatz(frm) {
 			'args': {
 				'doctype': 'Project',
 				'filters': { 'name': cur_frm.doc.project },
-				'fieldname': 'zeit_gebucht_ueber_zeiterfassung'
+				'fieldname': 'noch_nicht_abgerechnete_stunden'
 			},
 			'callback': function(response) {
-				var booked_hours = response.message.zeit_gebucht_ueber_zeiterfassung;
+				var booked_hours = response.message.noch_nicht_abgerechnete_stunden;
+				console.log("booked_hours", booked_hours);
+				console.log("billed_hours", billed_hours);
 				console.log("check_stundensatz", booked_hours - billed_hours);
 				
 				frappe.call({
