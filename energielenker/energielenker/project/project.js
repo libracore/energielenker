@@ -89,6 +89,11 @@ frappe.ui.form.on("Project", {
         } else {
             cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
         }
+        
+        if (!cur_frm.doc.noch_nicht_abgerechnete_stunden_updated) {
+            cur_frm.set_value("noch_nicht_abgerechnete_stunden", cur_frm.doc.zeit_gebucht_ueber_zeiterfassung);
+            cur_frm.set_value("noch_nicht_abgerechnete_stunden_updated", 1);
+        } 
     },
     auftragsumme_manuell_festsetzen: function(frm) {
         if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
