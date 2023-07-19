@@ -174,6 +174,9 @@ doc_events = {
     },
     "Email Queue": {
         "after_insert": "energielenker.energielenker.utils.admin_mails.stop"
+    },
+    "Lead": {
+        "on_trash": "energielenker.energielenker.utils.lead.delete_events"
     }
 }
 

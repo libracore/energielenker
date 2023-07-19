@@ -54,30 +54,39 @@ def get_data(filters):
             
             project = frappe.db.get_value('Sales Order', order.sales_order, 'project') or None
             project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
-            if len(gestellte_rechnungen) > 0:
-                if gestellte_rechnungen[0].amount:
-                    gestellte_rechnungen_amount = float(gestellte_rechnungen[0].amount)
+            affected_project = True
+            if project:
+                p = frappe.get_doc("Project", project)
+                if int(p.docstatus) != 1:
+                    affected_project = False
+                if p.contract_type == 'Dienstleistungsvertrag':
+                    affected_project = False
+            
+            if affected_project:
+                if len(gestellte_rechnungen) > 0:
+                    if gestellte_rechnungen[0].amount:
+                        gestellte_rechnungen_amount = float(gestellte_rechnungen[0].amount)
+                    else:
+                        gestellte_rechnungen_amount = 0
                 else:
                     gestellte_rechnungen_amount = 0
-            else:
-                gestellte_rechnungen_amount = 0
-            
-            order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
-            outstanding_amount = order_payment_amount - gestellte_rechnungen_amount
-            
-            _data = {
-                'sales_order': order.sales_order,
-                'project': project,
-                'project_name': project_name,
-                'cost_center': frappe.db.get_value('Sales Order', order.sales_order, 'cost_center') or None,
-                'due_date': order.due_date,
-                'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
-            }
-            if outstanding_amount > 0 or outstanding_amount < 0:
-                data.append(_data)
-            elif not filters.not_null:
-                data.append(_data)
+                
+                order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
+                outstanding_amount = order_payment_amount - gestellte_rechnungen_amount
+                
+                _data = {
+                    'sales_order': order.sales_order,
+                    'project': project,
+                    'project_name': project_name,
+                    'cost_center': frappe.db.get_value('Sales Order', order.sales_order, 'cost_center') or None,
+                    'due_date': order.due_date,
+                    'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
+                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                }
+                if outstanding_amount > 0 or outstanding_amount < 0:
+                    data.append(_data)
+                elif not filters.not_null:
+                    data.append(_data)
     else:
         cost_centers = frappe.db.sql("""SELECT 
                                     SUM(`ps`.`payment_amount`) AS `payment_amount`,
