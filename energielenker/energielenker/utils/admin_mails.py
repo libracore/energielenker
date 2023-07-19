@@ -17,7 +17,13 @@ def remove_admin(queue):
     q = frappe.get_doc("Email Queue", queue)
     old_recipients = q.recipients
     q.recipients = []
+    other_recipients = 0
     for old_recipient in old_recipients:
         if old_recipient.recipient != 'Administrator <admin@example.com>':
             q.recipients.append(old_recipient)
+            other_recipients += 1
     q.save()
+    
+    if other_recipients < 1:
+        # delete Queue, weil Admin einziger empfänger war
+        q.delete()
