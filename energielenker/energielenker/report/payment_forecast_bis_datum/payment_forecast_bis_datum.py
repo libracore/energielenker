@@ -135,16 +135,18 @@ def get_data(filters):
                 cost_center_payment_amount = cost_center.payment_amount if cost_center.payment_amount > 0 else 0
                 outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
                 
+                outstanding_amount = outstanding_amount if outstanding_amount > 0 else 0
+                over_amount = 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                
                 if cost_center.cost_center in cost_centers_dict:
-                    _outstanding_amount = outstanding_amount if outstanding_amount > 0 else 0
-                    _over_amount = 0 if outstanding_amount > 0 else (outstanding_amount * -1)
-                    cost_centers_dict[cost_center.cost_center]['outstanding_amount'] += _outstanding_amount
-                    cost_centers_dict[cost_center.cost_center]['over_amount'] += _over_amount
+                    
+                    cost_centers_dict[cost_center.cost_center]['outstanding_amount'] += outstanding_amount
+                    cost_centers_dict[cost_center.cost_center]['over_amount'] += over_amount
                 else:
                     cost_centers_dict[cost_center.cost_center] = {
                         'name': cost_center.cost_center,
-                        'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                        'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                        'outstanding_amount': outstanding_amount,
+                        'over_amount': over_amount
                     }
                 
         for cost_center in cost_centers_dict:
