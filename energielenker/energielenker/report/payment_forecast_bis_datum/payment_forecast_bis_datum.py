@@ -149,11 +149,11 @@ def get_data(filters):
                 
         for cost_center in cost_centers_dict:
             _data = {
-                'cost_center': cost_center['name'],
-                'outstanding_amount': cost_center['outstanding_amount'] if cost_center['outstanding_amount'] > 0 else 0,
-                'over_amount': 0 if cost_center['outstanding_amount'] > 0 else (cost_center['outstanding_amount'] * -1)
+                'cost_center': cost_centers_dict[cost_center]['name'],
+                'outstanding_amount': cost_centers_dict[cost_center]['outstanding_amount'] if cost_centers_dict[cost_center]['outstanding_amount'] > 0 else 0,
+                'over_amount': 0 if cost_centers_dict[cost_center]['outstanding_amount'] > 0 else (cost_centers_dict[cost_center]['outstanding_amount'] * -1)
             }
-            if cost_center['outstanding_amount'] > 0 or cost_center['outstanding_amount'] < 0:
+            if cost_centers_dict[cost_center]['outstanding_amount'] > 0 or cost_centers_dict[cost_center]['outstanding_amount'] < 0:
                 data.append(_data)
             elif not filters.not_null:
                 data.append(_data)
