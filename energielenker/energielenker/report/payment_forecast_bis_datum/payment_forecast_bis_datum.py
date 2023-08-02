@@ -57,7 +57,7 @@ def get_data(filters):
             affected_project = True
             if project:
                 p = frappe.get_doc("Project", project)
-                if int(p.docstatus) != 1:
+                if p.status != 'Open':
                     affected_project = False
                 if p.contract_type == 'Dienstleistungsvertrag':
                     affected_project = False
