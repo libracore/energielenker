@@ -107,12 +107,7 @@ def get_data(filters):
             gestellte_rechnungen = frappe.db.sql("""SELECT
                                                         SUM(`amount`) AS `amount`
                                                     FROM `tabSales Order Anzahlung`
-                                                    WHERE `parent` IN (
-                                                        SELECT `name` FROM `tabSales Order`
-                                                        WHERE `docstatus` = 1
-                                                        AND `status` NOT IN ('Closed', 'Completed')
-                                                        AND `cost_center` = '{0}'
-                                                    )""".format(cost_center.cost_center), as_dict=True)
+                                                    WHERE `parent` = '{0}'""".format(cost_center.sales_order), as_dict=True)
             project = frappe.db.get_value('Sales Order', cost_center.sales_order, 'project') or None
             project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
             affected_project = True
