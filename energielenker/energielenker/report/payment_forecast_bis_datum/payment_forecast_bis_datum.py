@@ -90,7 +90,8 @@ def get_data(filters):
     else:
         cost_centers = frappe.db.sql("""SELECT 
                                     SUM(`ps`.`payment_amount`) AS `payment_amount`,
-                                    `sales_order`.`cost_center` AS `cost_center`
+                                    `sales_order`.`cost_center` AS `cost_center`,
+                                    `sales_order`.`name` AS `sales_order`
                                 FROM `tabPayment Schedule` AS `ps`
                                 INNER JOIN `tabSales Order` AS `sales_order` ON `ps`.`parent` = `sales_order`.`name`
                                 WHERE `ps`.`parenttype` = 'Sales Order'
@@ -112,25 +113,35 @@ def get_data(filters):
                                                         AND `status` NOT IN ('Closed', 'Completed')
                                                         AND `cost_center` = '{0}'
                                                     )""".format(cost_center.cost_center), as_dict=True)
+            project = frappe.db.get_value('Sales Order', cost_center.sales_order, 'project') or None
+            project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
+            affected_project = True
+            if project:
+                p = frappe.get_doc("Project", project)
+                if p.status != 'Open':
+                    affected_project = False
+                if p.contract_type == 'Dienstleistungsvertrag':
+                    affected_project = False
             
-            if len(gestellte_rechnungen) > 0:
-                if gestellte_rechnungen[0].amount:
-                    gestellte_rechnungen_amount = float(gestellte_rechnungen[0].amount)
+            if affected_project:
+                if len(gestellte_rechnungen) > 0:
+                    if gestellte_rechnungen[0].amount:
+                        gestellte_rechnungen_amount = float(gestellte_rechnungen[0].amount)
+                    else:
+                        gestellte_rechnungen_amount = 0
                 else:
                     gestellte_rechnungen_amount = 0
-            else:
-                gestellte_rechnungen_amount = 0
-            
-            cost_center_payment_amount = cost_center.payment_amount if cost_center.payment_amount > 0 else 0
-            outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
-            
-            _data = {
-                'cost_center': cost_center.cost_center,
-                'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
-            }
-            if outstanding_amount > 0 or outstanding_amount < 0:
-                data.append(_data)
-            elif not filters.not_null:
-                data.append(_data)
+                
+                cost_center_payment_amount = cost_center.payment_amount if cost_center.payment_amount > 0 else 0
+                outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
+                
+                _data = {
+                    'cost_center': cost_center.cost_center,
+                    'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
+                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                }
+                if outstanding_amount > 0 or outstanding_amount < 0:
+                    data.append(_data)
+                elif not filters.not_null:
+                    data.append(_data)
     return data
