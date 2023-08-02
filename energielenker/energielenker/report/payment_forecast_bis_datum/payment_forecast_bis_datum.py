@@ -88,8 +88,9 @@ def get_data(filters):
                 elif not filters.not_null:
                     data.append(_data)
     else:
+        cost_centers_dict = {}
         cost_centers = frappe.db.sql("""SELECT 
-                                    SUM(`ps`.`payment_amount`) AS `payment_amount`,
+                                    `ps`.`payment_amount` AS `payment_amount`,
                                     `sales_order`.`cost_center` AS `cost_center`,
                                     `sales_order`.`name` AS `sales_order`
                                 FROM `tabPayment Schedule` AS `ps`
@@ -100,8 +101,7 @@ def get_data(filters):
                                     SELECT `name` FROM `tabSales Order`
                                     WHERE `docstatus` = 1
                                     AND `status` NOT IN ('Closed', 'Completed')
-                                )
-                                GROUP BY `sales_order`.`cost_center`""".format(date=filters.date), as_dict=True)
+                                )""".format(date=filters.date), as_dict=True)
         
         for cost_center in cost_centers:
             gestellte_rechnungen = frappe.db.sql("""SELECT
@@ -135,13 +135,26 @@ def get_data(filters):
                 cost_center_payment_amount = cost_center.payment_amount if cost_center.payment_amount > 0 else 0
                 outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
                 
-                _data = {
-                    'cost_center': cost_center.cost_center,
-                    'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
-                }
-                if outstanding_amount > 0 or outstanding_amount < 0:
-                    data.append(_data)
-                elif not filters.not_null:
-                    data.append(_data)
+                if cost_center.cost_center in cost_centers_dict:
+                    _outstanding_amount = outstanding_amount if outstanding_amount > 0 else 0
+                    _over_amount = 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                    cost_centers_dict[cost_center.cost_center]['outstanding_amount'] += _outstanding_amount
+                    cost_centers_dict[cost_center.cost_center]['over_amount'] += _over_amount
+                else:
+                    cost_centers_dict[cost_center.cost_center] = {
+                        'name': cost_center.cost_center,
+                        'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
+                        'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                    }
+                
+        for cost_center in cost_centers_dict:
+            _data = {
+                'cost_center': cost_center['name'],
+                'outstanding_amount': cost_center['outstanding_amount'] if cost_center['outstanding_amount'] > 0 else 0,
+                'over_amount': 0 if cost_center['outstanding_amount'] > 0 else (cost_center['outstanding_amount'] * -1)
+            }
+            if cost_center['outstanding_amount'] > 0 or cost_center['outstanding_amount'] < 0:
+                data.append(_data)
+            elif not filters.not_null:
+                data.append(_data)
     return data
