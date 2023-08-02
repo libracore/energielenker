@@ -90,7 +90,7 @@ def get_data(filters):
     else:
         cost_centers_dict = {}
         cost_centers = frappe.db.sql("""SELECT 
-                                    `ps`.`payment_amount` AS `payment_amount`,
+                                    SUM(`ps`.`payment_amount`) AS `payment_amount`,
                                     `sales_order`.`cost_center` AS `cost_center`,
                                     `sales_order`.`name` AS `sales_order`
                                 FROM `tabPayment Schedule` AS `ps`
@@ -101,7 +101,8 @@ def get_data(filters):
                                     SELECT `name` FROM `tabSales Order`
                                     WHERE `docstatus` = 1
                                     AND `status` NOT IN ('Closed', 'Completed')
-                                )""".format(date=filters.date), as_dict=True)
+                                )
+                                GROUP BY `sales_order`.`name`""".format(date=filters.date), as_dict=True)
         
         for cost_center in cost_centers:
             gestellte_rechnungen = frappe.db.sql("""SELECT
