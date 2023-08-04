@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2023-08-03 08:40:56.418281",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2023-08-03 08:41:14.223487",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "vertriebs-dashboard",
+ "owner": "Administrator",
+ "page_name": "Vertriebs-Dashboard",
+ "roles": [
+  {
+   "role": "Sales Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Vertriebs-Dashboard"
+}
