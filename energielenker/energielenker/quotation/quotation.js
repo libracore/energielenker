@@ -70,11 +70,6 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
-        setTimeout(function(){ 
-			if (frm.doc.preisliste_ignorieren){
-				frappe.msgprint("Dieses Duplikat enthält keine Preise aus der gültigen Preisliste")
-			}
-		}, 2500);
     },
     wahrscheindlichkeit: function(frm) {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {
