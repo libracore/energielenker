@@ -27,6 +27,12 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
     
     let lost_quotation_amount_chart = new energielenkerChart("Angebotsvolumen verfallener Angebote", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0});
     lost_quotation_amount_chart.show();
+    
+    let sales_order_qty_chart = new energielenkerChart("Anzahl Aufträge", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {});
+    sales_order_qty_chart.show();
+    
+    let sales_order_amount_chart = new energielenkerChart("Auftragssvolumen", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0});
+    sales_order_amount_chart.show();
 }
 
 class energielenkerChart {
@@ -74,6 +80,8 @@ class energielenkerChart {
                     if (frappe.user.has_role("GL")) {
                         if (this.document_type == 'Lead') {
                             frappe.route_options = {"status": 'Lead', "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
+                        } else if (this.document_type == 'Sales Order') {
+                            frappe.route_options = {"docstatus": 1, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
                         } else {
                             if (this.fetchFilter) {
                                 frappe.route_options = {"status": this.fetchFilter.quotation_status, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
@@ -82,6 +90,8 @@ class energielenkerChart {
                     } else {
                         if (this.document_type == 'Lead') {
                             frappe.route_options = {"status": 'Lead', "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], "lead_owner": frappe.session.user}
+                        } else if (this.document_type == 'Sales Order') {
+                            frappe.route_options = {"docstatus": 1, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], "ansprechpartner": frappe.session.user}
                         } else {
                             if (this.fetchFilter) {
                                 frappe.route_options = {"status": this.fetchFilter.quotation_status, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], "ansprechpartner": frappe.session.user}
