@@ -24,6 +24,7 @@ def execute(filters=None):
 
         sle.update(item_detail)
         sle.update(get_kostenstelle(sle))
+        sle.update(get_stock_entry_bom_info(sle))
         # ~ frappe.throw(str(sle))
         data.append(sle)
 
@@ -54,13 +55,15 @@ def get_columns():
         {"label": _("Voucher Type"), "fieldname": "voucher_type", "width": 110},
         {"label": _("Voucher #"), "fieldname": "voucher_no", "fieldtype": "Dynamic Link", "options": "voucher_type", "width": 100},
         {"label": _("Voucher KST"), "fieldname": "voucher_kst", "fieldtype": "Data", "width": 100},
+        {"label": _("Stock Entry Type"), "fieldname": "stock_entry_type", "fieldtype": "Data", "width": 100},
+        {"label": _("From BOM"), "fieldname": "from_bom", "fieldtype": "Check", "width": 100},
         {"label": _("Batch"), "fieldname": "batch_no", "fieldtype": "Link", "options": "Batch", "width": 100},
         {"label": _("Serial #"), "fieldname": "serial_no", "width": 100},
         {"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
         {"label": _("Projekt KST"), "fieldname": "project_kst", "fieldtype": "Data", "width": 100},
         {"label": _("Company"), "fieldname": "company", "fieldtype": "Link", "options": "Company", "width": 110}
     ]
-
+    
     return columns
 
 def get_stock_ledger_entries(filters, items):
@@ -302,6 +305,23 @@ def get_kostenstelle(sle):
                             kst.update({'voucher_kst': item_kst[0][0]})
                 
     return kst
+
+def get_stock_entry_bom_info(sle):
+    info = {}
+    found_stock_entry = False
+    
+    if sle.voucher_no:
+        if sle.voucher_type == 'Stock Entry':
+            found_stock_entry = True
+            info.update({
+                'stock_entry_type': frappe.db.get_value("Stock Entry", sle.voucher_no, 'stock_entry_type'),
+                'from_bom': int(frappe.db.get_value("Stock Entry", sle.voucher_no, 'from_bom') or 0)
+            })
+    
+    if not found_stock_entry:
+        info.update({'stock_entry_type': 'Kein Stock Entry Voucher', 'from_bom': 0})
+    
+    return info
 
 def get_fallback_dn_kst_from_so(sle, kst):
     found = False
