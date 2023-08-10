@@ -26,18 +26,17 @@ def get_employee(user=None):
 @frappe.whitelist()
 def make_issue_from_sales_order(sales_order, subject, priority, details):
     """ create issue from sales order """
-
+    
     doc = frappe.get_doc("Sales Order", sales_order)
-    issue = frappe.get_doc({
-        "doctype": "Issue",
-        "subject": subject,
-        "priority": priority,
-        "customer": doc.customer,
-        "issue_type": 'Reklamation',
-        "raised_by": doc.owner or "",
-        "address": doc.customer_address,
-        "description": details or "",
-        "sales_order": sales_order
-    }).insert(ignore_permissions=True)
-
+    issue = frappe.new_doc("Issue")
+    issue.subject = subject
+    issue.priority = priority
+    issue.customer = doc.customer
+    issue.raised_by = doc.owner or ""
+    issue.address = doc.customer_address
+    issue.description = details or ""
+    issue.sales_order = sales_order
+    issue.flags.ignore_mandatory = True
+    issue.insert(ignore_permissions=True)
+    
     return issue.name

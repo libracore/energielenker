@@ -554,18 +554,21 @@ function make_reklamation(frm){
         {
             label: 'Betreff',
             fieldname: 'subject',
-            fieldtype: 'Data'
+            fieldtype: 'Data',
+            reqd: 1
         },
         {
             label: 'Priorität',
             fieldname: 'priority',
             fieldtype: 'Link',
-            options: 'Issue Priority'
+            options: 'Issue Priority',
+            reqd: 1
         },
         {
             label: 'Beschreibung',
             fieldname: 'details',
             fieldtype: 'Text Editor',
+            reqd: 1
         },
     ], (values) => {
         frappe.call({
