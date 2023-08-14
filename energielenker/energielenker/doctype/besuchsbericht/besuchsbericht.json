@@ -97,12 +97,12 @@
   {
    "fieldname": "vereinbarungen",
    "fieldtype": "Text Editor",
-   "label": "Vereinbahrungen"
+   "label": "Vereinbarungen"
   },
   {
    "fieldname": "lob_kritik",
    "fieldtype": "Text Editor",
-   "label": "betroffene Produkte/Bereiche/Leistungen"
+   "label": "Lob/Kritik/Verbesserungsvorschl\u00e4ge"
   },
   {
    "fieldname": "chancen",
@@ -112,7 +112,7 @@
   {
    "fieldname": "aufgaben",
    "fieldtype": "Text Editor",
-   "label": "Chancen/Risiken"
+   "label": "weiterf\u00fchrende Aufgaben"
   },
   {
    "fieldname": "deadlines",
@@ -143,7 +143,7 @@
    "fieldtype": "Section Break"
   }
  ],
- "modified": "2023-02-09 19:26:59.083642",
+ "modified": "2023-08-14 13:12:42.990114",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Besuchsbericht",
