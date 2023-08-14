@@ -144,7 +144,10 @@ doc_events = {
         "on_update": "energielenker.energielenker.task.task.on_update"
     },
     "Sales Order": {
-        "on_submit": "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so"
+        "on_submit": [
+            "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so",
+            "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
+        ]
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"

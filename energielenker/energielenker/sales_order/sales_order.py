@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import flt
 
 def fetch_payment_schedule_from_so(so, event):
     if so.project:
@@ -40,3 +41,19 @@ def make_issue_from_sales_order(sales_order, subject, priority, details):
     issue.insert(ignore_permissions=True)
     
     return issue.name
+
+def update_delivery_status(so, event):
+    """Update item wise delivery status from Sales Order for drop shipping"""
+    tot_qty, delivered_qty = 0.0, 0.0
+    sales_order = so
+    for item in sales_order.items:
+        if item.delivered_by_supplier:
+            item_delivered_qty = item.qty
+            item.db_set("delivered_qty", flt(item_delivered_qty), update_modified=False)
+
+        delivered_qty += item.delivered_qty
+        tot_qty += item.qty
+
+    if tot_qty != 0:
+        sales_order.db_set("per_delivered", flt(delivered_qty/tot_qty) * 100,
+            update_modified=False)
