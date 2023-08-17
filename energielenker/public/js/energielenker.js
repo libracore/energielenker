@@ -545,8 +545,8 @@ $.extend(frappe.model, {
 				}
 			}
 		}
-		
-		if (doc.preisliste_ignorieren){
+
+		if (typeof doc.dont_copy_current_rate !== 'undefined' && doc.dont_copy_current_rate == 0){
 			var newdoc_items = newdoc.items || [];
 			console.log("olddoc items", doc.items)
 			console.log("newdoc items", newdoc_items)
