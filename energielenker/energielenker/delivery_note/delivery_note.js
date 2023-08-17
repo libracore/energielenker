@@ -203,6 +203,11 @@ frappe.ui.form.on("Delivery Note", {
                 entry.pricing_rules = null;
             });
         }
+        
+        if ((!cur_frm.doc.shipping_address_name)&&(!cur_frm.doc.new_address_name)) {
+            frappe.msgprint( __("Es muss eine Lieferadresse hinterlegt werden"), __("Validation") );
+            frappe.validated=false;
+        }
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
