@@ -16,7 +16,7 @@ def get_columns():
         {"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 95},
         {"label": _("Project Name"), "fieldname": "project_name", "fieldtype": "Data", "width": 150},
         {"label": _("Project Type"), "fieldname": "project_type", "fieldtype": "Link", "options": "Project Type", "width": 95},
-        {"label": _("Project Completion"), "fieldname": "actual_end_date", "fieldtype": "Date", "width": 95},
+        {"label": _("Letzte Zeitbuchun"), "fieldname": "actual_end_date", "fieldtype": "Date", "width": 95},
         {"label": _("Project Status"), "fieldname": "status", "fieldtype": "Data", "width": 95},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 200},
         {"label": _("Salutation"), "fieldname": "salutation", "fieldtype": "Data", "width": 60},
