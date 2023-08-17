@@ -78,26 +78,32 @@ class PowerProject():
             self.update_erpnext_kpi(kpi)
     
     def update_dates(self):
-        # Schritt 1: Lesen / Setzen des tiefsten Startdatum
-        start_dates = []
+        ts_dates = []
         for subproject in self.subprojects:
-            start_dates += get_lowest_project_start_date(subproject.name)
+            sub_p_ts_entries = frappe.db.sql("""SELECT
+                                            `from_time`,
+                                            `to_time`
+                                        FROM `tabTimesheet Detail`
+                                        WHERE `project` = '{0}'""".format(subproject.name), as_dict=True)
+            for ts_entry in sub_p_ts_entries:
+                ts_dates.append(ts_entry.from_time.strftime("%Y-%m-%d"))
+                ts_dates.append(ts_entry.to_time.strftime("%Y-%m-%d"))
         
-        start_dates += get_lowest_project_start_date(self.project.name)
+        p_ts_entries = frappe.db.sql("""SELECT
+                                        `from_time`,
+                                        `to_time`
+                                    FROM `tabTimesheet Detail`
+                                    WHERE `project` = '{0}'""".format(self.project.name), as_dict=True)
+        for ts_entry in p_ts_entries:
+            ts_dates.append(ts_entry.from_time.strftime("%Y-%m-%d"))
+            ts_dates.append(ts_entry.to_time.strftime("%Y-%m-%d"))
         
-        self.project.set('actual_start_date', min(start_dates))
-        
-        # Schritt 2: Lesen / Setzen des höchsten Enddatums
-        end_dates = []
-        for subproject in self.subprojects:
-            end_dates += get_highest_project_end_date(subproject.name)
-        
-        end_dates += get_highest_project_end_date(self.project.name)
-        
-        if len(end_dates) > 0:
-            self.project.set('actual_end_date', max(end_dates))
+        if len(ts_dates) > 0:
+            self.project.set('actual_start_date', min(ts_dates))
+            self.project.set('actual_end_date', max(ts_dates))
         else:
-            self.project.set('actual_end_date', self.project.expected_end_date)
+            self.project.set('actual_start_date', None)
+            self.project.set('actual_end_date', None)
 
     def update_custom_kpi(self, kpi):
         value_project = getattr(self, "get_{kpi}".format(kpi=kpi))()
