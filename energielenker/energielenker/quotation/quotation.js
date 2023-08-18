@@ -2,11 +2,11 @@ frappe.ui.form.on('Quotation', {
 
     refresh: function(frm) {
 	   // remove button "Duplicate" in Menu
-        if($("[data-label='Duplicate']").length > 0) {
-           $("[data-label='Duplicate']")[0].parentElement.remove();
+        if($("[data-label='Duplizieren']").length > 0) {
+           $("[data-label='Duplizieren']")[0].parentElement.remove();
         }
 		
-		cur_frm.page.add_menu_item(__("Duplicate"), function() {
+		cur_frm.page.add_menu_item(__("Duplizieren"), function() {
 			frappe.confirm('Sollen die Preise mit der gültigen Preisliste überschrieben werden?',
 				() => {
 					// action to perform if Yes is selected
