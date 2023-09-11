@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.utils import get_datetime
+from energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein import get_lizenz_qty_so
 
 def get_print_items(dt, dn):
     doc = frappe.get_doc(dt, dn)
@@ -299,13 +300,17 @@ def get_print_items(dt, dn):
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
+                        lizenz_qty = None
+                        if item.item_code == "A-0001701":
+                            lizenz_qty = get_lizenz_qty_so(item.uom)
+
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
                     
                     if item.serial_no:
                         tr += """
@@ -700,14 +705,19 @@ def get_print_items(dt, dn):
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
+
                     if lieferscheine:
+                        lizenz_qty = None
+                        if item.item_code == "A-0001701":
+                            lizenz_qty = get_lizenz_qty_so(item.uom)
+
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
                     
                     if item.serial_no:
                         tr += """
