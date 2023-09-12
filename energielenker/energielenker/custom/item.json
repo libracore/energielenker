@@ -373,14 +373,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2023-08-21 11:19:04.486513",
+   "creation": "2023-09-12 07:41:28.791395",
    "default_value": null,
    "doc_type": "Item",
    "docstatus": 0,
    "doctype_or_field": "DocType",
    "field_name": null,
    "idx": 0,
-   "modified": "2023-08-21 11:19:04.486513",
+   "modified": "2023-09-12 07:41:28.791395",
    "modified_by": "Administrator",
    "name": "Item-max_attachments",
    "owner": "Administrator",
@@ -389,7 +389,7 @@
    "parenttype": null,
    "property": "max_attachments",
    "property_type": "Int",
-   "value": "10"
+   "value": "20"
   },
   {
    "_assign": null,
