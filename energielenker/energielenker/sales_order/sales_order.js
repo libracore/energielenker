@@ -143,6 +143,7 @@ frappe.ui.form.on("Sales Order", {
             cur_frm.set_value('project_clone', cur_frm.doc.project);
         }
         check_vielfaches(frm);
+        add_item_supplier(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -588,4 +589,21 @@ function make_reklamation(frm){
             }
         }); 
     })
+}
+
+function add_item_supplier(frm) {
+    frm.doc.items.forEach(function(item) {
+        frappe.call({
+                "method": "energielenker.energielenker.sales_order.sales_order.fetch_supplier",
+                "args": {
+                    "item": item.item_code
+                },
+                "async": true,
+                "callback": function(r) {
+                    var supplier = r.message;
+                    item.supplier = supplier;
+                    cur_frm.refresh_field('items');
+                }
+        });
+    });
 }

@@ -57,3 +57,10 @@ def update_delivery_status(so, event):
     if tot_qty != 0:
         sales_order.db_set("per_delivered", flt(delivered_qty/tot_qty) * 100,
             update_modified=False)
+
+@frappe.whitelist()
+def fetch_supplier(item):
+    i = frappe.get_doc("Item", item)
+    if len(i.supplier_items) > 0:
+        return i.supplier_items[0].supplier
+    return None
