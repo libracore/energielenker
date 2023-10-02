@@ -3,6 +3,7 @@
 
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
+	   set_zusatzgeschaft(frm);
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -184,6 +185,24 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function set_zusatzgeschaft(frm) {
+	frappe.call({
+		"method": "frappe.client.get",
+		"args": {
+			"doctype": "Sales Order",
+			'name': frm.doc.items[0].sales_order
+		},
+		"callback": function(response) {
+			var zusatzgeschaft = response.message.zusatzgeschaft;
+			if (zusatzgeschaft === 1) {
+				cur_frm.set_value("zusatzgeschaft", 1);
+			} else {
+				cur_frm.set_value("zusatzgeschaft", 0);
+			}
+		}
+	});
 }
 
 function filter_contact(frm) {
