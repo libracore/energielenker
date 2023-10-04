@@ -80,7 +80,15 @@ frappe.ui.form.on('Issue', {
         if (cur_frm.doc.sales_order) {
             cur_frm.set_value("issue_type", "Reklamation");
         }
-    }
+    },
+    issue_type: function(frm) {
+        if (cur_frm.doc.issue_type == "Reklamation") {
+			
+            frm.set_df_property("reklamationsverfolgung", "reqd", 1);
+        } else {
+			cur_frm.set_value("reklamationsverfolgung", "");
+		}
+    },
 })
 
 
