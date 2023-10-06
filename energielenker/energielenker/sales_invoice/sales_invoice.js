@@ -188,21 +188,23 @@ function set_timestamps(frm){
 }
 
 function set_zusatzgeschaft(frm) {
-	frappe.call({
-		"method": "frappe.client.get",
-		"args": {
-			"doctype": "Sales Order",
-			'name': frm.doc.items[0].sales_order
-		},
-		"callback": function(response) {
-			var zusatzgeschaft = response.message.zusatzgeschaft;
-			if (zusatzgeschaft === 1) {
-				cur_frm.set_value("zusatzgeschaft", 1);
-			} else {
-				cur_frm.set_value("zusatzgeschaft", 0);
+	if (frm.doc.items[0].sales_order) {
+		frappe.call({
+			"method": "frappe.client.get",
+			"args": {
+				"doctype": "Sales Order",
+				'name': frm.doc.items[0].sales_order
+			},
+			"callback": function(response) {
+				var zusatzgeschaft = response.message.zusatzgeschaft;
+				if (zusatzgeschaft === 1) {
+					cur_frm.set_value("zusatzgeschaft", 1);
+				} else {
+					cur_frm.set_value("zusatzgeschaft", 0);
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
 function filter_contact(frm) {
