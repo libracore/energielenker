@@ -17,6 +17,12 @@ frappe.pages['controlling-dashboard'].on_page_load = function(wrapper) {
     auftragsvolumen_chart.show();
     let angebotsvolumen_chart = new energielenkerChart("Angebotsvolumen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_angebotsvolumen', 'Quotation', {});
     angebotsvolumen_chart.show();
+    let ausgangsrechnung_chart = new energielenkerChart("Ausgangsrechnungen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_ausgangsrechnungen', 'Sales Invoice', {});
+    ausgangsrechnung_chart.show();
+    let eingangsrechnungen_chart = new energielenkerChart("Eingangsrechnungen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_eingangsrechnungen', 'Purchase Invoice', {});
+    eingangsrechnungen_chart.show();
+    let lagerwert = new energielenkerChart("Lagerwert", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_lagerwert', 'xxx', {});
+    lagerwert.show();
 }
 
 class energielenkerChart {
@@ -65,6 +71,10 @@ class energielenkerChart {
                         frappe.route_options = {"docstatus": 1, "transaction_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
                     } else if (this.document_type == 'Quotation') {
                         frappe.route_options = {"docstatus": 1, "transaction_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], 'status': ['not in', ['Lost', 'Ordered']]}
+                    } else if (this.document_type == 'Sales Invoice') {
+                        frappe.route_options = {"docstatus": 1, "posting_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
+                    } else if (this.document_type == 'Purchase Invoice') {
+                        frappe.route_options = {"docstatus": 1, "posting_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
                     } else {
                         if (this.fetchFilter) {
                             frappe.route_options = {"status": this.fetchFilter.quotation_status, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], "ansprechpartner": frappe.session.user}
