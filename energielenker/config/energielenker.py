@@ -12,6 +12,12 @@ def get_data():
                     "name": "vertriebs-dashboard",
                     "label": _("Vertriebs-Dashboard"),
                     "description": _("Vertriebs-Dashboard")
+                },
+                {
+                    "type": "page",
+                    "name": "controlling-dashboard",
+                    "label": _("Controlling-Dashboard"),
+                    "description": _("Controlling-Dashboard")
                 }
             ]
         },
