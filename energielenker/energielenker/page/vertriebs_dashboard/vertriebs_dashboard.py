@@ -57,7 +57,7 @@ def get_leads(gl=False):
                                     FROM `tabLead`
                                     WHERE `status` = 'Lead'
                                     AND `creation` BETWEEN '{0}' AND '{1}'
-                                    {2}""".format(get_first_day(first_day_of_month, d_months=-5), get_last_day(first_day_of_month), user_filter), as_dict=True)
+                                    {2}""".format(get_first_day(first_day_of_month, d_months=-6), get_last_day(first_day_of_month), user_filter), as_dict=True)
         
         for month in range(1, 7):
             m_delta = month - 6
@@ -68,7 +68,7 @@ def get_leads(gl=False):
         
         for emp in emp_sets:
             data_subset = {
-                "name": frappe.db.get_value("User", emp.lead_owner, "middle_name") or frappe.db.get_value("User", emp.lead_owner, "full_name"),
+                "name": frappe.db.get_value("User", emp.lead_owner, "middle_name") or frappe.db.get_value("User", emp.lead_owner, "full_name") or emp.lead_owner or 'n/a',
                 "values": []
             }
             for month in range(1, 7):
@@ -139,7 +139,7 @@ def get_quotations(quotation_status, qty=1):
                                     FROM `tabQuotation`
                                     WHERE `status` = '{3}'
                                     AND `creation` BETWEEN '{0}' AND '{1}'
-                                    {2}""".format(get_first_day(first_day_of_month, d_months=-5), get_last_day(first_day_of_month), user_filter, quotation_status), as_dict=True)
+                                    {2}""".format(get_first_day(first_day_of_month, d_months=-6), get_last_day(first_day_of_month), user_filter, quotation_status), as_dict=True)
         
         for month in range(1, 7):
             m_delta = month - 6
