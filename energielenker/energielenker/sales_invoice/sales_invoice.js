@@ -3,7 +3,6 @@
 
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
-	   set_zusatzgeschaft(frm);
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -107,6 +106,7 @@ frappe.ui.form.on("Sales Invoice", {
         }
     },
     before_save(frm) {
+		set_zusatzgeschaft(frm);
 	    get_customer_inovice_note(frm);
 	},
     customer: function(frm) {
@@ -199,8 +199,10 @@ function set_zusatzgeschaft(frm) {
 				var zusatzgeschaft = response.message.zusatzgeschaft;
 				if (zusatzgeschaft === 1) {
 					cur_frm.set_value("zusatzgeschaft", 1);
+					frm.fields_dict['zusatzgeschaft'].refresh();
 				} else {
 					cur_frm.set_value("zusatzgeschaft", 0);
+					frm.fields_dict['zusatzgeschaft'].refresh();
 				}
 			}
 		});
