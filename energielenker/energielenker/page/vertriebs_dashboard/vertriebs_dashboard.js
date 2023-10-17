@@ -5,6 +5,8 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
         single_column: true
     });
     
+    $("body").addClass("full-width");
+    
     // create chart area
     var chartWrapper = $(wrapper);
     $(`<div class="dashboard">
@@ -16,23 +18,46 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
     let leads_chart = new energielenkerChart("Leads", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_leads', 'Lead', {});
     leads_chart.show();
     
-    let open_quotation_qty_chart = new energielenkerChart("Anzahl offene Angebote", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open'});
+    let open_quotation_qty_chart = new energielenkerChart("Anzahl offene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open'});
     open_quotation_qty_chart.show();
     
-    let open_quotation_amount_chart = new energielenkerChart("Angebotsvolumen offener Angebote", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0});
+    let open_quotation_amount_chart = new energielenkerChart("Angebotsvolumen offener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0});
     open_quotation_amount_chart.show();
     
-    let lost_quotation_qty_chart = new energielenkerChart("Anzahl verfallene Angebote", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost'});
+    let lost_quotation_qty_chart = new energielenkerChart("Anzahl verfallene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost'});
     lost_quotation_qty_chart.show();
     
-    let lost_quotation_amount_chart = new energielenkerChart("Angebotsvolumen verfallener Angebote", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0});
+    let lost_quotation_amount_chart = new energielenkerChart("Angebotsvolumen verfallener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0});
     lost_quotation_amount_chart.show();
     
-    let sales_order_qty_chart = new energielenkerChart("Anzahl Aufträge", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {});
+    let sales_order_qty_chart = new energielenkerChart("Anzahl Aufträge", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {});
     sales_order_qty_chart.show();
     
-    let sales_order_amount_chart = new energielenkerChart("Auftragssvolumen", chartContainer, 'Half', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0});
+    let sales_order_amount_chart = new energielenkerChart("Auftragssvolumen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0});
     sales_order_amount_chart.show();
+    
+    // reorder chart legend and resize chart height
+    setTimeout(function(){ 
+        // reorder chart legend
+        var chart_legends = $(".chart-legend");
+        chart_legends.each(function(){
+           var versatz = 0;
+           for (var i=1; i<=this.children.length; i++) {
+               if (i % 2 == 0) {
+                   $(this.children[i-1]).attr('transform', 'translate(' + versatz + ', 30)');
+                   versatz = versatz + 105;
+               } else {
+                   $(this.children[i-1]).attr('transform', 'translate(' + versatz + ', 0)');
+               }
+           }
+        });
+        
+        // resize chart height
+        var charts = $(".frappe-chart.chart");
+        charts.each(function(){
+            $(this).attr('height', '270');
+        });
+    }, 2000);
 }
 
 class energielenkerChart {
