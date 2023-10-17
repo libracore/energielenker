@@ -76,7 +76,7 @@ frappe.ui.form.on('Purchase Order', {
     validate: function(frm) {
         check_vielfaches(frm);
         if (cur_frm.doc.project) {
-			frappe.call({
+            frappe.call({
                 'method': "frappe.client.get",
                 'args': {
                     'doctype': "Project",
@@ -88,9 +88,8 @@ frappe.ui.form.on('Purchase Order', {
                 }
             });
         } else {
-				copy_project_und_cost_center(frm, null, "1000080 - Solutions - Sonderprojekte (z.B. Heizzentralen) - S");
-		}
-		
+            copy_project_und_cost_center(frm, null, null);
+        }
         // if items come from a SO then display the so_name in the doc and viceversa
         if ( cur_frm.doc.items[0].sales_order ) {
             var so_ref = cur_frm.doc.items[0].sales_order;
@@ -159,11 +158,31 @@ function validate_vielfaches(frm) {
 
 function copy_project_und_cost_center(frm, project, cost_center) {
     var items = cur_frm.doc.items;
-    items.forEach(function(entry) {
-        entry.project = project;
-        entry.cost_center = cost_center
-    });
-    cur_frm.refresh_field('items');
+    if (!cost_center) {
+        frappe.call({
+            'method': "energielenker.energielenker.purchase_order.purchase_order.get_default_cost_center",
+            'args': {
+                'user': frappe.session.user
+            },
+            'async': true,
+            'callback': function(r) {
+                console.log(r.message)
+                items.forEach(function(entry) {
+                    entry.project = project;
+                    if ((!entry.cost_center)||(entry.cost_center == 'Main - S')) {
+                        entry.cost_center = r.message;
+                    }
+                });
+                cur_frm.refresh_field('items');
+            }
+        });
+    } else {
+        items.forEach(function(entry) {
+            entry.project = project;
+            entry.cost_center = cost_center
+        });
+        cur_frm.refresh_field('items');
+    }
 }
 
 function erzeuge_lizenzgutschein(frm) {

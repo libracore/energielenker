@@ -11,13 +11,18 @@ frappe.ui.form.on('Issue', {
     refresh: function(frm) {
            set_timestamps(frm);
            cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
-            var d = locals[cdt][cdn];         
-            return {
-                filters: {
-                    "link_name": frm.doc.customer 
-                }                      
-            }
+                var d = locals[cdt][cdn];
+                return {
+                    filters: {
+                        "link_name": frm.doc.customer
+                    }
+               }
            }
+    },
+    validate: function(frm) {
+        if (cur_frm.doc.status == 'Replied') {
+            cur_frm.set_value("status", 'Warte auf Rückantwort');
+        }
     },
     project: function(frm) {
        if (frm.doc.__islocal && cur_frm.doc.project) {
@@ -72,10 +77,18 @@ frappe.ui.form.on('Issue', {
        }
     },
     sales_order: function(frm) {
-		if (cur_frm.doc.sales_order) {
-			cur_frm.set_value("issue_type", "Reklamation");
+        if (cur_frm.doc.sales_order) {
+            cur_frm.set_value("issue_type", "Reklamation");
+        }
+    },
+    issue_type: function(frm) {
+        if (cur_frm.doc.issue_type == "Reklamation") {
+			
+            frm.set_df_property("reklamationsverfolgung", "reqd", 1);
+        } else {
+			cur_frm.set_value("reklamationsverfolgung", "");
 		}
-	}
+    },
 })
 
 

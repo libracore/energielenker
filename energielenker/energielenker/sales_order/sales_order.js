@@ -118,6 +118,22 @@ frappe.ui.form.on("Sales Order", {
                 hinterlege_cfos_als_lieferant(frm);
             });
         }
+        if (cur_frm.doc.customer) {
+			frappe.call({
+				method: 'frappe.client.get_value',
+                args: {
+					doctype: 'Customer',
+						filters: { name: cur_frm.doc.customer },
+                        fieldname: 'ansprechpartner'
+                    },
+                    callback: function(response) {
+						var kundenbetreuung = response.message.ansprechpartner;
+						if (kundenbetreuung){
+							cur_frm.set_value('ansprechpartner', kundenbetreuung);
+						}
+                    }
+            })
+        }
     },
     validate: function(frm) {
         check_navision(frm);
@@ -127,6 +143,7 @@ frappe.ui.form.on("Sales Order", {
             cur_frm.set_value('project_clone', cur_frm.doc.project);
         }
         check_vielfaches(frm);
+        add_item_supplier(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -538,18 +555,21 @@ function make_reklamation(frm){
         {
             label: 'Betreff',
             fieldname: 'subject',
-            fieldtype: 'Data'
+            fieldtype: 'Data',
+            reqd: 1
         },
         {
             label: 'Priorität',
             fieldname: 'priority',
             fieldtype: 'Link',
-            options: 'Issue Priority'
+            options: 'Issue Priority',
+            reqd: 1
         },
         {
             label: 'Beschreibung',
             fieldname: 'details',
             fieldtype: 'Text Editor',
+            reqd: 1
         },
     ], (values) => {
         frappe.call({
@@ -569,4 +589,21 @@ function make_reklamation(frm){
             }
         }); 
     })
+}
+
+function add_item_supplier(frm) {
+    frm.doc.items.forEach(function(item) {
+        frappe.call({
+                "method": "energielenker.energielenker.sales_order.sales_order.fetch_supplier",
+                "args": {
+                    "item": item.item_code
+                },
+                "async": true,
+                "callback": function(r) {
+                    var supplier = r.message;
+                    item.supplier = supplier;
+                    cur_frm.refresh_field('items');
+                }
+        });
+    });
 }

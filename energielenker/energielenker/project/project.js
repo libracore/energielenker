@@ -89,6 +89,11 @@ frappe.ui.form.on("Project", {
         } else {
             cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
         }
+        
+        if (!cur_frm.doc.noch_nicht_abgerechnete_stunden_updated) {
+            cur_frm.set_value("noch_nicht_abgerechnete_stunden", cur_frm.doc.zeit_gebucht_ueber_zeiterfassung);
+            cur_frm.set_value("noch_nicht_abgerechnete_stunden_updated", 1);
+        } 
     },
     auftragsumme_manuell_festsetzen: function(frm) {
         if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
@@ -205,49 +210,57 @@ frappe.ui.form.on("Payment Forecast", {
                     frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
                 } else {
 					
-					//Check if the last invoice made for the order is still unpaid
 					
-					var payment_rows = frm.doc.payment_schedule;
-					var last_so_sinv;
+					var orderindexrow = 0;
 					var options;
 					var defaults;
 					
-					for (var i = 0; i < payment_rows.length; i++) {
-						if (payment_rows[i].order == row.order ) {
-							if (payment_rows[i].invoice) {
-								last_so_sinv = payment_rows[i].invoice;
-							} 
-						}
-					}
+					// Check if the row you click is the last target order from the table
 					
-					if (last_so_sinv) {
+					frm.doc.payment_schedule.forEach(function (paymentrow) {
+					  if (paymentrow.order === row.order) {
+						orderindexrow = paymentrow.idx; 
+					  }
+					});
+								
+					console.log('roow', row.idx, ':', orderindexrow);
+					
+					if (row.idx === orderindexrow) {
+					
+					//Check if the last invoice amount match with the last payment schedule made for the order
 						frappe.call({
 							"method": "frappe.client.get",
 							"args": {
-								"doctype": "Sales Invoice",
-								"name": last_so_sinv
+								"doctype": "Sales Order",
+								"name": row.order ,
 							},
-							"async": true,
-							"callback": function(response) {
-								var sinv = response.message;
+							'callback': function (response) {
+								var payment_schedule = response.message.payment_schedule;
+								if (payment_schedule) {
+												
+									if (payment_schedule[payment_schedule.length - 1].payment_amount === row.amount ) {
+										
+										options = "Schlussrechnung";
+										defaults = "Schlussrechnung";
+										options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+										
+									} else {
+										options = "Teilrechnung\nSchlussrechnung";
+										defaults = "Teilrechnung";
+										options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+									}
+									
+								}
 								
-										  
-								if (sinv.billing_type == "Schlussrechnung" && sinv.status != "Paid") {
-									options = "message";
-								} else {
-									options = "Teilrechnung\nSchlussrechnung";
-									defaults = "Teilrechnung";
-
-								}
-									options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-
-								}
-						});
-					} else {
-								options = "Teilrechnung\nSchlussrechnung";
-								defaults = "Teilrechnung";
-								options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
 							}
+						});
+					
+					} else {
+						options = "Teilrechnung\nSchlussrechnung";
+						defaults = "Teilrechnung";
+						options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+					}
+					
                 }
             }
         });

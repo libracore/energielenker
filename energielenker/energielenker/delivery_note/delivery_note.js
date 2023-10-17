@@ -5,9 +5,9 @@ var so_return;
 
 frappe.ui.form.on("Delivery Note", {
     onload: function(frm) {
-        // If you create an DN from the project, it will make sure to take the address set on the project than the customer primary address.
         var last_route = frappe.route_history.slice(-2, -1)[0];
         if (last_route) {
+            // If you create an DN from the project, it will make sure to take the address set on the project than the customer primary address.
             if (last_route[1] == "Project") {
                 frappe.call({
                     'method': "frappe.client.get",
@@ -17,7 +17,6 @@ frappe.ui.form.on("Delivery Note", {
                     },
                     'callback': function(response) {
                         var project_address = response.message.shipping_address;
-                        console.log("PROJECT", project_address)
                         if (project_address) {
                             setTimeout(() => {
                                 cur_frm.set_value('shipping_address_name', project_address);
@@ -25,6 +24,32 @@ frappe.ui.form.on("Delivery Note", {
                         }
                     }
                 });
+            // If you create an DN from Sales Order, it will make sure to take the address set on the sales order
+            } else if (last_route[1] == "Sales Order") {
+                if (!cur_frm.doc.shipping_address_name) {
+                    frappe.call({
+                        'method': "frappe.client.get",
+                        'args': {
+                            'doctype': "Sales Order",
+                            'name': last_route[2]
+                        },
+                        'callback': function(response) {
+                            var shipping_adress = response.message.shipping_address_name;
+                            if (shipping_adress) {
+                                setTimeout(() => {
+                                    cur_frm.set_value('shipping_address_name', shipping_adress);
+                                }, 1500);
+                            } else {
+                                var shipping_adress = response.message.customer_address;
+                                if (shipping_adress) {
+                                    setTimeout(() => {
+                                        cur_frm.set_value('shipping_address_name', shipping_adress);
+                                    }, 1500);
+                                }
+                            }
+                        }
+                    });
+                }
             }
         }
     },
@@ -177,6 +202,11 @@ frappe.ui.form.on("Delivery Note", {
             items.forEach(function(entry){
                 entry.pricing_rules = null;
             });
+        }
+        
+        if ((!cur_frm.doc.shipping_address_name)&&(!cur_frm.doc.new_address_name)) {
+            frappe.msgprint( __("Es muss eine Lieferadresse hinterlegt werden"), __("Validation") );
+            frappe.validated=false;
         }
     },
     deliver_to(frm) {

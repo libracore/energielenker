@@ -106,10 +106,10 @@ def get_delivery_note_lizenzgutschein(item_ref, uom=None):
     if len(lizenzgutschein) > 0:
         uom_evse_count = get_evse_count_qty()
         if uom:
-            return_string = """Anzahl der enthaltenen Ladepunkte: {0}<br>Die nachfolgend genannten Aktivierungscodes können mit Hilfe der Lobas-Software eingelöst werden oder unter <u>https://license.energielenker.de</u>.<br>""".format(uom_evse_count[uom])
-            return_string += """Aktivierungscodes: <table style="width: 100%; margin-top: 10px !important; "> <tr> <td style="padding: 1px !important; ">"""
+            return_string = """Anzahl der enthaltenen Ladepunkte je Ladepunkt-Key: <span style="margin: 0px !important; padding-left: 2px !important; font-weight: bold !important;">{0}</span><br>Mit dem/den nachfolgend genannten Ladepunkt-Key/s kann/können unter <u>https://license.energielenker.de</u> die Ladepunkt-Keyfile/s aktiviert und heruntergeladen werden.<br>""".format(uom_evse_count[uom])
+            return_string += """Ladepunkt-Keys: <table style="width: 100%; margin-top: 10px !important; "> <tr> <td style="padding: 1px !important; ">"""
         else:
-            return_string = """Aktivierungscodes: <table table style="width: 100%; margin-top: 10px !important;"> <tr> <td style="padding: 1px !important; ">"""
+            return_string = """Ladepunkt-Keys: <table table style="width: 100%; margin-top: 10px !important;"> <tr> <td style="padding: 1px !important; ">"""
         for l in lizenzgutschein:
             total += 1
             # ~ frappe.msgprint("lizenzgutschein {0}".format(len(lizenzgutschein)))
@@ -146,4 +146,4 @@ def get_evse_count_qty():
 
 def get_lizenz_qty_so(uom):
     uom_evse_count = get_evse_count_qty()
-    return """Anzahl der enthaltenen Ladepunkte: {0}""".format(uom_evse_count[uom])
+    return """Anzahl der enthaltenen Ladepunkte: <span style="margin: 0px !important; padding-left: 2px !important; font-weight: bold !important;">{0}</span>""".format(uom_evse_count[uom])

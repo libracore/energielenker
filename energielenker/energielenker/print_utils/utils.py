@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.utils import get_datetime
+from energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein import get_lizenz_qty_so
 
 def get_print_items(dt, dn):
     doc = frappe.get_doc(dt, dn)
@@ -299,13 +300,17 @@ def get_print_items(dt, dn):
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
+                        lizenz_qty = None
+                        if item.item_code == "A-0001701":
+                            lizenz_qty = get_lizenz_qty_so(item.uom)
+
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
                     
                     if item.serial_no:
                         tr += """
@@ -700,14 +705,19 @@ def get_print_items(dt, dn):
                     
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
+
                     if lieferscheine:
+                        lizenz_qty = None
+                        if item.item_code == "A-0001701":
+                            lizenz_qty = get_lizenz_qty_so(item.uom)
+
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
                     
                     if item.serial_no:
                         tr += """
@@ -808,10 +818,14 @@ def get_print_items(dt, dn):
         
         total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
         grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        taxes_name = "zzgl. 19% MwSt."
+        if doc.taxes_and_charges == "Germany VAT 0% - S - S":
+            taxes_name = "zzgl. 0% MwSt."
+            
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>zzgl. 19% MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_name}</b></td>
                 <td style="text-align: right;">{cur_icon} {total_taxes_and_charges}</td>
             </tr>
             <tr class="blue-white">
@@ -822,7 +836,7 @@ def get_print_items(dt, dn):
             
         """.format(total_taxes_and_charges=total_taxes_and_charges, \
                 cur_icon=cur_icon, \
-                grand_total=grand_total)
+                grand_total=grand_total, taxes_name=taxes_name)
         
         table += tr
     
@@ -1184,7 +1198,7 @@ def get_print_items(dt, dn):
             tr = """
                 <tr style="background-color: rgb(186, 210, 226) !important;">
                     <td style="text-align: center;"><b>{position}</b></td>
-                    <td colspan = '4' style="font-size: 7.5pt;">Folgende Abschlagsrechnungen wurden Ihnen bereits zugesandt.<br>Zahlungseingänge sind aufgeführt soweit bereits gebucht.</td>
+                    <td colspan = '4' style="font-size: 7.5pt;">Folgende Abschlagsrechnungen wurden Ihnen bereits zugesandt.</td>
                 </tr>
             """.format(position=positions_nummer)
             table += tr
@@ -1227,14 +1241,12 @@ def get_print_items(dt, dn):
                                     <td style="width: 30%;">
                                         - Nettobetrag:<br>
                                         - Mehrwertsteuer:<br>
-                                        - Bruttobetrag:<br>
-                                        - Zahlungseingang:
+                                        - Bruttobetrag:
                                     </td>
                                     <td style="text-align: right;">
                                         {cur_icon} {tr_sales_invoice_total}<br>
                                         {cur_icon} {tr_sales_invoice_total_taxes_and_charges}<br>
-                                        {cur_icon} {tr_sales_invoice_grand_total}<br>
-                                        {tr_sales_invoice_paid_amount}
+                                        {cur_icon} {tr_sales_invoice_grand_total}
                                     </td>
                                     <td style="border-right: 1px solid rgb(186, 210, 226) !important; width: 50%;">&nbsp;</td>
                                 </tr>
@@ -1319,10 +1331,16 @@ def get_print_items(dt, dn):
         
         total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
         grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        taxes_name = "zzgl. 19% MwSt."
+        taxes_abschlage_name = "abzgl. Abschläge 19 % MwSt."
+        if doc.taxes_and_charges == "Germany VAT 0% - S - S":
+            taxes_name = "zzgl. 0% MwSt."
+            taxes_abschlage_name = "abzgl. Abschläge 0% MwSt."
+            
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>zzgl. 19% MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_name}</b></td>
                 <td style="text-align: right;">{cur_icon} {total_taxes_and_charges}</td>
             </tr>
             <tr class="blue-white">
@@ -1333,7 +1351,7 @@ def get_print_items(dt, dn):
             
         """.format(total_taxes_and_charges=total_taxes_and_charges, \
                 cur_icon=cur_icon, \
-                grand_total=grand_total)
+                grand_total=grand_total, taxes_name=taxes_name)
         
         table += tr
         
@@ -1344,12 +1362,12 @@ def get_print_items(dt, dn):
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzg. bereits gezahlte Abschläge netto</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzg. Abschläge netto</b></td>
                 <td style="text-align: right;">{cur_icon} -{total_anzahlung}</td>
             </tr>
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
-                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>abzgl. bereits gezahlte Abschläge 19 % MwSt.</b></td>
+                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>{taxes_abschlage_name}</b></td>
                 <td style="text-align: right;">{cur_icon} -{total_anzahlung_mwst}</td>
             </tr>
             <tr class="blue-white">
@@ -1361,7 +1379,7 @@ def get_print_items(dt, dn):
         """.format(cur_icon=cur_icon, \
                     total_anzahlung=total_anzahlung, \
                     total_anzahlung_mwst=total_anzahlung_mwst, \
-                    total_brutto=total_brutto)
+                    total_brutto=total_brutto, taxes_abschlage_name=taxes_abschlage_name)
         
         table += tr
     

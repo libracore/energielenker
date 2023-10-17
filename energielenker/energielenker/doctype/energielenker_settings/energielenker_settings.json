@@ -1,6 +1,7 @@
 {
  "creation": "2022-01-30 21:42:28.640954",
  "doctype": "DocType",
+ "document_type": "Setup",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
@@ -11,6 +12,8 @@
   "interner_standardtarif",
   "cb_1",
   "ticket_bestaetigungs_mail",
+  "section_purchase_order",
+  "default_cost_center",
   "section_cfos",
   "cfos_ssh_username",
   "cfos_ssh_pkey",
@@ -111,10 +114,23 @@
   {
    "fieldname": "cb_2",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_purchase_order",
+   "fieldtype": "Section Break",
+   "label": "Lieferantenauftrag"
+  },
+  {
+   "description": "Kann durch Mitarbeiterstamm oder Projekt \u00fcbersteuert werden",
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Standart Kostenstelle",
+   "options": "Cost Center",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2023-03-16 15:40:29.926050",
+ "modified": "2023-08-03 08:46:37.540475",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

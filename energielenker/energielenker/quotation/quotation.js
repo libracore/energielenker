@@ -2,26 +2,53 @@ frappe.ui.form.on('Quotation', {
 
     refresh: function(frm) {
 	   // remove button "Duplicate" in Menu
-        if($("[data-label='Duplicate']").length > 0) {
-           $("[data-label='Duplicate']")[0].parentElement.remove();
-        }
-		
+        if($("[data-label='" + __("Duplicate") + "']").length > 0) {
+			$("[data-label='" + __("Duplicate") + "']")[0].parentElement.remove();
+        } 
+
 		cur_frm.page.add_menu_item(__("Duplicate"), function() {
-			if (cur_frm.doc.preisliste_ignorieren) {
-				
-			   frappe.confirm('Sind Sie sicher, dass Sie die aktuellen Preise gemäß der gültigen Preisliste übernehmen wollen?',
-					() => {
-						// action to perform if Yes is selected
-						frm.copy_doc();
-					}, () => {
-						// action to perform if No is selected
-						cur_frm.set_value('preisliste_ignorieren', 0);
-						frm.copy_doc();
-					}
-				)
-			} else {
-				frm.copy_doc();
-			}
+			frappe.confirm('Sollen die Preise mit der gültigen Preisliste überschrieben werden?',
+				() => {
+					// action to perform if Yes is selected
+					cur_frm.set_value('dont_copy_current_rate', 1);
+					frm.copy_doc();
+					setTimeout(function(){ 
+						for (var i = 0; i < cur_frm.doc.items.length; i++) {
+							(function(index) {
+								frappe.call({
+									method: 'frappe.client.get_value',
+									args: {
+										doctype: 'Item Price',
+										filters: {
+											"item_code": cur_frm.doc.items[index].item_code,
+											"selling": 1
+										},
+										fieldname: ['price_list_rate']
+									},
+									callback: function(response) {
+										if (response.message) {
+											var currentSellingRate = response.message.price_list_rate;
+											console.log('Current Selling Rate:', currentSellingRate);
+											frappe.model.set_value(cur_frm.doc.items[index].doctype, cur_frm.doc.items[index].name, 'rate', currentSellingRate);
+										} else {
+											console.log('Item price not found.');
+										}
+									}
+								});
+							})(i);
+						}
+						
+						//For future duplications
+						cur_frm.set_value('dont_copy_current_rate', 0);
+					}, 2000);
+					
+				}, () => {
+					// action to perform if No is selected
+					frm.copy_doc();
+					cur_frm.set_value('dont_copy_current_rate', 0);
+					
+				}
+			)
 		});
 	    
        set_timestamps(frm)
@@ -70,11 +97,6 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
-        setTimeout(function(){ 
-			if (frm.doc.preisliste_ignorieren){
-				frappe.msgprint("Dieses Duplikat enthält keine Preise aus der gültigen Preisliste")
-			}
-		}, 2500);
     },
     wahrscheindlichkeit: function(frm) {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {
