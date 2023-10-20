@@ -28,7 +28,10 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
         if not sales_order:
             return
         if not frappe.get_doc("Sales Order", sales_order).project:
-            return
+            if frappe.get_doc("Sales Order", sales_order).project_on_submit:
+                project = frappe.get_doc("Sales Order", sales_order).project_on_submit
+            else:
+                return
         else:
             project = frappe.get_doc("Sales Order", sales_order).project
         
