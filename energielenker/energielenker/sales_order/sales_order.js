@@ -332,6 +332,9 @@ frappe.ui.form.on("Sales Order", {
                 frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'delivery_date', frm.doc.delivery_date);
             }
         } 
+    },
+    zusatzgeschaft: function(frm) {
+		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
     }
 });
 
@@ -345,6 +348,22 @@ function set_timestamps(frm){
         }
     }, 1000);
 }
+
+
+function updateSalesInvoices(salesOrderName, zusatzgeschaft) {
+	console.log("sales order", salesOrderName, zusatzgeschaft)
+    frappe.call({
+        method: "energielenker.energielenker.sales_order.sales_order.update_zusatzgeschaft_in_sales_invoices",
+        args: {
+            "sales_order_name": salesOrderName,
+            "zusatzgeschaft": zusatzgeschaft
+        },
+        callback: function(response) {
+			console.log(response.message);
+        }
+    });
+}
+
 
 function filter_contact(frm, field, filter) {
 

@@ -64,3 +64,14 @@ def fetch_supplier(item):
     if len(i.supplier_items) > 0:
         return i.supplier_items[0].supplier
     return None
+
+@frappe.whitelist()
+def update_zusatzgeschaft_in_sales_invoices(sales_order_name, zusatzgeschaft):
+    sales_invoices = frappe.get_all("Sales Invoice", filters={"sales_order": sales_order_name})
+
+    for sales_invoice in sales_invoices:
+        doc = frappe.get_doc("Sales Invoice", sales_invoice.name)
+        doc.zusatzgeschaft = zusatzgeschaft 
+        doc.save(ignore_permissions=True)
+
+    return "Zusatzgeschaft updated in Sales Invoices."
