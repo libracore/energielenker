@@ -27,10 +27,10 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
     if not project:
         if not sales_order:
             return
-        if not frappe.get_doc("Sales Order", sales_order).project:
+        if not frappe.get_doc("Sales Order", sales_order).project_clone:
             return
         else:
-            project = frappe.get_doc("Sales Order", sales_order).project
+            project = frappe.get_doc("Sales Order", sales_order).project_clone
         
     project = frappe.get_doc("Project", project)
     
