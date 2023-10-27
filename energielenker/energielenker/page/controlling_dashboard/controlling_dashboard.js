@@ -5,6 +5,8 @@ frappe.pages['controlling-dashboard'].on_page_load = function(wrapper) {
         single_column: true
     });
     
+    $("body").addClass("full-width");
+    
     // create chart area
     var chartWrapper = $(wrapper);
     $(`<div class="dashboard">
@@ -21,7 +23,7 @@ frappe.pages['controlling-dashboard'].on_page_load = function(wrapper) {
     ausgangsrechnung_chart.show();
     let eingangsrechnungen_chart = new energielenkerChart("Eingangsrechnungen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_eingangsrechnungen', 'Purchase Invoice', {});
     eingangsrechnungen_chart.show();
-    let lagerwert = new energielenkerChart("Lagerwert", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_lagerwert', 'xxx', {});
+    let lagerwert = new energielenkerChart("Lagerwert", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_lagerwert', 'General Ledger', {});
     lagerwert.show();
 }
 
@@ -75,12 +77,17 @@ class energielenkerChart {
                         frappe.route_options = {"docstatus": 1, "posting_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
                     } else if (this.document_type == 'Purchase Invoice') {
                         frappe.route_options = {"docstatus": 1, "posting_date": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]]}
+                    } else if (this.document_type == 'General Ledger') {
+                        frappe.route_options = {"from_date": frappe.datetime.add_months(frappe.datetime.month_start(), -5), "to_date": frappe.datetime.month_end(), "account": '1000 - Roh-, Hilfs- und Betriebsstoffe (Bestand) - S'}
+                        frappe.set_route('query-report', this.document_type);
                     } else {
                         if (this.fetchFilter) {
                             frappe.route_options = {"status": this.fetchFilter.quotation_status, "creation": ['between', [frappe.datetime.add_months(frappe.datetime.month_start(), -5), frappe.datetime.month_end()]], "ansprechpartner": frappe.session.user}
                         }
                     }
-                    frappe.set_route('List', this.document_type);
+                    if (this.document_type != 'General Ledger') {
+                        frappe.set_route('List', this.document_type);
+                    }
                 }
             }]
             this.set_chart_actions(actions);

@@ -5,6 +5,10 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
         single_column: true
     });
     
+    page.add_menu_item('Benutzer Filter', () => {
+        frappe.el_vertriebsdashboard.benutzer_filter(page);
+    });
+    
     $("body").addClass("full-width");
     
     // create chart area
@@ -15,25 +19,25 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
     var chartContainer = chartWrapper.find(".dashboard-graph");
     
     // create charts
-    let leads_chart = new energielenkerChart("Leads", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_leads', 'Lead', {});
+    let leads_chart = new energielenkerChart_vertrieb("Leads", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_leads', 'Lead', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     leads_chart.show();
     
-    let open_quotation_qty_chart = new energielenkerChart("Anzahl offene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open'});
+    let open_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl offene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     open_quotation_qty_chart.show();
     
-    let open_quotation_amount_chart = new energielenkerChart("Angebotsvolumen offener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0});
+    let open_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen offener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     open_quotation_amount_chart.show();
     
-    let lost_quotation_qty_chart = new energielenkerChart("Anzahl verfallene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost'});
+    let lost_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl verfallene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     lost_quotation_qty_chart.show();
     
-    let lost_quotation_amount_chart = new energielenkerChart("Angebotsvolumen verfallener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0});
+    let lost_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen verfallener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     lost_quotation_amount_chart.show();
     
-    let sales_order_qty_chart = new energielenkerChart("Anzahl Aufträge", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {});
+    let sales_order_qty_chart = new energielenkerChart_vertrieb("Anzahl Aufträge", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     sales_order_qty_chart.show();
     
-    let sales_order_amount_chart = new energielenkerChart("Auftragssvolumen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0});
+    let sales_order_amount_chart = new energielenkerChart_vertrieb("Auftragssvolumen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     sales_order_amount_chart.show();
     
     // reorder chart legend and resize chart height
@@ -57,10 +61,16 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
         charts.each(function(){
             $(this).attr('height', '270');
         });
+        
+        // resize chart hover
+        var hovers = $(".data-point-list");
+        hovers.each(function(){
+            $(this).css('display', 'contents');
+        });
     }, 2000);
 }
 
-class energielenkerChart {
+class energielenkerChart_vertrieb {
     constructor(chart_name, chart_container, chartWidth, chartType, fetchMethod, document_type, fetchFilter) {
         this.container = chart_container;
         this.chart_name = chart_name;
@@ -75,7 +85,8 @@ class energielenkerChart {
         this.prepare_container();
         this.prepare_chart_actions();
         this.fetch().then((data) => {
-            this.data = data;
+            this.data = data.dataset;
+            this.colors = data.colors;
             this.render();
         });
     }
@@ -174,7 +185,7 @@ class energielenkerChart {
             data: this.data,
             type: chart_type_map[this.chartType],
             truncateLegends: 1,
-            colors: ["light-blue"],
+            colors: this.colors ? this.colors:["light-blue"],
             axisOptions: {
                 xIsSeries: 0,
                 shortenYAxisNumbers: 1
@@ -185,5 +196,53 @@ class energielenkerChart {
         if(!this.chart) {
             this.chart = new frappe.Chart(this.chart_container.find(".chart-wrapper")[0], chart_args);
         }
+    }
+}
+
+frappe.el_vertriebsdashboard = {
+    benutzer_filter: function(page) {
+        var d = new frappe.ui.Dialog({
+            'title': __('Planning'),
+            'fields': [
+                {'fieldname': 'user', 'fieldtype': 'Link', 'options': 'User', 'label': 'Benutzer', 'reqd': 0,
+                    'change': function() {
+                     console.log(d.get_value('user'));
+                        if (d.get_value('user')) {
+                            if (d.get_value('user_list')) {
+                                d.set_value('user_list', d.get_value('user_list') + "\n" + d.get_value('user'));
+                            } else {
+                                d.set_value('user_list', d.get_value('user'));
+                            }
+                            d.set_value('user', '')
+                        }
+                    }
+                },
+                {'fieldname': 'user_list', 'fieldtype': 'Code', 'label': 'Anzuzeigende Benutzer', 'reqd': 0, 'description': 'Pro Zeile ein Benutzer. Zum Entfernen die entsprechende Zeile entfernen.',
+                    'default': localStorage.getItem('user_filters') ? frappe.el_vertriebsdashboard.get_benutzer_filter():''
+                }
+            ],
+            primary_action: function(){
+                var users_from_list = d.get_value('user_list').split("\n");
+                localStorage.setItem('user_filters', users_from_list);
+                console.log(users_from_list);
+                
+                d.hide();
+                window.location.reload();
+            },
+            primary_action_label: __('Plan')
+        });
+        d.show();
+    },
+    get_benutzer_filter: function(){
+        var user_filters = localStorage.getItem('user_filters').split(",");
+        var user_filter_txt = '';
+        for (var i = 0; i<user_filters.length; i++) {
+            if (i==0) {
+                user_filter_txt = user_filters[i];
+            } else {
+                user_filter_txt = user_filter_txt + "\n" + user_filters[i];
+            }
+        }
+        return user_filter_txt
     }
 }
