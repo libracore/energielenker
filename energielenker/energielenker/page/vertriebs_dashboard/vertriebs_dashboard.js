@@ -5,9 +5,15 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
         single_column: true
     });
     
-    page.add_menu_item('Benutzer Filter', () => {
-        frappe.el_vertriebsdashboard.benutzer_filter(page);
-    });
+    var allow_user_filter = frappe.user.has_role("GL") ? true:false;
+    if (allow_user_filter) {
+        page.add_menu_item('Benutzer Filter', () => {
+            frappe.el_vertriebsdashboard.benutzer_filter(page);
+        });
+        page.add_menu_item('Benutzer Farben Verwalten', () => {
+            frappe.set_route('List', 'User Chart Color');
+        });
+    }
     
     $("body").addClass("full-width");
     
@@ -19,25 +25,25 @@ frappe.pages['vertriebs-dashboard'].on_page_load = function(wrapper) {
     var chartContainer = chartWrapper.find(".dashboard-graph");
     
     // create charts
-    let leads_chart = new energielenkerChart_vertrieb("Leads", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_leads', 'Lead', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let leads_chart = new energielenkerChart_vertrieb("Leads (Status Lead und Erstellt zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_leads', 'Lead', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     leads_chart.show();
     
-    let open_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl offene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let open_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl offene Angebote (Dokumentenstatus Gebucht, Status Offen und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     open_quotation_qty_chart.show();
     
-    let open_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen offener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let open_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen offener Angebote (Brutto, Dokumentenstatus Gebucht, Status Offen und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Open', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     open_quotation_amount_chart.show();
     
-    let lost_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl verfallene Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let lost_quotation_qty_chart = new energielenkerChart_vertrieb("Anzahl verfallene Angebote (Dokumentenstatus Gebucht, Status Verloren und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     lost_quotation_qty_chart.show();
     
-    let lost_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen verfallener Angebote", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let lost_quotation_amount_chart = new energielenkerChart_vertrieb("Angebotsvolumen verfallener Angebote (Brutto, Dokumentenstatus Gebucht, Status Verloren und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_quotations', 'Quotation', {'quotation_status': 'Lost', 'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     lost_quotation_amount_chart.show();
     
-    let sales_order_qty_chart = new energielenkerChart_vertrieb("Anzahl Aufträge", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let sales_order_qty_chart = new energielenkerChart_vertrieb("Anzahl Aufträge (Dokumentenstatus Gebucht und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     sales_order_qty_chart.show();
     
-    let sales_order_amount_chart = new energielenkerChart_vertrieb("Auftragssvolumen", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
+    let sales_order_amount_chart = new energielenkerChart_vertrieb("Auftragssvolumen (Brutto, Dokumentenstatus Gebucht und Datum zwischen " + frappe.datetime.add_months(frappe.datetime.month_start(), -5) + " und " + frappe.datetime.month_end() + ")", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.vertriebs_dashboard.vertriebs_dashboard.get_sales_orders', 'Sales Order', {'qty': 0, 'user_filters': localStorage.getItem('user_filters') ? localStorage.getItem('user_filters'):false});
     sales_order_amount_chart.show();
     
     // reorder chart legend and resize chart height
@@ -202,11 +208,10 @@ class energielenkerChart_vertrieb {
 frappe.el_vertriebsdashboard = {
     benutzer_filter: function(page) {
         var d = new frappe.ui.Dialog({
-            'title': __('Planning'),
+            'title': __('Benutzer Filter'),
             'fields': [
                 {'fieldname': 'user', 'fieldtype': 'Link', 'options': 'User', 'label': 'Benutzer', 'reqd': 0,
                     'change': function() {
-                     console.log(d.get_value('user'));
                         if (d.get_value('user')) {
                             if (d.get_value('user_list')) {
                                 d.set_value('user_list', d.get_value('user_list') + "\n" + d.get_value('user'));
@@ -219,17 +224,21 @@ frappe.el_vertriebsdashboard = {
                 },
                 {'fieldname': 'user_list', 'fieldtype': 'Code', 'label': 'Anzuzeigende Benutzer', 'reqd': 0, 'description': 'Pro Zeile ein Benutzer. Zum Entfernen die entsprechende Zeile entfernen.',
                     'default': localStorage.getItem('user_filters') ? frappe.el_vertriebsdashboard.get_benutzer_filter():''
+                },
+                {'fieldname': 'remove_filter', 'fieldtype': 'Button', 'label': 'Alle Benutzer entfernen', 'reqd': 0,
+                    'click': function() {
+                        d.set_value('user_list', '');
+                    }
                 }
             ],
             primary_action: function(){
                 var users_from_list = d.get_value('user_list').split("\n");
                 localStorage.setItem('user_filters', users_from_list);
-                console.log(users_from_list);
                 
                 d.hide();
                 window.location.reload();
             },
-            primary_action_label: __('Plan')
+            primary_action_label: __('Filter Anwenden')
         });
         d.show();
     },
