@@ -26,6 +26,12 @@ def execute(filters=None):
         sle.update(get_kostenstelle(sle))
         sle.update(get_stock_entry_bom_info(sle))
         # ~ frappe.throw(str(sle))
+        
+        if sle['actual_qty'] > 0:
+            sle['valuation_withdrawal'] = sle.actual_qty * sle.valuation_rate
+        else:
+            sle['valuation_withdrawal'] = 0
+        
         data.append(sle)
 
         if include_uom:
@@ -50,6 +56,11 @@ def get_columns():
             "options": "Company:company:default_currency", "convertible": "rate"},
         {"label": _("Valuation Rate"), "fieldname": "valuation_rate", "fieldtype": "Currency", "width": 110,
             "options": "Company:company:default_currency", "convertible": "rate"},
+            
+            
+        {"label": _("Wertansatz Entnahme"), "fieldname": "valuation_withdrawal", "fieldtype": "Currency", "width": 110,
+            "options": "Company:company:default_currency", "convertible": "rate"},
+            
         {"label": _("Balance Value"), "fieldname": "stock_value", "fieldtype": "Currency", "width": 110,
             "options": "Company:company:default_currency"},
         {"label": _("Voucher Type"), "fieldname": "voucher_type", "width": 110},
