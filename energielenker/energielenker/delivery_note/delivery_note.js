@@ -52,6 +52,17 @@ frappe.ui.form.on("Delivery Note", {
                 }
             }
         }
+        
+        //set "VK-Wert it. Kundenauftrag" before the amount/rate is change 
+        if (cur_frm.doc.items.length > 0 ) {
+			var items = cur_frm.doc.items;
+			items.forEach(function(entry){
+				if (entry.against_sales_order) {
+					frappe.model.set_value(entry.doctype, entry.name, 'vk_wert', entry.amount);
+				}
+			});
+		}
+        
     },
 
     refresh: function(frm) {
