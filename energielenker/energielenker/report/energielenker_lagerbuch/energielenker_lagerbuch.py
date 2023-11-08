@@ -27,8 +27,8 @@ def execute(filters=None):
         sle.update(get_stock_entry_bom_info(sle))
         # ~ frappe.throw(str(sle))
         
-        if sle['actual_qty'] > 0:
-            sle['valuation_withdrawal'] = sle.actual_qty * sle.valuation_rate
+        if sle['actual_qty'] < 0:
+            sle['valuation_withdrawal'] = abs(sle.actual_qty * sle.valuation_rate)
         else:
             sle['valuation_withdrawal'] = 0
         
