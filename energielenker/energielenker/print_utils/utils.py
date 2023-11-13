@@ -1211,7 +1211,7 @@ def get_print_items(dt, dn):
                 else:
                     tr_print_name = "Rechnung-Nr." + tr_sales_invoice.name
                 tr_sales_invoice_posting_date = tr_sales_invoice.get_formatted('posting_date')
-                tr_sales_invoice_total = "{:,.2f}".format(tr_sales_invoice.total).replace(",", "'").replace(".", ",").replace("'", ".")
+                tr_sales_invoice_total = "{:,.2f}".format(tr_sales_invoice.net_total).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(tr_sales_invoice.total).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_total_taxes_and_charges = "{:,.2f}".format(tr_sales_invoice.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_grand_total = "{:,.2f}".format(tr_sales_invoice.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_taxes_rate = "{:,.0f}".format(tr_sales_invoice.taxes[0].rate)
@@ -1266,7 +1266,7 @@ def get_print_items(dt, dn):
                         tr_sales_invoice_grand_total=tr_sales_invoice_grand_total, \
                         tr_sales_invoice_paid_amount=tr_sales_invoice_paid_amount)
                 
-                total_anzahlung += tr_sales_invoice.total
+                total_anzahlung += tr_sales_invoice.net_total if tr_sales_invoice.net_total else tr_sales_invoice.total
                 total_anzahlung_mwst += tr_sales_invoice.total_taxes_and_charges
                 table += tr
             
