@@ -432,3 +432,398 @@ def get_lagerwert():
         'colors': ['light-blue']
         }
     return return_value
+
+@frappe.whitelist()
+def get_gebuchte_stunden():
+    
+    def get_labels():
+        label_list = [
+            'IoT',
+            'Energiesteuerung',
+            'Biogas',
+            'EZA Regler',
+            'Support'
+        ]
+        return label_list
+    
+    def label_mapper(label):
+        label_list = {
+            'IoT': '1000040 - Solutions - IoT (energy monitor, city monitor, Software + Hardware) - S',
+            'Energiesteuerung': '1000020 - Solutions - Energiesteuerung (Lobas, Enbas, KI) - S',
+            'Biogas': '1000030 - Solutions - Biogas - S',
+            'EZA Regler': '1000050 - Solutions - EZA-Regler (VDE 4105, 4110, 4120) - S',
+            'Support': ''
+        }
+        return label_list[label]
+    
+    def get_soll_stunden_pro_pc():
+        soll_stunden = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            profit_center_tages_soll = frappe.db.sql("""SELECT SUM(`soll_std`) AS `qty` FROM `tabEmployee` WHERE `default_cost_center` = '{0}'""".format(profit_center), as_dict=True)[0].qty
+            if profit_center_tages_soll:
+                soll_stunden.append(profit_center_tages_soll)
+            else:
+                soll_stunden.append(0)
+        return soll_stunden
+    
+    def get_urlaubsstunden():
+        urlaubsstunden = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `task` = 'TASK-2021-00007'
+                                                            AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet`
+                                                                WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 1
+                                                            )""".format(first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                urlaubsstunden.append(profit_center_std)
+            else:
+                urlaubsstunden.append(0)
+        return urlaubsstunden
+    
+    def get_krankheitsstunden():
+        krankheitsstunden = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `task` = 'TASK-2021-00008'
+                                                            AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet`
+                                                                WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 1
+                                                            )""".format(first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                krankheitsstunden.append(profit_center_std)
+            else:
+                krankheitsstunden.append(0)
+        return krankheitsstunden
+    
+    def get_std_per_task(task):
+        std_per_task = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `task` = '{task}'
+                                                            AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet`
+                                                                WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 1
+                                                            )""".format(task=task, first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                std_per_task.append(profit_center_std)
+            else:
+                std_per_task.append(0)
+        return std_per_task
+    
+    def get_ungebuchte_std():
+        ungebuchte_std = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet`
+                                                                WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 0
+                                                            )""".format(first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                ungebuchte_std.append(profit_center_std)
+            else:
+                ungebuchte_std.append(0)
+        return ungebuchte_std
+    
+    def get_f_und_e_std():
+        f_und_e_std = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet` WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 1
+                                                                AND `task` NOT IN ('TASK-2021-00010', 'TASK-2021-00524')
+                                                                AND `project` IN (
+                                                                    SELECT `name` FROM `tabProject`
+                                                                    WHERE `forschung_und_entwicklung` = 1
+                                                                )
+                                                            )""".format(first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                f_und_e_std.append(profit_center_std)
+            else:
+                f_und_e_std.append(0)
+        return f_und_e_std
+    
+    def get_abrechenbar_std():
+        abrechenbar_std = []
+        for label in get_labels():
+            profit_center = label_mapper(label)
+            first_day = get_first_day(getdate(), d_months=-1)
+            last_day = get_last_day(first_day)
+            profit_center_std = frappe.db.sql("""SELECT
+                                                                SUM(`hours`) AS `qty`
+                                                            FROM `tabTimesheet Detail`
+                                                            WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                            AND `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabTimesheet` WHERE `employee` IN (
+                                                                    SELECT `name` FROM `tabEmployee` WHERE `default_cost_center` = '{profit_center}'
+                                                                )
+                                                                AND `docstatus` = 1
+                                                                AND `task` NOT IN ('TASK-2021-00010', 'TASK-2021-00524')
+                                                                AND `project` NOT IN (
+                                                                    SELECT `name` FROM `tabProject`
+                                                                    WHERE `forschung_und_entwicklung` = 1
+                                                                )
+                                                            )""".format(first_day=first_day, last_day=last_day, profit_center=profit_center), as_dict=True)[0].qty
+            if profit_center_std:
+                abrechenbar_std.append(profit_center_std)
+            else:
+                abrechenbar_std.append(0)
+        return abrechenbar_std
+    
+    def get_business_days():
+        import numpy as np
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        days = np.busday_count(first_day, last_day)
+        return days
+    
+    def get_support_soll_std():
+        soll_stunden = frappe.db.sql("""SELECT SUM(`soll_std`) AS `qty` FROM `tabEmployee` WHERE `name` IN ('HR-EMP-00017', 'HR-EMP-00041')""", as_dict=True)[0].qty
+        return soll_stunden * get_business_days()
+    
+    def get_support_std_per_task(task):
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_std_per_task = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `task` = '{task}'
+                                                        AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet`
+                                                            WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 1
+                                                        )""".format(task=task, first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_std_per_task:
+            return support_std_per_task
+        else:
+            return 0
+        
+    def get_support_ungebuchte_std():
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_ungebuchte_std = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet`
+                                                            WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 0
+                                                        )""".format(first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_ungebuchte_std:
+            return support_ungebuchte_std
+        else:
+            return 0
+        
+    def get_support_f_und_e_std():
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_f_und_e_std = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet` WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 1
+                                                            AND `task` NOT IN ('TASK-2021-00010', 'TASK-2021-00524')
+                                                            AND `project` IN (
+                                                                SELECT `name` FROM `tabProject`
+                                                                WHERE `forschung_und_entwicklung` = 1
+                                                            )
+                                                        )""".format(first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_f_und_e_std:
+            return support_f_und_e_std
+        else:
+            return 0
+    
+    def get_support_abrechenbar_std():
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_abrechenbar_std = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet` WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 1
+                                                            AND `task` NOT IN ('TASK-2021-00010', 'TASK-2021-00524')
+                                                            AND `project` NOT IN (
+                                                                SELECT `name` FROM `tabProject`
+                                                                WHERE `forschung_und_entwicklung` = 1
+                                                            )
+                                                        )""".format(first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_abrechenbar_std:
+            return support_abrechenbar_std
+        else:
+            return 0
+    
+    def get_support_urlaubsstunden():
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_urlaubsstunden = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `task` = 'TASK-2021-00007'
+                                                        AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet`
+                                                            WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 1
+                                                        )""".format(first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_urlaubsstunden:
+            return support_urlaubsstunden
+        else:
+            return 0
+    
+    def get_support_krankheitsstunden():
+        first_day = get_first_day(getdate(), d_months=-1)
+        last_day = get_last_day(first_day)
+        support_krankheitsstunden = frappe.db.sql("""SELECT
+                                                            SUM(`hours`) AS `qty`
+                                                        FROM `tabTimesheet Detail`
+                                                        WHERE `task` = 'TASK-2021-00008'
+                                                        AND `from_time` BETWEEN '{first_day}' AND '{last_day}'
+                                                        AND `parent` IN (
+                                                            SELECT
+                                                                `name`
+                                                            FROM `tabTimesheet`
+                                                            WHERE `employee` IN ('HR-EMP-00017', 'HR-EMP-00041')
+                                                            AND `docstatus` = 1
+                                                        )""".format(first_day=first_day, last_day=last_day), as_dict=True)[0].qty
+        if support_krankheitsstunden:
+            return support_krankheitsstunden
+        else:
+            return 0
+    
+    def get_datasets():
+        datasets = []
+        needed_values = [
+            ['Vertrieb', get_std_per_task('TASK-2021-00010'), 'bar'],
+            ['Overhead', get_std_per_task('TASK-2021-00524'), 'bar'],
+            ["Fehlende Std's", get_ungebuchte_std(), 'bar'],
+            ['F&E', get_f_und_e_std(), 'bar'],
+            ['Abrechenbar', get_abrechenbar_std(), 'bar']
+        ]
+        soll_stunden_pro_pc = get_soll_stunden_pro_pc()
+        urlaubsstunden = get_urlaubsstunden()
+        krankheitsstunden = get_krankheitsstunden()
+        
+        support_soll_std = get_support_soll_std()
+        support_urlaubsstunden = get_support_urlaubsstunden()
+        support_krankheitsstunden = get_support_krankheitsstunden()
+        support_vertrieb = get_support_std_per_task('TASK-2021-00010')
+        support_overhead = get_support_std_per_task('TASK-2021-00524')
+        support_ungebuchte_std = get_support_ungebuchte_std()
+        support_f_und_e_std = get_support_f_und_e_std()
+        support_abrechenbar_std = get_support_abrechenbar_std()
+        
+        for needed_value in needed_values:
+            value_dataset = {
+                'name': needed_value[0],
+                'values': [],
+                'chartType': needed_value[2]
+            }
+            loop = 0
+            for label in get_labels():
+                if label != 'Support':
+                    if soll_stunden_pro_pc[loop] > 0:
+                        soll_stunden = (((soll_stunden_pro_pc[loop] * get_business_days()) - urlaubsstunden[loop]) - krankheitsstunden[loop])
+                        value = round((100 / soll_stunden) * needed_value[1][loop])
+                    else:
+                        value = 0
+                value_dataset['values'].append(value)
+                loop += 1
+            if needed_value[0] == 'Support':
+                if support_soll_std > 0:
+                    prozent_pro_std = 100 / (support_soll_std - support_urlaubsstunden - support_krankheitsstunden)
+                    value_dataset['values'].append(prozent_pro_std * support_vertrieb)
+                    value_dataset['values'].append(prozent_pro_std * support_overhead)
+                    value_dataset['values'].append(prozent_pro_std * support_ungebuchte_std)
+                    value_dataset['values'].append(prozent_pro_std * support_f_und_e_std)
+                    value_dataset['values'].append(prozent_pro_std * support_abrechenbar_std)
+            datasets.append(value_dataset)
+        return datasets
+    
+    dataset = {
+        'labels': get_labels(),
+        'datasets': get_datasets(),
+        'yMarkers': [
+            { 'label': "Zielauslastung 80%", 'value': 80, 'options': { 'labelPos': "left" } },
+            { 'label': "Soll-Stunden", 'value': 100, 'options': { 'labelPos': "right" } }
+        ]
+    }
+    
+    return_value = {
+        'dataset': dataset,
+        'colors': []
+        }
+    return return_value

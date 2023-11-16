@@ -38,6 +38,8 @@ frappe.pages['controlling-dashboard'].on_page_load = function(wrapper) {
     eingangsrechnungen_chart.show();
     let lagerwert = new energielenkerChart("Lagerwert (Per Ende des Monats)", chartContainer, 'Full', 'Bar', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_lagerwert', 'General Ledger', {});
     lagerwert.show();
+    let gebuchte_stunden = new energielenkerChart("Istauslastung vs Planauslastung " + frappe.datetime.now().moment.subtract(1, "month").format('MMMM') + " " + frappe.datetime.now().format('YYYY'), chartContainer, 'Full', 'axis-mixed', 'energielenker.energielenker.page.controlling_dashboard.controlling_dashboard.get_gebuchte_stunden', 'General Ledger', {});
+    gebuchte_stunden.show();
 }
 
 class energielenkerChart {
@@ -140,6 +142,7 @@ class energielenkerChart {
         const chart_type_map = {
             "Line": "line",
             "Bar": "bar",
+            "axis-mixed": "axis-mixed"
         };
         
         const bar_options = {
