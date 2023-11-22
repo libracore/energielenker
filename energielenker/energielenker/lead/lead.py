@@ -11,7 +11,7 @@ from erpnext.crm.doctype.lead.lead import Lead
 @frappe.whitelist()
 def update_lead_status():
     #************************************************************************************
-    #overwrite the time_log overlap validation of timesheet and the on_submit validation
+    #overwrite the lead validation where set_status is called
     overwrite_lead_validation()
     #************************************************************************************
     
@@ -19,7 +19,7 @@ def update_lead_status():
     first_day_of_year = datetime(today.year, 1, 1)
     # ~ last_week = today - timedelta(days=7)
 
-    # Query to retrieve leads from the beginning of the year that are not lost or expired until last week
+    # Query to retrieve leads from the beginning of the year that are not already lost or expired
     leads_list = frappe.get_all("Lead", filters={"creation": (">=", first_day_of_year), "status": ["not in", ["Lost Quotation", "Verfallene Angebote"]] }, fields=["name", "creation"])
     count = 0    
     for lead in leads_list:
