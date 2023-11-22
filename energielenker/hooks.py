@@ -189,7 +189,8 @@ scheduler_events = {
     "daily": [
         "energielenker.energielenker.project.project.auto_kpi_refresh",
         "energielenker.energielenker.quotation.quotation.change_status_from_old_angebote",
-        "energielenker.energielenker.utils.auto_reminder.check_for_reminder"
+        "energielenker.energielenker.utils.auto_reminder.check_for_reminder",
+        "energielenker.energielenker.utils.auto_email_report.send_monthly_reports"
     ]
 }
 # scheduler_events = {
