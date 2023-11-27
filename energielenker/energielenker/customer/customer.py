@@ -50,6 +50,8 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
     else:
         tickets = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `address` = '{adresse}'""".format(adresse=adresse), as_dict=True)
     
+    tickets_for_sinv_linking = []
+    
     for ticket in tickets:
         if current_address != ticket.address:
             current_address = ticket.address
@@ -70,7 +72,8 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
                                     WHERE `from_time` >= '{von} 00:00:00' AND `from_time` <= '{bis} 23:59:59'
                                     AND `tabTimesheet Detail`.`issue` = '{ticket}'
                                     AND `tabTimesheet Detail`.`billed_with_support` != 1
-                                    AND `tabTimesheet Detail`.`typisierung` = 'Support gem. Rahmenvertrag'""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
+                                    AND `tabTimesheet Detail`.`typisierung` = 'Support gem. Rahmenvertrag'
+                                    AND `tabTimesheet Detail`.`docstatus` = 1""".format(von=von, bis=bis, ticket=ticket.name), as_dict=True)
         if int(support_kunde) == 1:
             for time_log in time_logs:
                 if float(time_log.hours) > 0:
@@ -93,6 +96,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
                         sup_1['beschreibung'][current_address]['qty'] = float(sup_1['beschreibung'][current_address]['qty']) + float(time_log.hours)
                         sup_1['beschreibung'][current_address]['beschreibung'].append('{employee_name}, {from_time}, {hours}h:<br>{remarks}<br>'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or ''))
                     
+                    tickets_for_sinv_linking.append(time_log.time_log_name)
                     mark_timelog_as_billed = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_support` = 1 WHERE `name` = '{time_log_name}'""".format(time_log_name=time_log.time_log_name), as_list=True)
         else:
             for time_log in time_logs:
@@ -107,6 +111,7 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
                     beschreibung = '{employee_name}, {from_time}, {hours}h:<br>{remarks}'.format(employee_name=time_log.employee_name, from_time=frappe.utils.get_datetime(time_log.from_time).strftime('%d.%m.%Y'), hours=time_log.hours, remarks=time_log.remarks or '')
                     row.description = beschreibung
                     row.qty = float(time_log.hours)
+                    tickets_for_sinv_linking.append(time_log.time_log_name)
                     mark_timelog_as_billed = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_support` = 1 WHERE `name` = '{time_log_name}'""".format(time_log_name=time_log.time_log_name), as_list=True)
     
     if int(support_kunde) == 1:
@@ -156,6 +161,8 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
         if sinv:
             sinv.flags.ignore_mandatory = True
             sinv.save()
+            for ticket_for_sinv_linking in tickets_for_sinv_linking:
+                link_sinv_in_timelog = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_sinv` = '{sinv}' WHERE `name` = '{time_log_name}'""".format(time_log_name=ticket_for_sinv_linking, sinv=sinv.name), as_list=True)
             return sinv.name
         else:
             return 'no sinv'
@@ -163,6 +170,8 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
         if sinv:
             sinv.flags.ignore_mandatory = True
             sinv.save()
+            for ticket_for_sinv_linking in tickets_for_sinv_linking:
+                link_sinv_in_timelog = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_sinv` = '{sinv}' WHERE `name` = '{time_log_name}'""".format(time_log_name=ticket_for_sinv_linking, sinv=sinv.name), as_list=True)
             return sinv.name
         else:
             return 'no sinv'
