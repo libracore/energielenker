@@ -191,7 +191,8 @@ scheduler_events = {
         "energielenker.energielenker.quotation.quotation.change_status_from_old_angebote",
         "energielenker.energielenker.utils.auto_reminder.check_for_reminder",
         "energielenker.energielenker.utils.auto_email_report.send_monthly_reports",
-        "energielenker.energielenker.quotation.quotation.update_quotation_status"
+        "energielenker.energielenker.quotation.quotation.update_quotation_status",
+        "energielenker.energielenker.lead.lead.update_lead_status"
     ]
 }
 # scheduler_events = {
