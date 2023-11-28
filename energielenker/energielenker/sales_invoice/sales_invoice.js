@@ -262,7 +262,9 @@ function fetch_customer_an_cost_center(frm) {
                     },
                     'callback': function(response) {
                         var project_type = response.message;
-                        cur_frm.set_value('cost_center', project_type.cost_center);
+                        if (!cur_frm.doc.cost_center) {
+                            cur_frm.set_value('cost_center', project_type.cost_center);
+                        }
                     }
                 });
             }
