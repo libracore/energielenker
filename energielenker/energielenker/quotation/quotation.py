@@ -48,7 +48,7 @@ def quotation_validation(self):
 @frappe.whitelist() 
 def change_status_from_old_angebote():
     months = add_months(nowdate(), -6)
-    angebots = frappe.db.sql("""SELECT `name` FROM `tabQuotation` WHERE `status` = 'Open' OR `status` = 'Expired' AND `tabQuotation`.`valid_till` <= '{months}' """.format(months=months), as_dict=True)
+    angebots = frappe.db.sql("""SELECT `name` FROM `tabQuotation` WHERE (`status` = 'Open' OR `status` = 'Expired') AND `tabQuotation`.`valid_till` <= '{months}' """.format(months=months), as_dict=True)
     
     for angebot in angebots:
         

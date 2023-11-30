@@ -3,3 +3,4 @@ energielenker.patches.v2_60_1.main_project_in_subprojects
 energielenker.patches.v2_89_10.pinv_lagerfuehrung
 energielenker.patches.v2_90_10.dn_wertansatz
 energielenker.patches.v2_116_1.module_view_flush
+energielenker.patches.quotation.return_to_open_and_expired
