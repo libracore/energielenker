@@ -5,7 +5,7 @@ from frappe.utils.data import add_months, nowdate
 def execute():
     # this will return back all the quotations that are still valid to "Open" and the quotations that have less than 6 months old to "Expired"
     months = add_months(nowdate(), -5)
-    expired_quotations_list = frappe.db.sql("""SELECT `name` FROM `tabQuotation` WHERE `status` = 'Lost' AND `valid_till` >= '{months}'""".format(months=months), as_dict=True)
+    expired_quotations_list = frappe.db.sql("""SELECT `name` FROM `tabQuotation` WHERE `status` = 'Lost' AND `valid_till` BETWEEN '{months}' AND '{nowdate}'""".format(months=months, nowdate=nowdate()), as_dict=True)
     valid_quotations_list = frappe.db.sql("""SELECT `name` FROM `tabQuotation` WHERE `status` = 'Lost' AND `valid_till` > '{nowdate}'""".format(nowdate=nowdate()), as_dict=True)
     
     for q in expired_quotations_list:
