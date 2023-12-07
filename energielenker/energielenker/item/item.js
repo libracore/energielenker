@@ -18,6 +18,17 @@ frappe.ui.form.on("Item", {
             var suchliste = suchliste_list.join();
             frm.set_value("suchfeld", suchliste);
         }
+        
+        // set default warehouse in read only field (just as info)
+        var default_warehouse_readonly = '';
+        if (cur_frm.doc.is_stock_item) {
+            if (cur_frm.doc.item_defaults.length > 0) {
+                if (cur_frm.doc.item_defaults[0].default_warehouse) {
+                    default_warehouse_readonly = cur_frm.doc.item_defaults[0].default_warehouse;
+                }
+            }
+        }
+        frm.set_value("default_warehouse_readonly", default_warehouse_readonly);
     },
     item_name: function(frm) {
         if (cur_frm.doc.item_name) {
