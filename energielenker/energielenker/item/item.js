@@ -20,15 +20,26 @@ frappe.ui.form.on("Item", {
         }
         
         // set default warehouse in read only field (just as info)
+        // and fail validation if a default warehouse is necessary but missing
         var default_warehouse_readonly = '';
+        var missing_default_warehouse = false;
         if (cur_frm.doc.is_stock_item) {
             if (cur_frm.doc.item_defaults.length > 0) {
                 if (cur_frm.doc.item_defaults[0].default_warehouse) {
                     default_warehouse_readonly = cur_frm.doc.item_defaults[0].default_warehouse;
+                } else {
+                    missing_default_warehouse = true;
                 }
+            } else {
+                missing_default_warehouse = true;
             }
         }
-        frm.set_value("default_warehouse_readonly", default_warehouse_readonly);
+        if (!missing_default_warehouse) {
+            frm.set_value("default_warehouse_readonly", default_warehouse_readonly);
+        } else {
+            frappe.msgprint( __("Bei Lagergeführten Artikeln ist die hinterlegung eines Standard-Lagers Pflicht."), __("Validation") );
+            frappe.validated=false;
+        }
     },
     item_name: function(frm) {
         if (cur_frm.doc.item_name) {
