@@ -53,7 +53,7 @@ def change_status_from_old_angebote():
     for angebot in angebots:
         
         angebot_doc = frappe.get_doc("Quotation", angebot['name'])
-        lost_reasons_list = [{'lost_reason': 'unbekannt (Ausschreibung)'}]
+        lost_reasons_list = [{'lost_reason': 'verfallen vor mehr als 6 Monaten'}]
         
         #set angebot status to lost after being more than 6 months old
         try:
