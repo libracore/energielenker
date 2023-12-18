@@ -170,6 +170,23 @@ frappe.ui.form.on("Delivery Note", {
             
         }
         
+        if (frm.doc.__islocal) {
+           cur_frm.doc.items.forEach(function(entry){
+               frappe.call({
+                    "method": "frappe.client.get",
+                    "args": {
+                        "doctype": "Item",
+                        "name": entry.item_code
+                    },
+                    "callback": function(r) {
+                        if (r.message.item_defaults[0].default_warehouse) {
+                            entry.warehouse = r.message.item_defaults[0].default_warehouse;
+                        }
+                    }
+                })
+           });
+        }
+        
     },
     on_submit: function(frm) {
         if (cur_frm.doc.so_return){
