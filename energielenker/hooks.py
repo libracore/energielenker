@@ -60,7 +60,8 @@ doctype_js = {
     "BOM": "energielenker/bom/bom.js",
     "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js",
     "Lead": "energielenker/lead/lead.js",
-	"Cost Center": "energielenker/cost_center/cost_center.js"
+	"Cost Center": "energielenker/cost_center/cost_center.js",
+	"Item Price": "energielenker/item_price/item_price.js",
 }
 
 doctype_list_js = {
