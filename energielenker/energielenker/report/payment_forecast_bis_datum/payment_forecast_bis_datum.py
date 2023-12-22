@@ -54,6 +54,7 @@ def get_data(filters):
             
             project = frappe.db.get_value('Sales Order', order.sales_order, 'project') or None
             project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
+            outstanding_amount = 0
             affected_project = True
             if project:
                 p = frappe.get_doc("Project", project)
@@ -73,20 +74,40 @@ def get_data(filters):
                 
                 order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
                 outstanding_amount = order_payment_amount - gestellte_rechnungen_amount
-                
-                _data = {
-                    'sales_order': order.sales_order,
-                    'project': project,
-                    'project_name': project_name,
-                    'cost_center': frappe.db.get_value('Sales Order', order.sales_order, 'cost_center') or None,
-                    'due_date': order.due_date,
-                    'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
-                }
-                if outstanding_amount > 0 or outstanding_amount < 0:
-                    data.append(_data)
-                elif not filters.not_null:
-                    data.append(_data)
+            
+            if not project:
+                gestellte_rechnungen_ohne_project = frappe.db.sql("""SELECT
+                                                            `tabSales Invoice Item`.`sales_order` AS `sales_order`,
+                                                            `tabSales Invoice`.`rounded_total` AS `total_outstanding_amount`
+                                                        FROM `tabSales Invoice`
+                                                        JOIN `tabSales Invoice Item` ON `tabSales Invoice`.`name` = `tabSales Invoice Item`.`parent`
+                                                        WHERE `tabSales Invoice Item`.`sales_order` = '{0}'
+                                                        AND `tabSales Invoice`.`docstatus` = 1
+                                                        GROUP BY `tabSales Invoice`.`name`""".format(order.sales_order), as_dict=True)
+
+                if len(gestellte_rechnungen_ohne_project) > 0:
+                    gestellte_rechnungen_amount_ohne_project = 0
+
+                    for invoice_data in gestellte_rechnungen_ohne_project:
+                        gestellte_rechnungen_amount_ohne_project += float(invoice_data.get('total_outstanding_amount', 0))
+                        
+                    order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
+                    outstanding_amount = order_payment_amount - gestellte_rechnungen_amount_ohne_project
+  
+            _data = {
+                'sales_order': order.sales_order,
+                'project': project,
+                'project_name': project_name,
+                'cost_center': frappe.db.get_value('Sales Order', order.sales_order, 'cost_center') or None,
+                'due_date': order.due_date,
+                'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
+                'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+            }
+            
+            if outstanding_amount > 0 or outstanding_amount < 0:
+                data.append(_data)
+            elif not filters.not_null:
+                data.append(_data)
     else:
         cost_centers_dict = {}
         cost_centers = frappe.db.sql("""SELECT 
