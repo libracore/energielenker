@@ -15,5 +15,24 @@ frappe.ui.form.on("Stock Reconciliation", {
                 });
             }
         });
+        frm.add_custom_button(__("Artikel Nullen"), function() {
+            var items = cur_frm.doc.items;
+            items.forEach(function(entry) {
+                entry.qty = 0;
+                if (!entry.valuation_rate) {
+                    frappe.call({
+                        method: 'energielenker.energielenker.stock_reconciliation.stock_reconciliation.get_single_valuation_rate',
+                        args: {
+                            item: entry.item_code
+                        },
+                        callback: function(response) {
+                            entry.valuation_rate = response.message;
+                            // cur_frm.reload_doc()
+                        }
+                    });
+                }
+            });
+            
+        });
     }
 });
