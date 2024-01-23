@@ -14,6 +14,7 @@ frappe.ui.form.on("Project", {
         ]);
     },
     validate: function(frm) {
+		set_wiederkehrende_benachrichtigung(frm);
         set_main_project_title(frm);
         if (!cur_frm.doc.default_external_rate) {
             frappe.call({
@@ -275,7 +276,7 @@ frappe.ui.form.on("Payment Forecast", {
 			}
 
         });
-    } 
+    }
 });
 
 function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults) {
@@ -497,5 +498,32 @@ function set_main_project_title(frm) {
                 },
             },
         });
+    });
+}
+
+function set_wiederkehrende_benachrichtigung(frm) {
+    frappe.call({
+        "method": "frappe.client.get",
+        "args": {
+            "doctype": "Customer",
+            "name": frm.doc.customer
+        },
+        "callback": function(response) {
+            if (response.message) {
+                var customer = response.message;
+                if (customer) {
+					frappe.call({
+						"method": "frappe.client.set_value",
+						"args": {
+							"doctype": "Customer",
+							"name": customer.name,
+							"fieldname": {
+								"wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
+							},
+						},
+					});
+				}	
+            }
+        }
     });
 }
