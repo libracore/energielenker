@@ -264,7 +264,18 @@ frappe.ui.form.on("Payment Forecast", {
                 }
             }
         });
-    }
+    },
+    projektbewertung_ignorieren: function(frm, cdt, cdn) {
+        let row = frappe.get_doc(cdt, cdn);
+
+        // Update all the rows containing the same order name with the checkbox changes
+        frm.doc.payment_schedule.forEach(order => {
+			if (order.order == row.order && order.name != row.name) {
+				frappe.model.set_value(order.doctype, order.name, 'projektbewertung_ignorieren', row.projektbewertung_ignorieren);
+			}
+
+        });
+    } 
 });
 
 function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults) {

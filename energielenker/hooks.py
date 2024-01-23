@@ -140,7 +140,8 @@ doc_events = {
     "Project": {
         "autoname": "energielenker.energielenker.project.project.autoname",
         "onload": "energielenker.energielenker.project.project.onload",
-        "validate": "energielenker.energielenker.project.project.validate"
+        "validate": "energielenker.energielenker.project.project.validate",
+        "on_update": "energielenker.energielenker.zahlungsplan.zahlungsplan.update_projektbewertung_ignorieren_in_project_or_in_so"
     },
     "Task": {
         "on_update": "energielenker.energielenker.task.task.on_update"

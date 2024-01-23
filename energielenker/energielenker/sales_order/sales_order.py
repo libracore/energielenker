@@ -6,6 +6,23 @@ from __future__ import unicode_literals
 import frappe
 from frappe.utils import flt
 
+@frappe.whitelist() 
+def overwrite_before_update_after_submit():
+    #************************************************************************************
+    #overwrite before_update_after_submit to also update_projektbewertung_ignorieren_in_project_in_project
+    from erpnext.selling.doctype.sales_order.sales_order import SalesOrder
+    SalesOrder.before_update_after_submit = so_before_update_after_submit
+    #************************************************************************************
+
+def so_before_update_after_submit(self):
+    #original method but adding update_projektbewertung_ignorieren_in_project_or_in_so
+    from energielenker.energielenker.zahlungsplan.zahlungsplan import update_projektbewertung_ignorieren_in_project_or_in_so
+    update_projektbewertung_ignorieren_in_project_or_in_so(self=self, event="so_update", pb_ignorieren=self.projektbewertung_ignorieren)
+    self.validate_po()
+    self.validate_drop_ship()
+    self.validate_supplier_after_submit()
+    self.validate_delivery_date()
+
 def fetch_payment_schedule_from_so(so, event):
     if so.project:
         from energielenker.energielenker.zahlungsplan.zahlungsplan import so_to_project

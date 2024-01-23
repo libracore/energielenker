@@ -7,7 +7,7 @@ import frappe
 import json
 
 # Sales Order -> Project
-def so_to_project(sales_order=False, payment_schedule=False, project=False):
+def so_to_project(sales_order=False, payment_schedule=False, project=False, pb_ignorieren=False, event=False):
     if 'basestring' not in globals():
         basestring = str
     
@@ -33,6 +33,8 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
             project = frappe.get_doc("Sales Order", sales_order).project_clone
         
     project = frappe.get_doc("Project", project)
+    if event and event == "so_update":
+        project.so_update = 1
     
     # check all over percent
     aop = 0
@@ -60,6 +62,7 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
                     pps.date = ps["due_date"]
                     pps.amount = ps["payment_amount"]
                     pps.percent = ps["invoice_portion"]
+                    pps.projektbewertung_ignorieren = pb_ignorieren
         else:
             if not 'to_delete' in ps:
                 # create
@@ -73,6 +76,7 @@ def so_to_project(sales_order=False, payment_schedule=False, project=False):
                 new_ps.amount = ps["payment_amount"]
                 new_ps.percent = ps["invoice_portion"]
                 new_ps.so_ref = ps["name"]
+                new_ps.projektbewertung_ignorieren = pb_ignorieren
     project.save()
 
 # changes after submit
@@ -120,3 +124,20 @@ def change_in_so(so, payment_schedule):
     
     so_to_project(sales_order=so, payment_schedule=payment_schedule, project=False)
 
+#Look over the CB projektbewertung_ignorieren
+@frappe.whitelist()
+def update_projektbewertung_ignorieren_in_project_or_in_so(self, event, pb_ignorieren=False):  
+    if self.doctype == "Project":
+        if self.so_update == 1:
+            frappe.db.set(self, 'so_update', 0)
+        else:
+            for ps in self.payment_schedule:
+                so = frappe.get_doc("Sales Order", ps.order)
+                if so.projektbewertung_ignorieren  != ps.projektbewertung_ignorieren:
+                    so.projektbewertung_ignorieren = ps.projektbewertung_ignorieren
+                    so.save()
+                    return
+                
+    elif self.doctype == "Sales Order":
+        payment_schedule = frappe.db.sql("""SELECT * FROM `tabPayment Schedule` WHERE `parent` = '{0}'""".format(self.name), as_dict=True)
+        so_to_project(sales_order=self.name, payment_schedule=payment_schedule, project=self.project_clone, pb_ignorieren=pb_ignorieren, event=event)
