@@ -131,6 +131,8 @@ class PowerProject():
         
         total = value_project + value_subprojects
         
+        self.get_total_amount_without_zusatzgeschaft()
+        
         if kpi == 'auftragsummen_gesamt':
             self.project.set('total_amount', total)
         
@@ -195,6 +197,13 @@ class PowerProject():
     
     # ~ def get_total_amount(self):
         # ~ return self.project.auftragsummen_gesamt
+   
+   # nur die Aufträge netto aufsummiert, welche nicht (!) den Haken "Zusatzgeschäft" im Kundenauftrag tragen.
+    def get_total_amount_without_zusatzgeschaft(self):
+        auftragswert_hauptauftrage = frappe.db.sql("""select sum(base_net_total)
+            from `tabSales Order` where project = %s and docstatus=1 and zusatzgeschaft = 0""", self.project.name)
+
+        self.project.auftragswert_hauptauftrage = auftragswert_hauptauftrage and auftragswert_hauptauftrage[0][0] or 0
     
 # NEU -----------------------------------------------------------------------
     
