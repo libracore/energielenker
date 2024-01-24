@@ -12,6 +12,7 @@ cur_frm.dashboard.add_transactions([
 
 frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
+	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
@@ -152,7 +153,7 @@ frappe.ui.form.on("Sales Order", {
     onload: function(frm) {
         if (cur_frm.doc.project) {
             cur_frm.set_value('project_clone', cur_frm.doc.project);
-        }
+        }        
     },
     navision_konto: function(frm) {
         if (!cur_frm.doc.navision_konto||cur_frm.doc.navision_konto == '') {
@@ -337,6 +338,14 @@ frappe.ui.form.on("Sales Order", {
 		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
     }
 });
+
+// overwrite_before_update_after_submit to update projektbewertung_ignorieren in project
+function overwrite_before_update_after_submit(frm){
+	frappe.call({
+	      "method": "energielenker.energielenker.sales_order.sales_order.overwrite_before_update_after_submit",
+	   });
+}
+
 
 // Change the timeline specification, from "X days ago" to the exact date and time
 function set_timestamps(frm){
