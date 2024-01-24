@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021, libracore and contributors
+# Copyright (c) 2024, libracore and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe.core.doctype.communication.email import make
-# ~ import time
+from frappe.email import relink
+import re
 
 def onload_functions(self, event):
     check_for_assigment(self)
@@ -17,10 +18,16 @@ def add_mail_as_description_to_issue(self, event):
             frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
             frappe.db.commit()
             
-            if int(frappe.db.get_value("energielenker Settings", "energielenker Settings", "ticket_bestaetigungs_mail")) == 1:
-                send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
-                # ~ frappe.log_error("Issue: {0}\nCommunication: {1}".format(self.reference_name, self.name), "add_mail_as_description_to_issue")
-    
+            # überprüfung ob E-Mail tatsächlich ein neues Ticket erstellen sollte, oder ob es zu einem existierenden gehört.
+            # Die Überprüfung findet anhand der Betreffzeile statt
+            betreff_check = parse_subject_line(self)
+
+            if betreff_check.get('correct_linking'):
+                if int(frappe.db.get_value("energielenker Settings", "energielenker Settings", "ticket_bestaetigungs_mail")) == 1:
+                    send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
+            else:
+                relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
+                issue.delete()
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
     subject = subject
@@ -49,3 +56,21 @@ def mark_for_reply(self, event):
     if self.issue_type != 'Reklamation' and self.owner == 'Administrator':
         frappe.db.set_value("Issue", self.name, 'mark_for_reply', 1, update_modified=False)
         frappe.db.commit()
+
+def parse_subject_line(mail):
+    regex = r'[ANF]{3}[0-9]{7}'
+    results = re.findall(regex, mail.get("subject"))
+    if len(results) > 0:
+        if results[0] == mail.get("reference_name"):
+            return {
+                'correct_linking': True
+            }
+        else:
+            return {
+                'correct_linking': False,
+                'belongs_to': results[0]
+            }
+    else:
+        return {
+            'correct_linking': True
+        }
