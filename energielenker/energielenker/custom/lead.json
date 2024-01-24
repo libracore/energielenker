@@ -217,14 +217,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2023-11-07 15:39:26.399503",
+   "creation": "2024-01-08 13:42:59.429502",
    "default_value": null,
    "doc_type": "Lead",
    "docstatus": 0,
    "doctype_or_field": "DocField",
    "field_name": "status",
    "idx": 0,
-   "modified": "2023-11-07 15:39:26.399503",
+   "modified": "2024-01-08 13:42:59.429502",
    "modified_by": "Administrator",
    "name": "Lead-status-options",
    "owner": "Administrator",
@@ -233,7 +233,7 @@
    "parenttype": null,
    "property": "options",
    "property_type": "Text",
-   "value": "Lead\nOpen\nReplied\nOpportunity\nQuotation\nLost Quotation\nInterested\nConverted\nDo Not Contact\nLead projects\nAngebot projects\nKunde projects\nVerlorener Lead"
+   "value": "Lead\nOpen\nReplied\nOpportunity\nQuotation\nLost Quotation\nVerfallene Angebote\nInterested\nConverted\nDo Not Contact\nLead projects\nAngebot projects\nKunde projects\nVerlorener Lead"
   },
   {
    "_assign": null,
