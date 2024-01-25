@@ -15,7 +15,7 @@ def add_mail_as_description_to_issue(self, event):
         issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}' AND `owner` = 'Administrator'""".format(self.reference_name), as_dict=True)
         for issue in issues:
             frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
-            frappe.db.set_value("Issue", issue, 'mark_for_reply', 0, update_modified=False)
+            frappe.db.set_value("Issue", issue.name, 'mark_for_reply', 0, update_modified=False)
             frappe.db.commit()
             
             # überprüfung ob E-Mail tatsächlich ein neues Ticket erstellen sollte, oder ob es zu einem existierenden gehört.
@@ -27,7 +27,8 @@ def add_mail_as_description_to_issue(self, event):
                     send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
             else:
                 relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
-                issue.delete()
+                iss = frappe.get_doc("Issue", issue.name)
+                iss.delete()
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
     subject = subject
