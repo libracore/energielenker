@@ -23,7 +23,8 @@ def add_mail_as_description_to_issue(self, event):
                     frappe.db.set_value("Issue", self.reference_name, 'mark_for_reply', 0, update_modified=False)
                     frappe.db.commit()
         else:
-            frappe.db.set_value("Issue", self.reference_name, 'description', 'Dieses Ticket ist Falsch und muss gelöscht werden.', update_modified=False)
+            frappe.db.set_value("Issue", self.reference_name, 'description', 'Dieses Ticket wird innert 4 Minuten gelöscht und kann/muss ignoriert werden!', update_modified=False)
+            frappe.db.set_value("Issue", self.reference_name, 'mark_for_deletion', 1, update_modified=False)
             relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
 
         # issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}' AND `owner` = 'Administrator'""".format(self.reference_name), as_dict=True)
@@ -87,3 +88,9 @@ def parse_subject_line(mail):
         return {
             'correct_linking': True
         }
+
+def delete_based_on_mark():
+    issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_deletion` = 1""", as_dict=True)
+    for issue in issues:
+        iss = frappe.get_doc("Issue", issue.name)
+        iss.delete()
