@@ -183,7 +183,10 @@ doc_events = {
     },
     "Lead": {
         "on_trash": "energielenker.energielenker.utils.lead.delete_events"
-    }
+    },
+    "Address": {
+		"validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
+	}
 }
 
 # Scheduled Tasks
