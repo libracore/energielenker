@@ -23,10 +23,10 @@ def add_mail_as_description_to_issue(self, event):
                     frappe.db.set_value("Issue", self.reference_name, 'mark_for_reply', 0, update_modified=False)
                     frappe.db.commit()
         else:
+            iss = frappe.get_doc("Issue", self.reference_name)
+            iss.delete()
             relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
-            # iss = frappe.get_doc("Issue", issue.name)
-            # iss.delete()
-
+        
         # issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}' AND `owner` = 'Administrator'""".format(self.reference_name), as_dict=True)
         # for issue in issues:
         # frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
