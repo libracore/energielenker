@@ -24,24 +24,10 @@ def add_mail_as_description_to_issue(self, event):
                     frappe.db.commit()
         else:
             frappe.db.set_value("Issue", self.reference_name, 'description', 'Dieses Ticket wird innert 4 Minuten gelöscht und kann/muss ignoriert werden!', update_modified=False)
+            frappe.db.set_value("Issue", self.reference_name, 'subject', 'Löschvormerkung', update_modified=False)
+            frappe.db.set_value("Issue", self.reference_name, 'issue_type', 'Reklamation', update_modified=False)
             frappe.db.set_value("Issue", self.reference_name, 'mark_for_deletion', 1, update_modified=False)
             relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
-
-        # issues = frappe.db.sql("""SELECT `name` FROM `tabIssue` WHERE `mark_for_reply` = 1 AND `name` = '{0}' AND `owner` = 'Administrator'""".format(self.reference_name), as_dict=True)
-        # for issue in issues:
-        # frappe.db.set_value("Issue", issue.name, 'description', self.content, update_modified=False)
-        # frappe.db.set_value("Issue", issue.name, 'mark_for_reply', 0, update_modified=False)
-        # frappe.db.commit()
-        
-        
-
-        # if betreff_check.get('correct_linking'):
-        #     if int(frappe.db.get_value("energielenker Settings", "energielenker Settings", "ticket_bestaetigungs_mail")) == 1:
-        #         send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
-        # else:
-        #     relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
-        #     iss = frappe.get_doc("Issue", issue.name)
-        #     iss.delete()
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
     subject = subject
