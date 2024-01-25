@@ -18,7 +18,7 @@ def add_mail_as_description_to_issue(self, event):
         if betreff_check.get('correct_linking'):
             if int(frappe.db.get_value("energielenker Settings", "energielenker Settings", "ticket_bestaetigungs_mail")) == 1:
                 if int(frappe.db.get_value("Issue", self.reference_name, "mark_for_reply")) == 1:
-                    send_issue_creation_notification_to_customer(issue.name, self.content, self.sender, self.subject)
+                    send_issue_creation_notification_to_customer(self.reference_name, self.content, self.sender, self.subject)
                     frappe.db.set_value("Issue", self.reference_name, 'description', self.content, update_modified=False)
                     frappe.db.set_value("Issue", self.reference_name, 'mark_for_reply', 0, update_modified=False)
                     frappe.db.commit()
