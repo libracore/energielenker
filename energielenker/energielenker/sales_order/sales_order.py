@@ -54,6 +54,7 @@ def make_issue_from_sales_order(sales_order, subject, priority, details):
     issue.address = doc.customer_address
     issue.description = details or ""
     issue.sales_order = sales_order
+    issue.issue_type = "Reklamation"
     issue.flags.ignore_mandatory = True
     issue.insert(ignore_permissions=True)
     
