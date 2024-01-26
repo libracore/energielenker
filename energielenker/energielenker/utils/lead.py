@@ -23,22 +23,22 @@ def insert_plz_gebiet(self, event):
 	for link in self.links:
 		if link.link_doctype == "Lead":
 			if not frappe.db.get_value("Lead", link.link_name, "gebiet"):
-				gebiet = self.plz if self.is_primary_address == 1 else get_primary_plz(link.link_name)
+				gebiet = self.plz if self.is_primary_address == 1 else get_primary_plz(link.link_name, self.plz)
 				frappe.db.set_value("Lead", link.link_name, "gebiet", gebiet[:2])
-			
-			
-
-	frappe.log_error(gebiet_plz, "gebiet_plz")
 	
 	return
 
-def get_primary_plz(link_name):
+def get_primary_plz(link_name, fallback):
 	gebiet_plz = frappe.db.sql("""
-		SELECT `address`.`plz`
+		SELECT `address`.`plz`, `address`.`is_primary_address`
 		FROM `tabDynamic Link` AS `addresslink`
-		LEFT JOIN `tabAddress` AS `address` ON `addresslink`.`link_name` = `address`.`name`
+		LEFT JOIN `tabAddress` AS `address` ON `addresslink`.`parent` = `address`.`name`
+		LEFT JOIN `tabLead` AS `lead` ON `addresslink`.`link_name` = `lead`.`name`
 		WHERE `addresslink`.`link_name` = '{name}'
-		SORT BY `address`.`is_primary_address` DESC
-		LIMIT 1
+		ORDER BY `address`.`is_primary_address` DESC
 		""".format(name=link_name), as_dict=True)
-	return gebiet_plz
+	if not gebiet_plz:
+		gebiet_plz = [{
+			'plz': fallback
+		}]
+	return gebiet_plz[0]['plz']
