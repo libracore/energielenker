@@ -4084,7 +4084,7 @@
    "in_list_view": 0,
    "in_standard_filter": 0,
    "insert_after": "total_amount",
-   "label": "Auftragswert Hauptauftr\u00e4ge",
+   "label": "Auftragswert Hauptauftr\u00e4ge inkl. Unterprojekte",
    "length": 0,
    "modified": "2024-01-24 12:42:43.643343",
    "modified_by": "Administrator",
