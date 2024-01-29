@@ -3,10 +3,15 @@
 # For license information, please see license.txt
 
 import frappe
+import re
 
 def get_plz_gebiet(self, event):
 	if not self.gebiet and self.customer_address:
-		self.gebiet = frappe.db.get_value("Address", self.customer_address, "plz")[:2]
+		_gebiet = frappe.db.get_value("Address", self.customer_address, "plz")
+		if _gebiet:
+			gebiet = re.findall(r"[0-9]{2,}", _gebiet)
+			if len(gebiet) > 0:
+				self.gebiet = gebiet[0][:2]
 	return
 		
 	

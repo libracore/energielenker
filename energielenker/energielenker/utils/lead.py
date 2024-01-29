@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 import frappe
+import re
 
 def delete_events(self, event):
     linked_events = frappe.db.sql("""SELECT
@@ -23,8 +24,11 @@ def insert_plz_gebiet(self, event):
 	for link in self.links:
 		if link.link_doctype == "Lead":
 			if not frappe.db.get_value("Lead", link.link_name, "gebiet"):
-				gebiet = self.plz if self.is_primary_address == 1 else get_primary_plz(link.link_name, self.plz)
-				frappe.db.set_value("Lead", link.link_name, "gebiet", gebiet[:2])
+				_gebiet = self.plz if self.plz and self.is_primary_address == 1 else get_primary_plz(link.link_name, self.plz)
+				if _gebiet:
+					gebiet = re.findall(r"[0-9]{2,}", _gebiet)
+					if len(gebiet) > 0:
+						frappe.db.set_value("Lead", link.link_name, "gebiet", gebiet[0][:2])
 	
 	return
 
