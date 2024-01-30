@@ -40,7 +40,6 @@ def get_employee(user=None):
     else:
         return 'MA00023'
 
-
 @frappe.whitelist()
 def make_issue_from_sales_order(sales_order, subject, priority, details):
     """ create issue from sales order """
@@ -54,10 +53,27 @@ def make_issue_from_sales_order(sales_order, subject, priority, details):
     issue.address = doc.customer_address
     issue.description = details or ""
     issue.sales_order = sales_order
+    issue.issue_type = "Reklamation"
     issue.flags.ignore_mandatory = True
     issue.insert(ignore_permissions=True)
     
     return issue.name
+    
+@frappe.whitelist()
+def amend_so_issue(sales_order, amended_from):
+    """ amend sales_order field in issue if sales order got ammended"""    
+    issues = frappe.get_list(
+        "Issue",
+        filters={"sales_order": amended_from, "status": ["!=", "Closed"]},
+        fields=["name"]
+    )
+    
+    if issues:
+        for issue in issues:
+            doc = frappe.get_doc("Issue", issue)
+            doc.sales_order = sales_order
+            doc.save()
+            frappe.msgprint("Offene Anfrage <a href='#Form/Issue/{0}'><b>{0}</b></a> hat jetzt aktuellen Kundenauftragsbezug.".format(doc.name))
 
 def update_delivery_status(so, event):
     """Update item wise delivery status from Sales Order for drop shipping"""

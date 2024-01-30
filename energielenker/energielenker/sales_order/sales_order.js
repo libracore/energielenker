@@ -145,6 +145,12 @@ frappe.ui.form.on("Sales Order", {
         }
         check_vielfaches(frm);
         add_item_supplier(frm);
+        
+        if (cur_frm.doc.amended_from && cur_frm.doc.__islocal) {
+			setTimeout(function() {
+				amend_so_issue(frm);
+			}, 1500);
+		}
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -634,4 +640,15 @@ function add_item_supplier(frm) {
                 }
         });
     });
+}
+
+//amend sales_order field in issue if sales order got ammended
+function amend_so_issue(frm) {
+	frappe.call({
+		"method": "energielenker.energielenker.sales_order.sales_order.amend_so_issue",
+		"args": {
+			"sales_order": frm.doc.name,
+			"amended_from": frm.doc.amended_from, 
+		},
+   });
 }
