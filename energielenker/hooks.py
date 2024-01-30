@@ -150,7 +150,8 @@ doc_events = {
         "on_submit": [
             "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so",
             "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
-        ]
+        ],
+        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"
@@ -183,7 +184,13 @@ doc_events = {
     },
     "Lead": {
         "on_trash": "energielenker.energielenker.utils.lead.delete_events"
-    }
+    },
+    "Address": {
+		"validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
+	},
+	"Quotation": {
+		"validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+	}
 }
 
 # Scheduled Tasks
