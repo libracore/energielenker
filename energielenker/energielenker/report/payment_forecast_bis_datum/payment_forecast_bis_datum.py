@@ -16,6 +16,7 @@ def get_columns(filters):
             {"label": _("Kundenauftrag"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
             {"label": _("Projektnummer"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
             {"label": _("Projektname"), "fieldname": "project_name", "fieldtype": "Data", "width": 100},
+            {"label": _("Projektleiter"), "fieldname": "project_manager", "fieldtype": "Data", "width": 100},
             {"label": _("Kostenstelle"), "fieldname": "cost_center", "fieldtype": "Link", "options": "Cost Center", "width": 100},
             {"label": _("Zahlungsdatum bis einschl."), "fieldname": "due_date", "fieldtype": "Date", "width": 100},
             {"label": _("Saldo offene Zahlungsbeträge"), "fieldname": "outstanding_amount", "fieldtype": "Currency"},
@@ -54,6 +55,7 @@ def get_data(filters):
             
             project = frappe.db.get_value('Sales Order', order.sales_order, 'project') or None
             project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
+            project_manager = frappe.db.get_value('Project', project, 'project_manager_name') or None
             outstanding_amount = 0
             affected_project = True
             if project:
@@ -98,6 +100,7 @@ def get_data(filters):
                 'sales_order': order.sales_order,
                 'project': project,
                 'project_name': project_name,
+                'project_manager': project_manager,
                 'cost_center': frappe.db.get_value('Sales Order', order.sales_order, 'cost_center') or None,
                 'due_date': order.due_date,
                 'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
