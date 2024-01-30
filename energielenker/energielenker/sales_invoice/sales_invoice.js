@@ -176,6 +176,14 @@ frappe.ui.form.on("Sales Invoice", {
     }
 });
 
+frappe.ui.form.on('Sales Invoice Item', {
+    // cdt is Child DocType name i.e Quotation Item
+    // cdn is the row name for e.g bbfcb8da6a
+    close_position(frm, cdt, cdn) {
+        let row = frappe.get_doc(cdt, cdn);
+    }
+})
+
 // Change the timeline specification, from "X days ago" to the exact date and time
 function set_timestamps(frm){
     setTimeout(function() {
