@@ -43,12 +43,13 @@ def execute():
         print("{0} von {1}".format(loop, total))
         try:
             qtn = frappe.get_doc("Quotation", quotation.name)
-            if not qtn.gebiet and qtn.customer_address:
-                _gebiet = frappe.db.get_value("Address", qtn.customer_address, "plz")
-                if _gebiet:
-                    gebiet = re.findall(r"[0-9]{2,}", _gebiet)
-                    if len(gebiet) > 0:
-                        frappe.db.sql("""UPDATE `tabQuotation` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], qtn.name), as_list=True)
+            if qtn.customer_address:
+                if not qtn.gebiet or qtn.gebiet == 0:
+                    _gebiet = frappe.db.get_value("Address", qtn.customer_address, "plz")
+                    if _gebiet:
+                        gebiet = re.findall(r"[0-9]{2,}", _gebiet)
+                        if len(gebiet) > 0:
+                            frappe.db.sql("""UPDATE `tabQuotation` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], qtn.name), as_list=True)
             else:
                 qtn_ignore.append(quotation.name)
         except Exception as Err:
@@ -71,12 +72,13 @@ def execute():
         print("{0} von {1}".format(loop, total))
         try:
             so = frappe.get_doc("Sales Order", sales_order.name)
-            if not so.gebiet and so.customer_address:
-                _gebiet = frappe.db.get_value("Address", so.customer_address, "plz")
-                if _gebiet:
-                    gebiet = re.findall(r"[0-9]{2,}", _gebiet)
-                    if len(gebiet) > 0:
-                        frappe.db.sql("""UPDATE `tabQuotation` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], so.name), as_list=True)
+            if so.customer_address:
+                if not so.gebiet or so.gebiet == 0:
+                    _gebiet = frappe.db.get_value("Address", so.customer_address, "plz")
+                    if _gebiet:
+                        gebiet = re.findall(r"[0-9]{2,}", _gebiet)
+                        if len(gebiet) > 0:
+                            frappe.db.sql("""UPDATE `tabQuotation` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], so.name), as_list=True)
             else:
                 so_ignore.append(sales_order.name)
         except Exception as Err:
