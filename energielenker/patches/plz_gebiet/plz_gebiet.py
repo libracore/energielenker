@@ -78,7 +78,7 @@ def execute():
                     if _gebiet:
                         gebiet = re.findall(r"[0-9]{2,}", _gebiet)
                         if len(gebiet) > 0:
-                            frappe.db.sql("""UPDATE `tabQuotation` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], so.name), as_list=True)
+                            frappe.db.sql("""UPDATE `tabSales Order` SET `gebiet` = '{0}' WHERE `name` = '{1}'""".format(gebiet[0][:2], so.name), as_list=True)
                         else:
                             so_ignore.append([sales_order.name, 'regex'])
                     else:
