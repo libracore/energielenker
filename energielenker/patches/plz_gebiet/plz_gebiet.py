@@ -44,7 +44,7 @@ def execute():
         try:
             qtn = frappe.get_doc("Quotation", quotation.name)
             if qtn.customer_address:
-                if not qtn.gebiet or qtn.gebiet == 0:
+                if not qtn.gebiet or qtn.gebiet == 0 or qtn.gebiet == '0':
                     _gebiet = frappe.db.get_value("Address", qtn.customer_address, "plz")
                     if _gebiet:
                         gebiet = re.findall(r"[0-9]{2,}", _gebiet)
@@ -57,7 +57,7 @@ def execute():
             quotation_error.append([quotation.name, str(Err)])
             pass
         loop += 1
-        
+    frappe.db.commit()
     print("Verarbeite AB in PLZ...")
     loop = 1
     sales_order_success = True
@@ -73,7 +73,7 @@ def execute():
         try:
             so = frappe.get_doc("Sales Order", sales_order.name)
             if so.customer_address:
-                if not so.gebiet or so.gebiet == 0:
+                if not so.gebiet or so.gebiet == 0 or so.gebiet == '0':
                     _gebiet = frappe.db.get_value("Address", so.customer_address, "plz")
                     if _gebiet:
                         gebiet = re.findall(r"[0-9]{2,}", _gebiet)
@@ -86,7 +86,7 @@ def execute():
             so_error.append([sales_order.name, str(Err)])
             pass
         loop += 1
-    
+    frappe.db.commit()
     print("lead_success = {0}".format(lead_success))
     if not lead_success:
         print(lead_error)
