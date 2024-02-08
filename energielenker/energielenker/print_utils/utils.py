@@ -43,7 +43,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -71,7 +71,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -143,7 +143,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -213,7 +213,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -292,7 +292,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -449,7 +449,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -477,7 +477,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -549,7 +549,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -619,7 +619,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -698,7 +698,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -932,7 +932,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -960,7 +960,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -1021,7 +1021,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -1080,7 +1080,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
@@ -1148,7 +1148,7 @@ def get_print_items(dt, dn):
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{line}</td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 7.1pt; max-width: 600px !important;"">{line}</td>
                                 <td></td>
                             </tr>
                         """.format(line=line + '</div>')
