@@ -784,3 +784,13 @@ def get_highest_project_end_date(project):
             return [end_date[0].highest_end_date]
         else:
             return []
+
+
+@frappe.whitelist()
+def update_payment_scheudle(name=None, invoice=None, invoice_date=None, amount=None, schlussrechnung=False):
+	frappe.db.set_value("Payment Forecast", name, "invoice_created", 1, update_modified=False)
+	frappe.db.set_value("Payment Forecast", name, "invoice", invoice, update_modified=False)
+	frappe.db.set_value("Payment Forecast", name, "invoice_date", invoice_date, update_modified=False)
+	if schlussrechnung:
+		frappe.db.set_value("Payment Forecast", name, "amount", amount, update_modified=False)
+	return

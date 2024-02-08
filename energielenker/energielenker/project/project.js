@@ -363,17 +363,24 @@ function options_list(row, percent_to_bill, percent_already_billed, order_amount
                                     },
                                     "async": false,
                                     "callback": function(response) {
-                                        var invoice_data = response.message;
-                                        row.invoice_created = 1;
-                                        row.invoice = invoice_data.invoice;
-                                        row.amount = invoice_data.amount;
-                                        row.invoice_date = d.get_value('invoice_date');
-                                        cur_frm.refresh_field("payment_schedule");
-                                        cur_frm.save();
-                                        setTimeout(function(){
-                                            frappe.set_route("Form", "Sales Invoice", invoice_data.invoice);
-                                            location.reload();
-                                        }, 1000);
+										var invoice_data = response.message;
+										frappe.call({
+											"method": "energielenker.energielenker.project.project.update_payment_scheudle",
+											"args": {
+												'name': row.name,
+												'invoice_date': d.get_value('invoice_date'),
+												'invoice': invoice_data.invoice,
+												'amount': invoice_data.amount,
+												'schlussrechnung': 1
+											},
+											"async": false,
+											"callback": function(response) {
+												setTimeout(function(){
+													frappe.set_route("Form", "Sales Invoice", invoice_data.invoice);
+													location.reload();
+												}, 1000);
+											}
+										});
                                     }
                                 });
                             } else {
@@ -390,15 +397,21 @@ function options_list(row, percent_to_bill, percent_already_billed, order_amount
                                     },
                                     "async": false,
                                     "callback": function(response) {
-                                        row.invoice_created = 1;
-                                        row.invoice = response.message;
-                                        row.invoice_date = d.get_value('invoice_date');
-                                        cur_frm.refresh_field("payment_schedule");
-                                        cur_frm.save();
-                                        setTimeout(function(){
-                                            frappe.set_route("Form", "Sales Invoice", response.message);
-                                            location.reload();
-                                        }, 1000);
+										frappe.call({
+											"method": "energielenker.energielenker.project.project.update_payment_scheudle",
+											"args": {
+												'name': row.name,
+												'invoice_date': d.get_value('invoice_date'),
+												'invoice': response.message
+											},
+											"async": false,
+											"callback": function(r) {
+												setTimeout(function(){
+													frappe.set_route("Form", "Sales Invoice", response.message);
+													location.reload();
+												}, 1000);
+											}
+										});
                                     }
                                 });
                             }
