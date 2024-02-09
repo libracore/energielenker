@@ -53,6 +53,25 @@ def get_data(filters):
                                                     FROM `tabSales Order Anzahlung`
                                                     WHERE `parent` = '{0}'""".format(order.sales_order), as_dict=True)
             
+            manuell_gestellte_rechnungen = frappe.db.sql("""SELECT
+                                                            `tabSales Invoice Item`.`sales_order` AS `sales_order`,
+                                                            `tabSales Invoice`.`rounded_total` AS `total_amount`
+                                                        FROM `tabSales Invoice`
+                                                        JOIN `tabSales Invoice Item` ON `tabSales Invoice`.`name` = `tabSales Invoice Item`.`parent`
+                                                        WHERE `tabSales Invoice Item`.`sales_order` = '{0}'
+                                                        AND `tabSales Invoice`.`docstatus` = 1
+                                                        AND `tabSales Invoice`.`billing_type` = 'Rechnung'
+                                                        GROUP BY `tabSales Invoice`.`name`""".format(order.sales_order), as_dict=True)
+            if len(manuell_gestellte_rechnungen) > 0:
+                if manuell_gestellte_rechnungen[0].sales_order == "AB0000032":
+                    frappe.log_error(manuell_gestellte_rechnungen, "Hoi")
+                                                        
+            if len(manuell_gestellte_rechnungen) > 0:
+                if manuell_gestellte_rechnungen[0].total_amount and gestellte_rechnungen[0].amount:
+                    gestellte_rechnungen[0].amount += manuell_gestellte_rechnungen[0].total_amount
+                elif not gestellte_rechnungen[0].amount:
+                    gestellte_rechnungen[0].amount = manuell_gestellte_rechnungen[0].total_amount
+            
             project = frappe.db.get_value('Sales Order', order.sales_order, 'project') or None
             project_name = frappe.db.get_value('Project', project, 'project_name') or None if project else None
             project_manager = frappe.db.get_value('Project', project, 'project_manager_name') or None
