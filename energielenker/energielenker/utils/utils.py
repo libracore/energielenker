@@ -4,6 +4,7 @@
 
 import frappe
 import re
+from erpnext.stock.reorder_item import reorder_item
 
 def get_plz_gebiet(self, event):
 	if not self.gebiet and self.customer_address:
@@ -12,6 +13,11 @@ def get_plz_gebiet(self, event):
 			gebiet = re.findall(r"[0-9]{2,}", _gebiet)
 			if len(gebiet) > 0:
 				self.gebiet = gebiet[0][:2]
+	return
+
+@frappe.whitelist()	
+def reorder_item_wrapper():
+	reorder_item()
 	return
 		
 	
