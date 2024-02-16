@@ -9,7 +9,5 @@ frappe.listview_settings['Material Request'] = {
 function autocreate_material_requests() {
     frappe.call({
         'method': 'energielenker.energielenker.utils.utils.reorder_item_wrapper',
-        'callback': function(response) {
-        }
     });
 }
