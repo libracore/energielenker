@@ -95,7 +95,7 @@ def set_booked_hours(issue):
 	if len(total_hours) > 0:
 		booked_hours = total_hours[0].total_hours
 	else:
-		booked_hours = 1
+		booked_hours = 0
 
 	return booked_hours
 		
