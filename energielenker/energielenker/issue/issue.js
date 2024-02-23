@@ -93,6 +93,7 @@ function set_booked_hours(frm) {
         'args': {
             'issue': frm.doc.name
         },
+        'async': false,
         'callback': function(response) {
             cur_frm.set_value('booked_hours', response.message);
         }
