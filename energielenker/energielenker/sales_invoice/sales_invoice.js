@@ -129,6 +129,9 @@ frappe.ui.form.on("Sales Invoice", {
             });
         }
     },
+    before_submit: function(frm) {
+        check_delivery_status(frm);
+    },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
     },
@@ -466,4 +469,34 @@ function check_stundensatz(frm) {
 			}
 		});
 	}
+}
+
+function check_delivery_status(frm) {
+    //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'. The user can chose between yes and no
+    console.log("HEY YOU");
+    var sales_order = //how do i get sales order from the sales invoice?
+    console.log("sales_order", cur_frm.doc.sales_order);
+    if (cur_frm.doc.sales_order) {
+        frappe.call({
+            "method": "frappe.client.get",
+            "args": {
+                "doctype": "Sales Order",
+                "name": cur_frm.doc.sales_order
+            },
+            "callback": function(r) {
+                var sales_order = r.message;
+                if (sales_order.status === "To Deliver and Bill") {
+                    frappe.confirm(
+                        'Der Kundenauftrag ist im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten?',
+                        function(){
+                            frappe.validated=true;
+                        },
+                        function(){
+                            frappe.validated=false;
+                        }
+                    );
+                }
+            }
+        });
+    }
 }
