@@ -80,3 +80,22 @@ def delete_based_on_mark():
     for issue in issues:
         iss = frappe.get_doc("Issue", issue.name)
         iss.delete()
+
+@frappe.whitelist()
+def set_booked_hours(issue):
+
+	sql_query = """
+		SELECT SUM(`hours`) AS `total_hours`
+		FROM `tabTimesheet Detail`
+		WHERE `issue` = '{issue}'
+		AND (SELECT docstatus FROM `tabTimesheet` WHERE name = `tabTimesheet Detail`.`parent`) = 1""".format(issue=issue)
+	
+	total_hours = frappe.db.sql(sql_query, as_dict=True)
+
+	if len(total_hours) > 0:
+		booked_hours = total_hours[0].total_hours
+	else:
+		booked_hours = 1
+
+	return booked_hours
+		
