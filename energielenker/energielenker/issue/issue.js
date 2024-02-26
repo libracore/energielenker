@@ -10,7 +10,6 @@ try {
 frappe.ui.form.on('Issue', {
     refresh: function(frm) {
            set_timestamps(frm);
-           set_booked_hours(frm);
            cur_frm.fields_dict['address'].get_query = function(doc, cdt, cdn) {
                 var d = locals[cdt][cdn];
                 return {
@@ -86,19 +85,6 @@ frappe.ui.form.on('Issue', {
 		}
     },
 })
-
-function set_booked_hours(frm) {
-	frappe.call({
-        'method': 'energielenker.energielenker.issue.issue.set_booked_hours',
-        'args': {
-            'issue': frm.doc.name
-        },
-        'async': false,
-        'callback': function(response) {
-            cur_frm.set_value('booked_hours', response.message);
-        }
-    });
-}
 
 // Change the timeline specification, from "X days ago" to the exact date and time
 function set_timestamps(frm){

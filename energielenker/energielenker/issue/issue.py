@@ -82,20 +82,34 @@ def delete_based_on_mark():
         iss.delete()
 
 @frappe.whitelist()
-def set_booked_hours(issue):
-
-	sql_query = """
-		SELECT SUM(`hours`) AS `total_hours`
-		FROM `tabTimesheet Detail`
-		WHERE `issue` = '{issue}'
-		AND (SELECT docstatus FROM `tabTimesheet` WHERE name = `tabTimesheet Detail`.`parent`) = 1""".format(issue=issue)
+def set_booked_hours(self, event):
 	
-	total_hours = frappe.db.sql(sql_query, as_dict=True)
+	affected_issues = []
+	
+	for time_log in self.time_logs:
+		if time_log.issue and time_log.issue not in affected_issues:
+			affected_issues.append(time_log.issue)
+	
+	for issue in affected_issues:
+		sql_query = """
+			SELECT SUM(`hours`) AS `total_hours`
+			FROM `tabTimesheet Detail`
+			WHERE `issue` = '{issue}'
+			AND `docstatus` = 1;""".format(issue=issue)
+	
+		total_hours = frappe.db.sql(sql_query, as_dict=True)
 
-	if len(total_hours) > 0:
-		booked_hours = total_hours[0].total_hours
-	else:
-		booked_hours = 0
+		if len(total_hours) > 0:
+			booked_hours = total_hours[0].total_hours
+		else:
+			booked_hours = 0
+		
+		if not booked_hours:
+			booked_hours = 0
+		
+		frappe.db.set_value("Issue", issue, "booked_hours", booked_hours)
+	
+	frappe.db.commit()
 
-	return booked_hours
+	return
 		

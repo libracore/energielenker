@@ -155,7 +155,9 @@ doc_events = {
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
     },
     "Timesheet": {
-        "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"
+        "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
+        "on_submit": "energielenker.energielenker.issue.issue.set_booked_hours",
+        "on_cancel": "energielenker.energielenker.issue.issue.set_booked_hours"
     },
     "Item": {
         "after_insert": "energielenker.energielenker.item.item.check_item_code"
