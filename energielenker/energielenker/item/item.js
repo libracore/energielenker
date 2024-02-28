@@ -4,6 +4,16 @@
 frappe.ui.form.on("Item", {
     refresh: function(frm) {
         set_timestamps(frm);
+
+        // add label button
+        frm.add_custom_button(__("Etikette Gross erstellen"), function() {
+            create_label(frm, 'Labels 106x48mm');
+        }).addClass("btn-primary");
+
+        // add label button
+        frm.add_custom_button(__("Etikette Klein erstellen"), function() {
+            create_label(frm, 'Labels 60x30mm');
+        }).addClass("btn-primary");
     },
     validate: function(frm) {
         if (frm.doc.__islocal) {
@@ -81,4 +91,72 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function create_label(frm, label_printer) {
+    // html-content of the label
+    var dimensions = get_dimensions(label_printer);
+    var content = get_label_content(frm, dimensions);
+    var w = window.open(
+         frappe.urllib.get_full_url("/api/method/erpnextswiss.erpnextswiss.doctype.label_printer.label_printer.download_label"  
+		    + "?label_reference=" + encodeURIComponent(label_printer)
+		    + "&content=" + encodeURIComponent(content))
+    );
+    if (!w) {
+        frappe.msgprint(__("Please enable pop-ups")); return;
+    }
+}
+
+function get_label_content(frm, dimensions) {
+    var item_name = frm.doc.item_name;
+    if ((item_name != frm.doc.item_purchasing_name)&&(frm.doc.item_purchasing_name)) {
+        var item_name = frm.doc.item_purchasing_name;
+    }
+    var item_code = frm.doc.name;
+    var url = `https://erp.energielenker.de/desk#Form/Item/${item_code}`
+    var supplier_item_entries = '';
+    for (var i=0; i < frm.doc.supplier_items.length; i++) {
+        var supplier = frm.doc.supplier_items[i].supplier
+        var supplier_part_no = frm.doc.supplier_items[i].supplier_part_no
+        supplier_item_entries += `${supplier}: ${supplier_part_no}<br>`
+    }
+    
+    var content = `
+        <div style="width: ${dimensions.width}%; position: absolute; height: ${dimensions.height}px;">
+            <div style="position: absolute; z-index: 1;">
+                <div style="padding-top: 10px; font-size: ${dimensions.large_font_size}pt;">
+                    <b>${item_name}</b>
+                </div>
+                <div style="padding-top: 10px; font-size: ${dimensions.small_font_size}pt;">
+                    ${supplier_item_entries}
+                </div>
+                <div style="padding-top: 10px; font-size: ${dimensions.large_font_size}pt;">
+                    <b>${item_code}</b>
+                </div>
+            </div>
+            <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: 20%;">
+            </div>
+        </div>
+    `
+    return content;
+}
+
+function get_dimensions(label_printer) {
+    if (label_printer == 'Labels 106x48mm') {
+        return {
+            width: 98,
+            height: 220,
+            large_font_size: 14,
+            small_font_size: 10
+        }
+    }
+
+    if (label_printer == 'Labels 60x30mm') {
+        return {
+            width: 97,
+            height: 140,
+            large_font_size: 8,
+            small_font_size: 6
+        }
+    }
 }
