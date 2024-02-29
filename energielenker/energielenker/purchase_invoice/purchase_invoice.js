@@ -13,6 +13,10 @@ frappe.ui.form.on('Purchase Invoice', {
                 }
             }
         }, 1000);
+        
+        if (frm.doc.__islocal) {
+			check_for_streckengeschaeft(frm);
+		}
     },
     validate: function(frm) {
         if (cur_frm.doc.project) {
@@ -78,5 +82,20 @@ function validate_vielfaches(frm) {
                 frappe.validated=false;
             }
         } 
+    });
+}
+
+function check_for_streckengeschaeft(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_streckengeschaeft',
+        'args': {
+            'doc_': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+			setTimeout(function() {
+				cur_frm.set_value('update_stock', response.message);
+			}, 1000);
+        }
     });
 }
