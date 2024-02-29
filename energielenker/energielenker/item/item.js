@@ -6,13 +6,16 @@ frappe.ui.form.on("Item", {
         set_timestamps(frm);
 
         // add label button
-        frm.add_custom_button(__("Etikette Gross erstellen"), function() {
-            create_label(frm, 'Labels 106x48mm');
-        }).addClass("btn-primary");
-
-        // add label button
-        frm.add_custom_button(__("Etikette Klein erstellen"), function() {
-            create_label(frm, 'Labels 60x30mm');
+        frm.add_custom_button(__("Etikette erstellen"), function() {
+            frappe.prompt([
+                {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
+            ],
+            function(values){
+                create_label(frm, values.label_printer);
+            },
+            'Etiketten Auswahl',
+            'Auswählen'
+            )
         }).addClass("btn-primary");
     },
     validate: function(frm) {
@@ -142,21 +145,30 @@ function get_label_content(frm, dimensions) {
 }
 
 function get_dimensions(label_printer) {
-    if (label_printer == 'Labels 106x48mm') {
-        return {
+    var dimensions = {
+        'Labels 106x48mm': {
             width: 98,
             height: 220,
+            large_font_size: 14,
+            small_font_size: 10
+        },
+        'Labels 60x30mm': {
+            width: 97,
+            height: 140,
+            large_font_size: 8,
+            small_font_size: 6
+        },
+        'Labels 101.6x38.1': {
+            width: 98,
+            height: 180,
             large_font_size: 14,
             small_font_size: 10
         }
     }
 
-    if (label_printer == 'Labels 60x30mm') {
-        return {
-            width: 97,
-            height: 140,
-            large_font_size: 8,
-            small_font_size: 6
-        }
+    if (!dimensions[label_printer]) {
+        frappe.throw("Für dieses Etikett wurde kein Format hinterlegt.");
+    } else {
+        return dimensions[label_printer]
     }
 }
