@@ -107,24 +107,26 @@ function validate_streckengeschäft(frm) {
         'async': false,
         'callback': function(response) {
 			console.log(cur_frm.doc.update_stock)
-			if (response.message == 1 && cur_frm.doc.update_stock == 0) {
+			if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
 				frappe.validated=false;
 				frappe.confirm(
-					'Achtung, Lager wird nicht aktualisiert, trotzdem Fortfahren?',
+					'Achtung, Lager wird nicht aktualisiert - trotzdem Fortfahren?',
 					function(){
-						frappe.validated=true;
+						locals.do_submit=true;
+						cur_frm.savesubmit();
 						window.close();
 					},
 					function(){
 						window.close();
 					}
 				)
-			} else if (response.message == 0 && cur_frm.doc.update_stock == 1) {
+			} else if (response.message == 0 && cur_frm.doc.update_stock == 1 && !locals.do_submit) {
 				frappe.validated=false;
 				frappe.confirm(
-					'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist, trotzdem Fortfahren?',
+					'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist - trotzdem Fortfahren?',
 					function(){
-						frappe.validated=true;
+						locals.do_submit=true;
+						cur_frm.savesubmit();
 						window.close();
 					},
 					function(){
@@ -136,4 +138,5 @@ function validate_streckengeschäft(frm) {
 			}
         }
     });
+    locals.do_submit=false;
 }
