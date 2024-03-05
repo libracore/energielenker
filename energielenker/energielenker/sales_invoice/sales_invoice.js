@@ -132,6 +132,12 @@ frappe.ui.form.on("Sales Invoice", {
     before_submit: function(frm) {
         check_delivery_status(frm);
     },
+    on_submit: function(frm) {
+        var to_check = contains_abrechnen_nach_aufwand_items(frm);
+        if (to_check){
+            check_status_and_close_sales_order(frm);
+        }
+    },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
     },
@@ -340,7 +346,6 @@ function check_navision(frm) {
     });
 }
 
-
 function check_vielfaches(frm) {
     if (cur_frm.doc.billing_type == 'Rechnung') {
     var items = cur_frm.doc.items;
@@ -472,31 +477,113 @@ function check_stundensatz(frm) {
 }
 
 function check_delivery_status(frm) {
-    //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'. The user can chose between yes and no
-    console.log("HEY YOU");
-    var sales_order = //how do i get sales order from the sales invoice?
-    console.log("sales_order", cur_frm.doc.sales_order);
-    if (cur_frm.doc.sales_order) {
-        frappe.call({
-            "method": "frappe.client.get",
-            "args": {
-                "doctype": "Sales Order",
-                "name": cur_frm.doc.sales_order
-            },
-            "callback": function(r) {
-                var sales_order = r.message;
-                if (sales_order.status === "To Deliver and Bill") {
-                    frappe.confirm(
-                        'Der Kundenauftrag ist im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten?',
-                        function(){
-                            frappe.validated=true;
-                        },
-                        function(){
-                            frappe.validated=false;
-                        }
-                    );
+    //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'.
+    //the user can chose between yes and no. if the user choses no the sales invoice will not be submitted.
+    var sales_invoice=cur_frm.doc;
+    var sales_orders = get_corresponding_sales_orders(sales_invoice);
+    var incomplete_so = [];
+    var needs_revision = false;
+    if (!locals.force_save) {
+        for (var sales_order of sales_orders){
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Sales Order",
+                    'name': sales_order
+                },
+                "async": false,
+                'callback': function(response) {
+                    var so = response.message;
+                    if (so.status == "To Deliver and Bill") {
+                        frappe.validated=false;
+                        incomplete_so.push(so.name);
+                        needs_revision = true;
+                    }
                 }
+            });
+        }
+        if (needs_revision) {
+            var so_names = incomplete_so.join(", ");
+            frappe.confirm(
+                'Der Kundenauftrag ' + so_names + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten?',
+                function(){
+                    cur_frm.savesubmit();
+                    locals.force_save = true;
+                },
+                function(){
+                    cur_frm.reload_doc();
+                }
+            );
+        }
+    }
+    
+    locals.force_save = false;
+}
+
+function contains_abrechnen_nach_aufwand_items(frm){
+    //checks if a sales invoice contains items that are billed by the hour
+    var sales_invoice=cur_frm.doc;
+    var sales_invoice_items = sales_invoice.items;
+    var abrechnen_nach_aufwand = false;
+    sales_invoice_items.forEach(obj =>{
+        if (obj.artikel_nach_aufwand){
+            abrechnen_nach_aufwand = true;
+            return abrechnen_nach_aufwand;
+        }
+    })
+    return abrechnen_nach_aufwand;
+}
+
+function check_status_and_close_sales_order(frm) {
+    //closes the sales order if all items are billed
+    var sales_invoice=cur_frm.doc;
+    var sales_orders = get_corresponding_sales_orders(sales_invoice);
+
+    //checks all sales orders
+    sales_orders.forEach(obj =>{
+        var sales_order_doc = frappe.get_doc("Sales Order", obj.toString());
+        var sales_order_items = sales_order_doc.items;
+
+        //creates list of item codes of the sales invoice
+        var sales_invoice_item_codes = [];
+        sales_invoice.items.forEach(obj =>{
+            sales_invoice_item_codes.push(obj.item_code);
+        });
+
+        //checks if all items are billed in the current invoice or have been billed in a previous invoice
+        var all_billed = true;
+        sales_order_items.forEach(obj => {
+            if (!sales_invoice_item_codes.includes(obj.item_code) && obj.billed_amt == 0 && obj.amount != 0) {
+                all_billed = false; 
             }
         });
-    }
+
+        //closes the sales order if all items are billed
+        if (all_billed){
+            frappe.ui.form.is_saving = true;
+            frappe.call({
+                method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
+                args: {status: "Closed", name: sales_order_doc.name},
+                callback: function(r){
+                    me.frm.reload_doc();
+                },
+                always: function() {
+                    frappe.ui.form.is_saving = false;
+                }
+            });
+            console.log("sales order closed");
+        }
+    });
+}
+
+function get_corresponding_sales_orders(sales_invoice){
+    //gets the the sales orders without duplicates whose items are listed in a sales invoice
+    var sales_orders = [];
+    var sales_invoice_items = sales_invoice.items;
+    sales_invoice_items.forEach(function(item){
+        if (item.sales_order && !sales_orders.includes(item.sales_order)){
+            sales_orders.push(item.sales_order);
+        }
+    });
+    return sales_orders;
 }
