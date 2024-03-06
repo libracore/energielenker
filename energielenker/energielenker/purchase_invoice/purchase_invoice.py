@@ -13,25 +13,21 @@ def validate_lagerfuehrung_of_items(purchase_invoice, event):
 @frappe.whitelist()
 def check_for_streckengeschaeft(doc_):
 	doc=json.loads(doc_)
-	
+	#set default to non-streckengeschaeft
 	update_stock = 1
 	
+	#check if one item is streckengeschaeft
 	for item in doc['items']:
 		if item.get('purchase_order'):
-			so_items = frappe.db.sql("""
+			so_item = frappe.db.sql("""
 				SELECT `soitem`.`delivered_by_supplier`
 				FROM `tabSales Order Item` AS `soitem`
-				LEFT JOIN `tabSales Order` AS `so` ON `soitem`.`parent` = `so`.`name`
-				LEFT JOIN `tabPurchase Order Item` AS `poitem` ON `poitem`.`sales_order` = `so`.`name`
-				LEFT JOIN `tabPurchase Order` AS `po` ON `poitem`.`parent` = `po`.`name`
-				WHERE `po`.`name` = '{po}'
-				AND `soitem`.`item_code` = '{item}'
-				AND `po`.`docstatus` = 1
-				AND `so`.`docstatus` = 1
-				GROUP BY `soitem`.`delivered_by_supplier`""".format(po=item['purchase_order'], item=item['item_code']), as_dict=True)
-			
-			for so_item in so_items:
-				if so_item['delivered_by_supplier'] == 1:
-					update_stock = 0
-
+				LEFT JOIN `tabPurchase Order Item` AS `poitem` ON `poitem`.`sales_order_item` = `soitem`.`name`
+				WHERE `poitem`.`name` = '{po_detail}'
+				AND `poitem`.`docstatus` = 1
+				AND `soitem`.`docstatus` = 1""".format(po_detail=item['po_detail']), as_dict=True)
+			#if one item is streckengeschaeft, dont update stock - discussed with MR. Ruhkamp by call
+			if so_item[0]['delivered_by_supplier'] == 1:
+				update_stock = 0
+				
 	return update_stock
