@@ -13,6 +13,10 @@ frappe.ui.form.on('Purchase Invoice', {
                 }
             }
         }, 1000);
+        
+        if (frm.doc.__islocal) {
+			set_update_stock(frm);
+		}
     },
     validate: function(frm) {
         if (cur_frm.doc.project) {
@@ -26,10 +30,8 @@ frappe.ui.form.on('Purchase Invoice', {
         check_vielfaches(frm);
         return
     },
-    onload: function(frm) {
-        if (cur_frm.doc.docstatus == 0) {
-            cur_frm.set_value("update_stock", 1);
-        }
+    before_submit: function(frm) {
+		validate_streckengeschäft(frm);
     }
 })
 
@@ -79,4 +81,62 @@ function validate_vielfaches(frm) {
             }
         } 
     });
+}
+
+function set_update_stock(frm) {
+	frappe.call({
+		'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_streckengeschaeft',
+		'args': {
+			'doc_': cur_frm.doc
+		},
+		'async': false,
+		'callback': function(response) {
+			setTimeout(function() {
+				cur_frm.set_value('update_stock', response.message);
+			}, 1000);
+		}
+	});
+}
+
+function validate_streckengeschäft(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_streckengeschaeft',
+        'args': {
+            'doc_': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+			console.log(cur_frm.doc.update_stock)
+			if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
+				frappe.validated=false;
+				frappe.confirm(
+					'Achtung, Lager wird nicht aktualisiert - trotzdem Fortfahren?',
+					function(){
+						locals.do_submit=true;
+						cur_frm.savesubmit();
+						window.close();
+					},
+					function(){
+						window.close();
+					}
+				)
+			} else if (response.message == 0 && cur_frm.doc.update_stock == 1 && !locals.do_submit) {
+				frappe.validated=false;
+				frappe.confirm(
+					'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist - trotzdem Fortfahren?',
+					function(){
+						locals.do_submit=true;
+						cur_frm.savesubmit();
+						window.close();
+					},
+					function(){
+						window.close();
+					}
+				)
+			} else {
+				frappe.validated=true;
+			}
+        }
+    });
+    locals.do_submit=false;
 }
