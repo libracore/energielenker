@@ -27,7 +27,8 @@ def check_for_streckengeschaeft(doc_):
 				AND `poitem`.`docstatus` = 1
 				AND `soitem`.`docstatus` = 1""".format(po_detail=item['po_detail']), as_dict=True)
 			#if one item is streckengeschaeft, dont update stock - discussed with MR. Ruhkamp by call
-			if so_item[0]['delivered_by_supplier'] == 1:
-				update_stock = 0
+			if len(so_item) > 0:
+				if so_item[0]['delivered_by_supplier'] == 1:
+					update_stock = 0
 				
 	return update_stock
