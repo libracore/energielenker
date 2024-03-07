@@ -165,10 +165,10 @@ def get_data(filters):
                     gestellte_rechnungen_amount = 0
                 
                 cost_center_payment_amount = cost_center.payment_amount if cost_center.payment_amount > 0 else 0
-                outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
+                raw_outstanding_amount = cost_center_payment_amount - gestellte_rechnungen_amount
                 
-                outstanding_amount = outstanding_amount if outstanding_amount > 0 else 0
-                over_amount = 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                outstanding_amount = raw_outstanding_amount if raw_outstanding_amount > 0 else 0
+                over_amount = 0 if outstanding_amount > 0 else (raw_outstanding_amount * -1)
                 
                 if cost_center.cost_center in cost_centers_dict:
                     
