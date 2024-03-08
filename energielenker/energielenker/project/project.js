@@ -10,6 +10,13 @@ frappe.ui.form.on("Project", {
                     'Quotation',
                 ],
                 'fieldname': "project"
+            },
+            {
+                'label': 'Material',
+                'items': [
+                    'Depot',
+                ],
+                'fieldname': "project"
             }
         ]);
     },

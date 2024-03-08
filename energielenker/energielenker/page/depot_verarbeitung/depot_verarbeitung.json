@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2024-03-06 15:47:07.281598",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2024-03-06 15:47:07.281598",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "depot-verarbeitung",
+ "owner": "Administrator",
+ "page_name": "depot-verarbeitung",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Stock Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Depot Verarbeitung"
+}
