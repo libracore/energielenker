@@ -198,7 +198,6 @@ frappe.ui.form.on("Payment Forecast", {
             "async": true,
             "callback": function(response) {
                 var data = response.message;
-
                 var percent_to_bill = data.percent_to_bill;
                 if (data.percent_already_billed > 0) {
                     var percent_already_billed = data.percent_already_billed
@@ -217,217 +216,243 @@ frappe.ui.form.on("Payment Forecast", {
                 if (percent_already_billed >= 100) {
                     frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
                 } else {
-					
-					
-					var orderindexrow = 0;
-					var options;
-					var defaults;
-					
-					// Check if the row you click is the last target order from the table
-					
-					frm.doc.payment_schedule.forEach(function (paymentrow) {
-					  if (paymentrow.order === row.order) {
-						orderindexrow = paymentrow.idx; 
-					  }
-					});
-								
-					console.log('roow', row.idx, ':', orderindexrow);
-					
-					if (row.idx === orderindexrow) {
-					
-					//Check if the last invoice amount match with the last payment schedule made for the order
-						frappe.call({
-							"method": "frappe.client.get",
-							"args": {
-								"doctype": "Sales Order",
-								"name": row.order ,
-							},
-							'callback': function (response) {
-								var payment_schedule = response.message.payment_schedule;
-								if (payment_schedule) {
-												
-									if (payment_schedule[payment_schedule.length - 1].payment_amount === row.amount ) {
-										
-										options = "Schlussrechnung";
-										defaults = "Schlussrechnung";
-										options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-										
-									} else {
-										options = "Teilrechnung\nSchlussrechnung";
-										defaults = "Teilrechnung";
-										options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-									}
-									
-								}
-								
-							}
-						});
-					
-					} else {
-						options = "Teilrechnung\nSchlussrechnung";
-						defaults = "Teilrechnung";
-						options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-					}
-					
+                    var orderindexrow = 0;
+                    var options;
+                    var defaults;
+                    
+                    // Check if the row you click is the last target order from the table
+                    frm.doc.payment_schedule.forEach(function (paymentrow) {
+                        if (paymentrow.order === row.order) {
+                        orderindexrow = paymentrow.idx; 
+                        }
+                    });
+                    if (row.idx === orderindexrow) {
+                        //Check if the last invoice amount match with the last payment schedule made for the order
+                        frappe.call({
+                            "method": "frappe.client.get",
+                            "args": {
+                                "doctype": "Sales Order",
+                                "name": row.order ,
+                            },
+                            'callback': function (response) {
+                                var payment_schedule = response.message.payment_schedule;
+                                if (payment_schedule) {
+                                    if (payment_schedule[payment_schedule.length - 1].payment_amount === row.amount ) {
+                                        options = "Schlussrechnung";
+                                        defaults = "Schlussrechnung";
+                                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                                    } else {
+                                        options = "Teilrechnung\nSchlussrechnung";
+                                        defaults = "Teilrechnung";
+                                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        options = "Teilrechnung\nSchlussrechnung";
+                        defaults = "Teilrechnung";
+                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                    }
                 }
             }
         });
     },
     projektbewertung_ignorieren: function(frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
-
         // Update all the rows containing the same order name with the checkbox changes
         frm.doc.payment_schedule.forEach(order => {
-			if (order.order == row.order && order.name != row.name) {
-				frappe.model.set_value(order.doctype, order.name, 'projektbewertung_ignorieren', row.projektbewertung_ignorieren);
-			}
-
+            if (order.order == row.order && order.name != row.name) {
+                frappe.model.set_value(order.doctype, order.name, 'projektbewertung_ignorieren', row.projektbewertung_ignorieren);
+            }
+        });
+    },
+    rollback_invoice: function(frm, cdt, cdn) {
+        let row = frappe.get_doc(cdt, cdn);
+        console.log(row)
+        frappe.call({
+            "method": "energielenker.energielenker.project.project.payment_forecast_rollback_invoice",
+            "args": {
+                "so": row.order,
+                'so_ref': row.so_ref,
+                "sinv": row.invoice,
+                "project": row.parent
+            },
+            "async": true,
+            "callback": function(response) {
+                var data = response.message;
+                if (data.status == 200) {
+                    cur_frm.reload_doc();
+                    if (data.typ == 'Teilrechnung') {
+                        frappe.msgprint("Die Teilrechnung wurde zurückgebaut.")
+                    } else {
+                        frappe.msgprint("Die Schlussrechnung wurde zurückgebaut.")
+                    }
+                } else {
+                    var msg = get_rollback_error_msg(data.status);
+                    frappe.msgprint(`${msg}<br><br>${data.info}`);
+                }
+                console.log(response)
+            }
         });
     }
 });
 
-function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults) {
+function get_rollback_error_msg(statuscode) {
+    var msg = {
+        '301': "Es existiert bereits eine Schlussrechnung.",
+        '302': "Die Zahlung zur Teilrechnung konnte nicht storniert werden.",
+        '303': "Die Rechnung konnte nicht storniert werden.",
+        '304': "Die Rechnung konnte nicht aus der Sales Order entfernt werden.",
+        '305': "Die Rechnung konnte nicht aus dem Projekt entfernt werden.",
+        "306": "Gutschriften konnten nicht storniert werden",
+        "307": "Unbekannter Rechnungstyp (Weder Teil- noch Schlussrechnung)",
+        "308": "Zuvor stornierte Teilrechnungs-Zahlungen konnten nicht neu gebucht werden."
+    }
+    return msg[statuscode]
+}
 
-	if (options != "message" ) {
-		var d = new frappe.ui.Dialog({
-                        'fields': [
-                            {'fieldname': 'section_auftrag', 'label': 'Auftrags Details', 'fieldtype': 'Section Break'},
-                            {'fieldname': 'order_percent', 'label': 'Zu Verrechnen in Prozent', 'fieldtype': 'Percent', 'default': percent_to_bill, 'read_only': 1},
-                            {'fieldname': 'order_amount', 'label': 'Zu Verrechnen als Betrag', 'fieldtype': 'Currency', 'default': row.amount, 'read_only': 1},
-                            {'fieldname': 'cb_1', 'fieldtype': 'Column Break'},
-                            {'fieldname': 'order_percent_total', 'label': 'Bereits Verrechnet in Prozent', 'fieldtype': 'Percent', 'default': percent_already_billed, 'read_only': 1},
-                            {'fieldname': 'order_amount_total', 'label': 'Bereits Verrechnet als Betrag', 'fieldtype': 'Currency', 'default': order_amount_total, 'read_only': 1},
-                            {'fieldname': 'order_amount_grand_total', 'label': 'Gesamtbetrag', 'fieldtype': 'Currency', 'default': data.grand_total, 'read_only': 1},
-                            {'fieldname': 'section_invoice', 'label': 'Rechnungs Details', 'fieldtype': 'Section Break'},
-                            {'fieldname': 'invoice_type', 'label': 'Rechnungstyp', 'fieldtype': 'Select', 'options': options, 'reqd': 1, 'default': defaults,
-                                'change': function() {
-                                    if (cur_dialog.fields_dict.invoice_type.value == 'Teilrechnung') {
-                                        cur_dialog.fields_dict.invoice_percent.df.hidden = 0;
-                                        cur_dialog.fields_dict.invoice_percent.refresh();
-                                        cur_dialog.fields_dict.invoice_amount.df.hidden = 0;
-                                        cur_dialog.fields_dict.invoice_amount.refresh();
-                                        cur_dialog.fields_dict.invoice_gestaltung.df.hidden = 0;
-                                        cur_dialog.fields_dict.invoice_gestaltung.refresh();
-                                    } else {
-                                        cur_dialog.fields_dict.invoice_percent.toggle();
-                                        cur_dialog.fields_dict.invoice_amount.toggle();
-                                        cur_dialog.fields_dict.invoice_gestaltung.toggle();
-                                    }
-                                }
-                            },
-                            {'fieldname': 'invoice_gestaltung', 'label': 'Rechnungsgestaltung', 'fieldtype': 'Select', 'options': 'In Prozent\nAls Betrag', 'reqd': 1, 'default': 'In Prozent',
-                                'change': function() {
-                                    if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
-                                        cur_dialog.fields_dict.invoice_amount.df.read_only = 1;
-                                        cur_dialog.fields_dict.invoice_amount.refresh();
-                                        cur_dialog.fields_dict.invoice_percent.df.read_only = 0;
-                                        cur_dialog.fields_dict.invoice_percent.refresh();
-                                    } else {
-                                        cur_dialog.fields_dict.invoice_amount.df.read_only = 0;
-                                        cur_dialog.fields_dict.invoice_amount.refresh();
-                                        cur_dialog.fields_dict.invoice_percent.df.read_only = 1;
-                                        cur_dialog.fields_dict.invoice_percent.refresh();
-                                    }
-                                }
-                            },
-                            {'fieldname': 'invoice_date', 'label': 'Rechnungsdatum', 'fieldtype': 'Date', 'default': frappe.datetime.nowdate(), 'reqd': 1},
-                            {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': percent_to_bill, 'precision': 9, 'reqd': 1, 'read_only': 0,
-                                'change': function() {
-                                    if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
-                                        if ((d.get_value('invoice_percent') + percent_already_billed) <= 100) {
-                                                var new_amount = (d.get_value('order_amount_grand_total') / 100) * d.get_value('invoice_percent');
-                                                d.set_value('invoice_amount',  new_amount);
-                                        } else {
-                                            frappe.msgprint("Es können total maximal 100% verrechnet werden.");
-                                            d.set_value('invoice_amount',  row.amount);
-                                            d.set_value('invoice_percent',  data.percent_to_bill);
-                                        }
-                                    }
-                                }
-                            },
-                            {'fieldname': 'invoice_amount', 'label': 'Betrag (zu Verrechnen)', 'fieldtype': 'Currency', 'default': row.amount, 'reqd': 1, 'read_only': 1,
-                                'change': function() {
-                                    if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'Als Betrag') {
-                                        if ((d.get_value('invoice_amount') + order_amount_total) <= data.grand_total) {
-                                                var new_percent = (100 / d.get_value('order_amount_grand_total')) * d.get_value('invoice_amount');
-                                                d.set_value('invoice_percent', new_percent);
-                                        } else {
-                                            frappe.msgprint("Es können total maximal 100% verrechnet werden.");
-                                            d.set_value('invoice_amount',  row.amount);
-                                        }
-                                    }
-                                }
-                            }
-                        ],
-                        primary_action: function(){
-                            if (d.get_value('invoice_type') == 'Schlussrechnung') {
-                                d.hide();
-                                frappe.call({
-                                    "method": "energielenker.energielenker.project.project.make_final_sales_invoice",
-                                    "args": {
-                                        "order": row.order,
-                                        'invoice_date': d.get_value('invoice_date')
-                                    },
-                                    "async": false,
-                                    "callback": function(response) {
-										var invoice_data = response.message;
-										frappe.call({
-											"method": "energielenker.energielenker.project.project.update_payment_scheudle",
-											"args": {
-												'name': row.name,
-												'invoice_date': d.get_value('invoice_date'),
-												'invoice': invoice_data.invoice,
-												'amount': invoice_data.amount,
-												'schlussrechnung': 1
-											},
-											"async": false,
-											"callback": function(response) {
-												setTimeout(function(){
-													frappe.set_route("Form", "Sales Invoice", invoice_data.invoice);
-													location.reload();
-												}, 1000);
-											}
-										});
-                                    }
-                                });
+function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults) {
+    if (options != "message" ) {
+        var d = new frappe.ui.Dialog({
+            'fields': [
+                {'fieldname': 'section_auftrag', 'label': 'Auftrags Details', 'fieldtype': 'Section Break'},
+                {'fieldname': 'order_percent', 'label': 'Zu Verrechnen in Prozent', 'fieldtype': 'Percent', 'default': percent_to_bill, 'read_only': 1},
+                {'fieldname': 'order_amount', 'label': 'Zu Verrechnen als Betrag', 'fieldtype': 'Currency', 'default': row.amount, 'read_only': 1},
+                {'fieldname': 'cb_1', 'fieldtype': 'Column Break'},
+                {'fieldname': 'order_percent_total', 'label': 'Bereits Verrechnet in Prozent', 'fieldtype': 'Percent', 'default': percent_already_billed, 'read_only': 1},
+                {'fieldname': 'order_amount_total', 'label': 'Bereits Verrechnet als Betrag', 'fieldtype': 'Currency', 'default': order_amount_total, 'read_only': 1},
+                {'fieldname': 'order_amount_grand_total', 'label': 'Gesamtbetrag', 'fieldtype': 'Currency', 'default': data.grand_total, 'read_only': 1},
+                {'fieldname': 'section_invoice', 'label': 'Rechnungs Details', 'fieldtype': 'Section Break'},
+                {'fieldname': 'invoice_type', 'label': 'Rechnungstyp', 'fieldtype': 'Select', 'options': options, 'reqd': 1, 'default': defaults,
+                    'change': function() {
+                        if (cur_dialog.fields_dict.invoice_type.value == 'Teilrechnung') {
+                            cur_dialog.fields_dict.invoice_percent.df.hidden = 0;
+                            cur_dialog.fields_dict.invoice_percent.refresh();
+                            cur_dialog.fields_dict.invoice_amount.df.hidden = 0;
+                            cur_dialog.fields_dict.invoice_amount.refresh();
+                            cur_dialog.fields_dict.invoice_gestaltung.df.hidden = 0;
+                            cur_dialog.fields_dict.invoice_gestaltung.refresh();
+                        } else {
+                            cur_dialog.fields_dict.invoice_percent.toggle();
+                            cur_dialog.fields_dict.invoice_amount.toggle();
+                            cur_dialog.fields_dict.invoice_gestaltung.toggle();
+                        }
+                    }
+                },
+                {'fieldname': 'invoice_gestaltung', 'label': 'Rechnungsgestaltung', 'fieldtype': 'Select', 'options': 'In Prozent\nAls Betrag', 'reqd': 1, 'default': 'In Prozent',
+                    'change': function() {
+                        if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
+                            cur_dialog.fields_dict.invoice_amount.df.read_only = 1;
+                            cur_dialog.fields_dict.invoice_amount.refresh();
+                            cur_dialog.fields_dict.invoice_percent.df.read_only = 0;
+                            cur_dialog.fields_dict.invoice_percent.refresh();
+                        } else {
+                            cur_dialog.fields_dict.invoice_amount.df.read_only = 0;
+                            cur_dialog.fields_dict.invoice_amount.refresh();
+                            cur_dialog.fields_dict.invoice_percent.df.read_only = 1;
+                            cur_dialog.fields_dict.invoice_percent.refresh();
+                        }
+                    }
+                },
+                {'fieldname': 'invoice_date', 'label': 'Rechnungsdatum', 'fieldtype': 'Date', 'default': frappe.datetime.nowdate(), 'reqd': 1},
+                {'fieldname': 'invoice_percent', 'label': 'Prozent (zu Verrechnen)', 'fieldtype': 'Percent', 'default': percent_to_bill, 'precision': 9, 'reqd': 1, 'read_only': 0,
+                    'change': function() {
+                        if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'In Prozent') {
+                            if ((d.get_value('invoice_percent') + percent_already_billed) <= 100) {
+                                    var new_amount = (d.get_value('order_amount_grand_total') / 100) * d.get_value('invoice_percent');
+                                    d.set_value('invoice_amount',  new_amount);
                             } else {
-                                d.hide();
-                                frappe.call({
-                                    "method": "energielenker.energielenker.project.project.make_sales_invoice",
-                                    "args": {
-                                        "order": row.order,
-                                        'percent': d.get_value('invoice_percent'),
-                                        'amount': d.get_value('invoice_amount'),
-                                        'percent_billed': percent_already_billed,
-                                        'invoice_date': d.get_value('invoice_date'),
-                                        'invoice_type': d.get_value('invoice_type')
-                                    },
-                                    "async": false,
-                                    "callback": function(response) {
-										frappe.call({
-											"method": "energielenker.energielenker.project.project.update_payment_scheudle",
-											"args": {
-												'name': row.name,
-												'invoice_date': d.get_value('invoice_date'),
-												'invoice': response.message
-											},
-											"async": false,
-											"callback": function(r) {
-												setTimeout(function(){
-													frappe.set_route("Form", "Sales Invoice", response.message);
-													location.reload();
-												}, 1000);
-											}
-										});
-                                    }
-                                });
+                                frappe.msgprint("Es können total maximal 100% verrechnet werden.");
+                                d.set_value('invoice_amount',  row.amount);
+                                d.set_value('invoice_percent',  data.percent_to_bill);
                             }
+                        }
+                    }
+                },
+                {'fieldname': 'invoice_amount', 'label': 'Betrag (zu Verrechnen)', 'fieldtype': 'Currency', 'default': row.amount, 'reqd': 1, 'read_only': 1,
+                    'change': function() {
+                        if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'Als Betrag') {
+                            if ((d.get_value('invoice_amount') + order_amount_total) <= data.grand_total) {
+                                    var new_percent = (100 / d.get_value('order_amount_grand_total')) * d.get_value('invoice_amount');
+                                    d.set_value('invoice_percent', new_percent);
+                            } else {
+                                frappe.msgprint("Es können total maximal 100% verrechnet werden.");
+                                d.set_value('invoice_amount',  row.amount);
+                            }
+                        }
+                    }
+                }
+            ],
+            primary_action: function(){
+                if (d.get_value('invoice_type') == 'Schlussrechnung') {
+                    d.hide();
+                    frappe.call({
+                        "method": "energielenker.energielenker.project.project.make_final_sales_invoice",
+                        "args": {
+                            "order": row.order,
+                            'invoice_date': d.get_value('invoice_date')
                         },
-                        primary_action_label: __('Rechnung erstellen')
+                        "async": false,
+                        "callback": function(response) {
+                            var invoice_data = response.message;
+                            frappe.call({
+                                "method": "energielenker.energielenker.project.project.update_payment_scheudle",
+                                "args": {
+                                    'name': row.name,
+                                    'invoice_date': d.get_value('invoice_date'),
+                                    'invoice': invoice_data.invoice,
+                                    'amount': invoice_data.amount,
+                                    'schlussrechnung': 1
+                                },
+                                "async": false,
+                                "callback": function(response) {
+                                    setTimeout(function(){
+                                        frappe.set_route("Form", "Sales Invoice", invoice_data.invoice);
+                                        location.reload();
+                                    }, 1000);
+                                }
+                            });
+                        }
                     });
-                    d.show();
+                } else {
+                    d.hide();
+                    frappe.call({
+                        "method": "energielenker.energielenker.project.project.make_sales_invoice",
+                        "args": {
+                            "order": row.order,
+                            'percent': d.get_value('invoice_percent'),
+                            'amount': d.get_value('invoice_amount'),
+                            'percent_billed': percent_already_billed,
+                            'invoice_date': d.get_value('invoice_date'),
+                            'invoice_type': d.get_value('invoice_type')
+                        },
+                        "async": false,
+                        "callback": function(response) {
+                            frappe.call({
+                                "method": "energielenker.energielenker.project.project.update_payment_scheudle",
+                                "args": {
+                                    'name': row.name,
+                                    'invoice_date': d.get_value('invoice_date'),
+                                    'invoice': response.message
+                                },
+                                "async": false,
+                                "callback": function(r) {
+                                    setTimeout(function(){
+                                        frappe.set_route("Form", "Sales Invoice", response.message);
+                                        location.reload();
+                                    }, 1000);
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            primary_action_label: __('Rechnung erstellen')
+        });
+        d.show();
     } else {
-		  frappe.msgprint("Eine Schlussrechnung für diese Bestellung ist bereits erstellt worden.");
+        frappe.msgprint("Eine Schlussrechnung für diese Bestellung ist bereits erstellt worden.");
 	}
 }
 
@@ -493,12 +518,12 @@ function prevent_renaming(frm) {
 
 function filter_address(frm) {
     cur_frm.fields_dict['shipping_address'].get_query = function(doc, cdt, cdn) {
-        var d = locals[cdt][cdn];          
-            return {
-                filters: {
-                        "link_name": frm.doc.customer
-                }                       
+        var d = locals[cdt][cdn];
+        return {
+            filters: {
+                    "link_name": frm.doc.customer
             }
+        }
     }
 }
 
@@ -532,17 +557,17 @@ function set_wiederkehrende_benachrichtigung(frm) {
             if (response.message) {
                 var customer = response.message;
                 if (customer) {
-					frappe.call({
-						"method": "frappe.client.set_value",
-						"args": {
-							"doctype": "Customer",
-							"name": customer.name,
-							"fieldname": {
-								"wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
-							},
-						},
-					});
-				}	
+                    frappe.call({
+                        "method": "frappe.client.set_value",
+                        "args": {
+                            "doctype": "Customer",
+                            "name": customer.name,
+                            "fieldname": {
+                                "wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
+                            },
+                        },
+                    });
+                }
             }
         }
     });

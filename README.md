@@ -2,6 +2,8 @@
 energielenker Soloutions
 
 ### Version
+#### 2.133.0
+Sinv Rollback für Payment Forecast
 #### 2.132.1
 Verbesserung aus v2.132.0
 #### 2.132.0

@@ -14,7 +14,8 @@
   "invoice",
   "invoice_created",
   "create_invoice",
-  "so_ref"
+  "so_ref",
+  "rollback_invoice"
  ],
  "fields": [
   {
@@ -99,10 +100,16 @@
    "fieldname": "projektbewertung_ignorieren",
    "fieldtype": "Check",
    "label": "Projektbewertung ignorieren"
+  },
+  {
+   "depends_on": "eval:doc.invoice_created",
+   "fieldname": "rollback_invoice",
+   "fieldtype": "Button",
+   "label": "Rollback Invoice"
   }
  ],
  "istable": 1,
- "modified": "2024-01-19 10:48:58.096086",
+ "modified": "2024-03-14 09:53:30.832396",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",

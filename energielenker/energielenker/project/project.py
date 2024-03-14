@@ -788,9 +788,192 @@ def get_highest_project_end_date(project):
 
 @frappe.whitelist()
 def update_payment_scheudle(name=None, invoice=None, invoice_date=None, amount=None, schlussrechnung=False):
-	frappe.db.set_value("Payment Forecast", name, "invoice_created", 1, update_modified=False)
-	frappe.db.set_value("Payment Forecast", name, "invoice", invoice, update_modified=False)
-	frappe.db.set_value("Payment Forecast", name, "invoice_date", invoice_date, update_modified=False)
-	if schlussrechnung:
-		frappe.db.set_value("Payment Forecast", name, "amount", amount, update_modified=False)
-	return
+    frappe.db.set_value("Payment Forecast", name, "invoice_created", 1, update_modified=False)
+    frappe.db.set_value("Payment Forecast", name, "invoice", invoice, update_modified=False)
+    frappe.db.set_value("Payment Forecast", name, "invoice_date", invoice_date, update_modified=False)
+    if schlussrechnung:
+        frappe.db.set_value("Payment Forecast", name, "amount", amount, update_modified=False)
+    return
+
+@frappe.whitelist()
+def payment_forecast_rollback_invoice(so, sinv, project):
+    def get_payments(sinv, docstatus=1):
+        payments = frappe.db.sql("""
+                                 SELECT `parent` AS `name`
+                                 FROM `tabPayment Entry Reference`
+                                 WHERE `reference_name` = '{0}'
+                                 AND `docstatus` = {1}
+                                 """.format(sinv, docstatus), as_dict=True)
+        return payments
+    
+    def get_advance_payments(sinv):
+        payments = []
+        sinv = frappe.get_doc("Sales Invoice", sinv)
+        for advance_payment in sinv.advances:
+            payments.append({
+                "name": advance_payment.reference_name
+            })
+        
+        return payments
+
+    def cancel_payments(payments):
+        try:
+            for payment in payments:
+                p = frappe.get_doc("Payment Entry", payment.get("name"))
+                p.cancel()
+            return False
+        except Exception as err:
+            return err
+    
+    def check_for_schluss_rg(so):
+        so = frappe.get_doc("Sales Order", so)
+        for rg in so.billing_overview:
+            if rg.billing_portion == 100:
+                return True
+        
+        return False
+    
+    def cancel_invoice(sinv):
+        try:
+            sinv = frappe.get_doc("Sales Invoice", sinv)
+            if sinv.docstatus == 1:
+                sinv.cancel()
+            elif sinv.docstatus == 0:
+                sinv.submit()
+                sinv.cancel()
+            return False
+        except Exception as err:
+            return err
+    
+    def remove_sinv_from_so(so, sinv):
+        try:
+            so = frappe.get_doc("Sales Order", so)
+            new_billing_overview = []
+            for rg in so.billing_overview:
+                if rg.sales_invoice != sinv:
+                    new_billing_overview.append(rg)
+            
+            so.billing_overview = new_billing_overview
+            so.save()
+            return False
+        except Exception as err:
+            return err
+    
+    def remove_sinv_from_project(project, sinv):
+        try:
+            project = frappe.get_doc("Project", project)
+            for rg in project.payment_schedule:
+                if rg.invoice == sinv:
+                    rg.invoice = None
+                    rg.invoice_date = None
+                    rg.invoice_created = 0
+            project.save()
+            return False
+        except Exception as err:
+            return err
+    
+    def cancel_returns(so, sinv):
+        try:
+            so = frappe.get_doc("Sales Order", so)
+            for rg in so.billing_overview:
+                if rg.sales_invoice != sinv:
+                    return_sinvs = frappe.db.sql("""
+                                                 SELECT `name`
+                                                 FROM `tabSales Invoice`
+                                                 WHERE `is_return` = 1
+                                                 AND `return_against` = '{0}'
+                                                 AND `docstatus` = 1
+                                                 """.format(rg.sales_invoice), as_dict=True)
+                    for return_sinv in return_sinvs:
+                        r_sinv = frappe.get_doc("Sales Invoice", return_sinv.name)
+                        r_sinv.cancel()
+            return False
+        except Exception as err:
+            return err
+    
+    def resubmit_payments(so, sinv):
+        try:
+            so = frappe.get_doc("Sales Order", so)
+            for rg in so.billing_overview:
+                if rg.sales_invoice != sinv:
+                    payments = get_payments(rg.sales_invoice, docstatus=2)
+                    if len(payments) > 1:
+                        return 'Mehrere stornierte Zahlungen zu {0} vorhanden'.format(rg.sales_invoice)
+                    for payment in payments:
+                        set_as_draft = frappe.db.sql("""
+                                                     UPDATE `tabPayment Entry`
+                                                     SET `docstatus` = 0
+                                                     WHERE `name` = '{0}'
+                                                     """.format(payment.name), as_list=True)
+                        p = frappe.get_doc("Payment Entry", payment.name)
+                        p.submit()
+            return False
+        except Exception as err:
+            return err
+    
+    def return_data(status, typ=None, payments=None, info=None):
+        data = {
+            'status': status,
+            'typ': typ,
+            'payments': payments,
+            'info': info
+        }
+
+        return data
+    
+    sinv = frappe.get_doc("Sales Invoice", sinv)
+
+    if sinv.billing_type == 'Teilrechnung':
+        if check_for_schluss_rg(so):
+            return return_data(301, info='')
+        
+        payments = get_payments(sinv.name)
+        if len(payments) > 0:
+            error_in_cp = cancel_payments(payments)
+            if error_in_cp:
+                return return_data(302, info=error_in_cp)
+        
+        error_in_ri = remove_sinv_from_so(so, sinv.name)
+        if error_in_ri:
+            return return_data(304, info=error_in_ri)
+        
+        error_in_rip = remove_sinv_from_project(project, sinv.name)
+        if error_in_rip:
+            return return_data(305, info=error_in_rip)
+        
+        error_in_ci = cancel_invoice(sinv.name)
+        if error_in_ci:
+            return return_data(303, info=error_in_ci)
+        
+        return return_data(200, typ='Teilrechnung', payments=payments)
+    
+    elif sinv.billing_type == 'Schlussrechnung':
+        error_in_ri = remove_sinv_from_so(so, sinv.name)
+        if error_in_ri:
+            return return_data(304, info=error_in_ri)
+        
+        error_in_rip = remove_sinv_from_project(project, sinv.name)
+        if error_in_rip:
+            return return_data(305, info=error_in_rip)
+        
+        advance_payments = get_advance_payments(sinv.name)
+        if len(advance_payments) > 0:
+            error_in_cp = cancel_payments(advance_payments)
+            if error_in_cp:
+                return return_data(302, info=error_in_cp)
+        
+        error_in_ci = cancel_invoice(sinv.name)
+        if error_in_ci:
+            return return_data(303, info=error_in_ci)
+        
+        error_in_cr = cancel_returns(so, sinv.name)
+        if error_in_cr:
+            return return_data(306, info=error_in_cr)
+        
+        error_in_rsp = resubmit_payments(so, sinv.name)
+        if error_in_rsp:
+            return return_data(308, info=error_in_rsp)
+        
+        return return_data(200, typ='Schlussrechnung')
+    else:
+        return return_data(307, info='Unbekannter Rechnungstyp')
