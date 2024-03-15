@@ -32,6 +32,7 @@ def get_columns(filters):
 
 def get_data(filters):
     data = []
+    cost_centers = {}
     #get total amount from Payment Schedule until filter date
     orders = frappe.db.sql("""SELECT 
                                 `so`.`name` AS `sales_order`,
@@ -45,13 +46,66 @@ def get_data(filters):
                             AND `so`.`docstatus` = 1
                             AND `so`.`status` NOT IN ('Closed', 'Completed')                
                             GROUP BY `sales_order`""".format(date=filters.date), as_dict=True)
-    for order in orders:
-        gestellte_rechnungen = frappe.db.sql("""
-												SELECT SUM(`amount`)
-												FROM `tabSales Invoice Item`
-												WHERE `sales_order` = '{so}'
-												AND `parent`.`docstatus` = 1""".format(so=order.sales_order), as_dict=True)
     
-    data = orders
+    #loop through all orders
+    for order in orders:
+
+        gestellte_rechnungen = frappe.db.sql("""
+                                        SELECT SUM(`si`.`rounded_total`) AS `amount`
+                                        FROM `tabSales Invoice` AS `si`
+                                        WHERE `si`.`name` IN (
+                                            SELECT `siitem`.`parent`
+                                            FROM `tabSales Invoice Item` AS `siitem`
+                                            WHERE `siitem`.`sales_order` = '{so}')
+                                        AND `si`.`docstatus` = 1""".format(so=order.sales_order), as_dict=True)
+    
+        #set outstanding amount
+        order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
+        if len(gestellte_rechnungen) > 0:
+            if gestellte_rechnungen[0].amount:
+                outstanding_amount = order_payment_amount - gestellte_rechnungen[0].amount
+            else:
+                outstanding_amount = order_payment_amount
+        else:
+            outstanding_amount = order_payment_amount                
+        
+        #If Filter is "Auftrag" and outstanding_amount is not 0, create line for Order
+        if filters.ausfuehrung == 'Auftrag':
+            if outstanding_amount != 0:
+                _data = {
+                    'sales_order': order.get('sales_order'),
+                    'project': order.get('project'),
+                    'project_name': frappe.db.get_value('Project', order.get('project'), 'project_name') or None if order.get('project') else None,
+                    'project_manager': frappe.db.get_value('Project', order.get('project'), 'project_manager_name') or None if order.get('project') else None,
+                    'cost_center': order.get('cost_center'),
+                    'due_date': order.get('due_date'),
+                    'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
+                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                }
+                data.append(_data)
+        #If Filter is "Kostenstelle" create cost center or add amount to existing cost center
+        else:
+            cost_center = order.get('cost_center')
+            if cost_center and cost_center in cost_centers and outstanding_amount != 0:
+                if outstanding_amount > 0:
+                    cost_centers[cost_center]['outstanding_amount'] += outstanding_amount
+                else:
+                    cost_centers[cost_center]['over_amount'] += (outstanding_amount * -1)
+            elif cost_center and cost_center not in cost_centers and outstanding_amount != 0:
+                if outstanding_amount > 0:
+                    new_entry = {'outstanding_amount': outstanding_amount, 'over_amount': 0}
+                    cost_centers[cost_center] = new_entry
+                else:
+                    new_entry = {'outstanding_amount': 0, 'over_amount': (outstanding_amount * -1)}
+                    cost_centers[cost_center] = new_entry
+                    
+    #If Filter is "Kostenstelle", prepare data for report
+    for cost_center, amount in cost_centers.items():
+        _data = {
+            'cost_center': cost_center,
+            'outstanding_amount': amount.get('outstanding_amount') if amount.get('outstanding_amount') else 0,
+            'over_amount': amount.get('over_amount') if amount.get('over_amount') else 0
+        }
+        data.append(_data)
 
     return data
