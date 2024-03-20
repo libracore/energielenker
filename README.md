@@ -2,6 +2,8 @@
 energielenker Soloutions
 
 ### Version
+#### 2.134.0
+get_license API Endpunkt
 #### 2.133.0
 Sinv Rollback für Payment Forecast
 #### 2.132.1

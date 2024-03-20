@@ -32,5 +32,17 @@ def get_data():
                     "description": _("energielenker Settings")
                 }
             ]
+        },
+        {
+            "label": _("API"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Lizenz Anfrage",
+                    "label": _("Lizenz Anfrage"),
+                    "description": _("Lizenz Anfrage")
+                }
+            ]
         }
-]
+    ]
