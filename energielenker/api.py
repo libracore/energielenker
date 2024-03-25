@@ -125,6 +125,7 @@ def get_license(**kwargs):
                 "doctype": "Lizenz Anfrage",
                 "request": json_formatted_str
             }).insert(ignore_permissions=True)
+            # voucher_dict = make_voucher() --> TBD
         return raise_200()
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
