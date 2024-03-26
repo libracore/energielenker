@@ -190,70 +190,83 @@ frappe.ui.form.on("Payment Forecast", {
     create_invoice: function(frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
         frappe.call({
-            "method": "energielenker.energielenker.project.project.get_order_payment_forecast_details",
+            "method": "energielenker.energielenker.project.project.check_order_payment_forecast_item_deactivations",
             "args": {
-                "order": row.order,
-                'amount': row.amount
+                "order": row.order
             },
             "async": true,
-            "callback": function(response) {
-                var data = response.message;
-                var percent_to_bill = data.percent_to_bill;
-                if (data.percent_already_billed > 0) {
-                    var percent_already_billed = data.percent_already_billed
+            "callback": function(item_deactivations) {
+                if (item_deactivations.message.disabled_items > 0){
+                    frappe.msgprint(`Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Artikel sind deaktivert:<br>${item_deactivations.message.msg}<br><br>Aktivieren Sie diese und versuchen Sie es erneut.`);
                 } else {
-                    var percent_already_billed = 0;
-                }
-                if (percent_already_billed > 0) {
-                    var order_amount_total = (data.grand_total / 100) * percent_already_billed;
-                    // fallback
-                    if (percent_to_bill == 0) {
-                        percent_to_bill = 100 - percent_already_billed;
-                    }
-                } else {
-                    var order_amount_total = 0.00;
-                }
-                if (percent_already_billed >= 100) {
-                    frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
-                } else {
-                    var orderindexrow = 0;
-                    var options;
-                    var defaults;
-                    
-                    // Check if the row you click is the last target order from the table
-                    frm.doc.payment_schedule.forEach(function (paymentrow) {
-                        if (paymentrow.order === row.order) {
-                        orderindexrow = paymentrow.idx; 
-                        }
-                    });
-                    if (row.idx === orderindexrow) {
-                        //Check if the last invoice amount match with the last payment schedule made for the order
-                        frappe.call({
-                            "method": "frappe.client.get",
-                            "args": {
-                                "doctype": "Sales Order",
-                                "name": row.order ,
-                            },
-                            'callback': function (response) {
-                                var payment_schedule = response.message.payment_schedule;
-                                if (payment_schedule) {
-                                    if (payment_schedule[payment_schedule.length - 1].payment_amount === row.amount ) {
-                                        options = "Schlussrechnung";
-                                        defaults = "Schlussrechnung";
-                                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-                                    } else {
-                                        options = "Teilrechnung\nSchlussrechnung";
-                                        defaults = "Teilrechnung";
-                                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                    frappe.call({
+                        "method": "energielenker.energielenker.project.project.get_order_payment_forecast_details",
+                        "args": {
+                            "order": row.order,
+                            'amount': row.amount
+                        },
+                        "async": true,
+                        "callback": function(response) {
+                            var data = response.message;
+                            var percent_to_bill = data.percent_to_bill;
+                            if (data.percent_already_billed > 0) {
+                                var percent_already_billed = data.percent_already_billed
+                            } else {
+                                var percent_already_billed = 0;
+                            }
+                            if (percent_already_billed > 0) {
+                                var order_amount_total = (data.grand_total / 100) * percent_already_billed;
+                                // fallback
+                                if (percent_to_bill == 0) {
+                                    percent_to_bill = 100 - percent_already_billed;
+                                }
+                            } else {
+                                var order_amount_total = 0.00;
+                            }
+                            if (percent_already_billed >= 100) {
+                                frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
+                            } else {
+                                var orderindexrow = 0;
+                                var options;
+                                var defaults;
+                                
+                                // Check if the row you click is the last target order from the table
+                                frm.doc.payment_schedule.forEach(function (paymentrow) {
+                                    if (paymentrow.order === row.order) {
+                                    orderindexrow = paymentrow.idx; 
                                     }
+                                });
+                                if (row.idx === orderindexrow) {
+                                    //Check if the last invoice amount match with the last payment schedule made for the order
+                                    frappe.call({
+                                        "method": "frappe.client.get",
+                                        "args": {
+                                            "doctype": "Sales Order",
+                                            "name": row.order ,
+                                        },
+                                        'callback': function (response) {
+                                            var payment_schedule = response.message.payment_schedule;
+                                            if (payment_schedule) {
+                                                if (payment_schedule[payment_schedule.length - 1].payment_amount === row.amount ) {
+                                                    options = "Schlussrechnung";
+                                                    defaults = "Schlussrechnung";
+                                                    options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                                                } else {
+                                                    options = "Teilrechnung\nSchlussrechnung";
+                                                    defaults = "Teilrechnung";
+                                                    options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
+                                                }
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    options = "Teilrechnung\nSchlussrechnung";
+                                    defaults = "Teilrechnung";
+                                    options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
                                 }
                             }
-                        });
-                    } else {
-                        options = "Teilrechnung\nSchlussrechnung";
-                        defaults = "Teilrechnung";
-                        options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults)
-                    }
+                        }
+                    });
                 }
             }
         });

@@ -7,6 +7,7 @@ from energielenker.energielenker.timesheet_manager import get_employee_rate_exte
 from frappe import _
 from frappe.model.naming import make_autoname
 from frappe.utils.data import get_datetime, today, add_days
+from frappe.utils import cint
 
 
 class PowerProject():
@@ -977,3 +978,19 @@ def payment_forecast_rollback_invoice(so, sinv, project):
         return return_data(200, typ='Schlussrechnung')
     else:
         return return_data(307, info='Unbekannter Rechnungstyp')
+
+@frappe.whitelist()
+def check_order_payment_forecast_item_deactivations(order):
+    disabled_items = 0
+    msg = ''
+    o = frappe.get_doc("Sales Order", order)
+    for item in o.items:
+        if cint(frappe.db.get_value("Item", item.item_code, "disabled")) == 1:
+            disabled_items += 1
+            msg += '''
+                <br>Zeile: {0} // Artikel: {1}
+            '''.format(item.idx, item.item_name)
+    return {
+        'disabled_items': disabled_items,
+        'msg': msg
+    }
