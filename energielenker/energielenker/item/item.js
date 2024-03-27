@@ -102,7 +102,7 @@ function create_label(frm, label_printer) {
         var item_name = frm.doc.item_purchasing_name;
     }
     var item_code = frm.doc.name;
-    var url = `https://erp.energielenker.de/desk#Form/Item/${item_code}`
+    var qr_url = `https://erp.energielenker.de/desk%23Form/Item/${item_code}`;
     var supplier_item_entries = '';
     for (var i=0; i < frm.doc.supplier_items.length; i++) {
         var supplier = frm.doc.supplier_items[i].supplier
@@ -136,7 +136,7 @@ function create_label(frm, label_printer) {
                                 <b>${item_code}</b>
                             </div>
                         </div>
-                        <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: 20%;">
+                        <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${qr_url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: 20%;">
                         </div>
                     </div>
                 `
