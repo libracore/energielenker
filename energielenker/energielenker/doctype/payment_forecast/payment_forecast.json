@@ -105,11 +105,11 @@
    "depends_on": "eval:doc.invoice_created",
    "fieldname": "rollback_invoice",
    "fieldtype": "Button",
-   "label": "Rollback Invoice"
+   "label": "Rechnung l\u00f6schen"
   }
  ],
  "istable": 1,
- "modified": "2024-03-14 09:53:30.832396",
+ "modified": "2024-03-27 11:58:03.449952",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",

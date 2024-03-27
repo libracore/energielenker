@@ -281,33 +281,42 @@ frappe.ui.form.on("Payment Forecast", {
         });
     },
     rollback_invoice: function(frm, cdt, cdn) {
-        let row = frappe.get_doc(cdt, cdn);
-        console.log(row)
-        frappe.call({
-            "method": "energielenker.energielenker.project.project.payment_forecast_rollback_invoice",
-            "args": {
-                "so": row.order,
-                'so_ref': row.so_ref,
-                "sinv": row.invoice,
-                "project": row.parent
-            },
-            "async": true,
-            "callback": function(response) {
-                var data = response.message;
-                if (data.status == 200) {
-                    cur_frm.reload_doc();
-                    if (data.typ == 'Teilrechnung') {
-                        frappe.msgprint("Die Teilrechnung wurde zurückgebaut.")
-                    } else {
-                        frappe.msgprint("Die Schlussrechnung wurde zurückgebaut.")
+        frappe.confirm(
+            'Achtung Rechnung wird gelöscht - Bitte bestätigen.',
+            function(){
+                // on yes
+                let row = frappe.get_doc(cdt, cdn);
+                console.log(row)
+                frappe.call({
+                    "method": "energielenker.energielenker.project.project.payment_forecast_rollback_invoice",
+                    "args": {
+                        "so": row.order,
+                        'so_ref': row.so_ref,
+                        "sinv": row.invoice,
+                        "project": row.parent
+                    },
+                    "async": true,
+                    "callback": function(response) {
+                        var data = response.message;
+                        if (data.status == 200) {
+                            cur_frm.reload_doc();
+                            if (data.typ == 'Teilrechnung') {
+                                frappe.msgprint("Die Teilrechnung wurde zurückgebaut.")
+                            } else {
+                                frappe.msgprint("Die Schlussrechnung wurde zurückgebaut.")
+                            }
+                        } else {
+                            var msg = get_rollback_error_msg(data.status);
+                            frappe.msgprint(`${msg}<br><br>${data.info}`);
+                        }
+                        console.log(response)
                     }
-                } else {
-                    var msg = get_rollback_error_msg(data.status);
-                    frappe.msgprint(`${msg}<br><br>${data.info}`);
-                }
-                console.log(response)
+                });
+            },
+            function(){
+                // on no
             }
-        });
+        )
     }
 });
 
