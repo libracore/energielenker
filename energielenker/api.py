@@ -4,6 +4,7 @@
 
 import frappe
 import json
+from frappe.utils.data import getdate
 
 '''
     Call to action: https://[System-URL]/api/method/energielenker.api.get_license
@@ -125,8 +126,9 @@ def get_license(**kwargs):
                 "doctype": "Lizenz Anfrage",
                 "request": json_formatted_str
             }).insert(ignore_permissions=True)
-            # voucher_dict = make_voucher() --> TBD
-        return raise_200()
+            frappe.log_error(kwargs, "kwargs")
+            voucher_dict = make_voucher(kwargs['requested_licenses'])
+        return raise_200(voucher_dict)
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
 
@@ -191,3 +193,47 @@ def raise_xxx(code, title, message, daten=None):
     else:
         frappe.local.response.message = "{0}: {1}".format(title, message)
     return
+
+def make_voucher(requested_licenses):
+	sales_order = make_sales_order(requested_licenses)
+	voucher_dict = [
+            {
+                "evse_count": 1,
+                "Aktivierungscode": "a4a8d7c8c6a72e7"
+            },
+            {
+                "evse_count": 10,
+                "Aktivierungscode": "sda8hdiec6a42tt"
+            }
+        ]
+	return voucher_dict
+	
+def make_sales_order(requested_licenses):
+	today = getdate()
+	new_doc = frappe.get_doc({
+		"doctype": "Sales Order",
+		"customer": "WAGO GmbH & Co. KG",
+		"navision_konto": "Eigene Hardware Lobas",
+		"cost_center": "1000020 - Energiesteuerung - Solutions - Energiesteuerung (Lobas, Enbas, KI) - S",
+		"po_no": "API",
+		})
+	
+	for license_entry in requested_licenses:
+		frappe.log_error(license_entry, "license_entry")
+		lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
+		print(lot_size)
+		entry = {
+			"reference_doctype": "Sales Order Item",
+			'item_code': license_entry['item_energielenker'],
+			'delivery_date': today,
+			'qty': license_entry['qty'],
+			'uom': lot_size
+		}
+		new_doc.append('items', entry)
+	
+	new_doc = new_doc.insert(ignore_permissions=True)
+	new_doc.submit()
+	
+	sales_order = new_doc.name
+	
+	return sales_order
