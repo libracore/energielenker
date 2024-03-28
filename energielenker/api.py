@@ -208,11 +208,15 @@ def make_voucher(requested_licenses):
 	return voucher_dict
 	
 def make_sales_order(requested_licenses):
+	#get today
 	today = getdate()
+	
+	#get API and Customer Dokument
 	api_doc_name = get_api_doc_name()
 	api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
 	customer = frappe.get_doc("Customer", api_document.customer)
-	frappe.log_error(customer.ansprechpartner, "customer.ansprechpartner")
+	
+	#create new Sales Order
 	new_doc = frappe.get_doc({
 		'doctype': 'Sales Order',
 		'customer': api_document.customer,
@@ -227,6 +231,7 @@ def make_sales_order(requested_licenses):
 		'tax_id': customer.tax_id
 		})
 	
+	#Create Sales Order Items
 	for license_entry in requested_licenses:
 		frappe.log_error(license_entry, 'license_entry')
 		lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
@@ -236,20 +241,22 @@ def make_sales_order(requested_licenses):
 			'item_code': license_entry['item_energielenker'],
 			'delivery_date': today,
 			'qty': license_entry['qty'],
-			'uom': lot_size
+			'uom': lot_size,
+			'supplier': "cFos Software GmbH"
 		}
 		new_doc.append('items', entry)
 	
 	new_doc = new_doc.insert(ignore_permissions=True)
 	new_doc.submit()
 	
+	#get name of new Sales Order and return it
 	sales_order = new_doc.name
 	
 	return sales_order
-	# ~ return
 	
 def get_api_doc_name():
 	#Berechtigungen API Doctype???
 	#Sales Taxes and charges template Sales Order???
+	#Fehler abfangen?
 	api_doc_name = "API-001"
 	return api_doc_name
