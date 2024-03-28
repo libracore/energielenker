@@ -5,6 +5,7 @@
 import frappe
 import json
 from frappe.utils.data import getdate
+from erpnext.selling.doctype.sales_order.sales_order import make_purchase_order
 
 '''
     Call to action: https://[System-URL]/api/method/energielenker.api.get_license
@@ -194,7 +195,8 @@ def raise_xxx(code, title, message, daten=None):
     return
 
 def make_voucher(requested_licenses):
-	sales_order = make_sales_order(requested_licenses)
+	sales_order = create_sales_order(requested_licenses)
+	# ~ purchase_order = create_purchase_order(sales_order)
 	voucher_dict = [
             {
                 "evse_count": 1,
@@ -207,7 +209,7 @@ def make_voucher(requested_licenses):
         ]
 	return voucher_dict
 	
-def make_sales_order(requested_licenses):
+def create_sales_order(requested_licenses):
 	#get today
 	today = getdate()
 	
@@ -233,9 +235,8 @@ def make_sales_order(requested_licenses):
 	
 	#Create Sales Order Items
 	for license_entry in requested_licenses:
-		frappe.log_error(license_entry, 'license_entry')
+		#create Sales Order
 		lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
-		print(lot_size)
 		entry = {
 			'reference_doctype': 'Sales Order Item',
 			'item_code': license_entry['item_energielenker'],
@@ -255,8 +256,16 @@ def make_sales_order(requested_licenses):
 	return sales_order
 	
 def get_api_doc_name():
-	#Berechtigungen API Doctype???
+	#Berechtigungen API/SO/PO/Lizenz Doctype???
 	#Sales Taxes and charges template Sales Order???
 	#Fehler abfangen?
 	api_doc_name = "API-001"
 	return api_doc_name
+
+def create_purchase_order():
+	#get today
+	today = getdate()
+	
+	#create purchase order
+
+	return
