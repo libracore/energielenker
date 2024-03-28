@@ -126,7 +126,6 @@ def get_license(**kwargs):
                 "doctype": "Lizenz Anfrage",
                 "request": json_formatted_str
             }).insert(ignore_permissions=True)
-            frappe.log_error(kwargs, "kwargs")
             voucher_dict = make_voucher(kwargs['requested_licenses'])
         return raise_200(voucher_dict)
     except Exception as err:
@@ -210,20 +209,30 @@ def make_voucher(requested_licenses):
 	
 def make_sales_order(requested_licenses):
 	today = getdate()
+	api_doc_name = get_api_doc_name()
+	api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
+	customer = frappe.get_doc("Customer", api_document.customer)
+	frappe.log_error(customer.ansprechpartner, "customer.ansprechpartner")
 	new_doc = frappe.get_doc({
-		"doctype": "Sales Order",
-		"customer": "WAGO GmbH & Co. KG",
-		"navision_konto": "Eigene Hardware Lobas",
-		"cost_center": "1000020 - Energiesteuerung - Solutions - Energiesteuerung (Lobas, Enbas, KI) - S",
-		"po_no": "API",
+		'doctype': 'Sales Order',
+		'customer': api_document.customer,
+		'navision_konto': api_document.navision_konto,
+		'cost_center': api_document.cost_center,
+		'po_no': api_document.po_no,
+		'vertriebsgruppe': api_document.vertriebsgruppe,
+		'k_ansprechperson': api_document.k_ansprechperson,
+		'taxes_and_charges': api_document.taxes_and_charges,
+		'po_date': today,
+		'ansprechpartner': customer.ansprechpartner,
+		'tax_id': customer.tax_id
 		})
 	
 	for license_entry in requested_licenses:
-		frappe.log_error(license_entry, "license_entry")
+		frappe.log_error(license_entry, 'license_entry')
 		lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
 		print(lot_size)
 		entry = {
-			"reference_doctype": "Sales Order Item",
+			'reference_doctype': 'Sales Order Item',
 			'item_code': license_entry['item_energielenker'],
 			'delivery_date': today,
 			'qty': license_entry['qty'],
@@ -237,3 +246,10 @@ def make_sales_order(requested_licenses):
 	sales_order = new_doc.name
 	
 	return sales_order
+	# ~ return
+	
+def get_api_doc_name():
+	#Berechtigungen API Doctype???
+	#Sales Taxes and charges template Sales Order???
+	api_doc_name = "API-001"
+	return api_doc_name
