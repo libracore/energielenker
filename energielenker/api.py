@@ -201,16 +201,9 @@ def make_voucher(requested_licenses):
 	purchase_order = create_purchase_order(sales_order)
 	#Create Lizenzgutschein and Voucher Dict
 	lizenzgutscheine = create_lizenzgutscheine(purchase_order)
-	voucher_dict = [
-            {
-                "evse_count": 1,
-                "Aktivierungscode": "a4a8d7c8c6a72e7"
-            },
-            {
-                "evse_count": 10,
-                "Aktivierungscode": "sda8hdiec6a42tt"
-            }
-        ]
+	#create voucher dict as response for api
+	voucher_dict = create_voucher_dict(purchase_order)
+
 	return voucher_dict
 	
 def create_sales_order(requested_licenses):
@@ -264,6 +257,7 @@ def get_api_doc_name():
 	#Berechtigungen API/SO/PO/Lizenz Doctype???
 	#Sales Taxes and charges template Sales Order???
 	#Fehler abfangen?
+	#server message (Konsole)
 	api_doc_name = "API-001"
 	return api_doc_name
 
@@ -315,7 +309,6 @@ def create_lizenzgutscheine(purchase_order_name):
 	item_count = 0
 	
 	for item in purchase_order_doc.items:
-		frappe.log_error(item.name, "item.name")
 		item_count += 1
 		position_count = 1
 		for voucher in range(int(item.qty)):
@@ -332,3 +325,17 @@ def create_lizenzgutscheine(purchase_order_name):
 				
 			
 	return
+
+def create_voucher_dict(purchase_order_name):
+	voucher_dict = frappe.db.sql("""
+								SELECT
+									`evse_count`,
+									`lizenzgutschein` AS `Aktivierungscode`
+								FROM
+									`tabLizenzgutschein`
+								WHERE
+									`purchase_order` = '{po}'
+								ORDER BY
+									`evse_count`""".format(po=purchase_order_name), as_dict=True)
+	return voucher_dict
+									
