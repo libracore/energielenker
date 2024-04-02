@@ -45,6 +45,12 @@ def get_data():
                 },
                 {
                     "type": "doctype",
+                    "name": "Ladepunkt Key API Purchase Order",
+                    "label": _("Ladepunkt Key API - Purchase Order"),
+                    "description": _("Ladepunkt Key API Purchase Order")
+                },
+                {
+                    "type": "doctype",
                     "name": "Lizenz Anfrage",
                     "label": _("Lizenz Anfrage"),
                     "description": _("Lizenz Anfrage")

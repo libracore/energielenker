@@ -195,8 +195,12 @@ def raise_xxx(code, title, message, daten=None):
     return
 
 def make_voucher(requested_licenses):
+	#create Sales Order
 	sales_order = create_sales_order(requested_licenses)
-	# ~ purchase_order = create_purchase_order(sales_order)
+	#Create Purchase Order
+	purchase_order = create_purchase_order(sales_order)
+	#Create Lizenzgutschein and Voucher Dict
+	lizenzgutscheine = create_lizenzgutscheine(purchase_order)
 	voucher_dict = [
             {
                 "evse_count": 1,
@@ -234,8 +238,9 @@ def create_sales_order(requested_licenses):
 		})
 	
 	#Create Sales Order Items
+	supplier = frappe.db.get_value('Ladepunkt Key API Purchase Order', 'Ladepunkt Key API Purchase Order', 'supplier')
 	for license_entry in requested_licenses:
-		#create Sales Order
+		#create Sales Order Items
 		lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
 		entry = {
 			'reference_doctype': 'Sales Order Item',
@@ -243,7 +248,7 @@ def create_sales_order(requested_licenses):
 			'delivery_date': today,
 			'qty': license_entry['qty'],
 			'uom': lot_size,
-			'supplier': "cFos Software GmbH"
+			'supplier': supplier
 		}
 		new_doc.append('items', entry)
 	
@@ -262,10 +267,68 @@ def get_api_doc_name():
 	api_doc_name = "API-001"
 	return api_doc_name
 
-def create_purchase_order():
+def create_purchase_order(sales_order_name):
 	#get today
 	today = getdate()
 	
-	#create purchase order
+	#get Sales Order and settings
+	sales_order_doc = frappe.get_doc('Sales Order', sales_order_name)
+	po_settings = frappe.get_doc('Ladepunkt Key API Purchase Order', 'Ladepunkt Key API Purchase Order')
+	
+	#create new Purchase Order
+	new_po_doc = frappe.get_doc({
+		'doctype': 'Purchase Order',
+		'supplier': po_settings.supplier,
+		'schedule_date': today,
+		'voraussichtlicher_liefertermin': today,
+		'sales_order': sales_order_doc.name,
+		'shipping_address': "",
+		'ansprechpartner': po_settings.ansprechpartner,
+		'k_ansprechperson': po_settings.k_ansprechperson
+		})
+	
+	for item in sales_order_doc.items:
+		entry = {
+			'reference_doctype': 'Purchase Order Item',
+			'item_code': item.item_code,
+			'schedule_date': today,
+			'item_name': item.item_name,
+			'qty': item.qty,
+			'uom': item.uom,
+			'sales_order': sales_order_doc.name,
+			'cost_center': po_settings.cost_center
+		}
+		new_po_doc.append('items', entry)
+	
+	new_po_doc = new_po_doc.insert(ignore_permissions=True)
+	new_po_doc.submit()
+	
+	#get name of new Purchase Order and return it
+	purchase_order = new_po_doc.name
+	
+	return purchase_order
 
+def create_lizenzgutscheine(purchase_order_name):
+	#get Purchase Order
+	purchase_order_doc = frappe.get_doc('Purchase Order', purchase_order_name)
+	
+	item_count = 0
+	
+	for item in purchase_order_doc.items:
+		frappe.log_error(item.name, "item.name")
+		item_count += 1
+		position_count = 1
+		for voucher in range(int(item.qty)):
+			lizenzgutschein = frappe.get_doc({
+				'doctype': 'Lizenzgutschein',
+				'purchase_order': purchase_order_name,
+				'positions_nummer': '{item}.{position}'.format(item=item_count, position=position_count),
+				'position_id': item.name,
+				'evse_count': frappe.get_value("UOM", item.uom, "evse_count")
+				})
+		
+			lizenzgutschein = lizenzgutschein.insert(ignore_permissions=True)
+			position_count += 1
+				
+			
 	return

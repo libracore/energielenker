@@ -1,0 +1,70 @@
+{
+ "creation": "2024-04-02 10:37:53.450233",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supplier",
+  "section_break_2",
+  "ansprechpartner",
+  "k_ansprechperson",
+  "column_break_3",
+  "cost_center"
+ ],
+ "fields": [
+  {
+   "fieldname": "ansprechpartner",
+   "fieldtype": "Link",
+   "label": "Ansprechpartner",
+   "options": "User"
+  },
+  {
+   "fieldname": "k_ansprechperson",
+   "fieldtype": "Link",
+   "label": "Kaufm\u00e4nnische Ansprechperson",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2024-04-02 14:32:32.812995",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Ladepunkt Key API Purchase Order",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
