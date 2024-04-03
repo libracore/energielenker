@@ -37,6 +37,18 @@ def get_data():
             "label": _("API"),
             "icon": "fa fa-money-bill",
             "items": [
+				{
+                    "type": "doctype",
+                    "name": "Ladepunkt Key API",
+                    "label": _("Ladepunkt Key API"),
+                    "description": _("Ladepunkt Key API")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Ladepunkt Key API Purchase Order",
+                    "label": _("Ladepunkt Key API - Purchase Order"),
+                    "description": _("Ladepunkt Key API Purchase Order")
+                },
                 {
                     "type": "doctype",
                     "name": "Lizenz Anfrage",
