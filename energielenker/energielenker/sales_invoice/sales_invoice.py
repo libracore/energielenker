@@ -25,12 +25,8 @@ def check_if_billed(sales_order_item, sales_order_quantity, artikel_nach_aufwand
                                ON `tabSales Invoice Item`.`parent` = `tabSales Invoice`.`name`
                                WHERE `tabSales Invoice`.`status` != 'Cancelled'
                                AND `tabSales Invoice Item`.`so_detail` = '{item_code}'""".format(item_code=sales_order_item), as_dict=True)
-        if artikel_nach_aufwand == '1':
-            if item:
+        if item:
+            total_qty=sum(item_obj.qty for item_obj in item)
+            if total_qty >= int(sales_order_quantity):
                 billed = "billed"
-        else:
-            if item:
-                total_qty=sum(item_obj.qty for item_obj in item)
-                if total_qty >= int(sales_order_quantity):
-                    billed = "billed"
     return billed

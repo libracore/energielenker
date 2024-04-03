@@ -130,11 +130,10 @@ frappe.ui.form.on("Sales Invoice", {
         }
     },
     before_submit: function(frm) {
-        checkDeliveryStatus(frm);
-    },
-    on_submit: function(frm) {
         var toCheck = containsAbrechnenNachAufwandItem(frm);
+        console.log(toCheck)
         if (toCheck){
+            console.log("here");
             checkStatusAndCloseSalesOrder(frm);
         }
     },
@@ -476,56 +475,73 @@ function check_stundensatz(frm) {
 	}
 }
 
-function checkDeliveryStatus(frm) {
+function getCorrespondingSalesOrders(salesInvoice){
+    //gets the the sales orders without duplicates whose items are listed in a sales invoice
+    var salesOrders = [];
+    var invoiceItems = salesInvoice.items;
+
+    invoiceItems.forEach(item => {
+        if (item.sales_order && !salesOrders.includes(item.sales_order)){
+            salesOrders.push(item.sales_order);
+        }
+    });
+    console.log("this works: "+salesOrders);
+    return salesOrders;
+}
+
+function containsAbrechnenNachAufwandItem(frm){
+    //checks if a sales invoice contains items that are billed by the hour
+    const salesOrders = getCorrespondingSalesOrders(frm.doc);
+
+    for (const salesOrder of salesOrders){
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Sales Order",
+                'name': salesOrder
+            },
+            "async": false,
+            'callback': function(response) {
+                var so = response.message;
+                //if the sales order contains an item that is billed by the hour, it returns true
+                if (so.items.some(item => item.artikel_nach_aufwand)){
+                    console.log("containsAbrechnenNachAufwandItem: "+salesOrder)
+                    return true;
+                }
+            }
+        });    
+    }
+    return false;
+}
+
+function checkStatusAndCloseSalesOrder(frm) {
     //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'.
     //the user can chose between yes and no. if the user choses no the sales invoice will not be submitted.
-    var salesInvoice=cur_frm.doc;
-    var salesOrders = getCorrespondingSalesOrders(salesInvoice);
-    var incompleteSalesOrders = [];
-    
-    if (!locals.force_save) {
-        salesOrders.forEach(salesOrders => {
-            frappe.call({
-                'method': "frappe.client.get",
-                'args': {
-                    'doctype': "Sales Order",
-                    'name': salesOrders
-                },
-                "async": false,
-                'callback': function(response) {
-                    var so = response.message;
-                    if (so.status == "To Deliver and Bill") {
-                        frappe.validated = false;
-                        incompleteSalesOrders.push(so.name);
-                    }
-                }
-            });
+    const salesInvoice=frm.doc;
+    const salesOrders = getCorrespondingSalesOrders(salesInvoice);
+    console.log("checkStatusAndCloseSalesOrder: "+salesOrders);
+    var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
+
+    if (completelyBilledSalesOrders.length > 0){
+        const incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
+            const salesOrderDoc = frappe.get_doc("Sales Order", so);
+            return salesOrderDoc.status === "To Deliver and Bill";
         });
-        //handles Sales Orders that are in the status 'To Deliver and Bill'
-        if (incompleteSalesOrders.length > 0) {
-            var readyForClosing = incompleteSalesOrders.filter(so => readyToClose(so));
-            // asks user to confirm closing the sales order if all items are billed but the sales order is still in the status 'To Deliver and Bill'
-            if (readyForClosing.length > 0){
-                var soNames = readyForClosing.join(", ");
-                frappe.confirm(
-                    'Achtung! Der Kundenauftrag ' + soNames + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
-                    function(){
-                        locals.force_save = true;
-                        frappe.validated = true;
-                        cur_frm.savesubmit();
-                    },
-                    function(){
-                        cur_frm.reload_doc();
-                    }
-                );
-            } else {
-                frappe.validated = true;
-                locals.force_save = true;
-            }
+
+        if (incompleteSalesOrders.length > 0){
+            frappe.confirm(
+                'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
+                function(){
+                    closeSalesOrder(incompleteSalesOrders);
+                },
+                function(){
+                    cur_frm.reload_doc();
+                }
+            );
+        } else {
+            frappe.validated = true;
         }
     }
-    
-    locals.force_save = false;
 }
 
 function readyToClose(salesOrder){
@@ -536,7 +552,11 @@ function readyToClose(salesOrder){
     salesOrderItems.forEach(salesOrderItem => {
         frappe.call({
             'method': 'energielenker.energielenker.sales_invoice.sales_invoice.check_if_billed',
-            'args': {'sales_order_item': salesOrderItem.name, 'sales_order_quantity': salesOrderItem.qty, 'artikel_nach_aufwand': salesOrderItem.artikel_nach_aufwand},
+            'args': {
+                'sales_order_item': salesOrderItem.name,
+                'sales_order_quantity': salesOrderItem.qty,
+                'artikel_nach_aufwand': salesOrderItem.artikel_nach_aufwand
+            },
             'async': false,
             'callback': function(r){
                 if (r.message != "billed"){
@@ -545,49 +565,24 @@ function readyToClose(salesOrder){
             }
         })
     });
+    console.log("readyToClose: "+allBilled);
     return allBilled;
 }
 
-function containsAbrechnenNachAufwandItem(frm){
-    //checks if a sales invoice contains items that are billed by the hour
-    var salesOrder = getCorrespondingSalesOrders(cur_frm.doc);
-    var salesOrderDoc = frappe.get_doc("Sales Order", salesOrder);
-    var salesOrderItems = salesOrderDoc.items;
-    return salesOrderItems.some(item => item.artikel_nach_aufwand);
-}
-
-function checkStatusAndCloseSalesOrder(frm) {
-    //closes the sales order if all items are billed
-    var salesOrders = getCorrespondingSalesOrders(cur_frm.doc);
-
-    //checks all sales orders
+function closeSalesOrder(salesOrders){
     salesOrders.forEach(salesOrder =>{
-        var allBilled = readyToClose(salesOrder);
-       
-        if (allBilled){
-            frappe.ui.form.is_saving = true;
-            frappe.call({
-                method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
-                args: {status: "Closed", name: salesOrder},
-                callback: function(r){
-                    cur_frm.reload_doc();
-                },
-                always: function() {
-                    frappe.ui.form.is_saving = false;
-                }
-            });
-        }
+        frappe.ui.form.is_saving = true;
+        frappe.call({
+            method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
+            args: {status: "Closed", name: salesOrder},
+            callback: function(r){
+                cur_frm.reload_doc();
+            },
+            always: function() {
+                frappe.ui.form.is_saving = false;
+            }
+        });
     });
 }
 
-function getCorrespondingSalesOrders(salesInvoice){
-    //gets the the sales orders without duplicates whose items are listed in a sales invoice
-    var salesOrders = [];
-    var invoiceItems = salesInvoice.items;
-    invoiceItems.forEach(item => {
-        if (item.sales_order && !salesOrders.includes(item.sales_order)){
-            salesOrders.push(item.sales_order);
-        }
- });
-    return salesOrders;
-}
+
