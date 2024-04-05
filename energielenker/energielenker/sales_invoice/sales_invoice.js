@@ -131,9 +131,7 @@ frappe.ui.form.on("Sales Invoice", {
     },
     before_submit: function(frm) {
         var toCheck = containsAbrechnenNachAufwandItem(frm);
-        console.log(toCheck)
         if (toCheck){
-            console.log("here");
             checkStatusAndCloseSalesOrder(frm);
         }
     },
@@ -485,31 +483,29 @@ function getCorrespondingSalesOrders(salesInvoice){
             salesOrders.push(item.sales_order);
         }
     });
-    console.log("this works: "+salesOrders);
     return salesOrders;
 }
 
-function containsAbrechnenNachAufwandItem(frm){
+async function containsAbrechnenNachAufwandItem(frm){
     //checks if a sales invoice contains items that are billed by the hour
     const salesOrders = getCorrespondingSalesOrders(frm.doc);
 
-    for (const salesOrder of salesOrders){
-        frappe.call({
-            'method': "frappe.client.get",
-            'args': {
-                'doctype': "Sales Order",
-                'name': salesOrder
-            },
-            "async": false,
-            'callback': function(response) {
-                var so = response.message;
-                //if the sales order contains an item that is billed by the hour, it returns true
-                if (so.items.some(item => item.artikel_nach_aufwand)){
-                    console.log("containsAbrechnenNachAufwandItem: "+salesOrder)
-                    return true;
-                }
-            }
-        });    
+    for (const salesOrder of salesOrders) {
+        const response = await new Promise(resolve => {
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Sales Order",
+                    name: salesOrder
+                },
+                callback: resolve
+            });
+        });
+
+        const so = response.message;
+        if (so && so.items.some(item => item.artikel_nach_aufwand)) {
+            return true;
+        }
     }
     return false;
 }
@@ -517,31 +513,37 @@ function containsAbrechnenNachAufwandItem(frm){
 function checkStatusAndCloseSalesOrder(frm) {
     //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'.
     //the user can chose between yes and no. if the user choses no the sales invoice will not be submitted.
-    const salesInvoice=frm.doc;
-    const salesOrders = getCorrespondingSalesOrders(salesInvoice);
-    console.log("checkStatusAndCloseSalesOrder: "+salesOrders);
-    var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
+    var salesInvoice=cur_frm.doc;
+    var salesOrders = getCorrespondingSalesOrders(salesInvoice);
 
-    if (completelyBilledSalesOrders.length > 0){
-        const incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
-            const salesOrderDoc = frappe.get_doc("Sales Order", so);
-            return salesOrderDoc.status === "To Deliver and Bill";
-        });
+    if (!locals.force_save) {
+        var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
 
-        if (incompleteSalesOrders.length > 0){
-            frappe.confirm(
-                'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
-                function(){
-                    closeSalesOrder(incompleteSalesOrders);
-                },
-                function(){
-                    cur_frm.reload_doc();
-                }
-            );
-        } else {
-            frappe.validated = true;
+        if (completelyBilledSalesOrders.length > 0){
+    
+            var incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
+                var salesOrderDoc = frappe.get_doc("Sales Order", so);
+                return salesOrderDoc.status === "To Deliver and Bill";
+            });
+
+            if (incompleteSalesOrders.length > 0){
+                frappe.validated = false;
+                frappe.confirm(
+                    'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
+                    function(){
+                        locals.force_save = true;
+                        frappe.validated = true;
+                        cur_frm.savesubmit();
+                        //closeSalesOrder(incompleteSalesOrders);
+                    },
+                    function(){
+                        cur_frm.reload_doc();
+                    }
+                );
+            }
         }
     }
+    locals.force_save = false;
 }
 
 function readyToClose(salesOrder){
