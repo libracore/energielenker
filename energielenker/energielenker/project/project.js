@@ -59,6 +59,9 @@ frappe.ui.form.on("Project", {
         }
     },
     refresh: function(frm) {
+		if ((frm.doc.__islocal) && (frm.doc.sales_order)) {
+            cur_frm.set_value("sales_order", null);
+        }
         set_timestamps(frm);
         cur_frm.fields_dict.participants.grid.get_field('participant_contact').get_query = function(doc, cdt, cdn) {
           var child = locals[cdt][cdn];
