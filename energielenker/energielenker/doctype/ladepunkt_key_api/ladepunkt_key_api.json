@@ -12,6 +12,7 @@
   "po_no",
   "taxes_and_charges",
   "column_break_5",
+  "auftrags_projektb",
   "vertriebsgruppe",
   "k_ansprechperson",
   "users_section",
@@ -88,9 +89,15 @@
    "label": "Users",
    "options": "Ladepunkt Key API User",
    "reqd": 1
+  },
+  {
+   "fieldname": "auftrags_projektb",
+   "fieldtype": "Link",
+   "label": "Auftrags-/Projektbetreuung",
+   "options": "User"
   }
  ],
- "modified": "2024-04-02 10:33:57.756985",
+ "modified": "2024-04-10 17:01:18.672409",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Ladepunkt Key API",

@@ -209,6 +209,8 @@ def make_voucher(requested_licenses):
     lizenzgutscheine = create_lizenzgutscheine(purchase_order)
     #create voucher dict as response for api
     voucher_dict = create_voucher_dict(purchase_order)
+    #create delivery note
+    delivery_note =create_delivery_note(sales_order)
 
     return voucher_dict
     
@@ -228,8 +230,11 @@ def create_sales_order(requested_licenses):
         'navision_konto': api_document.navision_konto,
         'cost_center': api_document.cost_center,
         'po_no': api_document.po_no,
+        'auftrags_projektb': api_document.auftrags_projektb,
         'vertriebsgruppe': api_document.vertriebsgruppe,
         'k_ansprechperson': api_document.k_ansprechperson,
+        'shipping_address_name': "",
+        'shipping_address': "",
         'taxes_and_charges': api_document.taxes_and_charges,
         'po_date': today,
         'ansprechpartner': customer.ansprechpartner,
@@ -286,6 +291,7 @@ def create_purchase_order(sales_order_name):
         'schedule_date': today,
         'voraussichtlicher_liefertermin': today,
         'sales_order': sales_order_doc.name,
+        'shipping_address_name': "",
         'shipping_address': "",
         'ansprechpartner': po_settings.ansprechpartner,
         'k_ansprechperson': po_settings.k_ansprechperson
@@ -300,6 +306,7 @@ def create_purchase_order(sales_order_name):
             'qty': item.qty,
             'uom': item.uom,
             'sales_order': sales_order_doc.name,
+            'sales_order_item': item.name,
             'cost_center': po_settings.cost_center
         }
         new_po_doc.append('items', entry)
@@ -348,4 +355,47 @@ def create_voucher_dict(purchase_order_name):
                                 ORDER BY
                                     `evse_count`""".format(po=purchase_order_name), as_dict=True)
     return voucher_dict
-                                    
+
+def create_delivery_note(sales_order_name):
+    #get today
+    today = getdate()
+    
+    #get API Doc, Sales Order and Customer
+    api_doc_name = get_api_doc_name()
+    api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
+    sales_order_doc = frappe.get_doc('Sales Order', sales_order_name)
+    customer = frappe.get_doc("Customer", api_document.customer)
+
+    
+    #create new Delivery Note
+    new_dn = frappe.get_doc({
+        'doctype': 'Delivery Note',
+        'customer': api_document.customer,
+        'auftrags_projektb': api_document.auftrags_projektb,
+        'k_ansprechperson': api_document.k_ansprechperson,
+        'po_no': api_document.po_no,
+        'taxes_and_charges': api_document.taxes_and_charges,
+        'ansprechpartner': customer.ansprechpartner,
+        'contact_person': "",
+        'contact_display': ""
+        })
+    
+    for item in sales_order_doc.items:
+        entry = {
+            'reference_doctype': 'Delivery Note Item',
+            'item_code': item.item_code,
+            'qty': item.qty,
+            'uom': item.uom,
+            'against_sales_order': sales_order_name,
+            'so_detail': item.name,
+            'vk_wert': item.amount
+        }
+        new_dn.append('items', entry)
+    
+    new_dn = new_dn.insert(ignore_permissions=True)
+    new_dn.submit()
+    
+    #get name of new Purchase Order and return it
+    delivery_note = new_dn.name
+    
+    return delivery_note
