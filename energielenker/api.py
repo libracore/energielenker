@@ -371,10 +371,13 @@ def create_delivery_note(sales_order_name):
     new_dn = frappe.get_doc({
         'doctype': 'Delivery Note',
         'customer': api_document.customer,
+        'auftrags_projektb': api_document.auftrags_projektb,
         'k_ansprechperson': api_document.k_ansprechperson,
         'po_no': api_document.po_no,
         'taxes_and_charges': api_document.taxes_and_charges,
-        'ansprechpartner': customer.ansprechpartner
+        'ansprechpartner': customer.ansprechpartner,
+        'contact_person': "",
+        'contact_display': ""
         })
     
     for item in sales_order_doc.items:
