@@ -306,6 +306,7 @@ def create_purchase_order(sales_order_name):
             'qty': item.qty,
             'uom': item.uom,
             'sales_order': sales_order_doc.name,
+            'sales_order_item': item.name,
             'cost_center': po_settings.cost_center
         }
         new_po_doc.append('items', entry)
