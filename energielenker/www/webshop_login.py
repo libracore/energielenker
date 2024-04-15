@@ -14,6 +14,5 @@ def get_context(context):
         raise frappe.Redirect
 
     context["title"] = "Login"
-    context['login_name_placeholder'] = "Email Address"
 
     return context

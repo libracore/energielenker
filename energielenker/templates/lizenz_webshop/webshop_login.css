@@ -137,3 +137,7 @@ p {
   position: absolute;
   z-index: 2;
 }
+
+.input-group-text {
+    background-color: pink;
+}
