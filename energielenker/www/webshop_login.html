@@ -1,0 +1,43 @@
+{% extends "templates/lizenz_webshop/lizenz_webshop_web.html" %}
+
+{% block style %}
+<style>
+    {% include "templates/lizenz_webshop/webshop_login.css" %}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <div style='height: 50vh;'>
+        <section class='for-login'>
+            <div class="login-content page-card" style="margin-top: 18vh;">
+                <form class="form-signin form-login" role="form">
+                    <div class="page-card-head">
+                        <h3>Willkommen</h3>
+                        Um sich anzumelden, tragen sie bitte unten ihre Anmeldedaten ein.
+                    </div>
+                    <input type="text" id="login_email"
+                        class="form-control"
+                        placeholder="Benutzername"
+                        required autofocus>
+                    <div class="password-field" style="position: relative;">
+                        <input type="password" id="login_password"
+                                class="form-control" placeholder="Passwort" required>
+                        <span toggle="#login_password" class="fa fa-fw fa-eye toggle-password text-muted"></span>
+                    </div>
+                    <button class="btn btn-sm btn-primary btn-block btn-login" type="submit">
+                        {{ _("Login") }}</button>
+                    <p class="text-left" style="margin-top: 15px">
+                        Passwort vergessen?
+                    </p>
+                </form>
+            </div>
+            <div class='form-footer'></div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>{% include "templates/lizenz_webshop/webshop_login.js" %}</script>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

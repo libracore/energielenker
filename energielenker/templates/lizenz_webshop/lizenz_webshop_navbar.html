@@ -1,0 +1,11 @@
+<nav class="navbar navbar-light bg-white navbar-expand-lg sticky-top">
+    <div class="container" style="flex-wrap: nowrap;">
+        <div style="float: left;"><a class="navbar-brand" href="/webshop_login">
+            <span><img src="/assets/energielenker/images/Briefkopf_randlos_logo.jpg" style="max-width: 30%;"></span>
+        </a></div>
+        {% if frappe.session.user != "Guest" %}
+            <div style="float: rigth; margin-right: 2vw;">Kunde<br>{{ frappe.session.user }}</div>
+            <div style="float: rigth;">Logout</div>
+        {% endif %}
+    </div>
+</nav>
