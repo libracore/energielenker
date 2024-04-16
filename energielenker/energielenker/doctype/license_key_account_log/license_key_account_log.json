@@ -1,0 +1,47 @@
+{
+ "creation": "2024-04-16 13:44:53.775512",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "evse_count",
+  "license_key",
+  "user"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "evse_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Evse Count"
+  },
+  {
+   "fieldname": "license_key",
+   "fieldtype": "Data",
+   "label": "License Key"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  }
+ ],
+ "istable": 1,
+ "modified": "2024-04-16 14:02:22.819315",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "License Key Account Log",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

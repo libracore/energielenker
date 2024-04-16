@@ -2,15 +2,44 @@
 
 {% block style %}
 <style>
-    {% include "templates/includes/login/login.css" %}
+    {% include "templates/lizenz_webshop/webshop_login.css" %}
 </style>
 {% endblock %}
 
 {% block page_content %}
-    <h1>Hallo Du</h1>
-    <div>Ladepunkte: {{ ladepunkte }}</div>
+    <div style='height: 50vh;'>
+        <section class='retrieving'>
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
+                <form class="" role="form">
+                    <div class="page-card-head">
+                        Willkommen
+                        <h4>Lizenz-Key erstellen</h4>
+                        Geben Sie die gewünschte Anzahl an Ladepunkten für den Lizenz-Key an.
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <input type="Text" id="evse_count" 
+                            class="form-control"
+                            placeholder="Ladepunkte"
+                            required autofocus>
+                        <span style="margin-left: 10px;">
+                            <p style="margin-bottom: 0px; font-size: 14px;">Verfügbar</p>
+                            <p style="margin-bottom: 10px; font-size: 14px;">{{ ladepunkte }}</p>
+                        </span>
+                    </div>
+                    <p class="warning" id="qty_error"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Verfügbare Menge überschritten.</p>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom btn-key" type="submit" id="create_license_key">
+                        {{ _("Lizenz-Key erstellen") }}</button>
+                    <p class="text-left" style="margin-top: 15px">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i> Zurück
+                    </p>
+                </form>
+            </div>
+        </section>
+    </div>
 {% endblock %}
 
-{% block script %}{% endblock %}
+{% block script %}
+    <script>{% include "www/retrieving_charging_points.js" %}</script>
+{% endblock %}
 
 {% block sidebar %}{% endblock %}

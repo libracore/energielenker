@@ -37,7 +37,7 @@ def get_data():
             "label": _("API"),
             "icon": "fa fa-money-bill",
             "items": [
-				{
+                {
                     "type": "doctype",
                     "name": "Ladepunkt Key API",
                     "label": _("Ladepunkt Key API"),
@@ -54,6 +54,18 @@ def get_data():
                     "name": "Lizenz Anfrage",
                     "label": _("Lizenz Anfrage"),
                     "description": _("Lizenz Anfrage")
+                }
+            ]
+        },
+        {
+            "label": _("Lizenz-Key Webshop"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "License Key Account",
+                    "label": _("License Key Account"),
+                    "description": _("License Key Account")
                 }
             ]
         }

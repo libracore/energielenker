@@ -9,9 +9,9 @@
 {% block page_content %}
     <div style='height: 50vh;'>
         <section class='for-login'>
-            <div class="login-content page-card" style="margin-top: 18vh;">
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
                 <form class="form-signin form-login" role="form">
-                    <div class="page-card-head">
+                    <div class="page-card-head header">
                         <h3>Willkommen</h3>
                         Um sich anzumelden, tragen sie bitte unten ihre Anmeldedaten ein.
                     </div>
@@ -24,24 +24,15 @@
                                 class="form-control" placeholder="Passwort" required>
                         <span toggle="#login_password" class="fa fa-fw fa-eye toggle-password text-muted"></span>
                     </div>
-                    <button class="btn btn-sm btn-primary btn-block btn-login" type="submit">
-                        {{ _("Login") }}</button>
+                    <p class="warning" id="login_error"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Passwort oder Benutzernamen falsch.</p>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom" type="submit">
+                        {{ _("Login") }}
+                    </button>
                     <p class="text-left" style="margin-top: 15px">
                         Passwort vergessen?
                     </p>
-                    <div class="input-group has-validation">
-  <span class="input-group-text"><i class="fa fa-user-o" aria-hidden="true"></i></span>
-  <div class="form-floating is-invalid">
-    <input type="text" class="form-control is-invalid" id="floatingInputGroup2" placeholder="Username" required>
-    <label for="floatingInputGroup2">Username</label>
-  </div>
-  <div class="invalid-feedback">
-    Please choose a username.
-  </div>
-</div>
                 </form>
             </div>
-            <div class='form-footer'></div>
         </section>
     </div>
 {% endblock %}

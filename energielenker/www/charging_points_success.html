@@ -1,0 +1,37 @@
+{% extends "templates/lizenz_webshop/lizenz_webshop_web.html" %}
+
+{% block style %}
+<style>
+    {% include "templates/lizenz_webshop/webshop_login.css" %}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <div style='height: 50vh;'>
+        <section class='for-login'>
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
+                <form class="form-signin form-login" role="form">
+                    <div class="page-card-head" style="margin-bottom: 0px;">
+                        <h4>Lizenz-Key erstellt!</h4>
+                        Der Lizenz-Key mit {{ ladepunkte_success }} Ladepunkten wurde erfolgreich erstellt.
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" id="license_key"
+                            class="form-control"
+                            placeholder="Lizenz-Key"
+                            required autofocus>
+                    </div>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom btn-key" type="submit" style="width: 80%;">
+                        {{ _("Weiterer Lizenz-Key erstellen") }}
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>{% include "templates/lizenz_webshop/webshop_login.js" %}</script>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

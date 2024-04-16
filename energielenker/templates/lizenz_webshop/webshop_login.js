@@ -9,7 +9,6 @@ login.bind_events = function() {
         args.pwd = $("#login_password").val();
         args.device = "desktop";
         if(!args.usr || !args.pwd) {
-            frappe.msgprint('{{ _("Both login and password required") }}');
             return false;
         }
         login.call(args);
@@ -58,9 +57,9 @@ login.login_handlers = (function() {
             }
 
             if(message===default_message) {
-                // mach was
+                $("#login_error").show();
             } else {
-                // mach was
+                // mach was??
             }
 
         };
@@ -71,9 +70,7 @@ login.login_handlers = (function() {
             if(data.message == 'Logged In'){
                 window.location.href = 'retrieving_charging_points';
             }
-        },
-        401: get_error_handler('{{ _("Invalid Login. Try again.") }}'),
-        417: get_error_handler('{{ _("Oops! Something went wrong") }}')
+        }
     };
 
     return login_handlers;
