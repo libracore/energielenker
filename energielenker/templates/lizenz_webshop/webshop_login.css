@@ -141,7 +141,7 @@ p {
 .label-addon {
     position: absolute;
     left: 12px;
-    top: 5px;
+    top: 8px;
 }
 
 .form-label-group {
@@ -206,3 +206,24 @@ p {
     font-size: 10px;
     color: #777;
   }
+  
+.copy {
+    width: 20%;
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 10px;
+    margin-top: 5px;
+/*
+    border: 1px solid lightgrey;
+*/
+}
+
+.copy_message {
+    color: #7190A6;
+    font-size: 10px;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin: 0px;
+    display: none;
+}

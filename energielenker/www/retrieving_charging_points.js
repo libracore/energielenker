@@ -14,6 +14,13 @@ frappe.ready(function() {
             validate_qty(qty);
         }
     });
+    $("#copy").click(function(){
+        var license_key = $("#license_key").val();
+        navigator.clipboard.writeText(license_key).then(function() {
+            $("#copy_success").html(`<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Der Aktivierungscode wurde in die Zwischenablage kopiert!`);
+            $("#copy_success").show();
+        });
+    });
 });
 
 function validate_qty(qty) {
@@ -46,4 +53,3 @@ function show_error(error) {
     $("#form_error").show();
     $("#evse_count").css("border-color", "red");
 }
-
