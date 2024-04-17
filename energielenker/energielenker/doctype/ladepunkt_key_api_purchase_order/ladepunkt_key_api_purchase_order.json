@@ -9,7 +9,11 @@
   "ansprechpartner",
   "k_ansprechperson",
   "column_break_3",
-  "cost_center"
+  "cost_center",
+  "webshop_section",
+  "item_code",
+  "column_break_9",
+  "item_name"
  ],
  "fields": [
   {
@@ -43,11 +47,35 @@
   {
    "fieldname": "section_break_2",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "webshop_section",
+   "fieldtype": "Section Break",
+   "label": "Webshop"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
   }
  ],
  "issingle": 1,
- "modified": "2024-04-02 14:32:32.812995",
- "modified_by": "Administrator",
+ "modified": "2024-04-17 13:43:31.115768",
+ "modified_by": "ivan.lochbihler@libracore.com",
  "module": "energielenker",
  "name": "Ladepunkt Key API Purchase Order",
  "owner": "Administrator",
