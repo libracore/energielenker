@@ -106,6 +106,10 @@ function create_label(frm, label_printer) {
     var supplier_item_entries = '';
     for (var i=0; i < frm.doc.supplier_items.length; i++) {
         var supplier = frm.doc.supplier_items[i].supplier
+        if (supplier.split(" ").length > 2) {
+            var supplier_full = supplier;
+            supplier = `${supplier_full.split(" ")[0]} ${supplier_full.split(" ")[1]}`;
+        }
         var supplier_part_no = frm.doc.supplier_items[i].supplier_part_no
         supplier_item_entries += `${supplier}: ${supplier_part_no}<br>`
     }
@@ -136,7 +140,7 @@ function create_label(frm, label_printer) {
                                 <b>${item_code}</b>
                             </div>
                         </div>
-                        <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${qr_url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: 20%;">
+                        <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${qr_url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: ${dimensions.qr_background_size}%;">
                         </div>
                     </div>
                 `
