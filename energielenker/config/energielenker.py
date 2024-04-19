@@ -66,6 +66,12 @@ def get_data():
                     "name": "License Key Account",
                     "label": _("License Key Account"),
                     "description": _("License Key Account")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Webshop Settings",
+                    "label": _("Webshop Settings"),
+                    "description": _("Webshop Settings")
                 }
             ]
         }

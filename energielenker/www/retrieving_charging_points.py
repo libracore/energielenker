@@ -59,7 +59,7 @@ def create_purchase_order(qty):
     today = getdate()
     
     #get Sales Order and settings
-    po_settings = frappe.get_doc('Ladepunkt Key API Purchase Order', 'Ladepunkt Key API Purchase Order')
+    po_settings = frappe.get_doc('Webshop Settings', 'Webshop Settings')
     
     #create new Purchase Order
     new_po_doc = frappe.get_doc({

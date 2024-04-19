@@ -342,6 +342,9 @@ frappe.ui.form.on("Sales Order", {
     },
     zusatzgeschaft: function(frm) {
 		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
+    },
+    before_submit: function(frm) {
+        check_for_webshop_points(frm);
     }
 });
 
@@ -651,4 +654,47 @@ function amend_so_issue(frm) {
 			"amended_from": frm.doc.amended_from, 
 		},
    });
+}
+
+function check_for_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            console.log(response.message);
+			//~ if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
+				//~ frappe.validated=false;
+				//~ frappe.confirm(
+					//~ 'Achtung, Lager wird nicht aktualisiert - trotzdem Fortfahren?',
+					//~ function(){
+						//~ locals.do_submit=true;
+						//~ cur_frm.savesubmit();
+						//~ window.close();
+					//~ },
+					//~ function(){
+						//~ window.close();
+					//~ }
+				//~ )
+			//~ } else if (response.message == 0 && cur_frm.doc.update_stock == 1 && !locals.do_submit) {
+				//~ frappe.validated=false;
+				//~ frappe.confirm(
+					//~ 'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist - trotzdem Fortfahren?',
+					//~ function(){
+						//~ locals.do_submit=true;
+						//~ cur_frm.savesubmit();
+						//~ window.close();
+					//~ },
+					//~ function(){
+						//~ window.close();
+					//~ }
+				//~ )
+			//~ } else {
+				//~ frappe.validated=true;
+			//~ }
+        }
+    });
+    //~ locals.do_submit=false;
 }
