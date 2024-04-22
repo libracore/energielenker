@@ -664,37 +664,10 @@ function check_for_webshop_points(frm) {
         },
         'async': false,
         'callback': function(response) {
-            console.log(response.message);
-			//~ if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
-				//~ frappe.validated=false;
-				//~ frappe.confirm(
-					//~ 'Achtung, Lager wird nicht aktualisiert - trotzdem Fortfahren?',
-					//~ function(){
-						//~ locals.do_submit=true;
-						//~ cur_frm.savesubmit();
-						//~ window.close();
-					//~ },
-					//~ function(){
-						//~ window.close();
-					//~ }
-				//~ )
-			//~ } else if (response.message == 0 && cur_frm.doc.update_stock == 1 && !locals.do_submit) {
-				//~ frappe.validated=false;
-				//~ frappe.confirm(
-					//~ 'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist - trotzdem Fortfahren?',
-					//~ function(){
-						//~ locals.do_submit=true;
-						//~ cur_frm.savesubmit();
-						//~ window.close();
-					//~ },
-					//~ function(){
-						//~ window.close();
-					//~ }
-				//~ )
-			//~ } else {
-				//~ frappe.validated=true;
-			//~ }
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
         }
     });
-    //~ locals.do_submit=false;
 }
