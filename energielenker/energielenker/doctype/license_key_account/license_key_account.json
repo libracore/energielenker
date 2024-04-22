@@ -10,10 +10,10 @@
   "avaliable_points",
   "column_break_3",
   "disabled",
-  "section_break_4",
-  "past_activities",
   "section_break_6",
-  "users"
+  "users",
+  "section_break_4",
+  "past_activities"
  ],
  "fields": [
   {
@@ -67,8 +67,8 @@
    "label": "Disabled"
   }
  ],
- "modified": "2024-04-16 14:46:37.302053",
- "modified_by": "ivan.lochbihler@libracore.com",
+ "modified": "2024-04-22 18:04:18.254338",
+ "modified_by": "Administrator",
  "module": "energielenker",
  "name": "License Key Account",
  "name_case": "Title Case",

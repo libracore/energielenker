@@ -36,7 +36,6 @@ function validate_qty(qty) {
                     show_error("Ein Fehler ist aufgetreten.");
                 } else {
                     $("#license_key").val(validation);
-                    console.log(qty);
                     $("#success_evse_count").text(qty);
                     $(".retrieving").toggle(false);
                     $(".success").toggle(true);

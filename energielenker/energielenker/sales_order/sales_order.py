@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.utils import flt
 import json
+from frappe.utils.data import getdate
 
 @frappe.whitelist() 
 def overwrite_before_update_after_submit():
@@ -111,7 +112,7 @@ def update_zusatzgeschaft_in_sales_invoices(sales_order_name, zusatzgeschaft):
     return "Zusatzgeschaft updated in Sales Invoices."
 
 @frappe.whitelist()
-def check_for_webshop_points(doc):
+def check_for_webshop_points(doc, event="submit"):
     sales_order_doc = json.loads(doc)
     validation = True
     #get points item
@@ -135,11 +136,23 @@ def check_for_webshop_points(doc):
         account_doc = frappe.get_doc("License Key Account", sales_order_doc.get('customer'))
         validation = True
     except:
+        if event == "cancel":
+            frappe.throw("Konto für diesen Kunden fehlt!")
         return validation
 
-    #if there are points and an account, add points to account
-    account_doc.avaliable_points += qty
+    #if there are points and an account, add/remove points to account
+    account_doc.avaliable_points += qty if event == "submit" else qty * -1
+    #create log entry
+    log_entry = {
+        'date': getdate(),
+        'activity': sales_order_doc['name'],
+        'amount': qty if event == "submit" else qty * -1,
+        'user': sales_order_doc['owner']
+    }
+    account_doc.append('past_activities', log_entry)
+    #save document
     account_doc.save()
     frappe.db.commit()
     
     return validation
+

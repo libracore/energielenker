@@ -111,6 +111,7 @@ frappe.ui.form.on("Sales Order", {
                 callback: function (r) {}
             });
         }
+        remove_webshop_points(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -661,6 +662,23 @@ function check_for_webshop_points(frm) {
         'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
         'args': {
             'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
+}
+
+function remove_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc,
+            'event': "cancel"
         },
         'async': false,
         'callback': function(response) {

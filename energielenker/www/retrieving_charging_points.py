@@ -33,24 +33,24 @@ def get_ladepunkte(user):
     
 @frappe.whitelist()
 def validate_qty(qty_string):
-    # ~ qty = int(qty_string)
-    # ~ uom_check = get_item_uom(qty)
-    # ~ if not uom_check:
-        # ~ license_key = "Error"
-        # ~ return license_key
-    # ~ avaliable_points = get_ladepunkte(frappe.session.user)
-    # ~ if avaliable_points >= qty:
-        # ~ license_key = create_license_key(qty)
-    return "a2119d27c3c59c5"
-        # ~ return license_key
-    # ~ else:
-        # ~ return False
+    qty = int(qty_string)
+    uom_check = get_item_uom(qty)
+    if not uom_check:
+        license_key = "Error"
+        return license_key
+    avaliable_points = get_ladepunkte(frappe.session.user)
+    if avaliable_points >= qty:
+        license_key = create_license_key(qty)
+    # ~ return "a2119d27c3c59c5"
+        return license_key
+    else:
+        return False
         
 def create_license_key(qty):
     purchase_order = create_purchase_order(qty)
     lizenzgutschein = create_lizenzgutschein(purchase_order, qty)
     license_key = get_license_key(lizenzgutschein)
-    log_entry = create_log_entry(license_key, qty)
+    log_entry = update_account(license_key, qty)
     return license_key
     
 
@@ -75,9 +75,9 @@ def create_purchase_order(qty):
     
     entry = {
         'reference_doctype': 'Purchase Order Item',
-        'item_code': po_settings.item_code,
+        'item_code': po_settings.po_item,
         'schedule_date': today,
-        'item_name': po_settings.item_name,
+        'item_name': po_settings.po_item_name,
         'qty': 1,
         'uom': get_item_uom(qty),
         'cost_center': po_settings.cost_center
@@ -122,15 +122,18 @@ def get_license_key(lizenzgutschein):
         
     return license_key
 
-def create_log_entry(license_key, qty):
+def update_account(license_key, qty):
     today = getdate()
     customer = frappe.db.sql("""SELECT `parent` FROM `tabLicense Key Account User`  WHERE `user` = '{user}'""".format(user=frappe.session.user), as_dict=True)
     customer_doc = frappe.get_doc("License Key Account", customer[0].parent)
     
+    customer_doc.avaliable_points -= qty
+    
     entry = {
         'reference_doctype': 'License Key Account Log',
         'date': today,
-        'evse_count': qty,
+        'activity': "Webshop",
+        'evse_count': qty * -1,
         'license_key': license_key,
         'user': frappe.session.user
     }
