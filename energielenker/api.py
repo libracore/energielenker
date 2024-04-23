@@ -80,6 +80,7 @@ from erpnext.selling.doctype.sales_order.sales_order import make_purchase_order
     5.1 item_energielenker
     5.2 item_customer
     5.3 qty
+    5.4 reference
         --> Errorcode 5
     6. Ist qty > 0?
         --> Errorcode 6
@@ -129,7 +130,9 @@ def get_license(**kwargs):
                 "request": json_formatted_str
             }).insert(ignore_permissions=True)
             voucher_dict = make_voucher(kwargs['requested_licenses'])
-        return raise_200(voucher_dict)
+            return raise_200(voucher_dict)
+        else:
+            return raise_200()
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
 
@@ -152,6 +155,8 @@ def check_request(kwargs):
                 return [5, 'Missing item_customer (Index: {0})'.format(loop)]
             if 'qty' not in requested_license:
                 return [5, 'Missing qty (Index: {0})'.format(loop)]
+            if 'reference' not in requested_license:
+                return [5, 'Missing reference (Index: {0})'.format(loop)]
             if requested_license['qty'] < 1:
                 return [6, 'qty (Index: {0}) has to be greater than 0'.format(loop)]
             
@@ -202,13 +207,13 @@ def raise_xxx(code, title, message, daten=None):
 
 def make_voucher(requested_licenses):
     #create Sales Order
-    sales_order = create_sales_order(requested_licenses)
+    sales_order, customer_name = create_sales_order(requested_licenses)
     #Create Purchase Order
     purchase_order = create_purchase_order(sales_order)
     #Create Lizenzgutschein and Voucher Dict
     lizenzgutscheine = create_lizenzgutscheine(purchase_order)
     #create voucher dict as response for api
-    voucher_dict = create_voucher_dict(purchase_order)
+    voucher_dict = create_voucher_dict(purchase_order, customer_name, requested_licenses[0].get('item_energielenker'))
     #create delivery note
     delivery_note =create_delivery_note(sales_order)
 
@@ -221,7 +226,8 @@ def create_sales_order(requested_licenses):
     #get API and Customer Dokument
     api_doc_name = get_api_doc_name()
     api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
-    customer = frappe.get_doc("Customer", api_document.customer)
+    customer_name = api_document.customer
+    customer = frappe.get_doc("Customer", customer_name)
     
     #create new Sales Order
     new_doc = frappe.get_doc({
@@ -229,7 +235,7 @@ def create_sales_order(requested_licenses):
         'customer': api_document.customer,
         'navision_konto': api_document.navision_konto,
         'cost_center': api_document.cost_center,
-        'po_no': api_document.po_no,
+        'po_no': requested_licenses[0].get('reference'),
         'auftrags_projektb': api_document.auftrags_projektb,
         'vertriebsgruppe': api_document.vertriebsgruppe,
         'k_ansprechperson': api_document.k_ansprechperson,
@@ -262,7 +268,7 @@ def create_sales_order(requested_licenses):
     #get name of new Sales Order and return it
     sales_order = new_doc.name
     
-    return sales_order
+    return sales_order, customer_name
     
 def get_api_doc_name():
     user = frappe.session.user
@@ -343,7 +349,8 @@ def create_lizenzgutscheine(purchase_order_name):
             
     return
 
-def create_voucher_dict(purchase_order_name):
+def create_voucher_dict(purchase_order_name, customer_name, item):
+    
     voucher_dict = frappe.db.sql("""
                                 SELECT
                                     `evse_count`,
@@ -354,6 +361,17 @@ def create_voucher_dict(purchase_order_name):
                                     `purchase_order` = '{po}'
                                 ORDER BY
                                     `evse_count`""".format(po=purchase_order_name), as_dict=True)
+    
+    for voucher in voucher_dict:
+        data = frappe.db.sql("""SELECT
+                                `icd`.`ref_code`
+                                FROM `tabItem Customer Detail` AS `icd`
+                                LEFT JOIN `tabUOM` as `uom` ON `uom`.`uom_name` = `icd`.`size`
+                                WHERE `icd`.`customer_name` = '{cust}'
+                                AND `uom`.`evse_count` = '{evse}'
+                                AND `icd`.`parent` = '{item}'""".format(cust=customer_name, evse=voucher.get('evse_count'), item=item), as_dict=True)
+        voucher['customer_item'] = data[0].get('ref_code')
+    
     return voucher_dict
 
 def create_delivery_note(sales_order_name):

@@ -57,9 +57,9 @@
   {
    "fieldname": "po_no",
    "fieldtype": "Data",
+   "hidden": 1,
    "in_list_view": 1,
-   "label": "Customer Purchase Order",
-   "reqd": 1
+   "label": "Customer Purchase Order"
   },
   {
    "fieldname": "vertriebsgruppe",
@@ -110,7 +110,7 @@
    "options": "Address"
   }
  ],
- "modified": "2024-04-23 09:58:48.440807",
+ "modified": "2024-04-23 19:34:13.325788",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Ladepunkt Key API",
