@@ -365,6 +365,7 @@ def create_delivery_note(sales_order_name):
     api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
     sales_order_doc = frappe.get_doc('Sales Order', sales_order_name)
     customer = frappe.get_doc("Customer", api_document.customer)
+    
 
     
     #create new Delivery Note
@@ -376,6 +377,7 @@ def create_delivery_note(sales_order_name):
         'po_no': api_document.po_no,
         'taxes_and_charges': api_document.taxes_and_charges,
         'ansprechpartner': customer.ansprechpartner,
+        'shipping_address_name': api_document.delivery_note_address,
         'contact_person': "",
         'contact_display': ""
         })

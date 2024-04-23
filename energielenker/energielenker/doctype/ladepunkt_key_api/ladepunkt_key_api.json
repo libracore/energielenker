@@ -15,6 +15,8 @@
   "auftrags_projektb",
   "vertriebsgruppe",
   "k_ansprechperson",
+  "delivery_note_section",
+  "delivery_note_address",
   "users_section",
   "users"
  ],
@@ -95,9 +97,20 @@
    "fieldtype": "Link",
    "label": "Auftrags-/Projektbetreuung",
    "options": "User"
+  },
+  {
+   "fieldname": "delivery_note_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery Note"
+  },
+  {
+   "fieldname": "delivery_note_address",
+   "fieldtype": "Link",
+   "label": "Delivery Note Address",
+   "options": "Address"
   }
  ],
- "modified": "2024-04-10 17:01:18.672409",
+ "modified": "2024-04-23 09:58:48.440807",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Ladepunkt Key API",
