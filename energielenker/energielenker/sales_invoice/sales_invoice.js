@@ -2,11 +2,8 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Sales Invoice", {
-    setup: function(frm) {
-        console.log("setup");
-        removeBilledItems(frm);
-    },
     refresh: function(frm) {
+        removeBilledItems(frm);
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -133,14 +130,8 @@ frappe.ui.form.on("Sales Invoice", {
             });
         }
     },
-    before_submit: async function(frm) {
-        await containsAbrechnenNachAufwandItem(frm);
-    },
-    on_submit: async function(frm) {
-        var closeSo = await containsAbrechnenNachAufwandItem(frm);
-        if (closeSo.length > 0){
-            closeSalesOrder(closeSo);
-        }
+    before_submit: function(frm) {
+        containsAbrechnenNachAufwandItem(frm);
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
@@ -493,103 +484,35 @@ function getCorrespondingSalesOrders(salesInvoice){
     return salesOrders;
 }
 
-async function containsAbrechnenNachAufwandItem(frm){
-    //checks if a sales invoice contains items that are billed by the hour
+function containsAbrechnenNachAufwandItem(frm){
+    //checks if a sales invoice contains items that are billed by the hour in python hehehe
     const salesOrders = getCorrespondingSalesOrders(frm.doc);
-    var containsAbrechnenNachAufwand = [];
+    //make a string of the sales orders
 
-    for (const salesOrder of salesOrders) {
-        try{
-            const response = await new Promise((resolve) => {
-                frappe.call({
-                    method: "frappe.client.get",
-                    args: {
-                        doctype: "Sales Order",
-                        name: salesOrder
-                    },
-                    callback: resolve
-                });
-            });
-
-            const so = response.message;
-            if (so && so.items.some(item => item.artikel_nach_aufwand)) {
-                containsAbrechnenNachAufwand.push(salesOrder);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    console.log("Sales Orders with Abrechnen Nach Aufwand:", containsAbrechnenNachAufwand);
-    if (containsAbrechnenNachAufwand.length > 0) {
-        return checkStatusAndCloseSalesOrder(containsAbrechnenNachAufwand);
-    } else {
-        return [];
-    }
-}
-
-function checkStatusAndCloseSalesOrder(salesOrders) {
-    console.log("checkStatusAndCloseSalesOrder");
-    //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'.
-    //the user can chose between yes and no. if the user choses no the sales invoice will not be submitted.
-    console.log(salesOrders);
-    var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
-    var incompleteSalesOrders = [];
-
-    if (completelyBilledSalesOrders.length > 0){
-        incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
-            var salesOrderDoc = frappe.get_doc("Sales Order", so);
-            return salesOrderDoc.status === "To Deliver and Bill";
-        });
-        console.log(locals.force_save)
-    }
-
-    if (!locals.force_save) {
-        if (incompleteSalesOrders.length > 0){
-            frappe.validated = false;
-            frappe.confirm(
-                'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
-                function(){
-                    locals.force_save = true;
-                    frappe.validated = true;
-                    cur_frm.savesubmit();
-                    return incompleteSalesOrders;
-                },
-                function(){
-                    cur_frm.reload_doc();
-                    return incompleteSalesOrders;
-                }
-            );
-        }
-    } else {
-        return incompleteSalesOrders;
-    }
-}
-
-function readyToClose(salesOrder){
-    console.log(salesOrder + " readyToClose");
-    var salesOrderDoc = frappe.get_doc("Sales Order", salesOrder);
-    console.log(salesOrderDoc);
-    var salesOrderItems = salesOrderDoc.items;
-    var allBilled = true;
-    //for each sales order item check if it is in any sales invoice
-    salesOrderItems.forEach(salesOrderItem => {
-        frappe.call({
-            'method': 'energielenker.energielenker.sales_invoice.sales_invoice.check_if_billed',
-            'args': {
-                'sales_order_item': salesOrderItem.name,
-                'sales_order_quantity': salesOrderItem.qty,
-                'artikel_nach_aufwand': salesOrderItem.artikel_nach_aufwand
-            },
-            'async': false,
-            'callback': function(r){
-                if (r.message != "billed"){
-                    allBilled = false;
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.contains_abrechnen_nach_aufwand',
+        'args': {
+            'sales_orders': salesOrders
+        },
+        'callback': function(r){
+            var incompleteSalesOrders = r.message;
+            if (!locals.force_save){
+                if(incompleteSalesOrders.length > 0){
+                    frappe.validated = false;
+                    frappe.confirm(
+                        'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
+                        function(){
+                            locals.force_save = true;
+                            cur_frm.savesubmit().then(() => closeSalesOrder(incompleteSalesOrders));
+                        },
+                        function(){
+                            cur_frm.reload_doc();
+                        }
+                    );
                 }
             }
-        })
+        }
     });
-    return allBilled;
 }
 
 function closeSalesOrder(salesOrders){
@@ -611,41 +534,25 @@ function closeSalesOrder(salesOrders){
 
 function removeBilledItems(frm){
     console.log("removeBilledItems");
-    //fetch sales order doc
-    console.log(frm.doc);
-    var salesOrder = getCorrespondingSalesOrders(frm.doc)[0];
-    console.log(salesOrder);
-    frappe.model.with_doc("Sales Order", salesOrder, function() {
-        console.log("with_doc");
-        var salesOrderDoc= frappe.model.get_doc("Sales Order", salesOrder);
-
-        salesOrderDoc.items.forEach(function(item){
-            //check if needs to be removed
-            if (item.artikel_nach_aufwand){
-                //call python function to check if the item is billed
-                frappe.call({
-                    'method': 'energielenker.energielenker.sales_invoice.sales_invoice.check_if_billed',
-                    'args': {
-                        'sales_order_item': item.name,
-                        'sales_order_quantity': item.qty,
-                        'artikel_nach_aufwand': item.artikel_nach_aufwand
-                    },
-                    'async': false,
-                    'callback': function(r){
-                        if (r.message == "billed"){
-                            console.log("remove item");
-                            console.log(item);
-                            console.log(item.name);
-                            //remove the item from the sales invoice
-                            frappe.model.clear_doc("Sales Invoice Item", item.name);
-                        }
-                    }
-                });
+    var salesOrder = getCorrespondingSalesOrders(frm.doc);
+    var billedItems = [];
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.get_billed_items',
+        'args': {
+            'sales_order': salesOrder
+        },
+        'async': false,
+        'callback': function(r){
+            billedItems = r.message;
+            var items = frm.doc.items || [];
+            var i = items.length;
+            while (i--) {
+                if (items[i] && billedItems.includes(items[i].name)){
+                    cur_frm.get_field("items").grid.grid_rows[i].remove();
+                }
             }
-        });
-        console.log("item removed");
-        frm.refresh_field("items");
+            cur_frm.refresh();
+        }
     });
 }
-
 
