@@ -24,6 +24,7 @@ def check_if_billed(sales_order_item, sales_order_quantity, artikel_nach_aufwand
                                LEFT JOIN `tabSales Invoice`
                                ON `tabSales Invoice Item`.`parent` = `tabSales Invoice`.`name`
                                WHERE `tabSales Invoice`.`status` != 'Cancelled'
+                               AND `tabSales Invoice`.`status` != 'Draft'
                                AND `tabSales Invoice Item`.`so_detail` = '{item_code}'""".format(item_code=sales_order_item), as_dict=True)
         if item:
             total_qty=sum(item_obj.qty for item_obj in item)

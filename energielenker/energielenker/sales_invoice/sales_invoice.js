@@ -2,6 +2,10 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Sales Invoice", {
+    setup: function(frm) {
+        console.log("setup");
+        removeBilledItems(frm);
+    },
     refresh: function(frm) {
        set_timestamps(frm);
        setTimeout(function(){ 
@@ -129,10 +133,13 @@ frappe.ui.form.on("Sales Invoice", {
             });
         }
     },
-    before_submit: function(frm) {
-        var toCheck = containsAbrechnenNachAufwandItem(frm);
-        if (toCheck){
-            checkStatusAndCloseSalesOrder(frm);
+    before_submit: async function(frm) {
+        await containsAbrechnenNachAufwandItem(frm);
+    },
+    on_submit: async function(frm) {
+        var closeSo = await containsAbrechnenNachAufwandItem(frm);
+        if (closeSo.length > 0){
+            closeSalesOrder(closeSo);
         }
     },
     project: function(frm) {
@@ -489,66 +496,81 @@ function getCorrespondingSalesOrders(salesInvoice){
 async function containsAbrechnenNachAufwandItem(frm){
     //checks if a sales invoice contains items that are billed by the hour
     const salesOrders = getCorrespondingSalesOrders(frm.doc);
+    var containsAbrechnenNachAufwand = [];
 
     for (const salesOrder of salesOrders) {
-        const response = await new Promise(resolve => {
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "Sales Order",
-                    name: salesOrder
-                },
-                callback: resolve
+        try{
+            const response = await new Promise((resolve) => {
+                frappe.call({
+                    method: "frappe.client.get",
+                    args: {
+                        doctype: "Sales Order",
+                        name: salesOrder
+                    },
+                    callback: resolve
+                });
             });
-        });
 
-        const so = response.message;
-        if (so && so.items.some(item => item.artikel_nach_aufwand)) {
-            return true;
+            const so = response.message;
+            if (so && so.items.some(item => item.artikel_nach_aufwand)) {
+                containsAbrechnenNachAufwand.push(salesOrder);
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
-    return false;
+
+    console.log("Sales Orders with Abrechnen Nach Aufwand:", containsAbrechnenNachAufwand);
+    if (containsAbrechnenNachAufwand.length > 0) {
+        return checkStatusAndCloseSalesOrder(containsAbrechnenNachAufwand);
+    } else {
+        return [];
+    }
 }
 
-function checkStatusAndCloseSalesOrder(frm) {
+function checkStatusAndCloseSalesOrder(salesOrders) {
+    console.log("checkStatusAndCloseSalesOrder");
     //popup that asks for confirmation to submit the sales invoice if the status of the sales order is 'To Deliver and Bill'.
     //the user can chose between yes and no. if the user choses no the sales invoice will not be submitted.
-    var salesInvoice=cur_frm.doc;
-    var salesOrders = getCorrespondingSalesOrders(salesInvoice);
+    console.log(salesOrders);
+    var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
+    var incompleteSalesOrders = [];
+
+    if (completelyBilledSalesOrders.length > 0){
+        incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
+            var salesOrderDoc = frappe.get_doc("Sales Order", so);
+            return salesOrderDoc.status === "To Deliver and Bill";
+        });
+        console.log(locals.force_save)
+    }
 
     if (!locals.force_save) {
-        var completelyBilledSalesOrders = salesOrders.filter(so => readyToClose(so));
-
-        if (completelyBilledSalesOrders.length > 0){
-    
-            var incompleteSalesOrders = completelyBilledSalesOrders.filter(so => {
-                var salesOrderDoc = frappe.get_doc("Sales Order", so);
-                return salesOrderDoc.status === "To Deliver and Bill";
-            });
-
-            if (incompleteSalesOrders.length > 0){
-                frappe.validated = false;
-                frappe.confirm(
-                    'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
-                    function(){
-                        locals.force_save = true;
-                        frappe.validated = true;
-                        cur_frm.savesubmit();
-                        //closeSalesOrder(incompleteSalesOrders);
-                    },
-                    function(){
-                        cur_frm.reload_doc();
-                    }
-                );
-            }
+        if (incompleteSalesOrders.length > 0){
+            frappe.validated = false;
+            frappe.confirm(
+                'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
+                function(){
+                    locals.force_save = true;
+                    frappe.validated = true;
+                    cur_frm.savesubmit();
+                    return incompleteSalesOrders;
+                },
+                function(){
+                    cur_frm.reload_doc();
+                    return incompleteSalesOrders;
+                }
+            );
         }
+    } else {
+        return incompleteSalesOrders;
     }
-    locals.force_save = false;
 }
 
 function readyToClose(salesOrder){
-    var salesOrder = frappe.get_doc("Sales Order", salesOrder);
-    var salesOrderItems = salesOrder.items;
+    console.log(salesOrder + " readyToClose");
+    var salesOrderDoc = frappe.get_doc("Sales Order", salesOrder);
+    console.log(salesOrderDoc);
+    var salesOrderItems = salesOrderDoc.items;
     var allBilled = true;
     //for each sales order item check if it is in any sales invoice
     salesOrderItems.forEach(salesOrderItem => {
@@ -567,11 +589,11 @@ function readyToClose(salesOrder){
             }
         })
     });
-    console.log("readyToClose: "+allBilled);
     return allBilled;
 }
 
 function closeSalesOrder(salesOrders){
+    console.log("closeSalesOrder");
     salesOrders.forEach(salesOrder =>{
         frappe.ui.form.is_saving = true;
         frappe.call({
@@ -584,6 +606,45 @@ function closeSalesOrder(salesOrders){
                 frappe.ui.form.is_saving = false;
             }
         });
+    });
+}
+
+function removeBilledItems(frm){
+    console.log("removeBilledItems");
+    //fetch sales order doc
+    console.log(frm.doc);
+    var salesOrder = getCorrespondingSalesOrders(frm.doc)[0];
+    console.log(salesOrder);
+    frappe.model.with_doc("Sales Order", salesOrder, function() {
+        console.log("with_doc");
+        var salesOrderDoc= frappe.model.get_doc("Sales Order", salesOrder);
+
+        salesOrderDoc.items.forEach(function(item){
+            //check if needs to be removed
+            if (item.artikel_nach_aufwand){
+                //call python function to check if the item is billed
+                frappe.call({
+                    'method': 'energielenker.energielenker.sales_invoice.sales_invoice.check_if_billed',
+                    'args': {
+                        'sales_order_item': item.name,
+                        'sales_order_quantity': item.qty,
+                        'artikel_nach_aufwand': item.artikel_nach_aufwand
+                    },
+                    'async': false,
+                    'callback': function(r){
+                        if (r.message == "billed"){
+                            console.log("remove item");
+                            console.log(item);
+                            console.log(item.name);
+                            //remove the item from the sales invoice
+                            frappe.model.clear_doc("Sales Invoice Item", item.name);
+                        }
+                    }
+                });
+            }
+        });
+        console.log("item removed");
+        frm.refresh_field("items");
     });
 }
 
