@@ -1,38 +1,64 @@
 {
+ "autoname": "KOM.#######.",
  "creation": "2024-03-06 15:42:27.999951",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "project",
+  "sales_order",
+  "column_break_3",
   "from_warehouse",
-  "to_warehouse"
+  "to_warehouse",
+  "section_break_6",
+  "items"
  ],
  "fields": [
   {
    "fieldname": "project",
    "fieldtype": "Link",
-   "label": "Projekt",
+   "label": "Project",
    "options": "Project"
   },
   {
    "fieldname": "from_warehouse",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Ausgangslager",
-   "options": "Warehouse",
-   "reqd": 1
+   "hidden": 1,
+   "label": "From Warehouse",
+   "options": "Warehouse"
   },
   {
    "fieldname": "to_warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Ziellager",
+   "label": "To Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Depot Item"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
   }
  ],
- "modified": "2024-03-06 15:42:27.999951",
+ "modified": "2024-04-25 16:52:15.657923",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Depot",
@@ -54,5 +80,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "sales_order",
  "track_changes": 1
 }

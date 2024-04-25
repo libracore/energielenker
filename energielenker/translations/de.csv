@@ -2,3 +2,8 @@ DocType: Delivery Note,Manual date,Manuelles Datum
 DocType: Delivery Note,Set manual date,Manuelles Datum setzen
 DocType: Delivery Note,Configuration pending,Konfiguration ausstehend
 DocType: Issue,Booked Hours,Gebuchte Stunden
+DocType: Depot,Depot,Kommissionierung
+DocType: Depot,From Warehouse,Ausgangslager
+DocType: Depot,To Warehouse,Ziellager
+DocType: Depot,Project,Projekt
+DocType: Depot,Sales Order,Kundenauftrag
