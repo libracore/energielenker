@@ -18,6 +18,15 @@ frappe.ui.form.on('Issue', {
                     }
                }
            }
+           // custom mail dialog (prevent duplicate icons on creation)
+            if (document.getElementsByClassName("fa-envelope-o").length === 0) {
+                cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                    custom_mail_dialog(frm);
+                });
+                var target ="span[data-label='" + __("Email") + "']";
+                $(target).parent().parent().remove();   // remove Menu > Email
+            }
+
     },
     validate: function(frm) {
         if (cur_frm.doc.status == 'Replied') {
@@ -78,11 +87,11 @@ frappe.ui.form.on('Issue', {
     },
     issue_type: function(frm) {
         if (cur_frm.doc.issue_type == "Reklamation") {
-			
+            
             frm.set_df_property("reklamationsverfolgung", "reqd", 1);
         } else {
-			cur_frm.set_value("reklamationsverfolgung", "");
-		}
+            cur_frm.set_value("reklamationsverfolgung", "");
+        }
     },
 })
 
@@ -96,3 +105,31 @@ function set_timestamps(frm){
         }
     }, 1000);
 }
+
+function custom_mail_dialog(frm) {
+    //~ frappe.call({
+        //~ 'method': 'energielenker.energielenker.utils.utils.get_email_recipient_and_message',
+        //~ 'args': {
+            //~ 'contact': frm.doc.customer_contact
+        //~ },
+        //~ 'callback': function(response) {
+            var recipient = cur_frm.doc.raised_by;
+            //~ var message = response.message.message
+            var message = ""
+            new frappe.views.CommunicationComposer({
+                doc: {
+                    doctype: cur_frm.doc.doctype,
+                    name: cur_frm.doc.name
+                },
+                subject: "Anfrage " + cur_frm.doc.name,
+                //~ cc:  cc,
+                //~ bcc: bcc,
+                recipients: recipient,
+                attach_document_print: false,
+                message: message
+            });
+        //~ }
+    //~ });
+}
+
+

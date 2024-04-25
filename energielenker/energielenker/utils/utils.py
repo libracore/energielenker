@@ -15,7 +15,7 @@ def get_plz_gebiet(self, event):
                 self.gebiet = gebiet[0][:2]
     return
 
-@frappe.whitelist()	
+@frappe.whitelist() 
 def reorder_item_wrapper():
     reorder_item()
     return
@@ -27,3 +27,27 @@ def get_label_dimension_settings(label_printer):
         return dimension_settings
     else:
         return False
+
+
+@frappe.whitelist() 
+def get_email_recipient_and_message(contact):
+    data = frappe.db.sql("""SELECT
+                            `email_id`
+                            FROM `tabContact Email`
+                            WHERE `parent` = '{contact}'
+                            ORDER BY `is_primary` DESC""".format(contact=contact), as_dict=True)
+    recipient = ""
+    if len(data) > 0:
+        if data[0].email_id:
+            recipient = data[0].email_id
+    
+    html = "HALLO MASCHINE"
+    
+    # ~ template = frappe.db.get_value("emh settings", "emh settings", "invoice_email_template")
+
+    # ~ html = frappe.db.get_value("Email Template", template, "response")
+    
+    return {
+        'recipient': recipient,
+        'message': html
+        }
