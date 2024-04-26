@@ -92,3 +92,22 @@ def get_billed_items(sales_order):
     remove_so_items = json.dumps(remove_so_items)
     return remove_so_items
 
+@frappe.whitelist()
+def update_quantity_abrechnen_nach_aufwand(sales_order):
+    sales_order = json.loads(sales_order)
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order[0])
+    sales_order_items = sales_order_doc.items
+    update_quantity = []
+    for sales_order_item in sales_order_items:
+        item = frappe.db.sql("""SELECT IFNULL(SUM(`qty`),0) as `sum_qty`, `artikel_nach_aufwand` FROM `tabSales Invoice Item` 
+            WHERE `tabSales Invoice Item`.`docstatus` = 1
+            AND `tabSales Invoice Item`.`so_detail` = '{reference}'""".format(reference=sales_order_item.name), as_dict=True)
+        if item:
+            if item[0].artikel_nach_aufwand:
+                if item[0].sum_qty < sales_order_item.qty:
+                    new_qty = sales_order_item.qty - item[0].sum_qty
+                    update_quantity.append({'name': sales_order_item.name, 'qty': new_qty})
+
+    update_quantity = json.dumps(update_quantity)
+    return update_quantity
+

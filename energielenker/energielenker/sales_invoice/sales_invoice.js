@@ -5,6 +5,7 @@ frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
         if (frm.doc.docstatus == 0 && frm.doc.__islocal == 1) {
             removeBilledItems(frm);
+            updateAbrechnenNachAufwandQuantity(frm);
         }
        set_timestamps(frm);
        setTimeout(function(){ 
@@ -550,6 +551,31 @@ function removeBilledItems(frm){
                     cur_frm.get_field("items").grid.grid_rows[i].remove();
                 }
             }
+            cur_frm.refresh_field("items");
+        }
+    });
+}
+
+function updateAbrechnenNachAufwandQuantity(frm){
+    var salesOrder = getCorrespondingSalesOrders(frm.doc);
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.update_quantity_abrechnen_nach_aufwand',
+        'args': {
+            'sales_order': salesOrder
+        },
+        'async': false,
+        'callback': function(r){
+            var toUpdate = r.message ? JSON.parse(r.message) : [];
+            var items = frm.doc.items || [];
+
+            for (var i = 0; i < toUpdate.length; i++) {
+                var item = toUpdate[i];
+                var index = items.findIndex(obj => obj.so_detail === item.name);
+                if (index != -1){
+                    cur_frm.get_field("items").grid.grid_rows[index].doc.qty = item.qty;
+                }
+            }
+
             cur_frm.refresh_field("items");
         }
     });
