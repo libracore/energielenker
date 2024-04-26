@@ -15,7 +15,7 @@ def get_plz_gebiet(self, event):
                 self.gebiet = gebiet[0][:2]
     return
 
-@frappe.whitelist() 
+@frappe.whitelist()
 def reorder_item_wrapper():
     reorder_item()
     return
@@ -27,12 +27,3 @@ def get_label_dimension_settings(label_printer):
         return dimension_settings
     else:
         return False
-
-
-@frappe.whitelist() 
-def get_email_signature(contact):
-    html = frappe.db.get_value("User", frappe.session.user, "email_signature")
-    
-    return {
-        'message': html
-        }
