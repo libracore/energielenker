@@ -47,10 +47,11 @@ def check_status(sales_orders):
     # check if sales order status is 'to deliver and bill'
     for so in completely_billed_sales_orders:
         sales_order_doc = frappe.get_doc("Sales Order", so)
-        if sales_order_doc.status == "To Deliver and Bill" or sales_order_doc.status == "Overdue":
+        if sales_order_doc.status in ["To Deliver and Bill", "Overdue"]:
             incomplete_sales_orders.append(so)
-        if sales_order_doc.status == "To Bill":
+        elif sales_order_doc.status == "To Bill":
             to_bill.append(so)
+
     return incomplete_sales_orders, to_bill
 
 def ready_to_close(sales_order):
@@ -76,21 +77,22 @@ def check_if_billed(sales_order_item, sales_order_quantity, query):
                 billed = "billed"
     return billed
 
-#liste von sales orders item names
-#item.so_detail
+
 @frappe.whitelist()
 def get_billed_items(sales_order):
     sales_order = json.loads(sales_order)
     sales_order_doc = frappe.get_doc("Sales Order", sales_order[0])
-    sales_order_items = sales_order_doc.items
     remove_so_items = []
+
     query = """SELECT IFNULL(SUM(`qty`),0) as `sum_qty` FROM `tabSales Invoice Item` 
                 WHERE `tabSales Invoice Item`.`docstatus` = 1
                 AND `tabSales Invoice Item`.`so_detail` = '{reference}'"""
-    for item in sales_order_items:
+    
+    for item in sales_order_doc.items:
         billed = check_if_billed(item.name, item.qty, query)
         if billed == "billed":
             remove_so_items.append(item.name)
+
     #reverse json loads
     remove_so_items = json.dumps(remove_so_items)
     return remove_so_items
@@ -99,17 +101,16 @@ def get_billed_items(sales_order):
 def update_quantity_abrechnen_nach_aufwand(sales_order):
     sales_order = json.loads(sales_order)
     sales_order_doc = frappe.get_doc("Sales Order", sales_order[0])
-    sales_order_items = sales_order_doc.items
     update_quantity = []
-    for sales_order_item in sales_order_items:
+
+    for sales_order_item in sales_order_doc.items:
         item = frappe.db.sql("""SELECT IFNULL(SUM(`qty`),0) as `sum_qty`, `artikel_nach_aufwand` FROM `tabSales Invoice Item` 
             WHERE `tabSales Invoice Item`.`docstatus` = 1
             AND `tabSales Invoice Item`.`so_detail` = '{reference}'""".format(reference=sales_order_item.name), as_dict=True)
-        if item:
-            if item[0].artikel_nach_aufwand:
-                if item[0].sum_qty < sales_order_item.qty:
-                    new_qty = sales_order_item.qty - item[0].sum_qty
-                    update_quantity.append({'name': sales_order_item.name, 'qty': new_qty})
+        
+        if item and item[0].artikel_nach_aufwand and item[0].sum_qty < sales_order_item.qty:
+            new_qty = sales_order_item.qty - item[0].sum_qty
+            update_quantity.append({'name': sales_order_item.name, 'qty': new_qty})
 
     update_quantity = json.dumps(update_quantity)
     return update_quantity

@@ -11,8 +11,8 @@ frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
         if (frm.doc.docstatus == 0 && frm.doc.__islocal == 1) {
             removeBilledItems(frm);
+            updateAbrechnenNachAufwandQuantity(frm);
         }
-        updateAbrechnenNachAufwandQuantity(frm);
 
        set_timestamps(frm);
        setTimeout(function(){ 
@@ -506,8 +506,7 @@ function containsAbrechnenNachAufwandItem(frm){
         'callback': function(r){
             var incompleteSalesOrders = r.message[0] || [];
             var toBillSalesOrders = r.message[1] || [];
-            console.log(incompleteSalesOrders);
-            console.log(toBillSalesOrders);
+
             if (!locals.force_save){
                 if(incompleteSalesOrders.length > 0){
                     frappe.validated = false;
@@ -527,7 +526,6 @@ function containsAbrechnenNachAufwandItem(frm){
                 } else if (toBillSalesOrders.length > 0) {
                     locals.force_save = true;
                     frappe.validated = false;
-                    console.log("closing sales orders")
                     cur_frm.savesubmit().then(() => {
                         closeSalesOrder(toBillSalesOrders);
                     });
