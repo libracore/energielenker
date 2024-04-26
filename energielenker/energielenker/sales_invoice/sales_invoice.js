@@ -3,7 +3,9 @@
 
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
-        removeBilledItems(frm);
+        if (frm.doc.docstatus == 0 && frm.doc.__islocal == 1) {
+            removeBilledItems(frm);
+        }
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -516,7 +518,6 @@ function containsAbrechnenNachAufwandItem(frm){
 }
 
 function closeSalesOrder(salesOrders){
-    console.log("closeSalesOrder");
     salesOrders.forEach(salesOrder =>{
         frappe.ui.form.is_saving = true;
         frappe.call({
@@ -533,9 +534,7 @@ function closeSalesOrder(salesOrders){
 }
 
 function removeBilledItems(frm){
-    console.log("removeBilledItems");
     var salesOrder = getCorrespondingSalesOrders(frm.doc);
-    var billedItems = [];
     frappe.call({
         'method': 'energielenker.energielenker.sales_invoice.sales_invoice.get_billed_items',
         'args': {
@@ -543,15 +542,15 @@ function removeBilledItems(frm){
         },
         'async': false,
         'callback': function(r){
-            billedItems = r.message;
+            var billedSalesOrderPositions = r.message || [];
             var items = frm.doc.items || [];
-            var i = items.length;
-            while (i--) {
-                if (items[i] && billedItems.includes(items[i].name)){
+
+            for (var i = items.length-1; i >= 0; i--) {
+                if (billedSalesOrderPositions.includes(items[i].so_detail)){
                     cur_frm.get_field("items").grid.grid_rows[i].remove();
                 }
             }
-            cur_frm.refresh();
+            cur_frm.refresh_field("items");
         }
     });
 }

@@ -55,37 +55,40 @@ def ready_to_close(sales_order):
     sales_order_items = sales_order_doc.items
     all_billed = True
     # for each sales order item check if it is in any sales invoice
+    query = """SELECT IFNULL(SUM(`qty`),0) as `sum_qty` FROM `tabSales Invoice Item` 
+                WHERE `tabSales Invoice Item`.`docstatus` < 2
+                AND `tabSales Invoice Item`.`so_detail` = '{reference}'"""
     for sales_order_item in sales_order_items:
-        billed = check_if_billed(sales_order_item.name, sales_order_item.qty, sales_order_item.artikel_nach_aufwand)
+        billed = check_if_billed(sales_order_item.name, sales_order_item.qty, query)
         if billed != "billed":
             all_billed = False
     return all_billed
 
-def check_if_billed(sales_order_item, sales_order_quantity, artikel_nach_aufwand):
+def check_if_billed(sales_order_item, sales_order_quantity, query):
     billed = "Not billed"
     if sales_order_item:
-        item = frappe.db.sql("""SELECT sum(`qty`) FROM `tabSales Invoice Item` 
-                               WHERE `tabSales Invoice Item`.`docstatus` <2
-                               AND `tabSales Invoice Item`.`so_detail` = '{item_code}'""".format(item_code=sales_order_item), as_dict=True)
-        #join useneh, doctype statt status, sum qty statt *, nicht item_code sondern referenz
+        item = frappe.db.sql(query.format(reference=sales_order_item), as_dict=True)
         if item:
-            total_qty=sum(item_obj.qty for item_obj in item)
-            if total_qty >= int(sales_order_quantity):
+            if item[0].sum_qty >= int(sales_order_quantity):
                 billed = "billed"
     return billed
 
-#liste von sales orders
+#liste von sales orders item names
 #item.so_detail
 @frappe.whitelist()
 def get_billed_items(sales_order):
-    #frappe.msgprint("remove_billed_items")
-    #cry
-    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+    sales_order = json.loads(sales_order)
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order[0])
     sales_order_items = sales_order_doc.items
     remove_so_items = []
+    query = """SELECT IFNULL(SUM(`qty`),0) as `sum_qty` FROM `tabSales Invoice Item` 
+                WHERE `tabSales Invoice Item`.`docstatus` = 1
+                AND `tabSales Invoice Item`.`so_detail` = '{reference}'"""
     for item in sales_order_items:
-        billed = check_if_billed(item.name, item.qty, item.artikel_nach_aufwand)
+        billed = check_if_billed(item.name, item.qty, query)
         if billed == "billed":
             remove_so_items.append(item.name)
+    #reverse json loads
+    remove_so_items = json.dumps(remove_so_items)
     return remove_so_items
 
