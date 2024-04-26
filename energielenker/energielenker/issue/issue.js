@@ -107,29 +107,16 @@ function set_timestamps(frm){
 }
 
 function custom_mail_dialog(frm) {
-    //~ frappe.call({
-        //~ 'method': 'energielenker.energielenker.utils.utils.get_email_recipient_and_message',
-        //~ 'args': {
-            //~ 'contact': frm.doc.customer_contact
-        //~ },
-        //~ 'callback': function(response) {
-            var recipient = cur_frm.doc.raised_by;
-            //~ var message = response.message.message
-            var message = ""
-            new frappe.views.CommunicationComposer({
-                doc: {
-                    doctype: cur_frm.doc.doctype,
-                    name: cur_frm.doc.name
-                },
-                subject: "Anfrage " + cur_frm.doc.name,
-                //~ cc:  cc,
-                //~ bcc: bcc,
-                recipients: recipient,
-                attach_document_print: false,
-                message: message
-            });
-        //~ }
-    //~ });
+    var recipient = cur_frm.doc.raised_by;
+    new frappe.erpnextswiss.MailComposer({
+        doc: cur_frm.doc,
+        frm: cur_frm,
+        subject: "Anfrage " + cur_frm.doc.name,
+        recipients: recipient,
+        //~ cc: cc,
+        attach_document_print: false
+        //~ txt: get_email_body(frm)
+    });
 }
 
 

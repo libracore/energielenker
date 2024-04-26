@@ -30,24 +30,9 @@ def get_label_dimension_settings(label_printer):
 
 
 @frappe.whitelist() 
-def get_email_recipient_and_message(contact):
-    data = frappe.db.sql("""SELECT
-                            `email_id`
-                            FROM `tabContact Email`
-                            WHERE `parent` = '{contact}'
-                            ORDER BY `is_primary` DESC""".format(contact=contact), as_dict=True)
-    recipient = ""
-    if len(data) > 0:
-        if data[0].email_id:
-            recipient = data[0].email_id
-    
-    html = "HALLO MASCHINE"
-    
-    # ~ template = frappe.db.get_value("emh settings", "emh settings", "invoice_email_template")
-
-    # ~ html = frappe.db.get_value("Email Template", template, "response")
+def get_email_signature(contact):
+    html = frappe.db.get_value("User", frappe.session.user, "email_signature")
     
     return {
-        'recipient': recipient,
         'message': html
         }
