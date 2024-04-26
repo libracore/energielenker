@@ -37,6 +37,7 @@ def contains_abrechnen_nach_aufwand(sales_orders):
 def check_status(sales_orders):
     completely_billed_sales_orders = []
     incomplete_sales_orders = []
+    to_bill = []
     # check if sales order is completely billed
     for so in sales_orders:
         completely_billed = ready_to_close(so)
@@ -46,9 +47,11 @@ def check_status(sales_orders):
     # check if sales order status is 'to deliver and bill'
     for so in completely_billed_sales_orders:
         sales_order_doc = frappe.get_doc("Sales Order", so)
-        if sales_order_doc.status == "To Deliver and Bill":
+        if sales_order_doc.status == "To Deliver and Bill" or sales_order_doc.status == "Overdue":
             incomplete_sales_orders.append(so)
-    return incomplete_sales_orders
+        if sales_order_doc.status == "To Bill":
+            to_bill.append(so)
+    return incomplete_sales_orders, to_bill
 
 def ready_to_close(sales_order):
     sales_order_doc = frappe.get_doc("Sales Order", sales_order)

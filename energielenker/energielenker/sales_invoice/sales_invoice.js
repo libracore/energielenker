@@ -1,12 +1,19 @@
 // Copyright (c) 2021, libracore AG and contributors
 // For license information, please see license.txt
-
+frappe.ui.form.on('Sales Invoice Item', {
+    items_add(frm, cdt, cdn) {
+        console.log("hello")
+        removeBilledItems(frm);
+        updateAbrechnenNachAufwandQuantity(frm);
+    }
+});
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
         if (frm.doc.docstatus == 0 && frm.doc.__islocal == 1) {
             removeBilledItems(frm);
-            updateAbrechnenNachAufwandQuantity(frm);
         }
+        updateAbrechnenNachAufwandQuantity(frm);
+
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -490,7 +497,6 @@ function getCorrespondingSalesOrders(salesInvoice){
 function containsAbrechnenNachAufwandItem(frm){
     //checks if a sales invoice contains items that are billed by the hour in python hehehe
     const salesOrders = getCorrespondingSalesOrders(frm.doc);
-    //make a string of the sales orders
 
     frappe.call({
         'method': 'energielenker.energielenker.sales_invoice.sales_invoice.contains_abrechnen_nach_aufwand',
@@ -498,20 +504,33 @@ function containsAbrechnenNachAufwandItem(frm){
             'sales_orders': salesOrders
         },
         'callback': function(r){
-            var incompleteSalesOrders = r.message;
+            var incompleteSalesOrders = r.message[0] || [];
+            var toBillSalesOrders = r.message[1] || [];
+            console.log(incompleteSalesOrders);
+            console.log(toBillSalesOrders);
             if (!locals.force_save){
                 if(incompleteSalesOrders.length > 0){
                     frappe.validated = false;
                     frappe.confirm(
-                        'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch im Zustand "Auszuliefern und abzurechnen". Sind Sie sicher, dass Sie die Rechnung erstellen möchten? Diese Aktion schliesst den Kundenauftrag.',
+                        'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch nicht vollständig geliefert. Diese Aktion schliesst den Kundenauftrag. Sind Sie sicher, dass Sie die Rechnung buchen möchten?',
                         function(){
                             locals.force_save = true;
-                            cur_frm.savesubmit().then(() => closeSalesOrder(incompleteSalesOrders));
+                            cur_frm.savesubmit().then(() => {
+                                closeSalesOrder(incompleteSalesOrders);
+                                closeSalesOrder(toBillSalesOrders);
+                            });
                         },
                         function(){
                             cur_frm.reload_doc();
                         }
                     );
+                } else if (toBillSalesOrders.length > 0) {
+                    locals.force_save = true;
+                    frappe.validated = false;
+                    console.log("closing sales orders")
+                    cur_frm.savesubmit().then(() => {
+                        closeSalesOrder(toBillSalesOrders);
+                    });
                 }
             }
         }
