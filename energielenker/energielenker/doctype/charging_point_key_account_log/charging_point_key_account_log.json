@@ -1,5 +1,5 @@
 {
- "creation": "2024-04-16 13:44:53.775512",
+ "creation": "2024-04-29 14:29:59.055708",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -16,6 +16,20 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "activity",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Activity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Amount",
    "read_only": 1
   },
   {
@@ -37,27 +51,13 @@
    "label": "User",
    "options": "User",
    "read_only": 1
-  },
-  {
-   "fieldname": "activity",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Activity",
-   "read_only": 1
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Amount",
-   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2024-04-22 17:39:55.012970",
+ "modified": "2024-04-29 14:29:59.055708",
  "modified_by": "Administrator",
  "module": "energielenker",
- "name": "License Key Account Log",
+ "name": "Charging Point Key Account Log",
  "owner": "Administrator",
  "permissions": [],
  "quick_entry": 1,

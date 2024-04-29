@@ -1,6 +1,6 @@
 {
  "autoname": "field:customer",
- "creation": "2024-04-16 13:32:37.245498",
+ "creation": "2024-04-29 14:30:22.224790",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -37,14 +37,14 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_4",
-   "fieldtype": "Section Break"
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   },
   {
-   "fieldname": "past_activities",
-   "fieldtype": "Table",
-   "label": "Past Avtivities",
-   "options": "License Key Account Log"
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
   },
   {
    "fieldname": "section_break_6",
@@ -54,23 +54,23 @@
    "fieldname": "users",
    "fieldtype": "Table",
    "label": "Users",
-   "options": "License Key Account User"
+   "options": "Charging Point Key Account User"
   },
   {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
   },
   {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
+   "fieldname": "past_activities",
+   "fieldtype": "Table",
+   "label": "Past Avtivities",
+   "options": "Charging Point Key Account Log"
   }
  ],
- "modified": "2024-04-22 18:04:18.254338",
+ "modified": "2024-04-29 14:30:56.602988",
  "modified_by": "Administrator",
  "module": "energielenker",
- "name": "License Key Account",
+ "name": "Charging Point Key Account",
  "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [

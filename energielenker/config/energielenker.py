@@ -58,14 +58,14 @@ def get_data():
             ]
         },
         {
-            "label": _("Lizenz-Key Webshop"),
+            "label": _("Ladepunkt-Key Webshop"),
             "icon": "fa fa-money-bill",
             "items": [
                 {
                     "type": "doctype",
-                    "name": "License Key Account",
-                    "label": _("License Key Account"),
-                    "description": _("License Key Account")
+                    "name": "Charging Point Key Account",
+                    "label": _("Charging Point Key Account"),
+                    "description": _("Charging Point Key Account")
                 },
                 {
                     "type": "doctype",

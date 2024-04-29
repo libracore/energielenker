@@ -18,11 +18,11 @@ def get_context(context):
 def get_ladepunkte(user):
     
     data = frappe.db.sql("""SELECT
-                                `tabLicense Key Account`.`avaliable_points`
-                            FROM `tabLicense Key Account`
-                            LEFT JOIN `tabLicense Key Account User` ON `tabLicense Key Account`.`name` = `tabLicense Key Account User`.`parent`
-                            WHERE `tabLicense Key Account User`.`user` = '{user}'
-                            AND `tabLicense Key Account`.`disabled` = 0""".format(user=user), as_dict=True)
+                                `tabCharging Point Key Account`.`avaliable_points`
+                            FROM `tabCharging Point Key Account`
+                            LEFT JOIN `tabCharging Point Key Account User` ON `tabCharging Point Key Account`.`name` = `tabCharging Point Key Account User`.`parent`
+                            WHERE `tabCharging Point Key Account User`.`user` = '{user}'
+                            AND `tabCharging Point Key Account`.`disabled` = 0""".format(user=user), as_dict=True)
     
     if len(data) > 0:
         avaliable_points = data[0].get('avaliable_points')
@@ -41,7 +41,6 @@ def validate_qty(qty_string):
     avaliable_points = get_ladepunkte(frappe.session.user)
     if avaliable_points >= qty:
         license_key = create_license_key(qty)
-    # ~ return "a2119d27c3c59c5"
         return license_key
     else:
         return False
@@ -124,13 +123,13 @@ def get_license_key(lizenzgutschein):
 
 def update_account(license_key, qty):
     today = getdate()
-    customer = frappe.db.sql("""SELECT `parent` FROM `tabLicense Key Account User`  WHERE `user` = '{user}'""".format(user=frappe.session.user), as_dict=True)
-    customer_doc = frappe.get_doc("License Key Account", customer[0].parent)
+    customer = frappe.db.sql("""SELECT `parent` FROM `tabCharging Point Key Account User`  WHERE `user` = '{user}'""".format(user=frappe.session.user), as_dict=True)
+    customer_doc = frappe.get_doc("Charging Point Key Account", customer[0].parent)
     
     customer_doc.avaliable_points -= qty
     
     entry = {
-        'reference_doctype': 'License Key Account Log',
+        'reference_doctype': 'Charging Point Key Account Log',
         'date': today,
         'activity': "Webshop",
         'evse_count': qty * -1,

@@ -1,5 +1,5 @@
 {
- "creation": "2024-04-16 14:01:44.659365",
+ "creation": "2024-04-29 14:21:15.535416",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -17,10 +17,10 @@
   }
  ],
  "istable": 1,
- "modified": "2024-04-16 14:01:44.659365",
+ "modified": "2024-04-29 14:21:15.535416",
  "modified_by": "Administrator",
  "module": "energielenker",
- "name": "License Key Account User",
+ "name": "Charging Point Key Account User",
  "owner": "Administrator",
  "permissions": [],
  "quick_entry": 1,
