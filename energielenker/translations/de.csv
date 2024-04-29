@@ -2,3 +2,19 @@ DocType: Delivery Note,Manual date,Manuelles Datum
 DocType: Delivery Note,Set manual date,Manuelles Datum setzen
 DocType: Delivery Note,Configuration pending,Konfiguration ausstehend
 DocType: Issue,Booked Hours,Gebuchte Stunden
+DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
+DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
+DocType: Charging Point Key Account,Disabled,Deaktiviert
+DocType: Charging Point Key Account,Users,Benutzer
+DocType: Charging Point Key Account,Past Avtivities,Vergangene Aktivitäten
+DocType: Charging Point Key Account,Users,Benutzer
+DocType: Charging Point Key Account,Date,Datum
+DocType: Charging Point Key Account,Activity,Aktivität
+DocType: Charging Point Key Account,Amount,Menge
+DocType: Charging Point Key Account,User,Benutzer
+DocType: Webshop Settings,Webshop Settings,Webshop Einstellungen
+DocType: Webshop Settings,Sales Order Item,Artikel Kundenauftrag
+DocType: Webshop Settings,Item Name,Artikel Name
+DocType: Webshop Settings,Purchase Order,Lieferantenauftrag
+DocType: Webshop Settings,Supplier,Lieferant
+DocType: Webshop Settings,Purchase Order Item,Artikel Lieferantenauftrag

@@ -37,7 +37,7 @@ def get_data():
             "label": _("API"),
             "icon": "fa fa-money-bill",
             "items": [
-				{
+                {
                     "type": "doctype",
                     "name": "Ladepunkt Key API",
                     "label": _("Ladepunkt Key API"),
@@ -54,6 +54,24 @@ def get_data():
                     "name": "Lizenz Anfrage",
                     "label": _("Lizenz Anfrage"),
                     "description": _("Lizenz Anfrage")
+                }
+            ]
+        },
+        {
+            "label": _("Ladepunkt-Key Webshop"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Charging Point Key Account",
+                    "label": _("Charging Point Key Account"),
+                    "description": _("Charging Point Key Account")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Webshop Settings",
+                    "label": _("Webshop Settings"),
+                    "description": _("Webshop Settings")
                 }
             ]
         }
