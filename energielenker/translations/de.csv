@@ -18,3 +18,7 @@ DocType: Webshop Settings,Item Name,Artikel Name
 DocType: Webshop Settings,Purchase Order,Lieferantenauftrag
 DocType: Webshop Settings,Supplier,Lieferant
 DocType: Webshop Settings,Purchase Order Item,Artikel Lieferantenauftrag
+DocType: Depot,Depot,Kommissionierung
+DocType: Depot,To Warehouse,Ziellager
+DocType: Depot,Project,Projekt
+DocType: Depot,Sales Order,Kundenauftrag
