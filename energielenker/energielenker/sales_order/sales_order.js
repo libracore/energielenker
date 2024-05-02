@@ -121,6 +121,7 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         if (cur_frm.doc.customer) {
+            validate_customer(frm, "customer");
 			frappe.call({
 				method: 'frappe.client.get_value',
                 args: {
@@ -139,6 +140,7 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
+        validate_customer(frm, "validate");
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
         } else {
@@ -698,6 +700,27 @@ function create_dn_for_webshop_points(frm) {
         'method': 'energielenker.energielenker.sales_order.sales_order.create_delivery_note',
         'args': {
             'sales_order_name': cur_frm.doc.name
+        }
+    });
+}
+
+function validate_customer(frm, event) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.validate_customer',
+        'args': {
+            'customer': frm.doc.customer
+        },
+        "async": false,
+        'callback': function(response) {
+            var validation = response.message
+            if (validation) {
+                frappe.msgprint( __("Kunde ist gesperrt!"), __("Sperrkunde") );
+                if (event == "customer") {
+                    cur_frm.set_value("customer", "");
+                } else {
+                    frappe.validated=false;
+                }
+            }
         }
     });
 }
