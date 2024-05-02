@@ -7,6 +7,12 @@ cur_frm.dashboard.add_transactions([
         'items': [
             'Issue'
         ]
+    },
+    {
+        'label': 'Material',
+        'items': [
+            'Depot',
+        ]
     }
 ]);
 

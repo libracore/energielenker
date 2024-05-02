@@ -17,6 +17,22 @@ frappe.ui.form.on('Depot', {
             'Auswählen'
             )
         }).addClass("btn-primary");
+        if (frm.doc.__islocal) {
+            set_default_warehouse(frm);
+        }
+    },
+    sales_order: function(frm) {
+        cur_frm.set_value("title", cur_frm.doc.sales_order);
+        set_project(frm);
+    },
+    project: function(frm) {
+        cur_frm.fields_dict['sales_order'].get_query = function(doc) {
+             return {
+                 filters: {
+                     "project_clone": frm.doc.project
+                 }
+             }
+        }
     }
 });
 
@@ -59,4 +75,42 @@ function create_label(frm, label_printer) {
             }
         }
     });
+}
+
+function set_default_warehouse(frm) {
+    frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+            doctype: "energielenker Settings",
+            fieldname: "depot_warehouse"
+        },
+        callback: function(response) {
+            var warehouse = response.message['depot_warehouse']
+            cur_frm.set_value("to_warehouse", warehouse);
+        }
+    });
+}
+
+function set_project(frm) {
+    if (cur_frm.doc.sales_order) {
+        frappe.call({
+            method: "frappe.client.get",
+            args: {
+                doctype: "Sales Order",
+                name: cur_frm.doc.sales_order
+            },
+            'async': false,
+            callback: function(response) {
+                console.log(response.message);
+                var project = response.message.project_clone
+                if (project) {
+                    cur_frm.set_value("project", project);
+                } else {
+                    cur_frm.set_value("project", "");
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("project", "");
+    }
 }
