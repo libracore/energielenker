@@ -106,7 +106,6 @@ function validate_streckengeschäft(frm) {
         },
         'async': false,
         'callback': function(response) {
-			console.log(cur_frm.doc.update_stock)
 			if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
 				frappe.validated=false;
 				frappe.confirm(
