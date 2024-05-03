@@ -22,3 +22,7 @@ DocType: Depot,Depot,Kommissionierung
 DocType: Depot,To Warehouse,Ziellager
 DocType: Depot,Project,Projekt
 DocType: Depot,Sales Order,Kundenauftrag
+DocType: Delivery Note,Please select Depot,Bitte Kommissionierung wählen
+DocType: Delivery Note,Get Items,Artikel holen
+DocType: Delivery Note,Depot,Kommissionierung
+DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen

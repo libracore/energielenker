@@ -10,5 +10,7 @@ class Depot(Document):
 	pass
 
 def route_to_page(self, event):
-    # ~ raise frappe.redirect("/desk?depot='{depot}'#depot-verarbeitung".format(depot=self.name))
+    frappe.log_error(self.name, "name")
+    frappe.local.flags.redirect_location = "/desk?depot={depot}#depot-verarbeitung".format(depot=self.name)
+    raise frappe.Redirect
     return

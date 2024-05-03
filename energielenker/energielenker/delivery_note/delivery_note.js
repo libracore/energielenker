@@ -107,6 +107,11 @@ frappe.ui.form.on("Delivery Note", {
                 }
             });
         }
+        if (cur_frm.doc.docstatus < 1) {
+            frm.add_custom_button(__("Get Depot Items"),  function(frm){
+              get_depot_items(frm);
+            });
+        }
     },
     before_save(frm) {
         if (so_return == "Return"){
@@ -452,4 +457,37 @@ function set_new_address_and_contact_filter(frm, filter) {
             }                       
         }
     });
+}
+
+function get_depot_items(frm) {
+    frappe.prompt([
+        {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1}  
+    ],
+    function(values){
+        frappe.call({
+            'method': 'energielenker.energielenker.delivery_note.delivery_note.get_depot_items',
+            'args': {
+                'depot': values.depot
+            },
+            'callback': function(response) {
+                var items = response.message
+                console.log(items);
+                if (items.length > 0) {
+                    for (let i = 0; i < items.length; i++) {
+                        console.log(items[i]);
+                        var child = cur_frm.add_child('items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                        //~ frappe.model.set_value(child.doctype, child.name, 'warehouse', items[i].warehouse);
+                    }
+                    frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
+                } else {
+                    frappe.show_alert('Keine Artikel vorhanden', 5);
+                }
+            }
+        });
+    },
+    'Please select Depot',
+    'Get Items'
+    )
 }

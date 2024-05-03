@@ -31,3 +31,14 @@ def validate_valuation_rate(delivery_note, event):
     for item in delivery_note.items:
         item.valuation_rate = frappe.db.get_value('Item', item.item_code, 'valuation_rate') or 0
     return
+    
+@frappe.whitelist()
+def get_depot_items(depot):
+    items = frappe.db.sql("""SELECT
+                            `tabDepot Item`.`item_code`,
+                            `tabDepot Item`.`qty`,
+                            `tabDepot`.`to_warehouse` AS `warehouse`
+                        FROM `tabDepot Item`
+                        LEFT JOIN `tabDepot` ON `tabDepot Item`.`parent` = `tabDepot`.`name`
+                        WHERE `tabDepot Item`.`parent` = '{depot}'""".format(depot=depot), as_dict=True)
+    return items
