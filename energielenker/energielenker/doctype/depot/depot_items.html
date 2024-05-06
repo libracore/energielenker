@@ -1,0 +1,14 @@
+<table>
+    <tr>
+        <th>Menge</th>
+        <th>Artikel</th>
+    </tr>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.item_code }}</td>
+            </tr>
+        {% endfor %}
+</table>
+
+    

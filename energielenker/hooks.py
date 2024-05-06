@@ -193,9 +193,6 @@ doc_events = {
     },
     "Quotation": {
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
-    },
-    "Depot": {
-        "after_insert": "energielenker.energielenker.doctype.depot.depot.route_to_page"
     }
 }
 

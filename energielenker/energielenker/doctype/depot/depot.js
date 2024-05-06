@@ -1,24 +1,33 @@
 // Copyright (c) 2024, libracore and contributors
 // For license information, please see license.txt
 
+var lets_routing = false;
+
 frappe.ui.form.on('Depot', {
     refresh: function(frm) {
-        frm.add_custom_button(__("Öffne Verarbeitung"), function() {
-            window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
-        });
-        frm.add_custom_button(__("Etikette erstellen"), function() {
-            frappe.prompt([
-                {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
-            ],
-            function(values){
-                create_label(frm, values.label_printer);
-            },
-            'Etiketten Auswahl',
-            'Auswählen'
-            )
-        }).addClass("btn-primary");
         if (frm.doc.__islocal) {
-            set_default_warehouse(frm);
+           set_default_warehouse(frm);
+        } else {
+           frm.add_custom_button(__("Öffne Verarbeitung"), function() {
+                window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
+            });
+            frm.add_custom_button(__("Etikette erstellen"), function() {
+                frappe.prompt([
+                    {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
+                ],
+                function(values){
+                    create_label(frm, values.label_printer);
+                },
+                'Etiketten Auswahl',
+                'Auswählen'
+                )
+            }).addClass("btn-primary");
+            get_items_html(frm);
+            
+            if (lets_routing) {
+                lets_routing = false;
+                window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
+            }
         }
     },
     sales_order: function(frm) {
@@ -32,6 +41,11 @@ frappe.ui.form.on('Depot', {
                      "project_clone": frm.doc.project
                  }
              }
+        }
+    },
+    validate: function(frm) {
+        if (frm.doc.__islocal) {
+           lets_routing = true;
         }
     }
 });
@@ -113,4 +127,19 @@ function set_project(frm) {
     } else {
         cur_frm.set_value("project", "");
     }
+}
+
+function get_items_html(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
+        'args': {
+            'depot': frm.doc.name,
+            'event': "depot"
+        },
+        'callback': function(response) {
+            var html = response.message;
+            console.log(html);
+            cur_frm.set_value("items", html);
+        }
+    });
 }
