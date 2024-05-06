@@ -1,13 +1,20 @@
+<p style="font-weight: bold; font-size: 17px;">Aktuell kommissionierte Artikel</p>
 <table>
     <tr>
         <th>Menge</th>
-        <th>Artikel</th>
+        <th style="padding-left: 50px;">Einheit</th>
+        <th style="padding-right: 50px; padding-left: 50px;">Artikel</th>
+        <th>Artikelname</th>
     </tr>
         {% for item in items %}
-            <tr>
-                <td>{{ item.qty }}</td>
-                <td>{{ item.item_code }}</td>
-            </tr>
+            {% if item.balance_qty != 0 %}
+                <tr style="border-top: 1px solid grey;">
+                    <td style="text-align: right;">{{ item.balance_qty }}</td>
+                    <td style="padding-left: 50px;">{{ item.uom }}</td>
+                    <td style="padding-right: 50px; padding-left: 50px;">{{ item.item_code }}</td>
+                    <td>{{ item.item_name }}</td>
+                </tr>
+            {% endif %}
         {% endfor %}
 </table>
 

@@ -465,20 +465,26 @@ function get_depot_items(frm) {
     ],
     function(values){
         frappe.call({
-            'method': 'energielenker.energielenker.delivery_note.delivery_note.get_depot_items',
+            'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
             'args': {
-                'depot': values.depot
+                'depot': values.depot,
+                'event': "delivery_note"
             },
+            'async': false,
             'callback': function(response) {
-                var items = response.message
+                var items = response.message[0]
+                var depot = response.message[1]
+                var warehouse = response.message[2]
                 console.log(items);
+                console.log(depot);
+                console.log(warehouse);
                 if (items.length > 0) {
                     for (let i = 0; i < items.length; i++) {
-                        console.log(items[i]);
                         var child = cur_frm.add_child('items');
                         frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
-                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
-                        //~ frappe.model.set_value(child.doctype, child.name, 'warehouse', items[i].warehouse);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].balance_qty);
+                        frappe.model.set_value(child.doctype, child.name, 'warehouse', warehouse);
+                        frappe.model.set_value(child.doctype, child.name, 'source_depot', depot);
                     }
                     frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
                 } else {

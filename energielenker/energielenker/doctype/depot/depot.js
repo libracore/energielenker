@@ -138,8 +138,7 @@ function get_items_html(frm) {
         },
         'callback': function(response) {
             var html = response.message;
-            console.log(html);
-            cur_frm.set_value("items", html);
+            cur_frm.set_df_property('items','options',html);
         }
     });
 }
