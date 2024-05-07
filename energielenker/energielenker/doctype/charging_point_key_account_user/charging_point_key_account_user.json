@@ -13,11 +13,12 @@
    "in_list_view": 1,
    "label": "User",
    "options": "User",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "istable": 1,
- "modified": "2024-04-29 14:21:15.535416",
+ "modified": "2024-05-07 08:54:33.080659",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Charging Point Key Account User",
