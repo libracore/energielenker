@@ -199,3 +199,8 @@ def create_delivery_note(sales_order_name):
         
         return
 
+@frappe.whitelist()
+def validate_customer(customer):
+    valdiation = frappe.db.get_value("Customer", customer, "blocked_customer")
+    return valdiation
+    
