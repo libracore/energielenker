@@ -476,9 +476,6 @@ function get_depot_items(frm) {
                 var items = response.message[0]
                 var depot = response.message[1]
                 var sales_order = response.message[2]
-                console.log(items);
-                console.log(depot);
-                console.log(sales_order);
                 if (items.length > 0) {
                     for (let i = 0; i < items.length; i++) {
                         if (items[i].balance_qty > 0) {
@@ -504,7 +501,6 @@ function get_depot_items(frm) {
 function validate_warehouse(frm) {
     for (let i = 0; i < cur_frm.doc.items.length; i++) {
         if (cur_frm.doc.items[i].source_depot) {
-            console.log(cur_frm.doc.items[i].item_code)
             frappe.call({
                 'method': "frappe.client.get",
                 'args': {
@@ -513,7 +509,6 @@ function validate_warehouse(frm) {
                 },
                 'callback': function(response) {
                     var warehouse = response.message.to_warehouse;
-                    console.log(warehouse);
                     if (warehouse) {
                             frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
                     }

@@ -115,7 +115,6 @@ function set_project(frm) {
             },
             'async': false,
             callback: function(response) {
-                console.log(response.message);
                 var project = response.message.project_clone
                 if (project) {
                     cur_frm.set_value("project", project);
