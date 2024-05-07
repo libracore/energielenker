@@ -1,22 +1,52 @@
 // Copyright (c) 2024, libracore and contributors
 // For license information, please see license.txt
 
+var lets_routing = false;
+
 frappe.ui.form.on('Depot', {
     refresh: function(frm) {
-        frm.add_custom_button(__("Öffne Verarbeitung"), function() {
-            window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
-        });
-        frm.add_custom_button(__("Etikette erstellen"), function() {
-            frappe.prompt([
-                {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
-            ],
-            function(values){
-                create_label(frm, values.label_printer);
-            },
-            'Etiketten Auswahl',
-            'Auswählen'
-            )
-        }).addClass("btn-primary");
+        if (frm.doc.__islocal) {
+           set_default_warehouse(frm);
+        } else {
+           frm.add_custom_button(__("Öffne Verarbeitung"), function() {
+                window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
+            });
+            frm.add_custom_button(__("Etikette erstellen"), function() {
+                frappe.prompt([
+                    {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
+                ],
+                function(values){
+                    create_label(frm, values.label_printer);
+                },
+                'Etiketten Auswahl',
+                'Auswählen'
+                )
+            }).addClass("btn-primary");
+            get_items_html(frm);
+            
+            if (lets_routing) {
+                lets_routing = false;
+                window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
+            }
+        }
+    },
+    sales_order: function(frm) {
+        cur_frm.set_value("title", cur_frm.doc.sales_order);
+        set_project(frm);
+    },
+    project: function(frm) {
+        cur_frm.fields_dict['sales_order'].get_query = function(doc) {
+             return {
+                 filters: {
+                     "project_clone": frm.doc.project
+                 }
+             }
+        }
+    },
+    validate: function(frm) {
+        if (frm.doc.__islocal) {
+           lets_routing = true;
+        }
     }
 });
 
@@ -57,6 +87,57 @@ function create_label(frm, label_printer) {
                    frappe.msgprint(__("Please enable pop-ups")); return;
                }
             }
+        }
+    });
+}
+
+function set_default_warehouse(frm) {
+    frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+            doctype: "energielenker Settings",
+            fieldname: "depot_warehouse"
+        },
+        callback: function(response) {
+            var warehouse = response.message['depot_warehouse']
+            cur_frm.set_value("to_warehouse", warehouse);
+        }
+    });
+}
+
+function set_project(frm) {
+    if (cur_frm.doc.sales_order) {
+        frappe.call({
+            method: "frappe.client.get",
+            args: {
+                doctype: "Sales Order",
+                name: cur_frm.doc.sales_order
+            },
+            'async': false,
+            callback: function(response) {
+                var project = response.message.project_clone
+                if (project) {
+                    cur_frm.set_value("project", project);
+                } else {
+                    cur_frm.set_value("project", "");
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("project", "");
+    }
+}
+
+function get_items_html(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
+        'args': {
+            'depot': frm.doc.name,
+            'event': "depot"
+        },
+        'callback': function(response) {
+            var html = response.message;
+            cur_frm.set_df_property('items','options',html);
         }
     });
 }

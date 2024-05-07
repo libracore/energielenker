@@ -1,41 +1,63 @@
 {
+ "autoname": "KOM.#######.",
  "creation": "2024-03-06 15:42:27.999951",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "title",
   "project",
-  "from_warehouse",
-  "to_warehouse"
+  "sales_order",
+  "to_warehouse",
+  "section_break_4",
+  "items"
  ],
  "fields": [
   {
    "fieldname": "project",
    "fieldtype": "Link",
-   "label": "Projekt",
+   "label": "Project",
    "options": "Project"
-  },
-  {
-   "fieldname": "from_warehouse",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Ausgangslager",
-   "options": "Warehouse",
-   "reqd": 1
   },
   {
    "fieldname": "to_warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Ziellager",
+   "label": "To Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "HTML",
+   "label": "Items",
+   "read_only": 1
+  },
+  {
+   "fetch_if_empty": 1,
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Title",
+   "read_only": 1
   }
  ],
- "modified": "2024-03-06 15:42:27.999951",
+ "modified": "2024-05-06 17:37:05.643102",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Depot",
+ "name_case": "Title Case",
  "owner": "Administrator",
  "permissions": [
   {
@@ -51,8 +73,8 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "title",
  "track_changes": 1
 }

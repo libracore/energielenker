@@ -12,15 +12,16 @@ def make_material_transfer(depot, items):
     items = json.loads(items)
     material_transfer_items = []
     for key in items:
+        
         material_transfer_items.append({
             'item_code': key,
             'qty': items[key],
-            'uom': 'Stück'
+            'uom': 'Stück',
+            's_warehouse': frappe.db.get_value("Item", key, "default_warehouse_readonly")
         })
     material_transfer = frappe.get_doc({
         "doctype": "Stock Entry",
         "stock_entry_type": 'Material Transfer',
-        "from_warehouse": depot.from_warehouse,
         "to_warehouse": depot.to_warehouse,
         "items": material_transfer_items,
         "project": depot.project,

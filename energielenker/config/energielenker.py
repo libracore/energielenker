@@ -4,6 +4,18 @@ from frappe import _
 def get_data():
     return[
         {
+            "label": _("Energielenker"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Depot",
+                    "label": _("Depot"),
+                    "description": _("Kommissionierung")
+                }
+            ]
+        },
+        {
             "label": _("Dashboards"),
             "icon": "fa fa-money-bill",
             "items": [

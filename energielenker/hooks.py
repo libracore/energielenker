@@ -60,9 +60,9 @@ doctype_js = {
     "BOM": "energielenker/bom/bom.js",
     "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js",
     "Lead": "energielenker/lead/lead.js",
-	"Cost Center": "energielenker/cost_center/cost_center.js",
-	"Item Price": "energielenker/item_price/item_price.js",
-	"Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js"
+    "Cost Center": "energielenker/cost_center/cost_center.js",
+    "Item Price": "energielenker/item_price/item_price.js",
+    "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js"
 }
 
 doctype_list_js = {
@@ -97,7 +97,7 @@ jenv = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+#   "Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -126,11 +126,11 @@ jenv = {
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+#   "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+#   "Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # Document Events
@@ -189,11 +189,11 @@ doc_events = {
         "on_trash": "energielenker.energielenker.utils.lead.delete_events"
     },
     "Address": {
-		"validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
-	},
-	"Quotation": {
-		"validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
-	}
+        "validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
+    },
+    "Quotation": {
+        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+    }
 }
 
 # Scheduled Tasks
@@ -212,21 +212,21 @@ scheduler_events = {
     ]
 }
 # scheduler_events = {
-# 	"all": [
-# 		"energielenker.tasks.all"
-# 	],
-# 	"daily": [
-# 		"energielenker.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"energielenker.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"energielenker.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"energielenker.tasks.monthly"
-# 	]
+#   "all": [
+#       "energielenker.tasks.all"
+#   ],
+#   "daily": [
+#       "energielenker.tasks.daily"
+#   ],
+#   "hourly": [
+#       "energielenker.tasks.hourly"
+#   ],
+#   "weekly": [
+#       "energielenker.tasks.weekly"
+#   ]
+#   "monthly": [
+#       "energielenker.tasks.monthly"
+#   ]
 # }
 
 # Testing
@@ -238,12 +238,12 @@ scheduler_events = {
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "energielenker.event.get_events"
+#   "frappe.desk.doctype.event.event.get_events": "energielenker.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "energielenker.task.get_dashboard_data"
+#   "Task": "energielenker.task.get_dashboard_data"
 # }

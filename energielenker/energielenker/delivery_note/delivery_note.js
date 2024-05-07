@@ -107,6 +107,11 @@ frappe.ui.form.on("Delivery Note", {
                 }
             });
         }
+        if (cur_frm.doc.docstatus < 1) {
+            frm.add_custom_button(__("Get Depot Items"),  function(frm){
+              get_depot_items(frm);
+            });
+        }
     },
     before_save(frm) {
         if (so_return == "Return"){
@@ -238,6 +243,7 @@ frappe.ui.form.on("Delivery Note", {
             frappe.msgprint( __("Es muss eine Lieferadresse hinterlegt werden"), __("Validation") );
             frappe.validated=false;
         }
+        validate_warehouse(frm);
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -452,4 +458,62 @@ function set_new_address_and_contact_filter(frm, filter) {
             }                       
         }
     });
+}
+
+function get_depot_items(frm) {
+    frappe.prompt([
+        {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1}  
+    ],
+    function(values){
+        frappe.call({
+            'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
+            'args': {
+                'depot': values.depot,
+                'event': "delivery_note"
+            },
+            'async': false,
+            'callback': function(response) {
+                var items = response.message[0]
+                var depot = response.message[1]
+                var sales_order = response.message[2]
+                if (items.length > 0) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].balance_qty > 0) {
+                            var child = cur_frm.add_child('items');
+                            frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                            frappe.model.set_value(child.doctype, child.name, 'qty', items[i].balance_qty);
+                            frappe.model.set_value(child.doctype, child.name, 'source_depot', depot);
+                            frappe.model.set_value(child.doctype, child.name, 'against_sales_order', sales_order);
+                        }
+                    }
+                    frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
+                } else {
+                    frappe.show_alert('Keine Artikel vorhanden', 5);
+                }
+            }
+        });
+    },
+    'Please select Depot',
+    'Get Items'
+    )
+}
+
+function validate_warehouse(frm) {
+    for (let i = 0; i < cur_frm.doc.items.length; i++) {
+        if (cur_frm.doc.items[i].source_depot) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Depot",
+                    'name': cur_frm.doc.items[i].source_depot
+                },
+                'callback': function(response) {
+                    var warehouse = response.message.to_warehouse;
+                    if (warehouse) {
+                            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
+                    }
+                }
+            });
+        }
+    }
 }

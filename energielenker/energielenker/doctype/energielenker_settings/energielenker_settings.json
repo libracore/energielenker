@@ -14,6 +14,8 @@
   "ticket_bestaetigungs_mail",
   "section_purchase_order",
   "default_cost_center",
+  "depot",
+  "depot_warehouse",
   "section_cfos",
   "cfos_ssh_username",
   "cfos_ssh_pkey",
@@ -127,10 +129,22 @@
    "label": "Standart Kostenstelle",
    "options": "Cost Center",
    "reqd": 1
+  },
+  {
+   "fieldname": "depot",
+   "fieldtype": "Section Break",
+   "label": "Depot"
+  },
+  {
+   "fieldname": "depot_warehouse",
+   "fieldtype": "Link",
+   "label": "Standard Depot Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2023-08-03 08:46:37.540475",
+ "modified": "2024-05-02 14:20:56.086353",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
