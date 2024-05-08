@@ -55,7 +55,6 @@ login.login_handlers = (function() {
                     }
                 }) || []).join('<br>') || default_message;
             }
-
             if(message===default_message) {
                 $("#login_error").show();
             } else {
@@ -70,7 +69,8 @@ login.login_handlers = (function() {
             if(data.message == 'Logged In'){
                 window.location.href = 'retrieving_charging_points';
             }
-        }
+        },
+        401: get_error_handler('{{ _("Invalid Login. Try again.") }}')
     };
 
     return login_handlers;

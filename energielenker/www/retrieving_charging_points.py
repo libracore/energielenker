@@ -84,7 +84,7 @@ def create_purchase_order(qty):
     new_po_doc.append('items', entry)
     
     new_po_doc = new_po_doc.insert(ignore_permissions=True)
-    new_po_doc.submit()
+    new_po_doc.submit(ignore_permissions=True)
     
     #get name of new Purchase Order and return it
     purchase_order = new_po_doc.name
@@ -150,3 +150,9 @@ def get_item_uom(qty):
     else:
         frappe.log_error("Webshop UOM Error", "UOM Error")
         return False
+
+@frappe.whitelist()
+def logout_from_webshop():
+    frappe.local.login_manager.logout()
+    frappe.db.commit()
+    return

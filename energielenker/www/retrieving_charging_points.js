@@ -33,7 +33,7 @@ function validate_qty(qty) {
             var validation = response.message;
             if (validation) {
                 if (validation == "Error") {
-                    show_error("Ein Fehler ist aufgetreten.");
+                    show_error("Es ist ein Fehler aufgetreten (z.B. Losgrösse nicht definiert). Bitte setzen Sie sich mit Ihrer Kundenbetreuung in Verbindung.");
                 } else {
                     $("#license_key").val(validation);
                     $("#success_evse_count").text(qty);
@@ -51,4 +51,13 @@ function show_error(error) {
     $("#form_error").html(`<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ${error}`);
     $("#form_error").show();
     $("#evse_count").css("border-color", "red");
+}
+
+function logout_from_webshop() {
+    frappe.call({
+        'method': 'energielenker.www.retrieving_charging_points.logout_from_webshop',
+        'callback': function(response) {
+            window.location.href = 'webshop_login';
+        }
+    });
 }
