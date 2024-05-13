@@ -6,7 +6,25 @@ var lets_routing = false;
 frappe.ui.form.on('Depot', {
     refresh: function(frm) {
         if (frm.doc.__islocal) {
-           set_default_warehouse(frm);
+            set_default_warehouse(frm);
+            cur_frm.fields_dict['sales_order'].get_query = function(doc) {
+                if (doc.project) {
+                     return {
+                         filters: {
+                             "project_clone": doc.project
+                         }
+                     }
+                }
+            };
+            cur_frm.fields_dict['project'].get_query = function(doc) {
+                if (doc.sales_order) {
+                     return {
+                         filters: {
+                             "sales_order": doc.sales_order
+                         }
+                     }
+                }
+            };
         } else {
            frm.add_custom_button(__("Öffne Verarbeitung"), function() {
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
@@ -28,20 +46,12 @@ frappe.ui.form.on('Depot', {
                 lets_routing = false;
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
             }
+            set_read_only(frm);
         }
     },
     sales_order: function(frm) {
         cur_frm.set_value("title", cur_frm.doc.sales_order);
         set_project(frm);
-    },
-    project: function(frm) {
-        cur_frm.fields_dict['sales_order'].get_query = function(doc) {
-             return {
-                 filters: {
-                     "project_clone": frm.doc.project
-                 }
-             }
-        }
     },
     validate: function(frm) {
         if (frm.doc.__islocal) {
@@ -118,6 +128,7 @@ function set_project(frm) {
                 var project = response.message.project_clone
                 if (project) {
                     cur_frm.set_value("project", project);
+                    return project;
                 } else {
                     cur_frm.set_value("project", "");
                 }
@@ -140,4 +151,10 @@ function get_items_html(frm) {
             cur_frm.set_df_property('items','options',html);
         }
     });
+}
+
+function set_read_only(frm) {
+    cur_frm.set_df_property('project', 'read_only', 1);
+    cur_frm.set_df_property('sales_order', 'read_only', 1);
+    cur_frm.set_df_property('to_warehouse', 'read_only', 1);
 }

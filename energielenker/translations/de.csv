@@ -28,4 +28,5 @@ DocType: Delivery Note,Please select Depot,Bitte Kommissionierung wählen
 DocType: Delivery Note,Get Items,Artikel holen
 DocType: Delivery Note,Depot,Kommissionierung
 DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen
-
+DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
+DocType: Stock Entry,Source Depot,Kommissionierung

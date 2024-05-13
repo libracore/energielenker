@@ -108,7 +108,7 @@ frappe.ui.form.on("Delivery Note", {
             });
         }
         if (cur_frm.doc.docstatus < 1) {
-            frm.add_custom_button(__("Get Depot Items"),  function(frm){
+            frm.add_custom_button(__("Get Depot Items"),  function(){
               get_depot_items(frm);
             });
         }
@@ -460,9 +460,17 @@ function set_new_address_and_contact_filter(frm, filter) {
     });
 }
 
-function get_depot_items(frm) {
+function get_depot_items() {
     frappe.prompt([
-        {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1}  
+        {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1, 'get_query': function() {
+                                                                                                        var sales_orders = get_depot_sales_order();
+                                                                                                        return {
+                                                                                                            filters: [
+                                                                                                                ['sales_order', "in", sales_orders]
+                                                                                                            ]
+                                                                                                        };
+                                                                                                    }
+        }
     ],
     function(values){
         frappe.call({
@@ -516,4 +524,14 @@ function validate_warehouse(frm) {
             });
         }
     }
+}
+
+function get_depot_sales_order(frm) {
+    var sales_orders = [];
+    cur_frm.doc.items.forEach(function(item) {
+        if (!sales_orders.includes(item.against_sales_order)) {
+            sales_orders.push(item.against_sales_order);
+        }
+    });
+    return sales_orders
 }
