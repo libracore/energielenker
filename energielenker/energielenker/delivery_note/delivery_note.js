@@ -321,6 +321,9 @@ frappe.ui.form.on("Delivery Note", {
         if (frm.doc.new_customer_address) {
             cur_frm.set_value('customer_address', frm.doc.new_customer_address);
         }
+    },
+    before_submit: function(frm) {
+        check_for_depot(frm);
     }
 });
 
@@ -424,7 +427,7 @@ function fetch_kontakt_aus_lieferadresse(frm) {
 }
 
 function update_so_status(frm) {
-    cur_frm.doc.items.forEach(function(entry) {	
+    cur_frm.doc.items.forEach(function(entry) { 
         if (entry.against_sales_order) {
             frappe.call({
                 method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
@@ -464,11 +467,13 @@ function get_depot_items() {
     frappe.prompt([
         {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1, 'get_query': function() {
                                                                                                         var sales_orders = get_depot_sales_order();
-                                                                                                        return {
-                                                                                                            filters: [
-                                                                                                                ['sales_order', "in", sales_orders]
-                                                                                                            ]
-                                                                                                        };
+                                                                                                        if (sales_orders[0]) {
+                                                                                                            return {
+                                                                                                                filters: [
+                                                                                                                    ['sales_order', "in", sales_orders]
+                                                                                                                ]
+                                                                                                            };
+                                                                                                        }
                                                                                                     }
         }
     ],
@@ -492,6 +497,8 @@ function get_depot_items() {
                             frappe.model.set_value(child.doctype, child.name, 'qty', items[i].balance_qty);
                             frappe.model.set_value(child.doctype, child.name, 'source_depot', depot);
                             frappe.model.set_value(child.doctype, child.name, 'against_sales_order', sales_order);
+                            frappe.model.set_value(child.doctype, child.name, 'typ', "Int.");
+                            frappe.model.set_value(child.doctype, child.name, 'interne_position', 1);
                         }
                     }
                     frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
@@ -534,4 +541,28 @@ function get_depot_sales_order(frm) {
         }
     });
     return sales_orders
+}
+
+function check_for_depot(frm) {
+    var lines_with_depot = []
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].source_depot) {
+            lines_with_depot.push(i+1);
+        }
+    }
+    if (lines_with_depot.length > 0 && !locals.do_submit) {
+        frappe.validated=false;
+        frappe.confirm(
+            "Achtung, Zeilen " + lines_with_depot + " gehören zu einer Kommission - trotzdem Fortfahren?",
+            function(){
+                locals.do_submit=true;
+                cur_frm.savesubmit();
+                window.close();
+            },
+            function(){
+                window.close();
+            }
+        )
+    }
+    locals.do_submit=false;
 }
