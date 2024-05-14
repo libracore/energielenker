@@ -44,7 +44,6 @@ frappe.ui.form.on('Stock Entry Detail', {
                     },
                     'callback': function(response) {
                         var depot_warehouse = response.message.to_warehouse;
-                        console.log(depot_warehouse);
                         frappe.model.set_value(cdt, cdn, "t_warehouse", depot_warehouse);
                     }
                 });
