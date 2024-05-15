@@ -32,3 +32,9 @@ DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
 DocType: Stock Entry,Source Depot,Kommissionierung
 DocType: Depot,Book back items,Artikel zurück buchen
 DocType: Depot,Write off items,Artikel ausbuchen
+DocType: Timesheet,Issue Name,Anfrage Name
+DocType: Item,Item Code,Artikel
+DocType: Item,Item Name,Artikelname
+DocType: Item,Quantity,Menge
+DocType: Item,Unit of Measure,Einheit
+
