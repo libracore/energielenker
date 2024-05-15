@@ -6,10 +6,25 @@ var lets_routing = false;
 frappe.ui.form.on('Depot', {
     refresh: function(frm) {
         if (frm.doc.__islocal) {
-           set_default_warehouse(frm);
+            set_default_warehouse(frm);
+            cur_frm.fields_dict['sales_order'].get_query = function(doc) {
+                if (doc.project) {
+                     return {
+                         filters: {
+                             "project_clone": doc.project
+                         }
+                     }
+                }
+            };
         } else {
            frm.add_custom_button(__("Öffne Verarbeitung"), function() {
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
+            });
+            frm.add_custom_button(__("Book back items"), function() {
+                book_back_items(frm);
+            });
+            frm.add_custom_button(__("Write off items"), function() {
+                write_off_items(frm);
             });
             frm.add_custom_button(__("Etikette erstellen"), function() {
                 frappe.prompt([
@@ -28,24 +43,21 @@ frappe.ui.form.on('Depot', {
                 lets_routing = false;
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
             }
+            set_read_only(frm);
         }
     },
     sales_order: function(frm) {
         cur_frm.set_value("title", cur_frm.doc.sales_order);
         set_project(frm);
     },
-    project: function(frm) {
-        cur_frm.fields_dict['sales_order'].get_query = function(doc) {
-             return {
-                 filters: {
-                     "project_clone": frm.doc.project
-                 }
-             }
-        }
-    },
     validate: function(frm) {
         if (frm.doc.__islocal) {
            lets_routing = true;
+        }
+    },
+    project: function(frm) {
+        if (cur_frm.doc.project) {
+            cur_frm.set_df_property('project', 'read_only', 1);
         }
     }
 });
@@ -118,6 +130,8 @@ function set_project(frm) {
                 var project = response.message.project_clone
                 if (project) {
                     cur_frm.set_value("project", project);
+                    cur_frm.set_df_property('project', 'read_only', 1);
+                    return project;
                 } else {
                     cur_frm.set_value("project", "");
                 }
@@ -125,6 +139,7 @@ function set_project(frm) {
         });
     } else {
         cur_frm.set_value("project", "");
+        cur_frm.set_df_property('project', 'read_only', 0);
     }
 }
 
@@ -138,6 +153,48 @@ function get_items_html(frm) {
         'callback': function(response) {
             var html = response.message;
             cur_frm.set_df_property('items','options',html);
+        }
+    });
+}
+
+function set_read_only(frm) {
+    cur_frm.set_df_property('project', 'read_only', 1);
+    cur_frm.set_df_property('sales_order', 'read_only', 1);
+    cur_frm.set_df_property('to_warehouse', 'read_only', 1);
+}
+
+function book_back_items(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.book_back_items',
+        'args': {
+            'depot': frm.doc.name,
+            'warehouse': frm.doc.to_warehouse,
+            'project': frm.doc.project
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.set_route("Form", "Stock Entry", response.message);
+            } else {
+                show_alert('Keine Artikel vorhanden', 5, 'red');
+            }
+        }
+    });
+}
+
+function write_off_items(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.write_off_items',
+        'args': {
+            'depot': frm.doc.name,
+            'warehouse': frm.doc.to_warehouse,
+            'project': frm.doc.project
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.set_route("Form", "Stock Entry", response.message);
+            } else {
+                show_alert('Keine Artikel vorhanden', 5, 'red');
+            }
         }
     });
 }

@@ -9,6 +9,8 @@
   "project",
   "sales_order",
   "to_warehouse",
+  "column_break_5",
+  "status",
   "section_break_4",
   "items"
  ],
@@ -16,13 +18,13 @@
   {
    "fieldname": "project",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Project",
    "options": "Project"
   },
   {
    "fieldname": "to_warehouse",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "To Warehouse",
    "options": "Warehouse",
    "reqd": 1
@@ -30,6 +32,7 @@
   {
    "fieldname": "sales_order",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Sales Order",
    "options": "Sales Order",
    "reqd": 1
@@ -51,9 +54,22 @@
    "hidden": 1,
    "label": "Title",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Open\nClosed"
   }
  ],
- "modified": "2024-05-06 17:37:05.643102",
+ "modified": "2024-05-14 12:14:25.213398",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Depot",
