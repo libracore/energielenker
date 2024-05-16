@@ -1,5 +1,5 @@
 {
- "creation": "2024-02-25 16:54:29.055923",
+ "creation": "2024-05-16 12:39:23.236239",
  "doctype": "DocType",
  "document_type": "Setup",
  "editable_grid": 1,
@@ -35,7 +35,9 @@
   "section_break_27",
   "allow_alternative_item",
   "include_item_in_manufacturing",
-  "original_item"
+  "original_item",
+  "price_list_rate",
+  "discount_percentage"
  ],
  "fields": [
   {
@@ -264,13 +266,26 @@
    "label": "Original Item",
    "options": "Item",
    "read_only": 1
+  },
+  {
+   "fieldname": "price_list_rate",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Price List Rate",
+   "options": "currency"
+  },
+  {
+   "fieldname": "discount_percentage",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Discount Percentage"
   }
  ],
  "istable": 1,
- "modified": "2024-05-16 13:11:04.811886",
+ "modified": "2024-05-16 17:55:45.834080",
  "modified_by": "Administrator",
  "module": "energielenker",
- "name": "Quotation Part List Item",
+ "name": "Sales Order Part List Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

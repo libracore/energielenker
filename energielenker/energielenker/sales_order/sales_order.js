@@ -13,6 +13,12 @@ cur_frm.dashboard.add_transactions([
         'items': [
             'Depot',
         ]
+    },
+    {
+        'label': 'Manufacturing',
+        'items': [
+            'BOM',
+        ]
     }
 ]);
 
@@ -100,6 +106,10 @@ frappe.ui.form.on("Sales Order", {
             frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
                 hinterlege_cfos_als_lieferant(frm);
             });
+        }
+        
+        if (cur_frm.doc.__islocal) {
+            check_for_part_list_items(frm);
         }
         
         // hack to remove "+" in dashboard
@@ -357,6 +367,25 @@ frappe.ui.form.on("Sales Order", {
     },
     on_submit: function(frm) {
         create_dn_for_webshop_points(frm);
+    }
+});
+
+frappe.ui.form.on('Sales Order Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
     }
 });
 
@@ -729,4 +758,29 @@ function validate_customer(frm, event) {
             }
         }
     });
+}
+
+function check_for_part_list_items(frm) {
+    if (frm.doc.items[0].prevdoc_docname) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Quotation",
+                'name': frm.doc.items[0].prevdoc_docname
+            },
+            'callback': function(response) {
+                var items = response.message.part_list_items;
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        var child = cur_frm.add_child('part_list_items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                        frappe.model.set_value(child.doctype, child.name, 'rate', 10);
+                        frappe.model.set_value(child.doctype, child.name, 'amount', items[i].amount);
+                        frappe.model.set_value(cur_frm.doc.part_list_items[0].doctype, cur_frm.doc.part_list_items[0].name, "amount", "1000"); 
+                    }
+                }
+            }
+        });
+    }
 }

@@ -106,6 +106,25 @@ frappe.ui.form.on('Quotation', {
     }
 })
 
+frappe.ui.form.on('Quotation Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    }
+});
+
 // Allow Expired Quotation to be transferable to Sales Order
 cur_frm.cscript['Make Expired Sales Order'] = function() {
     console.log("click make expired so")

@@ -10,6 +10,19 @@ frappe.ui.form.on('BOM', {
                 }
             }
         }, 1000);
+        
+        if (frm.doc.__islocal) {
+            cur_frm.set_value("with_operations", 1);
+            cur_frm.set_value("transfer_material_against", "Work Order");
+            var child = cur_frm.add_child('operations');
+        }
+    },
+    sales_order: function(frm) {
+        if (frm.doc.sales_order) {
+            autofill_project(frm);
+        } else {
+            cur_frm.set_value("project", "");
+        }
     }
 })
 
@@ -22,4 +35,22 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function autofill_project(frm) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Sales Order",
+            'name': frm.doc.sales_order
+        },
+        'callback': function(response) {
+            var project = response.message.project;
+            if (project) {
+                cur_frm.set_value("project", project);
+            } else {
+                cur_frm.set_value("project", "");
+            }
+        }
+    });
 }
