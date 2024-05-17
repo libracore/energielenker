@@ -23,6 +23,11 @@ frappe.ui.form.on('BOM', {
         } else {
             cur_frm.set_value("project", "");
         }
+    },
+    setup: function(frm) {
+        if (frm.doc.sales_order) {
+            fetch_items_from_so(frm.doc.sales_order);
+        }
     }
 })
 
@@ -50,6 +55,30 @@ function autofill_project(frm) {
                 cur_frm.set_value("project", project);
             } else {
                 cur_frm.set_value("project", "");
+            }
+        }
+    });
+}
+
+function fetch_items_from_so(sales_order) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Sales Order",
+            'name': sales_order
+        },
+        'callback': function(response) {
+            var items = response.message.part_list_items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    var child = cur_frm.add_child('items');
+                    frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                    //~ frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                    //~ frappe.model.set_value(child.doctype, child.name, 'uom', items[i].uom);
+                    //~ setTimeout(function(child, rate) {
+                        //~ frappe.model.set_value(child.doctype, child.name, 'rate', rate);
+                    //~ }, 1000, child, items[i].rate);
+                }
             }
         }
     });

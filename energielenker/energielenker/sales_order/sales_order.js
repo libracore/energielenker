@@ -775,9 +775,9 @@ function check_for_part_list_items(frm) {
                         var child = cur_frm.add_child('part_list_items');
                         frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
                         frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
-                        frappe.model.set_value(child.doctype, child.name, 'rate', 10);
-                        frappe.model.set_value(child.doctype, child.name, 'amount', items[i].amount);
-                        frappe.model.set_value(cur_frm.doc.part_list_items[0].doctype, cur_frm.doc.part_list_items[0].name, "amount", "1000"); 
+                        setTimeout(function(child, rate) {
+                            frappe.model.set_value(child.doctype, child.name, 'rate', rate);
+                        }, 1000, child, items[i].rate);
                     }
                 }
             }
