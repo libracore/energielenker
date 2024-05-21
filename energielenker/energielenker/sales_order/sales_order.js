@@ -170,6 +170,16 @@ frappe.ui.form.on("Sales Order", {
 				amend_so_issue(frm);
 			}, 1500);
 		}
+        
+        if (cur_frm.doc.part_list_items) {
+            for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
+                if (cur_frm.doc.part_list_items[i].qty && cur_frm.doc.part_list_items[i].rate) {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", cur_frm.doc.part_list_items[i].qty * cur_frm.doc.part_list_items[i].rate);
+                } else {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", 0);
+                }
+            }
+        }
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);

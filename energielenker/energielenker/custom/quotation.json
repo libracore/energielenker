@@ -683,7 +683,7 @@
    "_user_tags": null,
    "allow_on_submit": 0,
    "bold": 0,
-   "collapsible": 1,
+   "collapsible": 0,
    "collapsible_depends_on": null,
    "columns": 0,
    "creation": "2024-02-23 09:16:03.790191",
