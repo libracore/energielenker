@@ -97,6 +97,16 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+        
+        if (cur_frm.doc.part_list_items) {
+            for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
+                if (cur_frm.doc.part_list_items[i].qty && cur_frm.doc.part_list_items[i].rate) {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", cur_frm.doc.part_list_items[i].qty * cur_frm.doc.part_list_items[i].rate);
+                } else {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", 0);
+                }
+            }
+        }
     },
     wahrscheindlichkeit: function(frm) {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {
@@ -105,6 +115,25 @@ frappe.ui.form.on('Quotation', {
         }
     }
 })
+
+frappe.ui.form.on('Quotation Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    }
+});
 
 // Allow Expired Quotation to be transferable to Sales Order
 cur_frm.cscript['Make Expired Sales Order'] = function() {

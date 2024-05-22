@@ -13,6 +13,12 @@ cur_frm.dashboard.add_transactions([
         'items': [
             'Depot',
         ]
+    },
+    {
+        'label': 'Manufacturing',
+        'items': [
+            'BOM',
+        ]
     }
 ]);
 
@@ -102,6 +108,10 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         
+        if (cur_frm.doc.__islocal) {
+            check_for_part_list_items(frm);
+        }
+        
         // hack to remove "+" in dashboard
         $(":button[data-doctype='Issue']").remove();
     },
@@ -160,6 +170,16 @@ frappe.ui.form.on("Sales Order", {
 				amend_so_issue(frm);
 			}, 1500);
 		}
+        
+        if (cur_frm.doc.part_list_items) {
+            for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
+                if (cur_frm.doc.part_list_items[i].qty && cur_frm.doc.part_list_items[i].rate) {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", cur_frm.doc.part_list_items[i].qty * cur_frm.doc.part_list_items[i].rate);
+                } else {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", 0);
+                }
+            }
+        }
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -357,6 +377,25 @@ frappe.ui.form.on("Sales Order", {
     },
     on_submit: function(frm) {
         create_dn_for_webshop_points(frm);
+    }
+});
+
+frappe.ui.form.on('Sales Order Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
     }
 });
 
@@ -729,4 +768,29 @@ function validate_customer(frm, event) {
             }
         }
     });
+}
+
+function check_for_part_list_items(frm) {
+    if (frm.doc.items[0].prevdoc_docname) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Quotation",
+                'name': frm.doc.items[0].prevdoc_docname
+            },
+            'callback': function(response) {
+                var items = response.message.part_list_items;
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        var child = cur_frm.add_child('part_list_items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                        setTimeout(function(child, rate) {
+                            frappe.model.set_value(child.doctype, child.name, 'rate', rate);
+                        }, 1000, child, items[i].rate);
+                    }
+                }
+            }
+        });
+    }
 }

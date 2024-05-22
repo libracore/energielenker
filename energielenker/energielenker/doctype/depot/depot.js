@@ -59,6 +59,11 @@ frappe.ui.form.on('Depot', {
         if (cur_frm.doc.project) {
             cur_frm.set_df_property('project', 'read_only', 1);
         }
+    },
+    status: function(frm) {
+        if (frm.doc.status == "Closed") {
+            validate_items(frm);
+        }
     }
 });
 
@@ -194,6 +199,26 @@ function write_off_items(frm) {
                 frappe.set_route("Form", "Stock Entry", response.message);
             } else {
                 show_alert('Keine Artikel vorhanden', 5, 'red');
+            }
+        }
+    });
+}
+
+function validate_items(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
+        'args': {
+            'depot': frm.doc.name,
+            'event': "close"
+        },
+        'callback': function(response) {
+            var items = response.message;
+            for (i=0; i < items.length; i++) {
+                if (items[i].balance_qty > 0) {
+                    frappe.msgprint("Kommissionierung kann nicht geschlossen werden, da noch Artikel vorhanden sind.", "Fehler");
+                    cur_frm.set_value("status", "Open");
+                    break;
+                }
             }
         }
     });

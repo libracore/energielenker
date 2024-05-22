@@ -62,7 +62,8 @@ doctype_js = {
     "Lead": "energielenker/lead/lead.js",
     "Cost Center": "energielenker/cost_center/cost_center.js",
     "Item Price": "energielenker/item_price/item_price.js",
-    "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js"
+    "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js",
+    "Work Order": "energielenker/work_order/work_order.js"
 }
 
 doctype_list_js = {
