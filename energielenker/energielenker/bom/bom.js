@@ -12,7 +12,6 @@ frappe.ui.form.on('BOM', {
         }, 1000);
         
         if (frm.doc.__islocal) {
-            cur_frm.set_value("with_operations", 1);
             cur_frm.set_value("transfer_material_against", "Work Order");
             if (frm.doc.sales_order) {
                 var child = cur_frm.add_child('operations');
@@ -26,6 +25,9 @@ frappe.ui.form.on('BOM', {
         } else {
             cur_frm.set_value("project", "");
         }
+    },
+    on_submit: function () {
+        cur_frm.set_df_property('sales_order', 'read_only', 1);
     }
 })
 

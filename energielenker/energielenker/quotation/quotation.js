@@ -89,6 +89,7 @@ frappe.ui.form.on('Quotation', {
         }
         
         cost_center_query(frm);
+        get_row_options_for_part_list(frm);
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {
@@ -180,6 +181,11 @@ frappe.ui.form.on("Quotation Item", "kalkulationssumme_interner_positionen", fun
     set_item_typ(item);
 });
 
+frappe.ui.form.on("Quotation Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
@@ -204,10 +210,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
-                } else {
-                    item.typ = 'Norm.';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
+                    } else {
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
@@ -329,4 +339,17 @@ function get_quotation_template(frm) {
     'Quotation Template',
     'Get'
     )
+}
+
+function get_row_options_for_part_list(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.quotation.quotation.get_options',
+        'args': {
+            'doc_name': frm.doc.name,
+            'doctype': "Quotation Item"
+        },
+        'callback': function(response) {
+            //~ d.set_df_property('ort', 'options', orte_kontaktbasis);
+        }
+    });
 }

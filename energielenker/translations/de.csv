@@ -37,4 +37,7 @@ DocType: Item,Item Code,Artikel
 DocType: Item,Item Name,Artikelname
 DocType: Item,Quantity,Menge
 DocType: Item,Unit of Measure,Einheit
+DocType: Quotation,Part List Items,Stücklistenartikel
+DocType: Sales Order,Part List Items,Stücklistenartikel
+DocType: Quotation,With BOM,Mit Stückliste
 

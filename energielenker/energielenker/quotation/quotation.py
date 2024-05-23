@@ -105,3 +105,25 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
     # postprocess: fetch shipping address, set missing values
 
     return doclist
+
+@frappe.whitelist()
+def get_options(doc_name, doctype):
+    data = frappe.db.sql("""SELECT
+                                `idx`
+                            FROM
+                                `tab{typ}`
+                            WHERE
+                                `parent` = '{name}'
+                            AND
+                                `with_bom` = 1
+                            ORDER BY
+                                `idx` ASC""".format(typ=doctype, name=doc_name), as_dict=True)
+                                
+    options = ""
+    if len(data) > 0:
+        for option in data:
+            options += str(option.get('idx'))
+            if not option == data[-1]:
+                options += "/n"
+    
+    return options
