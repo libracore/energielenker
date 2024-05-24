@@ -89,7 +89,7 @@ frappe.ui.form.on('Quotation', {
         }
         
         cost_center_query(frm);
-        get_row_options_for_part_list(frm);
+        set_row_options(frm);
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {
@@ -98,6 +98,7 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+        calculate_part_list_prices(frm);
         
         if (cur_frm.doc.part_list_items) {
             for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
@@ -117,6 +118,12 @@ frappe.ui.form.on('Quotation', {
     }
 })
 
+frappe.ui.form.on('Quotation Item', {
+    with_bom(frm, cdt, cdn) {
+        set_row_options(frm);
+    }
+});
+
 frappe.ui.form.on('Quotation Part List Item', {
     qty(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
@@ -133,6 +140,9 @@ frappe.ui.form.on('Quotation Part List Item', {
         } else {
             frappe.model.set_value(cdt, cdn, "amount", 0);
         }
+    },
+    part_list_items_add(frm) {
+    set_row_options(frm);
     }
 });
 
@@ -341,15 +351,30 @@ function get_quotation_template(frm) {
     )
 }
 
-function get_row_options_for_part_list(frm) {
-    frappe.call({
-        'method': 'energielenker.energielenker.quotation.quotation.get_options',
-        'args': {
-            'doc_name': frm.doc.name,
-            'doctype': "Quotation Item"
-        },
-        'callback': function(response) {
-            //~ d.set_df_property('ort', 'options', orte_kontaktbasis);
+function set_row_options(frm) {
+    if (frm.doc.part_list_items) {
+        var options = [];
+        for (i=0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].with_bom) {
+                options.push(frm.doc.items[i].idx);
+            }
         }
-    });
+        var options_string = options.join("\n");
+        cur_frm.get_field("part_list_items").grid.docfields[4].options = options_string;
+        cur_frm.refresh_field("part_list_items");
+    }
+}
+
+function calculate_part_list_prices(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom) {
+            var amount = 0
+            for (j=0; j < frm.doc.part_list_items.length; j++) {
+                if (frm.doc.part_list_items[j].belongs_to == i + 1) {
+                    amount += frm.doc.part_list_items[j].amount
+                }
+            }
+            frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
+        }
+    }
 }

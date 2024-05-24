@@ -268,14 +268,14 @@
   },
   {
    "fieldname": "belongs_to",
-   "fieldtype": "Int",
+   "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Belongs to Row",
    "reqd": 1
   }
  ],
  "istable": 1,
- "modified": "2024-05-23 20:48:39.058061",
+ "modified": "2024-05-24 10:14:44.045471",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Quotation Part List Item",

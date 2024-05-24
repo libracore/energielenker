@@ -5,26 +5,15 @@ frappe.ui.form.on('Work Order', {
     refresh: function(frm) {
         if (frm.doc.__islocal) {
             if (frm.doc.bom_no) {
-                set_values(frm);
+                set_bom_values(frm);
             }
         }
-    },
-    project: function(frm) {
-        cur_frm.fields_dict['sales_order'].get_query = function() {
-            if (cur_frm.doc.project) {
-                 return {
-                     filters: {
-                         "project_clone": cur_frm.doc.project
-                     }
-                 }
-            }
-        };
     }
 });
 
-function set_values(frm) {
+function set_bom_values(frm) {
     frappe.call({
-        'method': "energielenker.energielenker.work_order.work_order.get_values",
+        'method': "energielenker.energielenker.work_order.work_order.get_bom_values",
         'args': {
             'bom': frm.doc.bom_no
         },
@@ -33,10 +22,14 @@ function set_values(frm) {
             var sales_order = response.message[0].sales_order;
             var project = response.message[0].project;
             var fg_warehouse = response.message[0].default_warehouse_readonly;
+            var wip_warehouse = response.message[0].depot_warehouse;
             cur_frm.set_value("production_item", item);
-            cur_frm.set_value("sales_order", sales_order);
-            cur_frm.set_value("project", project);
-            cur_frm.set_value("fg_warehouse", fg_warehouse);
+            setTimeout(function(){
+                cur_frm.set_value("project", project);
+                cur_frm.set_value("fg_warehouse", fg_warehouse);
+                cur_frm.set_value("wip_warehouse", wip_warehouse);
+                cur_frm.set_value("sales_order", sales_order);
+            }, 1000);
         }
     });
 }

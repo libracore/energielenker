@@ -26,6 +26,7 @@ frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
+       set_row_options(frm)
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
        
@@ -156,6 +157,7 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
+        calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
@@ -377,6 +379,12 @@ frappe.ui.form.on("Sales Order", {
     },
     on_submit: function(frm) {
         create_dn_for_webshop_points(frm);
+    }
+});
+
+frappe.ui.form.on('Sales Order Item', {
+    with_bom(frm, cdt, cdn) {
+        set_row_options(frm);
     }
 });
 
@@ -801,5 +809,33 @@ function check_for_part_list_items(frm) {
                 }
             }
         });
+    }
+}
+
+function set_row_options(frm) {
+    if (frm.doc.part_list_items) {
+        var options = [];
+        for (i=0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].with_bom) {
+                options.push(frm.doc.items[i].idx);
+            }
+        }
+        var options_string = options.join("\n");
+        cur_frm.get_field("part_list_items").grid.docfields[4].options = options_string;
+        cur_frm.refresh_field("part_list_items");
+    }
+}
+
+function calculate_part_list_prices(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom) {
+            var amount = 0
+            for (j=0; j < frm.doc.part_list_items.length; j++) {
+                if (frm.doc.part_list_items[j].belongs_to == i + 1) {
+                    amount += frm.doc.part_list_items[j].amount
+                }
+            }
+            frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
+        }
     }
 }
