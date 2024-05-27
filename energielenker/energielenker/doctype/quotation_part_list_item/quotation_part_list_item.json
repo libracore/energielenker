@@ -9,6 +9,7 @@
   "item_name",
   "operation",
   "column_break_3",
+  "belongs_to",
   "bom_no",
   "source_warehouse",
   "section_break_5",
@@ -264,10 +265,17 @@
    "label": "Original Item",
    "options": "Item",
    "read_only": 1
+  },
+  {
+   "fieldname": "belongs_to",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Belongs to Row",
+   "reqd": 1
   }
  ],
  "istable": 1,
- "modified": "2024-05-16 13:11:04.811886",
+ "modified": "2024-05-24 10:14:44.045471",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Quotation Part List Item",

@@ -12,12 +12,16 @@ frappe.ui.form.on('BOM', {
         }, 1000);
         
         if (frm.doc.__islocal) {
-            cur_frm.set_value("with_operations", 1);
             cur_frm.set_value("transfer_material_against", "Work Order");
-            if (frm.doc.sales_order) {
-                var child = cur_frm.add_child('operations');
-                fetch_items_from_so(frm.doc.sales_order);
-            }
+        }
+        
+        cur_frm.fields_dict['item'].get_query = function(doc) {
+             return {
+                query: "energielenker.energielenker.bom.bom.sales_order_query",
+                filters: {
+                    'sales_order': doc.sales_order
+                    }
+             }
         }
     },
     sales_order: function(frm) {
@@ -25,6 +29,14 @@ frappe.ui.form.on('BOM', {
             autofill_project(frm);
         } else {
             cur_frm.set_value("project", "");
+        }
+    },
+    on_submit: function () {
+        cur_frm.set_df_property('sales_order', 'read_only', 1);
+    },
+    item: function(frm) {
+        if (frm.doc.item && frm.doc.sales_order) {
+            fetch_items_from_so(frm.doc.item, frm.doc.sales_order);
         }
     }
 })
@@ -58,7 +70,7 @@ function autofill_project(frm) {
     });
 }
 
-function fetch_items_from_so(sales_order) {
+function fetch_items_from_so(bom_item, sales_order) {
     frappe.call({
         'method': "frappe.client.get",
         'args': {
@@ -66,16 +78,42 @@ function fetch_items_from_so(sales_order) {
             'name': sales_order
         },
         'callback': function(response) {
-            var items = response.message.part_list_items;
-            if (items) {
-                for (let i = 0; i < items.length; i++) {
-                    var child = cur_frm.add_child('items');
-                    frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
-                    frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
-                    frappe.model.set_value(child.doctype, child.name, 'uom', items[i].uom);
-                    cur_frm.refresh_field("items");
+            var items = response.message.items;
+            var part_list_items = response.message.part_list_items;
+            var affected_items = []
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].item_code == bom_item && items[i].with_bom == 1) {
+                    affected_items.push(items[i].idx)
                 }
+            }
+            if (affected_items.length > 1) {
+                var options = affected_items.join("\n");
+                frappe.prompt([
+                    {'fieldname': 'item_row', 'fieldtype': 'Select', 'options': options, 'label': 'Item Row', 'reqd': 1}  
+                ],
+                function(values){
+                    set_part_list_items(part_list_items, values.item_row);
+                },
+                'Select Item Row of in Sales Order',
+                'Get Items'
+                )
+            } else {
+                set_part_list_items(part_list_items, affected_items[0]);
             }
         }
     });
+}
+
+function set_part_list_items(part_list_items, row) {
+    if (part_list_items) {
+        for (let i = 0; i < part_list_items.length; i++) {
+            if (part_list_items[i].belongs_to == row) {
+                var child = cur_frm.add_child('items');
+                frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code);
+                frappe.model.set_value(child.doctype, child.name, 'qty', part_list_items[i].qty);
+                frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i].uom);
+                cur_frm.refresh_field("items");
+            }
+        }
+    }
 }

@@ -26,6 +26,7 @@ frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
+       set_row_options(frm)
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
        
@@ -156,6 +157,7 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
+        calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
@@ -380,6 +382,12 @@ frappe.ui.form.on("Sales Order", {
     }
 });
 
+frappe.ui.form.on('Sales Order Item', {
+    with_bom(frm, cdt, cdn) {
+        set_row_options(frm);
+    }
+});
+
 frappe.ui.form.on('Sales Order Part List Item', {
     qty(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
@@ -517,6 +525,11 @@ frappe.ui.form.on("Sales Order Item", "kalkulationssumme_interner_positionen", f
     set_item_typ(item);
 });
 
+frappe.ui.form.on("Sales Order Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
@@ -541,10 +554,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
                 } else {
-                    item.typ = 'Norm.';
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
@@ -785,12 +802,41 @@ function check_for_part_list_items(frm) {
                         var child = cur_frm.add_child('part_list_items');
                         frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
                         frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                        frappe.model.set_value(child.doctype, child.name, 'belongs_to', items[i].belongs_to);
                         setTimeout(function(child, rate) {
                             frappe.model.set_value(child.doctype, child.name, 'rate', rate);
-                        }, 1000, child, items[i].rate);
+                        }, 3000, child, items[i].rate);
                     }
                 }
             }
         });
+    }
+}
+
+function set_row_options(frm) {
+    if (frm.doc.part_list_items) {
+        var options = [];
+        for (i=0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].with_bom) {
+                options.push(frm.doc.items[i].idx);
+            }
+        }
+        var options_string = options.join("\n");
+        cur_frm.get_field("part_list_items").grid.docfields[4].options = options_string;
+        cur_frm.refresh_field("part_list_items");
+    }
+}
+
+function calculate_part_list_prices(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom) {
+            var amount = 0
+            for (j=0; j < frm.doc.part_list_items.length; j++) {
+                if (frm.doc.part_list_items[j].belongs_to == i + 1) {
+                    amount += frm.doc.part_list_items[j].amount
+                }
+            }
+            frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
+        }
     }
 }
