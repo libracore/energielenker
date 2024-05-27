@@ -40,4 +40,6 @@ DocType: Item,Unit of Measure,Einheit
 DocType: Quotation,Part List Items,Stücklistenartikel
 DocType: Sales Order,Part List Items,Stücklistenartikel
 DocType: Quotation,With BOM,Mit Stückliste
-
+DocType: BOM,Select Item Row of in Sales Order,Bitte Artikelzeile aus dem Kundenauftrag angeben
+DocType: BOM,Item Row,Bitte Artikelzeile
+DocType: BOM,Get Items,Artikel holen

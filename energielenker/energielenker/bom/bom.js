@@ -83,13 +83,23 @@ function fetch_items_from_so(bom_item, sales_order) {
             var affected_items = []
             for (let i = 0; i < items.length; i++) {
                 if (items[i].item_code == bom_item && items[i].with_bom == 1) {
-                    affected_items.push({'row': items[i].idx})
+                    affected_items.push(items[i].idx)
                 }
             }
+            console.log(affected_items)
             if (affected_items.length > 1) {
-                console.log(affected_items.length);
+                var options = affected_items.join("\n");
+                frappe.prompt([
+                    {'fieldname': 'item_row', 'fieldtype': 'Select', 'options': options, 'label': 'Item Row', 'reqd': 1}  
+                ],
+                function(values){
+                    set_part_list_items(part_list_items, values.item_row);
+                },
+                'Select Item Row of in Sales Order',
+                'Get Items'
+                )
             } else {
-                set_part_list_items(part_list_items, affected_items[0].row);
+                set_part_list_items(part_list_items, affected_items[0]);
             }
         }
     });
