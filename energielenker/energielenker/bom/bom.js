@@ -86,7 +86,6 @@ function fetch_items_from_so(bom_item, sales_order) {
                     affected_items.push(items[i].idx)
                 }
             }
-            console.log(affected_items)
             if (affected_items.length > 1) {
                 var options = affected_items.join("\n");
                 frappe.prompt([

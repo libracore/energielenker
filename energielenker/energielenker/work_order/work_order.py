@@ -18,6 +18,5 @@ def get_bom_values(bom):
                 LEFT JOIN `tabItem` ON `tabItem`.`name` = `tabBOM`.`item`
                 WHERE `tabBOM`.`name` = '{bom}'""".format(bom=bom, depot=depot), as_dict=True)
                 
-    frappe.log_error(data, "data")
     
     return data
