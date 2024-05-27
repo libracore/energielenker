@@ -340,7 +340,8 @@ def create_lizenzgutscheine(purchase_order_name):
                 'purchase_order': purchase_order_name,
                 'positions_nummer': '{item}.{position}'.format(item=item_count, position=position_count),
                 'position_id': item.name,
-                'evse_count': frappe.get_value("UOM", item.uom, "evse_count")
+                'evse_count': frappe.get_value("UOM", item.uom, "evse_count"),
+                'kundenauftrag': purchase_order_doc.sales_order
                 })
         
             lizenzgutschein = lizenzgutschein.insert(ignore_permissions=True)
