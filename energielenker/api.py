@@ -228,6 +228,7 @@ def create_sales_order(requested_licenses):
     api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
     customer_name = api_document.customer
     customer = frappe.get_doc("Customer", customer_name)
+    taxes_and_charges_template = frappe.get_doc("Sales Taxes and Charges Template", api_document.taxes_and_charges)
     
     #create new Sales Order
     new_doc = frappe.get_doc({
@@ -242,6 +243,7 @@ def create_sales_order(requested_licenses):
         'shipping_address_name': "",
         'shipping_address': "",
         'taxes_and_charges': api_document.taxes_and_charges,
+        'taxes': taxes_and_charges_template.taxes,
         'po_date': today,
         'ansprechpartner': customer.ansprechpartner,
         'tax_id': customer.tax_id
@@ -384,7 +386,7 @@ def create_delivery_note(sales_order_name):
     api_document = frappe.get_doc("Ladepunkt Key API", api_doc_name)
     sales_order_doc = frappe.get_doc('Sales Order', sales_order_name)
     customer = frappe.get_doc("Customer", api_document.customer)
-    
+    taxes_and_charges_template = frappe.get_doc("Sales Taxes and Charges Template", api_document.taxes_and_charges)
 
     
     #create new Delivery Note
@@ -395,6 +397,7 @@ def create_delivery_note(sales_order_name):
         'k_ansprechperson': api_document.k_ansprechperson,
         'po_no': api_document.po_no,
         'taxes_and_charges': api_document.taxes_and_charges,
+        'taxes': taxes_and_charges_template.taxes,
         'ansprechpartner': customer.ansprechpartner,
         'shipping_address_name': api_document.delivery_note_address,
         'contact_person': "",
