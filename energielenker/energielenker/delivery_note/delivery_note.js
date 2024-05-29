@@ -345,6 +345,7 @@ frappe.ui.form.on("Delivery Note Item", "textposition", function(frm, cdt, cdn) 
 });
 
 frappe.ui.form.on("Delivery Note Item", "alternative_position", function(frm, cdt, cdn) {
+    console.log("Hallo");
     var item = locals[cdt][cdn];
     check_text_and_or_alternativ(item);
     set_item_typ(item);
@@ -355,7 +356,12 @@ frappe.ui.form.on("Delivery Note Item", "interne_position", function(frm, cdt, c
     set_item_typ(item);
 });
 
-frappe.ui.form.on("Delivery Notey Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
+frappe.ui.form.on("Delivery Note Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
+frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
     set_item_typ(item);
 });
@@ -384,10 +390,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
                 } else {
-                    item.typ = 'Norm.';
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
