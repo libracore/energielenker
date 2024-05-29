@@ -325,6 +325,14 @@ def create_purchase_order(sales_order_name):
     #get name of new Purchase Order and return it
     purchase_order = new_po_doc.name
     
+    so_update = frappe.db.sql("""
+                            UPDATE
+                                `tabSales Order`
+                            SET
+                                `lieferantenauftrag` = '{po}'
+                            WHERE
+                                `name` = '{so}'""".format(po=purchase_order, so=sales_order_doc.name))
+    
     return purchase_order
 
 def create_lizenzgutscheine(purchase_order_name):
