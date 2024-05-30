@@ -109,7 +109,7 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         
-        if (cur_frm.doc.__islocal) {
+        if (cur_frm.doc.__islocal && frm.doc.part_list_items.length < 1) {
             check_for_part_list_items(frm);
         }
         
