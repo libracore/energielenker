@@ -345,7 +345,6 @@ frappe.ui.form.on("Delivery Note Item", "textposition", function(frm, cdt, cdn) 
 });
 
 frappe.ui.form.on("Delivery Note Item", "alternative_position", function(frm, cdt, cdn) {
-    console.log("Hallo");
     var item = locals[cdt][cdn];
     check_text_and_or_alternativ(item);
     set_item_typ(item);
