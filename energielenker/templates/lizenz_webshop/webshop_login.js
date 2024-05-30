@@ -34,6 +34,14 @@ login.call = function(args, callback) {
         callback: callback,
         freeze: true,
         statusCode: login.login_handlers
+    }).then((login_status) => {
+        if (['User disabled or missing', 'Incorrect password'].includes(login_status['message'])) {
+            $("#login_error").show();
+        } else if (login_status['full_name']) {
+            window.location.href = 'retrieving_charging_points';
+        } else {
+            $("#login_error").show();
+        }
     });
 }
 
