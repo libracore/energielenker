@@ -28,6 +28,7 @@ frappe.ui.form.on('Purchase Order', {
                 erzeuge_lizenzgutschein(frm);
             });
         }
+        
     },
     drop_ship_check: function(frm) {
         cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');

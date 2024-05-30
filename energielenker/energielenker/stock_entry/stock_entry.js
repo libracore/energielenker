@@ -4,7 +4,12 @@
 frappe.ui.form.on('Stock Entry', {
     refresh: function(frm) {
         set_timestamps(frm);
-        setTimeout(function(){ 
+        setTimeout(function(){
+        
+        if (frm.doc.__islocal) {
+            set_sales_order(frm);
+        }
+        
         cur_frm.fields_dict.items.grid.get_field('item_code').get_query =   
             function() {                                                                      
             return {
@@ -13,6 +18,9 @@ frappe.ui.form.on('Stock Entry', {
                 }
             }
         }, 1000);
+    },
+    work_order: function(frm) {
+        set_sales_order(frm);
     }
 })
 
@@ -66,4 +74,26 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function set_sales_order(frm) {
+    if (frm.doc.work_order) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Work Order",
+                'name': frm.doc.work_order
+            },
+            'callback': function(response) {
+                var sales_order = response.message.sales_order;
+                if (sales_order) {
+                    cur_frm.set_value("sales_order", sales_order);
+                } else {
+                    cur_frm.set_value("sales_order", "");
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("sales_order", "");
+    }
 }
