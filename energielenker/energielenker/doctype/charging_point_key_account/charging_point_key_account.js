@@ -2,7 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Charging Point Key Account', {
-	// refresh: function(frm) {
-
-	// }
+	refresh: function(frm) {
+		frm.fields_dict.users.grid.get_field('user').get_query =   
+		function() {                                                                      
+			return {
+				query: "frappe.core.doctype.user.user.user_query",
+				filters: {ignore_user_type: 1}
+			}
+		};
+	}
 });

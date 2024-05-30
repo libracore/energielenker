@@ -84,7 +84,7 @@ def create_purchase_order(qty):
     new_po_doc.append('items', entry)
     
     new_po_doc = new_po_doc.insert(ignore_permissions=True)
-    new_po_doc.submit(ignore_permissions=True)
+    new_po_doc.submit()
     
     #get name of new Purchase Order and return it
     purchase_order = new_po_doc.name
@@ -137,7 +137,7 @@ def update_account(license_key, qty):
         'user': frappe.session.user
     }
     customer_doc.append('past_activities', entry)
-    customer_doc.save()
+    customer_doc.save(ignore_permissions=True)
     frappe.db.commit()
     
     return
