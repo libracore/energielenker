@@ -29,9 +29,6 @@ frappe.ui.form.on('Purchase Order', {
             });
         }
         
-        frm.add_custom_button(__("Material Request Items"),  function(frm){
-            get_material_request_items(frm);
-        });
     },
     drop_ship_check: function(frm) {
         cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');
@@ -325,21 +322,4 @@ function set_po_reference(frm, so_ref) {
         });
     }, 1000);
     cur_frm.set_value("sales_order", so_ref);
-}
-
-function get_material_request_items(frm) {
-    if (cur_frm.doc.supplier) {
-        frappe.call({
-            'method': 'energielenker.energielenker.purchase_order.purchase_order.get_material_request_items',
-            'args': {
-                'supplier': cur_frm.doc.supplier
-            },
-            'callback': function(response) {
-                var items = response.message
-                console.log(items);
-            }
-        });
-    } else {
-        frappe.throw("No Supplier selected!");
-    }
 }
