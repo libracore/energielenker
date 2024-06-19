@@ -22,6 +22,7 @@ frappe.pages['depot-verarbeitung'].on_page_load = function(wrapper) {
     page.depot_fields.to_warehouse_field = frappe.depot.create_to_warehouse_field(page);
     page.depot_fields.item_field = frappe.depot.create_item_field(page);
     page.depot_fields.aufbereiten_btn = frappe.depot.create_aufbereiten_btn(page);
+    page.depot_fields.get_items_btn = frappe.depot.create_get_items_btn(page);
 
     frappe.depot.fetch_depot_data(page);
 
@@ -132,6 +133,25 @@ frappe.depot = {
         verarbeiten_btn.refresh();
         return verarbeiten_btn
     },
+    create_get_items_btn: function(page) {
+        var get_items_btn = frappe.ui.form.make_control({
+            parent: page.main.find(".get_items_btn"),
+            df: {
+                fieldtype: "Button",
+                options: "",
+                fieldname: "get_items",
+                placeholder: "",
+                read_only: 0,
+                label: "Get Items from Sales Order",
+                click: function() {
+                    frappe.depot.get_items_from_so(page);
+                }
+            },
+            only_input: false
+        });
+        get_items_btn.refresh();
+        return get_items_btn
+    },
     create_verarbeiten_btn: function(page) {
         var verarbeiten_btn = frappe.ui.form.make_control({
             parent: page.main.find(".verarbeiten_btn"),
@@ -205,6 +225,22 @@ frappe.depot = {
         page.depot_fields.item_field.set_value(nice_json);
         page.depot_fields.item_field.refresh();
         page.depot_fields.verarbeiten_btn = frappe.depot.create_verarbeiten_btn(page);
+    },
+    get_items_from_so: function (page) {
+        frappe.call({
+            method: "energielenker.energielenker.page.depot_verarbeitung.depot_verarbeitung.make_so_material_transfer",
+            args:{
+                'depot': page.query_parameter.depot
+            },
+            freeze: true,
+            freeze_message: 'Suche nach Artikel...',
+            callback: function(r)
+            {
+                if (r.message) {
+                    frappe.set_route("Form", "Stock Entry", r.message);
+                }
+            }
+        });
     },
     verarbeite_items: function(page) {
         var item_dict = JSON.parse(page.depot_fields.item_field.get_value());

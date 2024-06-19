@@ -112,6 +112,9 @@ frappe.ui.form.on("Delivery Note", {
               get_depot_items(frm);
             });
         }
+        if (frm.doc.__islocal) {
+            validate_depot(frm);
+        }
     },
     before_save(frm) {
         if (so_return == "Return"){
@@ -574,4 +577,11 @@ function check_for_depot(frm) {
         )
     }
     locals.do_submit=false;
+}
+
+function validate_depot(frm) {
+    var affected_sales_orders = []
+    for (let i=0; i < frm.doc.items.length; i++) {
+        console.log(frm.doc.items[i].against_sales_order);
+    }
 }
