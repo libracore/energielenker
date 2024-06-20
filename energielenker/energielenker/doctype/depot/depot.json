@@ -10,6 +10,7 @@
   "sales_order",
   "to_warehouse",
   "column_break_5",
+  "project_name",
   "status",
   "section_break_4",
   "items"
@@ -67,9 +68,16 @@
    "in_standard_filter": 1,
    "label": "Status",
    "options": "Open\nClosed"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
   }
  ],
- "modified": "2024-05-21 15:22:08.688993",
+ "modified": "2024-06-20 17:00:38.441323",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Depot",

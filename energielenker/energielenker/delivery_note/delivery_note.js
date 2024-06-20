@@ -582,7 +582,7 @@ function check_for_depot(frm) {
 function validate_depot(frm) {
     var items_with_so = []
     for (let i=0; i < frm.doc.items.length; i++) {
-        if (frm.doc.items[i].against_sales_order) {
+        if (frm.doc.items[i].against_sales_order && !frm.doc.items[i].source_depot) {
             items_with_so.push({'sales_order': frm.doc.items[i].against_sales_order, 'item': frm.doc.items[i].item_code});
         }
     }
@@ -590,8 +590,6 @@ function validate_depot(frm) {
         'method': 'energielenker.energielenker.delivery_note.delivery_note.validate_depot',
         'args': {
             'items_string': items_with_so
-        //~ },
-        //~ 'callback': function(response) {
         }
     });
 }

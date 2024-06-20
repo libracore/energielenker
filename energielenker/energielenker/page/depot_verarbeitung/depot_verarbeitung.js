@@ -142,7 +142,7 @@ frappe.depot = {
                 fieldname: "get_items",
                 placeholder: "",
                 read_only: 0,
-                label: "Get Items from Sales Order",
+                label: "Artikel aus Kundenauftrag",
                 click: function() {
                     frappe.depot.get_items_from_so(page);
                 }

@@ -37,6 +37,7 @@ def validate_valuation_rate(delivery_note, event):
 @frappe.whitelist()
 def validate_depot(items_string):
     items = json.loads(items_string)
+    #check with items are open in a releated depot
     affected_items = []
     for item in items:
         depots = frappe.db.get_list("Depot", {'sales_order': item.get('sales_order')})
@@ -45,6 +46,13 @@ def validate_depot(items_string):
             for depot_item in depot_items:
                 if depot_item.get('item_code') == item.get('item') and depot_item.get('balance_qty'):
                     affected_items.append({'item': item.get('item'), 'depot': depot.get('name')})
+    #create html for pop up
+    if len(affected_items) > 0:
+        html = "<p>Folgende Artikel befinden sich in einer offenen Kommissionierung:</p>"
+        
+        for affected_item in affected_items:
+            html += "<br>{item} ({depot})".format(item=affected_item.get('item'), depot=affected_item.get('depot'))
+        frappe.msgprint(html, title='Vorsicht', indicator='orange')
     
     frappe.log_error(affected_items)
     return
