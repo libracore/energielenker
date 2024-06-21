@@ -371,7 +371,6 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
 
 frappe.ui.form.on('Delivery Note Item', {
     source_depot: function(frm, cdt, cdn) {
-        console.log("1");
         mark_depot_items(frm);
     },
     items_remove: function(frm, cdt, cdn) {
