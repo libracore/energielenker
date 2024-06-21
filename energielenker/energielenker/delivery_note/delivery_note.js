@@ -68,6 +68,7 @@ frappe.ui.form.on("Delivery Note", {
     },
 
     refresh: function(frm) {
+        mark_depot_items(frm);
         set_timestamps(frm);
         setTimeout(() => {
             frm.remove_custom_button('Sales Return', 'Create');
@@ -327,6 +328,10 @@ frappe.ui.form.on("Delivery Note", {
     },
     before_submit: function(frm) {
         check_for_depot(frm);
+    },
+    items_remove: function(frm) {
+        console.log("Peter");
+        mark_depot_items(frm);
     }
 });
 
@@ -367,6 +372,15 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
     set_item_typ(item);
 });
+
+frappe.ui.form.on('Delivery Note Item', {
+    item_code(frm, cdt, cdn) {
+        mark_depot_items(frm);
+    },
+    items_remove: function(frm, cdt, cdn) {
+        mark_depot_items(frm);
+    }
+})
 
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
@@ -592,4 +606,20 @@ function validate_depot(frm) {
             'items_string': items_with_so
         }
     });
+}
+
+function mark_depot_items(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].source_depot) {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': '#F5F5F5'
+            });
+        } else {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': 'transparent'
+            });
+        }
+    }
 }

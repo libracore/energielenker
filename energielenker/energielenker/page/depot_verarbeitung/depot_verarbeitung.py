@@ -29,13 +29,13 @@ def make_so_material_transfer(depot):
     sales_order = frappe.get_doc("Sales Order", depot.sales_order)
     material_transfer_items = []
     for item in sales_order.items:
-        
-        material_transfer_items.append({
-            'item_code': item.item_code,
-            'qty': item.qty,
-            'uom': item.uom,
-            's_warehouse': frappe.db.get_value("Item", item.item_code, "default_warehouse_readonly")
-        })
+        if frappe.db.get_value("Item", item.item_code, "is_stock_item"):
+            material_transfer_items.append({
+                'item_code': item.item_code,
+                'qty': item.qty,
+                'uom': item.uom,
+                's_warehouse': frappe.db.get_value("Item", item.item_code, "default_warehouse_readonly")
+            })
     material_transfer = create_material_transfer(depot, material_transfer_items)
 
     return material_transfer
