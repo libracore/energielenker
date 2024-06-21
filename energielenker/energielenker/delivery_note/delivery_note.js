@@ -328,10 +328,6 @@ frappe.ui.form.on("Delivery Note", {
     },
     before_submit: function(frm) {
         check_for_depot(frm);
-    },
-    items_remove: function(frm) {
-        console.log("Peter");
-        mark_depot_items(frm);
     }
 });
 
@@ -374,7 +370,8 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
 });
 
 frappe.ui.form.on('Delivery Note Item', {
-    item_code(frm, cdt, cdn) {
+    source_depot: function(frm, cdt, cdn) {
+        console.log("1");
         mark_depot_items(frm);
     },
     items_remove: function(frm, cdt, cdn) {
