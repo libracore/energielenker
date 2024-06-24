@@ -371,7 +371,7 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
 
 frappe.ui.form.on('Delivery Note Item', {
     source_depot: function(frm, cdt, cdn) {
-        mark_depot_items(frm);
+        mark_depot_items(frm)
     },
     items_remove: function(frm, cdt, cdn) {
         mark_depot_items(frm);
@@ -521,6 +521,7 @@ function get_depot_items() {
                             frappe.model.set_value(child.doctype, child.name, 'against_sales_order', sales_order);
                             frappe.model.set_value(child.doctype, child.name, 'typ', "Int.");
                             frappe.model.set_value(child.doctype, child.name, 'interne_position', 1);
+                            cur_frm.refresh_field("items");
                         }
                     }
                     frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);

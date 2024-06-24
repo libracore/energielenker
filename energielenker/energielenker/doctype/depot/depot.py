@@ -122,3 +122,8 @@ def make_off_stock_entry(depot, items, warehouse, project):
     }).insert()
 
     return material_transfer.name
+    
+@frappe.whitelist()
+def set_open_depots(sales_order, project):
+    
+    return

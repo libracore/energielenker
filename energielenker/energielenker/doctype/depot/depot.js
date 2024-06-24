@@ -47,6 +47,9 @@ frappe.ui.form.on('Depot', {
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
             }
             set_read_only(frm);
+            frappe.db.get_value("Project", cur_frm.doc.project, "status").then( (value) => {
+                cur_frm.set_value("project_status", value.message.status||'deine mudda');
+            });
         }
     },
     sales_order: function(frm) {
@@ -67,6 +70,9 @@ frappe.ui.form.on('Depot', {
         if (frm.doc.status == "Closed") {
             validate_items(frm);
         }
+    },
+    before_save: function(frm) {
+        set_open_depots(frm);
     }
 });
 
@@ -224,5 +230,15 @@ function validate_items(frm) {
                 }
             }
         }
+    });
+}
+
+function set_open_depots(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.set_open_depots',
+        'args': {
+            'sales_order': frm.doc.sales_order,
+            'project': frm.doc.project
+        },
     });
 }
