@@ -68,6 +68,7 @@ frappe.ui.form.on("Delivery Note", {
     },
 
     refresh: function(frm) {
+        mark_depot_items(frm);
         set_timestamps(frm);
         setTimeout(() => {
             frm.remove_custom_button('Sales Return', 'Create');
@@ -111,6 +112,9 @@ frappe.ui.form.on("Delivery Note", {
             frm.add_custom_button(__("Get Depot Items"),  function(){
               get_depot_items(frm);
             });
+        }
+        if (frm.doc.__islocal) {
+            validate_depot(frm);
         }
     },
     before_save(frm) {
@@ -365,6 +369,15 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
     set_item_typ(item);
 });
 
+frappe.ui.form.on('Delivery Note Item', {
+    source_depot: function(frm, cdt, cdn) {
+        mark_depot_items(frm);
+    },
+    items_remove: function(frm, cdt, cdn) {
+        mark_depot_items(frm);
+    }
+})
+
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
@@ -574,4 +587,35 @@ function check_for_depot(frm) {
         )
     }
     locals.do_submit=false;
+}
+
+function validate_depot(frm) {
+    var items_with_so = []
+    for (let i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].against_sales_order && !frm.doc.items[i].source_depot) {
+            items_with_so.push({'sales_order': frm.doc.items[i].against_sales_order, 'item': frm.doc.items[i].item_code});
+        }
+    }
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.validate_depot',
+        'args': {
+            'items_string': items_with_so
+        }
+    });
+}
+
+function mark_depot_items(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].source_depot) {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': '#F5F5F5'
+            });
+        } else {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': 'transparent'
+            });
+        }
+    }
 }

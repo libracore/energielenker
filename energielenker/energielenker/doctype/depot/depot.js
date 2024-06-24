@@ -20,6 +20,9 @@ frappe.ui.form.on('Depot', {
            frm.add_custom_button(__("Öffne Verarbeitung"), function() {
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
             });
+            frm.add_custom_button(__("Get Items"), function() {
+                get_so_items(frm);
+            });
             frm.add_custom_button(__("Book back items"), function() {
                 book_back_items(frm);
             });

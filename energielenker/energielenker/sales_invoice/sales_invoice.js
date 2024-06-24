@@ -241,6 +241,11 @@ frappe.ui.form.on("Sales Invoice Item", "kalkulationssumme_interner_positionen",
     set_item_typ(item);
 });
 
+frappe.ui.form.on("Sales Invoice Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
 function fetch_customer_an_cost_center(frm) {
     if (cur_frm.doc.project) {
        frappe.call({
@@ -296,10 +301,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
                 } else {
-                    item.typ = 'Norm.';
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
