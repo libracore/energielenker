@@ -50,7 +50,7 @@ def get_items_html(depot, event):
         
         return html
     elif event == "delivery_note":
-        return data, depot, sales_order
+        return data, depot, sales_order, warehouse
     else:
         return data
 
@@ -125,5 +125,66 @@ def make_off_stock_entry(depot, items, warehouse, project):
     
 @frappe.whitelist()
 def set_open_depots(sales_order, project):
+    #get amount of open depots for this sales order
+    sales_orders = frappe.db.sql("""
+                                    SELECT COUNT(*) AS `quantity`
+                                    FROM `tabDepot`
+                                    WHERE `sales_order` = '{so}'
+                                    AND `status` = 'Open'""".format(so=sales_order), as_dict=True)
+    #get and update sales order
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+    sales_order_doc.open_depots = sales_orders[0].quantity
+    sales_order_doc.save()
+    
+    #get amount of open depots for this project
+    if project:
+        projects = frappe.db.sql("""
+                                        SELECT COUNT(*) AS `quantity`
+                                        FROM `tabDepot`
+                                        WHERE `project` = '{project}'
+                                        AND `status` = 'Open'""".format(project=project), as_dict=True)
+        #get and update project
+        project_doc = frappe.get_doc("Project", project)
+        project_doc.open_depots = projects[0].quantity
+        project_doc.save()
     
     return
+    
+@frappe.whitelist()
+def create_delivery_note(depot, warehouse, sales_order):
+    #get sales order and items
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+    items = get_items_html(depot, "dn_button")
+    #create new Delivery Note
+    new_dn = frappe.get_doc({
+        'doctype': 'Delivery Note',
+        'customer': sales_order_doc.customer,
+        'auftrags_projektb': sales_order_doc.auftrags_projektb,
+        'ansprechpartner': sales_order_doc.ansprechpartner,
+        'po_no': sales_order_doc.po_no,
+        'taxes_and_charges': sales_order_doc.taxes_and_charges,
+        # ~ 'taxes': taxes_and_charges_template.taxes,
+        # ~ 'shipping_address_name': api_document.delivery_note_address,
+        # ~ 'contact_person': "",
+        # ~ 'contact_display': ""
+        })
+    frappe.log_error(sales_order_doc.taxes_and_charges)
+    for item in items:
+        entry = {
+            'reference_doctype': 'Delivery Note Item',
+            'item_code': item.get('item_code'),
+            'qty': item.get('balance_qty'),
+            'uom': item.get('uom'),
+            'against_sales_order': sales_order,
+            'source_depot': depot,
+            'warehouse': warehouse
+        }
+        new_dn.append('items', entry)
+    
+    new_dn = new_dn.insert(ignore_permissions=True)
+    # ~ new_dn.submit()
+    
+    #get name of new Delivery Note and return it
+    delivery_note = new_dn.name
+    
+    return delivery_note
