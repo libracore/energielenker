@@ -994,3 +994,9 @@ def check_order_payment_forecast_item_deactivations(order):
         'disabled_items': disabled_items,
         'msg': msg
     }
+    
+def check_open_depots(self, event):
+    if self.open_depots > 0 and self.status != "Open":
+        frappe.throw("Projekt enthält offene Kommissionierungen und kann nicht geschlossen werden!")
+        so = 2
+    return

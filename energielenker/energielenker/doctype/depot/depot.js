@@ -20,6 +20,9 @@ frappe.ui.form.on('Depot', {
            frm.add_custom_button(__("Öffne Verarbeitung"), function() {
                 window.open(`/desk?depot=${cur_frm.doc.name}#depot-verarbeitung`);
             });
+            frm.add_custom_button(__("Create Delivery Note"), function() {
+                create_delivery_note(frm);
+            });
             frm.add_custom_button(__("Get Items"), function() {
                 get_so_items(frm);
             });
@@ -67,6 +70,9 @@ frappe.ui.form.on('Depot', {
         if (frm.doc.status == "Closed") {
             validate_items(frm);
         }
+    },
+    after_save: function(frm) {
+        set_open_depots(frm);
     }
 });
 
@@ -222,6 +228,34 @@ function validate_items(frm) {
                     cur_frm.set_value("status", "Open");
                     break;
                 }
+            }
+        }
+    });
+}
+
+function set_open_depots(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.set_open_depots',
+        'args': {
+            'sales_order': frm.doc.sales_order,
+            'project': frm.doc.project
+        },
+    });
+}
+
+function create_delivery_note(frm) {
+        frappe.call({
+        'method': 'energielenker.energielenker.doctype.depot.depot.create_delivery_note',
+        'args': {
+            'depot': frm.doc.name,
+            'warehouse': frm.doc.to_warehouse,
+            'sales_order': frm.doc.sales_order
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.set_route("Form", "Delivery Note", response.message);
+            } else {
+                show_alert('Keine Artikel vorhanden', 5, 'red');
             }
         }
     });

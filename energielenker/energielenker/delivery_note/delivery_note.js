@@ -371,7 +371,7 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
 
 frappe.ui.form.on('Delivery Note Item', {
     source_depot: function(frm, cdt, cdn) {
-        mark_depot_items(frm);
+        mark_depot_items(frm)
     },
     items_remove: function(frm, cdt, cdn) {
         mark_depot_items(frm);
@@ -511,6 +511,7 @@ function get_depot_items() {
                 var items = response.message[0]
                 var depot = response.message[1]
                 var sales_order = response.message[2]
+                var warehouse = response.message[3]
                 if (items.length > 0) {
                     for (let i = 0; i < items.length; i++) {
                         if (items[i].balance_qty > 0) {
@@ -521,6 +522,8 @@ function get_depot_items() {
                             frappe.model.set_value(child.doctype, child.name, 'against_sales_order', sales_order);
                             frappe.model.set_value(child.doctype, child.name, 'typ', "Int.");
                             frappe.model.set_value(child.doctype, child.name, 'interne_position', 1);
+                            frappe.model.set_value(child.doctype, child.name, 'warehouse', warehouse);
+                            cur_frm.refresh_field("items");
                         }
                     }
                     frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
@@ -579,10 +582,6 @@ function check_for_depot(frm) {
             function(){
                 locals.do_submit=true;
                 cur_frm.savesubmit();
-                window.close();
-            },
-            function(){
-                window.close();
             }
         )
     }
