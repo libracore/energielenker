@@ -151,38 +151,50 @@ def set_open_depots(sales_order, project):
     return
     
 @frappe.whitelist()
-def create_delivery_note(depot, warehouse, sales_order):
-    #get sales order and items
+def create_delivery_note(depot, warehouse, sales_order, project):
+    #get sales order, contact and items
     sales_order_doc = frappe.get_doc("Sales Order", sales_order)
     items = get_items_html(depot, "dn_button")
+    if sales_order_doc.shipping_contact:
+        contact = sales_order_doc.shipping_contact
+        contact_display = sales_order_doc.shipping_contact_display
+    elif sales_order_doc.contact_person_two:
+        contact = sales_order_doc.contact_person_two
+        contact_display = sales_order_doc.contact_display_two
+    else:
+        contact = ""
+        contact_display = ""
     #create new Delivery Note
     new_dn = frappe.get_doc({
         'doctype': 'Delivery Note',
         'customer': sales_order_doc.customer,
         'auftrags_projektb': sales_order_doc.auftrags_projektb,
         'ansprechpartner': sales_order_doc.ansprechpartner,
+        'k_ansprechperson': sales_order_doc.k_ansprechperson,
         'po_no': sales_order_doc.po_no,
         'taxes_and_charges': sales_order_doc.taxes_and_charges,
-        # ~ 'taxes': taxes_and_charges_template.taxes,
-        # ~ 'shipping_address_name': api_document.delivery_note_address,
-        # ~ 'contact_person': "",
-        # ~ 'contact_display': ""
+        'taxes': sales_order_doc.taxes,
+        'shipping_address_name': sales_order_doc.shipping_address_name,
+        'contact_person': contact,
+        'contact_display': contact_display,
+        'project': project,
+        'po_date': sales_order_doc.po_date
         })
-    frappe.log_error(sales_order_doc.taxes_and_charges)
-    for item in items:
-        entry = {
-            'reference_doctype': 'Delivery Note Item',
-            'item_code': item.get('item_code'),
-            'qty': item.get('balance_qty'),
-            'uom': item.get('uom'),
-            'against_sales_order': sales_order,
-            'source_depot': depot,
-            'warehouse': warehouse
-        }
-        new_dn.append('items', entry)
     
-    new_dn = new_dn.insert(ignore_permissions=True)
-    # ~ new_dn.submit()
+    for item in items:
+        if item.get('balance_qty') > 0:
+            entry = {
+                'reference_doctype': 'Delivery Note Item',
+                'item_code': item.get('item_code'),
+                'qty': item.get('balance_qty'),
+                'uom': item.get('uom'),
+                'against_sales_order': sales_order,
+                'source_depot': depot,
+                'warehouse': warehouse
+            }
+            new_dn.append('items', entry)
+    
+    new_dn = new_dn.insert()
     
     #get name of new Delivery Note and return it
     delivery_note = new_dn.name
