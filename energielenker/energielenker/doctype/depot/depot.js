@@ -23,9 +23,6 @@ frappe.ui.form.on('Depot', {
             frm.add_custom_button(__("Create Delivery Note"), function() {
                 create_delivery_note(frm);
             });
-            frm.add_custom_button(__("Get Items"), function() {
-                get_so_items(frm);
-            });
             frm.add_custom_button(__("Book back items"), function() {
                 book_back_items(frm);
             });
@@ -249,7 +246,8 @@ function create_delivery_note(frm) {
         'args': {
             'depot': frm.doc.name,
             'warehouse': frm.doc.to_warehouse,
-            'sales_order': frm.doc.sales_order
+            'sales_order': frm.doc.sales_order,
+            'project': frm.doc.project
         },
         'callback': function(response) {
             if (response.message) {
