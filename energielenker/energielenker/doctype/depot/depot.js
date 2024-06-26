@@ -241,7 +241,7 @@ function set_open_depots(frm) {
 }
 
 function create_delivery_note(frm) {
-        frappe.call({
+    frappe.call({
         'method': 'energielenker.energielenker.doctype.depot.depot.create_delivery_note',
         'args': {
             'depot': frm.doc.name,
@@ -250,8 +250,12 @@ function create_delivery_note(frm) {
             'project': frm.doc.project
         },
         'callback': function(response) {
-            if (response.message) {
-                frappe.set_route("Form", "Delivery Note", response.message);
+            var message = response.message[1]
+            if (response.message[0]) {
+                frappe.set_route("Form", "Delivery Note", response.message[0]);
+                if (message) {
+                    frappe.msgprint(message, "Artikel ohne Kundenauftrag")
+                }
             } else {
                 show_alert('Keine Artikel vorhanden', 5, 'red');
             }
