@@ -183,12 +183,14 @@ def create_delivery_note(depot, warehouse, sales_order, project):
     
     for item in items:
         if item.get('balance_qty') > 0:
+            so_detail = get_so_detail(item.get('item_code'), sales_order)
             entry = {
                 'reference_doctype': 'Delivery Note Item',
                 'item_code': item.get('item_code'),
                 'qty': item.get('balance_qty'),
                 'uom': item.get('uom'),
                 'against_sales_order': sales_order,
+                'so_detail': so_detail,
                 'source_depot': depot,
                 'warehouse': warehouse
             }
@@ -200,3 +202,13 @@ def create_delivery_note(depot, warehouse, sales_order, project):
     delivery_note = new_dn.name
     
     return delivery_note
+
+def get_so_detail(dn_item, sales_order):
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+    for so_item in sales_order_doc.items:
+        if so_item.get('item_code') == dn_item:
+            if so_item.get('delivered_qty') < so_item.get('qty'):
+                return so_item.get('name')
+    frappe.throw("Es wurde kein offener Artikel {0} in Kundenauftrag {1} gefunden!".format(dn_item, sales_order))
+    return
+    
