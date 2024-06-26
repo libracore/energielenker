@@ -181,14 +181,21 @@ def create_delivery_note(depot, warehouse, sales_order, project):
         'po_date': sales_order_doc.po_date
         })
     
+    items_without_so = []
+    
     for item in items:
         if item.get('balance_qty') > 0:
+            so_detail = get_so_detail(item.get('item_code'), sales_order)
+            if not so_detail:
+                so_detail = ""
+                items_without_so.append(item.get('item_code'))
             entry = {
                 'reference_doctype': 'Delivery Note Item',
                 'item_code': item.get('item_code'),
                 'qty': item.get('balance_qty'),
                 'uom': item.get('uom'),
                 'against_sales_order': sales_order,
+                'so_detail': so_detail,
                 'source_depot': depot,
                 'warehouse': warehouse
             }
@@ -199,4 +206,20 @@ def create_delivery_note(depot, warehouse, sales_order, project):
     #get name of new Delivery Note and return it
     delivery_note = new_dn.name
     
-    return delivery_note
+    if len(items_without_so) > 0:
+        message = "Achtung, folgende Artikel befinden sich nicht in {0}:".format(sales_order)
+        for item_without_so in items_without_so:
+            message += "<br>- {0}".format(item_without_so)
+    else:
+        message = False
+    
+    return delivery_note, message
+
+def get_so_detail(dn_item, sales_order):
+    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+    for so_item in sales_order_doc.items:
+        if so_item.get('item_code') == dn_item:
+            if so_item.get('delivered_qty') < so_item.get('qty'):
+                return so_item.get('name')
+    return False
+    

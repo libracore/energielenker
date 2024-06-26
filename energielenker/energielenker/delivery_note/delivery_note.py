@@ -54,5 +54,4 @@ def validate_depot(items_string):
             html += "<br>{item} ({depot})".format(item=affected_item.get('item'), depot=affected_item.get('depot'))
         frappe.msgprint(html, title='Vorsicht', indicator='orange')
     
-    frappe.log_error(affected_items)
     return
