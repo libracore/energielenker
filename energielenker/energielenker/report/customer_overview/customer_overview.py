@@ -15,26 +15,25 @@ def execute(filters=None):
 
 def get_columns():
     columns = [
-        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 80},
-        {"label": _("Customer Name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 100},
-        {"label": _("Street"), "fieldname": "street", "fieldtype": "Data", "width": 100},
-        {"label": _("PLZ"), "fieldname": "plz", "fieldtype": "Data", "width": 40},
-        {"label": _("Locality"), "fieldname": "locality", "fieldtype": "Data", "width": 100},
-        {"label": _("Customer Group"), "fieldname": "customer_group", "fieldtype": "Data", "width": 100},
+        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 150},
+        {"label": _("Street"), "fieldname": "street", "fieldtype": "Data", "width": 150},
+        {"label": _("PLZ"), "fieldname": "plz", "fieldtype": "Data", "width": 100},
+        {"label": _("Locality"), "fieldname": "locality", "fieldtype": "Data", "width": 150},
+        {"label": _("Customer Group"), "fieldname": "customer_group", "fieldtype": "Data", "width": 120},
         {"label": _("Territory"), "fieldname": "territory", "fieldtype": "Data", "width": 100},
-        {"label": _("Customer Support"), "fieldname": "customer_support", "fieldtype": "Data", "width": 100},
-        {"label": _("Lead Owner"), "fieldname": "lead_owner", "fieldtype": "Data", "width": 100},
-        {"label": _("Lead Source"), "fieldname": "lead_source", "fieldtype": "Data", "width": 100},
-        {"label": _("Website"), "fieldname": "website", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact"), "fieldname": "contact", "fieldtype": "Link", "options": "Contact", "width": 80},
+        {"label": _("Customer Support"), "fieldname": "customer_support", "fieldtype": "Data", "width": 150},
+        {"label": _("Lead Owner"), "fieldname": "lead_owner", "fieldtype": "Data", "width": 150},
+        {"label": _("Lead Source"), "fieldname": "lead_source", "fieldtype": "Data", "width": 150},
+        {"label": _("Website"), "fieldname": "website", "fieldtype": "Data", "width": 150},
+        {"label": _("Contact"), "fieldname": "contact", "fieldtype": "Link", "options": "Contact", "width": 50},
         {"label": _("Contact Name"), "fieldname": "contact_name", "fieldtype": "Data", "width": 100},
         {"label": _("Contact First Name"), "fieldname": "contact_first_name", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact E-Mail"), "fieldname": "contact_email", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact Phone"), "fieldname": "contact_phone", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact Mobile"), "fieldname": "contact_moblie", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact Description"), "fieldname": "contact_description", "fieldtype": "Data", "width": 100},
-        {"label": _("Contact Department"), "fieldname": "contact_department", "fieldtype": "Data", "width": 100},
-        {"label": _("Relevant Contact"), "fieldname": "relevant_contact", "fieldtype": "Check", "width": 100}
+        {"label": _("Contact E-Mail"), "fieldname": "contact_email", "fieldtype": "Data", "width": 150},
+        {"label": _("Contact Phone"), "fieldname": "contact_phone", "fieldtype": "Data", "width": 120},
+        {"label": _("Contact Mobile"), "fieldname": "contact_moblie", "fieldtype": "Data", "width": 120},
+        {"label": _("Contact Description"), "fieldname": "contact_description", "fieldtype": "Data", "width": 150},
+        {"label": _("Contact Department"), "fieldname": "contact_department", "fieldtype": "Data", "width": 150},
+        {"label": _("Relevant Contact"), "fieldname": "relevant_contact", "fieldtype": "Check", "width": 50}
     ]
     return columns
 
@@ -42,7 +41,6 @@ def get_data():
     data = frappe.db.sql("""
                             SELECT
                                 `cust`.`name` AS `customer`,
-                                `cust`.`customer_name` AS `customer_name`,
                                 `cust`.`customer_group` AS `customer_group`,
                                 `cust`.`territory` AS `territory`,
                                 `cust`.`ansprechpartner` AS `customer_support`,
@@ -84,7 +82,6 @@ def get_data():
                             AND
                                 `addr`.`is_primary_address` = 1
                             ORDER BY
-                                `cust`.`name`""", as_dict=True)
-    frappe.log_error(data, "data")                            
+                                `cust`.`name`""", as_dict=True)                           
                                 
     return data
