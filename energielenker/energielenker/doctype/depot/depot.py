@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe.core.doctype.communication.email import make as make_email
 
 class Depot(Document):
     pass
@@ -222,4 +223,34 @@ def get_so_detail(dn_item, sales_order):
             if so_item.get('delivered_qty') < so_item.get('qty'):
                 return so_item.get('name')
     return False
+
+def daily_depot_check():
+    #find all open depots with closed/completed/cancelled Sales Order
+    open_depots = frappe.db.sql("""
+                                SELECT
+                                    `depot`.`name` AS `depot_name`,
+                                    `so`.`status` AS `so_status`
+                                FROM
+                                    `tabDepot` AS `depot`
+                                LEFT JOIN
+                                    `tabSales Order` AS `so` ON `depot`.`sales_order` = `so`.`name`
+                                WHERE
+                                    `so`.`status` IN ("Closed", "Cancelled", "Completed")
+                                AND
+                                    `depot`.`status` IN ("Open")""", as_dict=True)
     
+    #If depots were found, create html for e-mail
+    if len(open_depots) > 0:
+        html = "Guten Morgen Herr Ruhkamp,<br><br>folgende Kommissionen sind offen, haben aber einen geschlossenen Kundenauftrag:<br>"
+        for open_depot in open_depots:
+            html += "<br>- {0} / {1}".format(open_depot.get('depot_name'), open_depot.get('so_status'))
+        
+        make_email(
+        # ~ recipients= ["ruhkamp@energielenker.de", "pham@energielenker.de"],
+        recipients= ["ivan.lochbihler@libracore.com", "gokuflynn@gmail.com"],
+        sender= "Administrator",
+        subject="Offene Kommissionen mit geschlossenen Kundenaufträgen",
+        content=html,
+        send_email=True)
+
+    return

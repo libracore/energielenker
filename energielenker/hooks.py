@@ -214,12 +214,12 @@ scheduler_events = {
         "energielenker.energielenker.issue.issue.delete_based_on_mark"
     ]
 }
-# scheduler_events = {
+scheduler_events = {
 #   "all": [
 #       "energielenker.tasks.all"
 #   ],
-#   "daily": [
-#       "energielenker.tasks.daily"
+  "daily": [
+      "energielenker.energielenker.doctype.depot.depot.daily_depot_check"
 #   ],
 #   "hourly": [
 #       "energielenker.tasks.hourly"
@@ -229,8 +229,8 @@ scheduler_events = {
 #   ]
 #   "monthly": [
 #       "energielenker.tasks.monthly"
-#   ]
-# }
+  ]
+}
 
 # Testing
 # -------
