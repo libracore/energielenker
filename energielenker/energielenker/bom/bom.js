@@ -14,14 +14,15 @@ frappe.ui.form.on('BOM', {
         if (frm.doc.__islocal) {
             cur_frm.set_value("transfer_material_against", "Work Order");
         }
-        
-        cur_frm.fields_dict['item'].get_query = function(doc) {
-             return {
-                query: "energielenker.energielenker.bom.bom.sales_order_query",
-                filters: {
-                    'sales_order': doc.sales_order
-                    }
-             }
+        if (frm.doc.sales_order) {
+            cur_frm.fields_dict['item'].get_query = function(doc) {
+                 return {
+                    query: "energielenker.energielenker.bom.bom.sales_order_query",
+                    filters: {
+                        'sales_order': doc.sales_order
+                        }
+                 }
+            }
         }
     },
     sales_order: function(frm) {
@@ -38,6 +39,10 @@ frappe.ui.form.on('BOM', {
         if (frm.doc.item && frm.doc.sales_order) {
             fetch_items_from_so(frm.doc.item, frm.doc.sales_order);
         }
+        check_default_bom(frm);
+    },
+    is_default: function(frm) {
+        check_default_bom(frm);
     }
 })
 
@@ -114,6 +119,31 @@ function set_part_list_items(part_list_items, row) {
                 frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i].uom);
                 cur_frm.refresh_field("items");
             }
+        }
+    }
+}
+
+function check_default_bom(frm) {
+    if (!frm.doc.item) {
+        return
+    } else {
+        if (frm.doc.is_default) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Item",
+                    'name': frm.doc.item
+                },
+                'callback': function(response) {
+                    var no_standard_bom = response.message.no_standard_bom;
+                    if (no_standard_bom == 1) {
+                        frappe.msgprint("Für Artikel " + frm.doc.item + " darf keine Standardstückliste erstellt werden!", "Achtung")
+                        cur_frm.set_value("is_default", 0);
+                    } else {
+                        return
+                    }
+                }
+            });
         }
     }
 }
