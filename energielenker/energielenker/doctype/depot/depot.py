@@ -229,7 +229,7 @@ def daily_depot_check():
     open_depots = frappe.db.sql("""
                                 SELECT
                                     `depot`.`name` AS `depot_name`,
-                                    `so`.`status` AS `so_status`
+                                    `so`.`name` AS `so_name`
                                 FROM
                                     `tabDepot` AS `depot`
                                 LEFT JOIN
@@ -243,7 +243,7 @@ def daily_depot_check():
     if len(open_depots) > 0:
         html = "Guten Morgen Herr Ruhkamp,<br><br>folgende Kommissionen sind offen, haben aber einen geschlossenen Kundenauftrag:<br>"
         for open_depot in open_depots:
-            html += "<br>- {0} / {1}".format(open_depot.get('depot_name'), open_depot.get('so_status'))
+            html += "<br>- {0} / {1}".format(open_depot.get('depot_name'), open_depot.get('so_name'))
         
         make_email(
         # ~ recipients= ["ruhkamp@energielenker.de", "pham@energielenker.de"],

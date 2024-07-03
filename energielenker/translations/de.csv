@@ -66,3 +66,5 @@ Report: Customer Overview,Contact Mobile,Kontakt Handy
 Report: Customer Overview,Contact Descrition,Beschreibung / Funktion
 Report: Customer Overview,Contact Department,Bereich / Abteilung
 Report: Customer Overview,Relevant Contact,Relevanter Kontakt
+DocType: Item,No Standard BOM,Keine Standardstückliste
+DocType: Item,Part List Item,Stücklistenartikel

@@ -385,6 +385,26 @@ frappe.ui.form.on("Sales Order", {
 frappe.ui.form.on('Sales Order Item', {
     with_bom(frm, cdt, cdn) {
         set_row_options(frm);
+    },
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+           frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
+               if (value.message.part_list_item == 1) {
+                    frappe.model.set_value(cdt, cdn, 'with_bom', 1);
+                }
+            });
+        }
+    },
+    before_items_remove(frm, cdt, cdn) {
+        var row = locals[cdt][cdn]
+        var index = row.idx
+        for (var i = frm.doc.part_list_items.length - 1; i >= 0; i--) {
+            if (frm.doc.part_list_items[i].belongs_to == index) {
+                var bom_row = frm.doc.part_list_items[i];
+                frm.doc.part_list_items.splice(i, 1);
+            }
+        }
     }
 });
 
