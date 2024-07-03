@@ -10,8 +10,15 @@ def get_data():
                 {
                     "type": "doctype",
                     "name": "Depot",
-                    "label": _("Depot"),
-                    "description": _("Kommissionierung")
+                    "label": _("Kommissionierung"),
+                    "description": _("Depot")
+                },
+                {
+                    "type": "report",
+                    "name": "Customer Overview",
+                    "label": _("Kundenübersicht"),
+                    "doctype": "Customer",
+                    "is_query_report": True
                 }
             ]
         },

@@ -14,15 +14,13 @@ frappe.ui.form.on('BOM', {
         if (frm.doc.__islocal) {
             cur_frm.set_value("transfer_material_against", "Work Order");
         }
-        if (frm.doc.sales_order) {
-            cur_frm.fields_dict['item'].get_query = function(doc) {
-                 return {
-                    query: "energielenker.energielenker.bom.bom.sales_order_query",
-                    filters: {
-                        'sales_order': doc.sales_order
-                        }
-                 }
-            }
+        cur_frm.fields_dict['item'].get_query = function(doc) {
+             return {
+                query: "energielenker.energielenker.bom.bom.sales_order_query",
+                filters: {
+                    'sales_order': doc.sales_order
+                }
+             }
         }
     },
     sales_order: function(frm) {
