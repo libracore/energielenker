@@ -1,0 +1,46 @@
+{
+ "creation": "2024-07-03 16:22:06.992601",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "lot_calculation"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "lot_calculation",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Lot calculation required"
+  }
+ ],
+ "istable": 1,
+ "modified": "2024-07-03 16:35:15.927005",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Sales Overview Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

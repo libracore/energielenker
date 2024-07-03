@@ -24,7 +24,9 @@
   "cb_2",
   "cfso_ssh_gateway_ip",
   "cfos_ssh_public_key",
-  "cfos_api_secret"
+  "cfos_api_secret",
+  "sales_overview",
+  "items"
  ],
  "fields": [
   {
@@ -141,10 +143,21 @@
    "label": "Standard Depot Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "sales_overview",
+   "fieldtype": "Section Break",
+   "label": "Sales Overview"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Sales Overview Item"
   }
  ],
  "issingle": 1,
- "modified": "2024-05-02 14:20:56.086353",
+ "modified": "2024-07-03 16:22:50.425706",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
