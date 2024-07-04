@@ -14,8 +14,11 @@ frappe.query_reports["Sales Overview"] = {
         {
             "fieldname":"year_filter",
             "label": __("Year"),
-            "fieldtype": "Select",
-            "options": get_options()
+            "fieldtype": "Link",
+            "options": "Fiscal Year",
+            "on_change": function(query_report) {
+                set_date_filters(frappe.query_report.filters[1].value);
+            }
         },
         {
             "fieldname":"from_date",
@@ -32,7 +35,17 @@ frappe.query_reports["Sales Overview"] = {
 	]
 };
 
-function get_options() {
-    
-    return " \n2024"
+function set_date_filters(year) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Fiscal Year",
+            'name': year
+        },
+        'callback': function(response) {
+            frappe.query_report.set_filter_value('from_date', response.message.year_start_date);
+            frappe.query_report.set_filter_value('to_date', response.message.year_end_date);
+        }
+    });
+    return
 }
