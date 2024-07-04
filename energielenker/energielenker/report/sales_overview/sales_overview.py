@@ -126,7 +126,7 @@ def get_data(filters):
                                 WHERE
                                     `project_type` = 'EZA-Regler (ehem. Netzregelung)'
                                 AND
-                                    `expected_end_date` BETWEEN '{from_date}' AND '{to_date}'
+                                    `creation` BETWEEN '{from_date}' AND '{to_date}'
                                 AND
                                     `status` != 'Cancelled'
                                 GROUP BY
