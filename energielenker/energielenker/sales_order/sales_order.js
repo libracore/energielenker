@@ -389,7 +389,8 @@ frappe.ui.form.on('Sales Order Item', {
     item_code(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.item_code) {
-           frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
+            check_for_family(row.item_code, row.qty);
+            frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
                 }
@@ -859,4 +860,33 @@ function calculate_part_list_prices(frm) {
             frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
         }
     }
+}
+
+function check_for_family(item_code, quantity) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Item",
+            'name': item_code
+        },
+        'callback': function(response) {
+            if (response.message.item_family == 1 && !locals.item_family) {
+                locals.item_family=true;
+                frappe.confirm('Dieser Artikel gehört zu einer Artikelfamilie, möchten Sie die Geschwister ebenfalls einfügen?', function() {
+                    if (!quantity) {
+                        quantity = 1
+                    }
+                    for (i=0; i < response.message.family_items.length; i++) {
+                        cur_frm.refresh_field("items");
+                        var child = cur_frm.add_child('items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', response.message.family_items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', response.message.family_items[i].qty * quantity);
+                    }
+                });
+            }
+        }
+    });
+    setTimeout(function(){
+        locals.item_family=false;
+    }, 3000);
 }
