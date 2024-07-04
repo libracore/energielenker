@@ -72,3 +72,9 @@ DocType: energielenker Settings,Sales Overview,Verkaufsübersicht
 DocType: energielenker Settings,Item Code,Artikelnummer
 DocType: energielenker Settings,Item Name,Artikelname
 DocType: energielenker Settings,Lot calculation required,Los Umrechnung erforderlich
+Report: Sales Overview,Description,Beschreibung
+Report: Sales Overview,Quantity,Menge
+Report: Sales Overview,Net amount,Nettosumme
+Report: Sales Overview,Sold Items,Verkaufte Artikel
+Report: Sales Overview,Sales Invoice per Cost Center,Ausgangsrechnungen per Kostenstelle
+Report: Sales Overview,Sales Order per Cost Center,Kundenaufträge per Kostenstelle
