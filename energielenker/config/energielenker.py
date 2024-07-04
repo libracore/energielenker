@@ -19,6 +19,13 @@ def get_data():
                     "label": _("Kundenübersicht"),
                     "doctype": "Customer",
                     "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "Sales Overview",
+                    "label": _("Verkaufsübersicht"),
+                    "doctype": "Sales Order",
+                    "is_query_report": True
                 }
             ]
         },
