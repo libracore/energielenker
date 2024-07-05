@@ -78,3 +78,6 @@ Report: Sales Overview,Net amount,Nettosumme
 Report: Sales Overview,Sold Items,Verkaufte Artikel
 Report: Sales Overview,Sales Invoice per Cost Center,Ausgangsrechnungen per Kostenstelle
 Report: Sales Overview,Sales Order per Cost Center,Kundenaufträge per Kostenstelle
+DocType: Item,Item Family,Artikelfamilie
+DocType: Item,Belongs to item family,Gehört zu Artikelfamilie
+DocType: Item,Unit of Measure,Einheit

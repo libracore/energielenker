@@ -876,11 +876,11 @@ function check_for_family(item_code, quantity) {
                     if (!quantity) {
                         quantity = 1
                     }
-                    for (i=0; i < response.message.family_items.length; i++) {
-                        cur_frm.refresh_field("items");
+                    for (var i=0; i < response.message.family_items.length; i++) {
                         var child = cur_frm.add_child('items');
                         frappe.model.set_value(child.doctype, child.name, 'item_code', response.message.family_items[i].item_code);
                         frappe.model.set_value(child.doctype, child.name, 'qty', response.message.family_items[i].qty * quantity);
+                        cur_frm.refresh_field("items");
                     }
                 });
             }
