@@ -81,3 +81,4 @@ Report: Sales Overview,Sales Order per Cost Center,Kundenaufträge per Kostenste
 DocType: Item,Item Family,Artikelfamilie
 DocType: Item,Belongs to item family,Gehört zu Artikelfamilie
 DocType: Item,Unit of Measure,Einheit
+DocType: energielenker Settings,Send Depot Reminder,Erinnerung offene Kommissionierungen senden
