@@ -225,6 +225,11 @@ def get_so_detail(dn_item, sales_order):
     return False
 
 def daily_depot_check():
+    #check settings
+    reminder_active = frappe.db.get_value("energielenker Settings", "energielenker Settings", "send_depot_reminder")
+    if cint(reminder_active) == 0:
+        return
+
     #find all open depots with closed/completed/cancelled Sales Order
     open_depots = frappe.db.sql("""
                                 SELECT
