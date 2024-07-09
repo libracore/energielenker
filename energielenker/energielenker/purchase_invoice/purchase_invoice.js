@@ -32,6 +32,11 @@ frappe.ui.form.on('Purchase Invoice', {
     },
     before_submit: function(frm) {
 		validate_streckengeschäft(frm);
+    },
+    before_save: function(frm) {
+        if (frm.doc.__islocal) {
+            validate_for_so(frm);
+        }
     }
 })
 
@@ -138,4 +143,23 @@ function validate_streckengeschäft(frm) {
         }
     });
     locals.do_submit=false;
+}
+
+function validate_for_so(frm) {
+    var po_with_so = []
+    for (i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].po_detail) {
+            console.log(frm.doc.items[i].po_detail);
+            frappe.db.get_value("Purchase Order Item", frm.doc.items[i].po_detail, "sales_order").then( (value) => {
+                if (value.message.sales_order && !po_with_so.includes(frm.doc.items[i].purchase_order)) {
+                    po_with_so.push(frm.doc.items[i].purchase_order);
+                }
+            });
+        }
+    }
+    if (po_with_so.length > 1) {
+        frappe.msgprint("Folgende Bestellungen sind mit einem Kundenauftrag verknüpft: " + po_with_so, "Achtung");
+    } else if (po_with_so.length == 1) {
+        frappe.msgprint("Folgende Bestellungen sind mit einem Kundenauftrag verknüpft: " + po_with_so, "Achtung");
+    }
 }
