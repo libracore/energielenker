@@ -149,14 +149,15 @@ function validate_for_so(frm) {
     var po_with_so = []
     for (i = 0; i < frm.doc.items.length; i++) {
         if (frm.doc.items[i].po_detail) {
-            console.log(frm.doc.items[i].po_detail);
-            frappe.db.get_value("Purchase Order Item", frm.doc.items[i].po_detail, "sales_order").then( (value) => {
-                if (value.message.sales_order && !po_with_so.includes(frm.doc.items[i].purchase_order)) {
-                    po_with_so.push(frm.doc.items[i].purchase_order);
+            frappe.db.get_value("Purchase Order Item", {"parent": ["=", frm.doc.items[i].purchase_order], "name": ["=", frm.doc.items[i].po_detail]} , ["sales_order", "parent"], null, "Purchase Order").then( (value) => {
+                if (value.message.sales_order && !po_with_so.includes(value.message.parent)) {
+                    po_with_so.push(value.message.parent);
                 }
             });
         }
     }
+    console.log(po_with_so.length);
+    console.log(po_with_so);
     if (po_with_so.length > 1) {
         frappe.msgprint("Folgende Bestellungen sind mit einem Kundenauftrag verknüpft: " + po_with_so, "Achtung");
     } else if (po_with_so.length == 1) {
