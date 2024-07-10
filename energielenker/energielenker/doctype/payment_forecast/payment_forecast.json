@@ -12,6 +12,7 @@
   "postpone",
   "invoice_date",
   "invoice",
+  "bill_on_reporting_date",
   "invoice_created",
   "create_invoice",
   "so_ref",
@@ -106,10 +107,16 @@
    "fieldname": "rollback_invoice",
    "fieldtype": "Button",
    "label": "Rechnung l\u00f6schen"
+  },
+  {
+   "default": "0",
+   "fieldname": "bill_on_reporting_date",
+   "fieldtype": "Check",
+   "label": "Bill on reporting date"
   }
  ],
  "istable": 1,
- "modified": "2024-03-27 11:58:03.449952",
+ "modified": "2024-07-10 16:06:35.879811",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",

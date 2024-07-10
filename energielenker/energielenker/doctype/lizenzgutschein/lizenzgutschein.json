@@ -15,6 +15,7 @@
   "lizenzgutschein",
   "cb_2",
   "geraete_id",
+  "revoke_activation_code",
   "section_lizenzdaten",
   "evse_count",
   "cb_3",
@@ -124,9 +125,15 @@
    "label": "Kundenauftrag",
    "options": "Sales Order",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "revoke_activation_code",
+   "fieldtype": "Check",
+   "label": "Revoke activation code"
   }
  ],
- "modified": "2023-04-27 16:37:04.043465",
+ "modified": "2024-07-10 16:08:41.830487",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",
