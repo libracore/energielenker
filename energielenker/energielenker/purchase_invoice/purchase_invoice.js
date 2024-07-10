@@ -145,22 +145,20 @@ function validate_streckengeschäft(frm) {
     locals.do_submit=false;
 }
 
-function validate_for_so(frm) {
-    var po_with_so = []
+async function validate_for_so(frm) {
+    let hit = false
     for (i = 0; i < frm.doc.items.length; i++) {
-        if (frm.doc.items[i].po_detail) {
-            frappe.db.get_value("Purchase Order Item", {"parent": ["=", frm.doc.items[i].purchase_order], "name": ["=", frm.doc.items[i].po_detail]} , ["sales_order", "parent"], null, "Purchase Order").then( (value) => {
-                if (value.message.sales_order && !po_with_so.includes(value.message.parent)) {
-                    po_with_so.push(value.message.parent);
-                }
-            });
+
+        if (hit) {
+            break;
         }
-    }
-    console.log(po_with_so.length);
-    console.log(po_with_so);
-    if (po_with_so.length > 1) {
-        frappe.msgprint("Folgende Bestellungen sind mit einem Kundenauftrag verknüpft: " + po_with_so, "Achtung");
-    } else if (po_with_so.length == 1) {
-        frappe.msgprint("Folgende Bestellungen sind mit einem Kundenauftrag verknüpft: " + po_with_so, "Achtung");
+        if (frm.doc.items[i].po_detail) {
+            let value = await frappe.db.get_value("Purchase Order Item", {"parent": ["=", frm.doc.items[i].purchase_order], "name": ["=", frm.doc.items[i].po_detail]} , ["sales_order", "parent", "item_code"], null, "Purchase Order")
+            
+            if (value.message.sales_order) {
+                frappe.msgprint("Folgende Bestellung " + value.message.parent + " von Artikel " + value.message.item_code + " ist mit Kundenauftrag " + value.message.sales_order + " verknüpft!", "Achtung");
+                hit = true
+            }
+        }
     }
 }
