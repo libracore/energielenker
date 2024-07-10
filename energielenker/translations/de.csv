@@ -82,3 +82,5 @@ DocType: Item,Item Family,Artikelfamilie
 DocType: Item,Belongs to item family,Gehört zu Artikelfamilie
 DocType: Item,Unit of Measure,Einheit
 DocType: energielenker Settings,Send Depot Reminder,Erinnerung offene Kommissionierungen senden
+DocType: Project,Bill on reporting date,Abzurechnen am Stichtag
+DocType: Project,Revoke activation code,Aktivierungscode widerrufen
