@@ -115,6 +115,7 @@ frappe.ui.form.on("Delivery Note", {
         }
         if (frm.doc.__islocal) {
             validate_depot(frm);
+            check_product_bundle(frm);
         }
     },
     before_save(frm) {
@@ -615,6 +616,16 @@ function mark_depot_items(frm) {
             $row.css({
                 'background-color': 'transparent'
             });
+        }
+    }
+}
+
+async function check_product_bundle(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        let product_bundle = await frappe.db.get_value("Item", frm.doc.items[i].item_code, "is_product_bundle");
+        if (product_bundle.message.is_product_bundle == 1) {
+            frappe.msgprint("<p>Produkt-Bundle-Artikel vorhanden.</p>", "Achtung!");
+            break;
         }
     }
 }
