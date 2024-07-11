@@ -622,7 +622,6 @@ function mark_depot_items(frm) {
 
 async function check_product_bundle(frm) {
     for (i = 0; i < frm.doc.items.length; i++) {
-        console.log(frm.doc.items[i].item_code);
         let product_bundle = await frappe.db.get_value("Item", frm.doc.items[i].item_code, "is_product_bundle");
         if (product_bundle.message.is_product_bundle == 1) {
             frappe.msgprint("<p>Produkt-Bundle-Artikel vorhanden.</p>", "Achtung!");
