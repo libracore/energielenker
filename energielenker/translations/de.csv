@@ -78,9 +78,12 @@ Report: Sales Overview,Net amount,Nettosumme
 Report: Sales Overview,Sold Items,Verkaufte Artikel
 Report: Sales Overview,Sales Invoice per Cost Center,Ausgangsrechnungen per Kostenstelle
 Report: Sales Overview,Sales Order per Cost Center,Kundenaufträge per Kostenstelle
-DocType: Item,Item Family,Artikelfamilie
+DocType: Item,Item Family and Product Bundle ,Artikelfamilie und Produkt-Bundle
 DocType: Item,Belongs to item family,Gehört zu Artikelfamilie
 DocType: Item,Unit of Measure,Einheit
 DocType: energielenker Settings,Send Depot Reminder,Erinnerung offene Kommissionierungen senden
 DocType: Project,Bill on reporting date,Abzurechnen am Stichtag
 DocType: Project,Revoke activation code,Aktivierungscode widerrufen
+DocType: Item,Is Product Bundle,Ist Produkt-Bundle
+DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
+DocType: Delivery Note,Packing List,Packliste
