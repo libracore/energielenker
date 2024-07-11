@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe.core.doctype.communication.email import make as make_email
+from frappe.utils import cint
 
 class Depot(Document):
     pass
@@ -229,7 +230,7 @@ def daily_depot_check():
     reminder_active = frappe.db.get_value("energielenker Settings", "energielenker Settings", "send_depot_reminder")
     if cint(reminder_active) == 0:
         return
-
+    
     #find all open depots with closed/completed/cancelled Sales Order
     open_depots = frappe.db.sql("""
                                 SELECT
@@ -250,12 +251,12 @@ def daily_depot_check():
         for open_depot in open_depots:
             html += "<br>- {0} / {1}".format(open_depot.get('depot_name'), open_depot.get('so_name'))
         
-        make_email(
+        # ~ make_email(
         # ~ recipients= ["ruhkamp@energielenker.de", "pham@energielenker.de"],
-        recipients= ["ivan.lochbihler@libracore.com", "gokuflynn@gmail.com"],
-        sender= "Administrator",
-        subject="Offene Kommissionen mit geschlossenen Kundenaufträgen",
-        content=html,
-        send_email=True)
+        # ~ recipients= ["ivan.lochbihler@libracore.com", "gokuflynn@gmail.com"],
+        # ~ sender= "Administrator",
+        # ~ subject="Offene Kommissionen mit geschlossenen Kundenaufträgen",
+        # ~ content=html,
+        # ~ send_email=True)
 
     return

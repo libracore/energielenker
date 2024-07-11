@@ -198,6 +198,9 @@ doc_events = {
     },
     "Quotation": {
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+    },
+    "Product Bundle": {
+        "on_trash": "energielenker.energielenker.product_bundle.product_bundle.delete_redord"
     }
 }
 

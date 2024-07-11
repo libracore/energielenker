@@ -799,7 +799,7 @@
    "fetch_from": null,
    "fetch_if_empty": 0,
    "fieldname": "product_bundle",
-   "fieldtype": "Table",
+   "fieldtype": "Table MultiSelect",
    "hidden": 0,
    "idx": 36,
    "ignore_user_permissions": 0,
