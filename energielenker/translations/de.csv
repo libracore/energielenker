@@ -87,3 +87,7 @@ DocType: Project,Revoke activation code,Aktivierungscode widerrufen
 DocType: Item,Is Product Bundle,Ist Produkt-Bundle
 DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
 DocType: Delivery Note,Packing List,Packliste
+DocType: Customer,Invoice Note,Notiz Rechnung
+DocType: Customer,Leave Invoice Note,Notiz für Rechnung hinterlassen
+DocType: Customer,Sales Order Note,Notiz Kundenauftrag
+DocType: Customer,Leave Sales Order Note,Notiz für Kundenauftrag hinterlassen
