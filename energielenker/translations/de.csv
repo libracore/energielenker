@@ -87,3 +87,16 @@ DocType: Project,Revoke activation code,Aktivierungscode widerrufen
 DocType: Item,Is Product Bundle,Ist Produkt-Bundle
 DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
 DocType: Delivery Note,Packing List,Packliste
+DocType: Customer,Invoice Note,Notiz Rechnung
+DocType: Customer,Leave Invoice Note,Notiz für Rechnung hinterlassen
+DocType: Customer,Sales Order Note,Notiz Kundenauftrag
+DocType: Customer,Leave Sales Order Note,Notiz für Kundenauftrag hinterlassen
+Report: Lead Source Report,Lead Source Report,Bericht Lead Quellen
+Report: Lead Source Report,Sales Order,Kundenauftrag
+Report: Lead Source Report,Lead Source,Lead Quelle
+Report: Lead Source Report,Lead Source Report,Bericht Lead Quellen
+Report: Lead Source Report,Sales Order Date,Datum Kundenauftrag
+Report: Lead Source Report,Customer Name,Kundenname
+Report: Lead Source Report,Net Amount,Nettosumme
+Report: Lead Source Report,Customer Advisor (Sales Order),Kundenbetreuer (Auftrag)
+Report: Lead Source Report,Customer Care (Customer),Kundenbetreuung (Kunde)

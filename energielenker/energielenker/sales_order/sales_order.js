@@ -379,6 +379,9 @@ frappe.ui.form.on("Sales Order", {
     },
     on_submit: function(frm) {
         create_dn_for_webshop_points(frm);
+    },
+    before_save(frm) {
+        get_customer_sales_order_note(frm);
     }
 });
 
@@ -889,4 +892,28 @@ function check_for_family(item_code, quantity) {
     setTimeout(function(){
         locals.item_family=false;
     }, 3000);
+}
+
+function get_customer_sales_order_note(frm) {
+    frappe.call({
+        'method': "frappe.client.get_list",
+        'args':{
+     	    'doctype': "Customer",
+         	'filters': [
+         	    ["name","IN", [cur_frm.doc.customer]]
+         	],
+            'fields': ["leave_sales_order_note", "sales_order_note_box"]
+        },
+        'callback': function (r) {
+            var customer = r.message[0];
+            
+            if (customer.leave_sales_order_note === 1) {
+                frappe.msgprint({
+                    title: __('Dieser Kunde hat einen Auftragsvermerk hinterlassen:'),
+                    indicator: 'red',
+                    message: __(` &nbsp;  &nbsp; ${ customer.sales_order_note_box }`)
+                });
+            }
+        }
+    });
 }
