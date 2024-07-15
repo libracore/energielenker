@@ -213,28 +213,12 @@ scheduler_events = {
         "energielenker.energielenker.utils.auto_reminder.check_for_reminder",
         "energielenker.energielenker.utils.auto_email_report.send_monthly_reports",
         "energielenker.energielenker.quotation.quotation.update_quotation_status",
-        "energielenker.energielenker.lead.lead.update_lead_status"
+        "energielenker.energielenker.lead.lead.update_lead_status",
+        "energielenker.energielenker.doctype.depot.depot.daily_depot_check"
     ],
     "all": [
         "energielenker.energielenker.issue.issue.delete_based_on_mark"
     ]
-}
-scheduler_events = {
-#   "all": [
-#       "energielenker.tasks.all"
-#   ],
-  "daily": [
-      "energielenker.energielenker.doctype.depot.depot.daily_depot_check"
-#   ],
-#   "hourly": [
-#       "energielenker.tasks.hourly"
-#   ],
-#   "weekly": [
-#       "energielenker.tasks.weekly"
-#   ]
-#   "monthly": [
-#       "energielenker.tasks.monthly"
-  ]
 }
 
 # Testing
