@@ -8,6 +8,7 @@ from frappe import _
 from frappe.model.naming import make_autoname
 from frappe.utils.data import get_datetime, today, add_days
 from frappe.utils import cint
+from datetime import datetime
 
 
 class PowerProject():
@@ -100,7 +101,7 @@ class PowerProject():
             ts_dates.append(ts_entry.to_time.strftime("%Y-%m-%d"))
         
         if len(ts_dates) > 0:
-            self.project.set('actual_start_date', min(ts_dates))
+            self.project.set('actual_start_date', datetime.strptime(min(ts_dates), "%Y-%m-%d").strftime("%d.%m.%Y"))
             self.project.set('actual_end_date', max(ts_dates))
         else:
             self.project.set('actual_start_date', None)
