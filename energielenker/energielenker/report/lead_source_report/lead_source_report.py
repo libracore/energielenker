@@ -27,7 +27,7 @@ def get_columns():
 
 def get_data(filters):
     data = frappe.db.sql("""
-        SELECT UNIQUE
+        SELECT DISTINCT
             `so`.`name` AS `sales_order`,
             `so`.`transaction_date` AS `sales_order_date`,
             `so`.`customer` AS `customer_name`,

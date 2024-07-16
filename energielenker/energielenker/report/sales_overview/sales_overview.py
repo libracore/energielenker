@@ -16,7 +16,8 @@ def get_columns():
     columns = [
         {"label": _("Description"), "fieldname": "description", "fieldtype": "Data", "width": 400},
         {"label": _("Quantity"), "fieldname": "quantity", "fieldtype": "Int", "width": 100},
-        {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 150}
+        {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 150},
+        {"label": _("Average"), "fieldname": "average", "fieldtype": "Currency", "width": 150}
     ]
     return columns
 
@@ -80,7 +81,8 @@ def get_data(filters):
                         entry = {
                                     'description': description,
                                     'quantity': total_quantity,
-                                    'net_amount' : total_amount
+                                    'net_amount' : total_amount,
+                                    'average' : total_amount / total_quantity
                                 }
                                 
                         data.append(entry)
@@ -91,8 +93,8 @@ def get_data(filters):
                                             SELECT
                                                 CONCAT(`item_code`, ' ', `item_name`) AS `description`,
                                                 SUM(`qty`) AS `quantity`,
-                                                SUM(`amount`) AS `net_amount`
-                                                
+                                                SUM(`amount`) AS `net_amount`,
+                                                SUM(`amount`) / SUM(`qty`) AS `average`
                                             FROM
                                                 `tabSales Order Item`
                                             WHERE
@@ -120,7 +122,8 @@ def get_data(filters):
                                 SELECT
                                     `project_type` AS `description`,
                                     COUNT(`name`) AS `quantity`,
-                                    SUM(`total_amount`) AS `net_amount`
+                                    SUM(`total_amount`) AS `net_amount`,
+                                    SUM(`total_amount`) / COUNT(`name`) AS `average`
                                 FROM
                                     `tabProject`
                                 WHERE
@@ -146,7 +149,8 @@ def get_data(filters):
                                 SELECT
                                     `cost_center` AS `description`,
                                     COUNT(`name`) AS `quantity`,
-                                    SUM(`total`) AS `net_amount`
+                                    SUM(`total`) AS `net_amount`,
+                                    SUM(`total`) / COUNT(`name`) AS `average`
                                 FROM
                                     `tab{tab}`
                                 WHERE
