@@ -97,9 +97,7 @@ function check_purchase_order_receipts(frm) {
         },
         'async': false,
         'callback': function(response) {
-            if (response.message) {
-                console.log(response.message);
-            }
+			cur_frm.set_value('update_stock', response.message);
         }
     })
 }
