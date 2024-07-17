@@ -145,7 +145,9 @@ def get_data(filters):
             tab = "Sales Order"
             doc_date = "transaction_date"
             
-        data = frappe.db.sql("""
+        data = []
+            
+        lines = frappe.db.sql("""
                                 SELECT
                                     `cost_center` AS `description`,
                                     COUNT(`name`) AS `quantity`,
@@ -159,5 +161,33 @@ def get_data(filters):
                                     `docstatus` = 1
                                 GROUP BY
                                     `cost_center`""".format(tab=tab, doc_date=doc_date, from_date=filters.from_date, to_date=filters.to_date), as_dict=True)
-                                        
+                                    
+        for line in lines:
+            line['indent'] = 0
+            line['has_children'] = 1
+            data.append(line)
+            sub_lines = frappe.db.sql("""
+                                        SELECT
+                                            `customer` AS `description`,
+                                            COUNT(`name`) AS `quantity`,
+                                            SUM(`total`) AS `net_amount`,
+                                            SUM(`total`) / COUNT(`name`) AS `average`
+                                        FROM
+                                            `tab{tab}`
+                                        WHERE
+                                            `{doc_date}` BETWEEN '{from_date}' AND '{to_date}'
+                                        AND
+                                            `cost_center` = '{cc}'
+                                        AND
+                                            `docstatus` = 1
+                                        GROUP BY
+                                            `customer`
+                                        ORDER BY
+                                            `net_amount` DESC""".format(tab=tab, doc_date=doc_date, from_date=filters.from_date, to_date=filters.to_date, cc=line.get('description').replace("'", "''")), as_dict=True)
+            
+            for sub_line in sub_lines:
+                sub_line['indent'] = 1
+                sub_line['parent'] = line.get('description')
+                data.append(sub_line)
+    frappe.log_error(data, "Data")
     return data

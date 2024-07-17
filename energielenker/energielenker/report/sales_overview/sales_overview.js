@@ -32,7 +32,8 @@ frappe.query_reports["Sales Overview"] = {
             "fieldtype": "Date",
             "reqd": 1
         }
-	]
+	],
+    "initial_depth": 0
 };
 
 function set_date_filters(year) {
