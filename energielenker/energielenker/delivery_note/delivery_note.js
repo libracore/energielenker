@@ -68,6 +68,7 @@ frappe.ui.form.on("Delivery Note", {
     },
 
     refresh: function(frm) {
+        mark_depot_items(frm);
         set_timestamps(frm);
         setTimeout(() => {
             frm.remove_custom_button('Sales Return', 'Create');
@@ -106,6 +107,15 @@ frappe.ui.form.on("Delivery Note", {
                     });
                 }
             });
+        }
+        if (cur_frm.doc.docstatus < 1) {
+            frm.add_custom_button(__("Get Depot Items"),  function(){
+              get_depot_items(frm);
+            });
+        }
+        if (frm.doc.__islocal) {
+            validate_depot(frm);
+            check_product_bundle(frm);
         }
     },
     before_save(frm) {
@@ -238,6 +248,7 @@ frappe.ui.form.on("Delivery Note", {
             frappe.msgprint( __("Es muss eine Lieferadresse hinterlegt werden"), __("Validation") );
             frappe.validated=false;
         }
+        validate_warehouse(frm);
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -315,6 +326,9 @@ frappe.ui.form.on("Delivery Note", {
         if (frm.doc.new_customer_address) {
             cur_frm.set_value('customer_address', frm.doc.new_customer_address);
         }
+    },
+    before_submit: function(frm) {
+        check_for_depot(frm);
     }
 });
 
@@ -346,10 +360,24 @@ frappe.ui.form.on("Delivery Note Item", "interne_position", function(frm, cdt, c
     set_item_typ(item);
 });
 
-frappe.ui.form.on("Delivery Notey Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
+frappe.ui.form.on("Delivery Note Item", "kalkulationssumme_interner_positionen", function(frm, cdt, cdn) {
     var item = locals[cdt][cdn];
     set_item_typ(item);
 });
+
+frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
+frappe.ui.form.on('Delivery Note Item', {
+    source_depot: function(frm, cdt, cdn) {
+        mark_depot_items(frm)
+    },
+    items_remove: function(frm, cdt, cdn) {
+        mark_depot_items(frm);
+    }
+})
 
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
@@ -375,10 +403,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
                 } else {
-                    item.typ = 'Norm.';
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
@@ -418,7 +450,7 @@ function fetch_kontakt_aus_lieferadresse(frm) {
 }
 
 function update_so_status(frm) {
-    cur_frm.doc.items.forEach(function(entry) {	
+    cur_frm.doc.items.forEach(function(entry) { 
         if (entry.against_sales_order) {
             frappe.call({
                 method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
@@ -452,4 +484,148 @@ function set_new_address_and_contact_filter(frm, filter) {
             }                       
         }
     });
+}
+
+function get_depot_items() {
+    frappe.prompt([
+        {'fieldname': 'depot', 'fieldtype': 'Link', 'label': 'Depot', 'options': 'Depot', 'reqd': 1, 'get_query': function() {
+                                                                                                        var sales_orders = get_depot_sales_order();
+                                                                                                        if (sales_orders[0]) {
+                                                                                                            return {
+                                                                                                                filters: [
+                                                                                                                    ['sales_order', "in", sales_orders]
+                                                                                                                ]
+                                                                                                            };
+                                                                                                        }
+                                                                                                    }
+        }
+    ],
+    function(values){
+        frappe.call({
+            'method': 'energielenker.energielenker.doctype.depot.depot.get_items_html',
+            'args': {
+                'depot': values.depot,
+                'event': "delivery_note"
+            },
+            'async': false,
+            'callback': function(response) {
+                var items = response.message[0]
+                var depot = response.message[1]
+                var sales_order = response.message[2]
+                var warehouse = response.message[3]
+                if (items.length > 0) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].balance_qty > 0) {
+                            var child = cur_frm.add_child('items');
+                            frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                            frappe.model.set_value(child.doctype, child.name, 'qty', items[i].balance_qty);
+                            frappe.model.set_value(child.doctype, child.name, 'source_depot', depot);
+                            frappe.model.set_value(child.doctype, child.name, 'against_sales_order', sales_order);
+                            frappe.model.set_value(child.doctype, child.name, 'typ', "Int.");
+                            frappe.model.set_value(child.doctype, child.name, 'interne_position', 1);
+                            frappe.model.set_value(child.doctype, child.name, 'warehouse', warehouse);
+                            cur_frm.refresh_field("items");
+                        }
+                    }
+                    frappe.show_alert('Alle Artikel wurden erfolgreich importiert', 5);
+                } else {
+                    frappe.show_alert('Keine Artikel vorhanden', 5);
+                }
+            }
+        });
+    },
+    'Please select Depot',
+    'Get Items'
+    )
+}
+
+function validate_warehouse(frm) {
+    for (let i = 0; i < cur_frm.doc.items.length; i++) {
+        if (cur_frm.doc.items[i].source_depot) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Depot",
+                    'name': cur_frm.doc.items[i].source_depot
+                },
+                'callback': function(response) {
+                    var warehouse = response.message.to_warehouse;
+                    if (warehouse) {
+                            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
+                    }
+                }
+            });
+        }
+    }
+}
+
+function get_depot_sales_order(frm) {
+    var sales_orders = [];
+    cur_frm.doc.items.forEach(function(item) {
+        if (!sales_orders.includes(item.against_sales_order)) {
+            sales_orders.push(item.against_sales_order);
+        }
+    });
+    return sales_orders
+}
+
+function check_for_depot(frm) {
+    var lines_with_depot = []
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].source_depot) {
+            lines_with_depot.push(i+1);
+        }
+    }
+    if (lines_with_depot.length > 0 && !locals.do_submit) {
+        frappe.validated=false;
+        frappe.confirm(
+            "Achtung, Zeilen " + lines_with_depot + " gehören zu einer Kommission - trotzdem Fortfahren?",
+            function(){
+                locals.do_submit=true;
+                cur_frm.savesubmit();
+            }
+        )
+    }
+    locals.do_submit=false;
+}
+
+function validate_depot(frm) {
+    var items_with_so = []
+    for (let i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].against_sales_order && !frm.doc.items[i].source_depot) {
+            items_with_so.push({'sales_order': frm.doc.items[i].against_sales_order, 'item': frm.doc.items[i].item_code});
+        }
+    }
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.validate_depot',
+        'args': {
+            'items_string': items_with_so
+        }
+    });
+}
+
+function mark_depot_items(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].source_depot) {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': '#F5F5F5'
+            });
+        } else {
+            var $row = $(frm.fields_dict["items"].grid.grid_rows[i].wrapper);
+            $row.css({
+                'background-color': 'transparent'
+            });
+        }
+    }
+}
+
+async function check_product_bundle(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        let product_bundle = await frappe.db.get_value("Item", frm.doc.items[i].item_code, "is_product_bundle");
+        if (product_bundle.message.is_product_bundle == 1) {
+            frappe.msgprint("<p>Produkt-Bundle-Artikel vorhanden.</p>", "Achtung!");
+            break;
+        }
+    }
 }

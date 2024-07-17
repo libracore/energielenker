@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2022, libracore AG and contributors
+# Copyright (c) 2024, libracore AG and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
 import frappe
 from frappe.utils import flt
+import json
+from frappe.utils.data import getdate
 
 @frappe.whitelist() 
 def overwrite_before_update_after_submit():
@@ -108,3 +110,101 @@ def update_zusatzgeschaft_in_sales_invoices(sales_order_name, zusatzgeschaft):
         doc.save(ignore_permissions=True)
 
     return "Zusatzgeschaft updated in Sales Invoices."
+
+@frappe.whitelist()
+def check_for_webshop_points(doc, event="submit"):
+    sales_order_doc = json.loads(doc)
+    validation = True
+    #get points item
+    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    
+    #check if there are webshop points in items
+    qty = 0
+    
+    for item in sales_order_doc['items']:
+        if item.get('item_code') == points_item:
+            qty = item.get('qty')
+            validation = False
+            
+    
+    #return nothing, if there are no points in sales order
+    if validation:
+        return validation
+    
+    #check if customer has account
+    try:
+        account_doc = frappe.get_doc("Charging Point Key Account", sales_order_doc.get('customer'))
+        validation = True
+    except:
+        if event == "cancel":
+            frappe.throw("Konto für diesen Kunden fehlt!")
+        return validation
+
+    #if there are points and an account, add/remove points to account
+    account_doc.avaliable_points += qty if event == "submit" else qty * -1
+    #create log entry
+    log_entry = {
+        'date': getdate(),
+        'activity': sales_order_doc['name'],
+        'amount': qty if event == "submit" else qty * -1,
+        'user': sales_order_doc['owner']
+    }
+    account_doc.append('past_activities', log_entry)
+    #save document
+    account_doc.save()
+    frappe.db.commit()
+    
+    return validation
+    
+@frappe.whitelist()
+def create_delivery_note(sales_order_name):
+    #get today
+    today = getdate()
+    
+    #get Sales Order and check for webshop points
+    dn_creation = False
+    sales_order_doc = frappe.get_doc('Sales Order', sales_order_name)
+    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    for item in sales_order_doc.items:
+        if item.get('item_code') == points_item:
+            dn_creation = True
+        
+    if not dn_creation:
+        return
+    else:
+        #create new Delivery Note
+        new_dn = frappe.get_doc({
+            'doctype': 'Delivery Note',
+            'customer': sales_order_doc.get('customer'),
+            'zur_berechnung_freigegeben': 1,
+            'po_no': sales_order_doc.get('po_no'),
+            'ansprechpartner': sales_order_doc.get('ansprechpartner'),
+            'contact_person': "",
+            'contact_display': ""
+            })
+        
+        if not new_dn.shipping_address_name:
+            new_dn.shipping_address_name = sales_order_doc.get('customer_address')
+        
+        for item in sales_order_doc.items:
+            entry = {
+                'reference_doctype': 'Delivery Note Item',
+                'item_code': item.item_code,
+                'qty': item.qty,
+                'uom': item.uom,
+                'against_sales_order': sales_order_name,
+                'so_detail': item.name,
+                'vk_wert': item.amount
+            }
+            new_dn.append('items', entry)
+        
+        new_dn = new_dn.insert(ignore_permissions=True)
+        new_dn.submit()
+        
+        return
+
+@frappe.whitelist()
+def validate_customer(customer):
+    valdiation = frappe.db.get_value("Customer", customer, "blocked_customer")
+    return valdiation
+    

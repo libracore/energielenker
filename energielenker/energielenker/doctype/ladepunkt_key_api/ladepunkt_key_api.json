@@ -1,0 +1,137 @@
+{
+ "autoname": "API-.###.",
+ "creation": "2024-03-28 10:46:53.669025",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "sales_order_section",
+  "navision_konto",
+  "cost_center",
+  "po_no",
+  "taxes_and_charges",
+  "column_break_5",
+  "auftrags_projektb",
+  "vertriebsgruppe",
+  "k_ansprechperson",
+  "delivery_note_section",
+  "delivery_note_address",
+  "users_section",
+  "users"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_order_section",
+   "fieldtype": "Section Break",
+   "label": "Sales Order"
+  },
+  {
+   "fieldname": "navision_konto",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sachkonto",
+   "options": "Navision Kontenplan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cost Center",
+   "options": "Cost Center",
+   "reqd": 1
+  },
+  {
+   "fieldname": "po_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Customer Purchase Order"
+  },
+  {
+   "fieldname": "vertriebsgruppe",
+   "fieldtype": "Link",
+   "label": "Vertriebsgruppe",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "k_ansprechperson",
+   "fieldtype": "Link",
+   "label": "Kufm\u00e4nnische Betreuung",
+   "options": "User"
+  },
+  {
+   "fieldname": "taxes_and_charges",
+   "fieldtype": "Link",
+   "label": "Sales Taxes and Charges Template",
+   "options": "Sales Taxes and Charges Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "users_section",
+   "fieldtype": "Section Break",
+   "label": "Users"
+  },
+  {
+   "fieldname": "users",
+   "fieldtype": "Table",
+   "label": "Users",
+   "options": "Ladepunkt Key API User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "auftrags_projektb",
+   "fieldtype": "Link",
+   "label": "Auftrags-/Projektbetreuung",
+   "options": "User"
+  },
+  {
+   "fieldname": "delivery_note_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery Note"
+  },
+  {
+   "fieldname": "delivery_note_address",
+   "fieldtype": "Link",
+   "label": "Delivery Note Address",
+   "options": "Address"
+  }
+ ],
+ "modified": "2024-04-23 19:34:13.325788",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Ladepunkt Key API",
+ "name_case": "Title Case",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "customer",
+ "track_changes": 1
+}

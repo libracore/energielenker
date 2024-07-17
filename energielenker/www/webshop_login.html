@@ -1,0 +1,53 @@
+{% extends "templates/lizenz_webshop/lizenz_webshop_web.html" %}
+
+{% block style %}
+<style>
+    {% include "templates/lizenz_webshop/webshop_login.css" %}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <div style='height: 50vh;'>
+        <section class='for-login'>
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
+                <form class="form-login" role="form">
+                    <div class="page-card-head header">
+                        <h3>Willkommen</h3>
+                        Um sich anzumelden, tragen sie bitte unten ihre Anmeldedaten ein.
+                    </div>
+                    <div class="form-label-group">
+                        <input type="text" id="login_email"
+                            class="form-control"
+                            style="padding-left: 40px !important; padding-top: 12px !important; padding-bottom: 4px !important; border-radius: 8px;"
+                            placeholder="Benutzername"
+                            required autofocus>
+                        <label for="login_email">Benutzername</label>
+                        <span class="label-addon"><i class="fa fa-user"></i></span>
+                    </div>
+                    <div class="form-label-group">
+                        <input type="password" id="login_password"
+                                class="form-control floating"
+                                style="padding-left: 40px !important; padding-top: 12px !important; padding-bottom: 4px !important; border-radius: 8px;"
+                                placeholder="Passwort" required>
+                        <span toggle="#login_password" class="fa fa-fw fa-eye toggle-password text-muted"></span>
+                        <label for="login_password">Passwort</label>
+                        <span class="label-addon"><i class="fa fa-key" aria-hidden="true"></i></span>
+                    </div>
+                    <p class="warning" id="login_error"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Passwort oder Benutzernamen falsch.</p>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom" type="submit">
+                        {{ _("Login") }}
+                    </button>
+                    <p class="text-left" style="margin-top: 15px">
+                        Passwort vergessen?
+                    </p>
+                </form>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>{% include "templates/lizenz_webshop/webshop_login.js" %}</script>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "templates/lizenz_webshop/lizenz_webshop_web.html" %}
+
+{% block style %}
+<style>
+    {% include "templates/lizenz_webshop/webshop_login.css" %}
+</style>
+{% endblock %}
+
+{% block page_content %}
+    <div style='height: 50vh;'>
+        <section class='retrieving'>
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
+                <form class="" role="form">
+                    <div class="page-card-head">
+                        Willkommen
+                        <h4>Lizenz-Key erstellen</h4>
+                        Geben Sie die gewünschte Anzahl an Ladepunkten für den Lizenz-Key an.
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="form-label-group">
+                            <input type="text" id="evse_count"
+                                class="form-control"
+                                style="padding-left: 40px !important; padding-top: 12px !important; padding-bottom: 4px !important; border-radius: 8px;"
+                                placeholder="Ladepunkte"
+                                autofocus>
+                            <label for="evse_count">Ladepunkte</label>
+                            <span class="label-addon"><i class="fa fa-bolt" aria-hidden="true"></i></span>
+                        </div>
+                        <span style="margin-left: 10px;">
+                            <p style="margin-bottom: 0px; font-size: 14px;">Verfügbar</p>
+                            <p style="margin-bottom: 10px; font-size: 14px;">{{ ladepunkte }}</p>
+                        </span>
+                    </div>
+                    <p class="warning" id="form_error"></p>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom btn-key" type="submit" id="create_license_key">
+                        {{ _("Lizenz-Key erstellen") }}</button>
+                </form>
+            </div>
+        </section>
+        <section class='success'>
+            <div class="login-content page-card desktop-only" style="margin-top: 18vh;">
+                <form class="form-signin form-login" role="form">
+                    <div class="page-card-head" style="margin-bottom: 0px;">
+                        <h4>Lizenz-Key erstellt!</h4>
+                        Der Lizenz-Key mit <span id="success_evse_count"></span> Ladepunkten wurde erfolgreich erstellt.
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" id="license_key"
+                            class="form-control"
+                            autofocus readonly>
+                        <span class="copy" id="copy"><i class="fa fa-clone" aria-hidden="true"></i></span>
+                    </div>
+                    <p class="copy_message" id="copy_success"></p>
+                    <button class="btn btn-sm btn-primary btn-block btn-login btn-custom btn-key" style="width: 80%;">
+                        {{ _("Weiteren Lizenz-Key erstellen") }}
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>{% include "www/retrieving_charging_points.js" %}</script>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

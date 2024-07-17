@@ -13,6 +13,10 @@ frappe.ui.form.on('Purchase Invoice', {
                 }
             }
         }, 1000);
+        
+        if (frm.doc.__islocal) {
+			set_update_stock(frm);
+		}
     },
     validate: function(frm) {
         if (cur_frm.doc.project) {
@@ -26,9 +30,12 @@ frappe.ui.form.on('Purchase Invoice', {
         check_vielfaches(frm);
         return
     },
-    onload: function(frm) {
-        if (cur_frm.doc.docstatus == 0) {
-            cur_frm.set_value("update_stock", 1);
+    before_submit: function(frm) {
+		validate_streckengeschäft(frm);
+    },
+    before_save: function(frm) {
+        if (frm.doc.__islocal) {
+            validate_for_so(frm);
         }
     }
 })
@@ -79,4 +86,79 @@ function validate_vielfaches(frm) {
             }
         } 
     });
+}
+
+function set_update_stock(frm) {
+	frappe.call({
+		'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_streckengeschaeft',
+		'args': {
+			'doc_': cur_frm.doc
+		},
+		'async': false,
+		'callback': function(response) {
+			setTimeout(function() {
+				cur_frm.set_value('update_stock', response.message);
+			}, 1000);
+		}
+	});
+}
+
+function validate_streckengeschäft(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_streckengeschaeft',
+        'args': {
+            'doc_': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+			if (response.message == 1 && cur_frm.doc.update_stock == 0 && !locals.do_submit) {
+				frappe.validated=false;
+				frappe.confirm(
+					'Achtung, Lager wird nicht aktualisiert - trotzdem Fortfahren?',
+					function(){
+						locals.do_submit=true;
+						cur_frm.savesubmit();
+						window.close();
+					},
+					function(){
+						window.close();
+					}
+				)
+			} else if (response.message == 0 && cur_frm.doc.update_stock == 1 && !locals.do_submit) {
+				frappe.validated=false;
+				frappe.confirm(
+					'Achtung, Lager wird aktualisiert obwohl dies ein Streckengeschäft ist - trotzdem Fortfahren?',
+					function(){
+						locals.do_submit=true;
+						cur_frm.savesubmit();
+						window.close();
+					},
+					function(){
+						window.close();
+					}
+				)
+			} else {
+				frappe.validated=true;
+			}
+        }
+    });
+    locals.do_submit=false;
+}
+
+async function validate_for_so(frm) {
+    let hit = false
+    for (i = 0; i < frm.doc.items.length; i++) {
+
+        if (hit) {
+            break;
+        }
+        if (frm.doc.items[i].po_detail) {
+            let value = await frappe.db.get_value("Purchase Order Item", {"parent": ["=", frm.doc.items[i].purchase_order], "name": ["=", frm.doc.items[i].po_detail]} , ["sales_order", "parent", "item_code"], null, "Purchase Order")
+            
+            if (value.message.sales_order) {
+                frappe.msgprint("Folgende Bestellung " + value.message.parent + " von Artikel " + value.message.item_code + " ist mit Kundenauftrag " + value.message.sales_order + " verknüpft!", "Achtung");
+                hit = true
+            }
+        }
+    }
 }

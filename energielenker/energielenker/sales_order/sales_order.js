@@ -7,6 +7,18 @@ cur_frm.dashboard.add_transactions([
         'items': [
             'Issue'
         ]
+    },
+    {
+        'label': 'Material',
+        'items': [
+            'Depot',
+        ]
+    },
+    {
+        'label': 'Manufacturing',
+        'items': [
+            'BOM',
+        ]
     }
 ]);
 
@@ -14,6 +26,7 @@ frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
+       set_row_options(frm)
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
        
@@ -96,6 +109,10 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         
+        if (cur_frm.doc.__islocal && frm.doc.part_list_items.length < 1) {
+            check_for_part_list_items(frm);
+        }
+        
         // hack to remove "+" in dashboard
         $(":button[data-doctype='Issue']").remove();
     },
@@ -111,6 +128,7 @@ frappe.ui.form.on("Sales Order", {
                 callback: function (r) {}
             });
         }
+        remove_webshop_points(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -120,6 +138,7 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         if (cur_frm.doc.customer) {
+            validate_customer(frm, "customer");
 			frappe.call({
 				method: 'frappe.client.get_value',
                 args: {
@@ -138,6 +157,8 @@ frappe.ui.form.on("Sales Order", {
     },
     validate: function(frm) {
         check_navision(frm);
+        calculate_part_list_prices(frm);
+        validate_customer(frm, "validate");
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
         } else {
@@ -151,6 +172,16 @@ frappe.ui.form.on("Sales Order", {
 				amend_so_issue(frm);
 			}, 1500);
 		}
+        
+        if (cur_frm.doc.part_list_items) {
+            for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
+                if (cur_frm.doc.part_list_items[i].qty && cur_frm.doc.part_list_items[i].rate) {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", cur_frm.doc.part_list_items[i].qty * cur_frm.doc.part_list_items[i].rate);
+                } else {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", 0);
+                }
+            }
+        }
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -342,6 +373,61 @@ frappe.ui.form.on("Sales Order", {
     },
     zusatzgeschaft: function(frm) {
 		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
+    },
+    before_submit: function(frm) {
+        check_for_webshop_points(frm);
+    },
+    on_submit: function(frm) {
+        create_dn_for_webshop_points(frm);
+    },
+    before_save(frm) {
+        get_customer_sales_order_note(frm);
+    }
+});
+
+frappe.ui.form.on('Sales Order Item', {
+    with_bom(frm, cdt, cdn) {
+        set_row_options(frm);
+    },
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_for_family(row.item_code, row.qty);
+            frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
+               if (value.message.part_list_item == 1) {
+                    frappe.model.set_value(cdt, cdn, 'with_bom', 1);
+                }
+            });
+        }
+    },
+    before_items_remove(frm, cdt, cdn) {
+        var row = locals[cdt][cdn]
+        var index = row.idx
+        for (var i = frm.doc.part_list_items.length - 1; i >= 0; i--) {
+            if (frm.doc.part_list_items[i].belongs_to == index) {
+                var bom_row = frm.doc.part_list_items[i];
+                frm.doc.part_list_items.splice(i, 1);
+            }
+        }
+    }
+});
+
+frappe.ui.form.on('Sales Order Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
     }
 });
 
@@ -463,6 +549,11 @@ frappe.ui.form.on("Sales Order Item", "kalkulationssumme_interner_positionen", f
     set_item_typ(item);
 });
 
+frappe.ui.form.on("Sales Order Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
@@ -487,10 +578,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
                 } else {
-                    item.typ = 'Norm.';
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
@@ -651,4 +746,174 @@ function amend_so_issue(frm) {
 			"amended_from": frm.doc.amended_from, 
 		},
    });
+}
+
+function check_for_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
+}
+
+function remove_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc,
+            'event': "cancel"
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
+}
+
+function create_dn_for_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.create_delivery_note',
+        'args': {
+            'sales_order_name': cur_frm.doc.name
+        }
+    });
+}
+
+function validate_customer(frm, event) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.validate_customer',
+        'args': {
+            'customer': frm.doc.customer
+        },
+        "async": false,
+        'callback': function(response) {
+            var validation = response.message
+            if (validation) {
+                frappe.msgprint( __("Kunde ist gesperrt!"), __("Sperrkunde") );
+                if (event == "customer") {
+                    cur_frm.set_value("customer", "");
+                } else {
+                    frappe.validated=false;
+                }
+            }
+        }
+    });
+}
+
+function check_for_part_list_items(frm) {
+    if (frm.doc.items[0].prevdoc_docname) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Quotation",
+                'name': frm.doc.items[0].prevdoc_docname
+            },
+            'callback': function(response) {
+                var items = response.message.part_list_items;
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        var child = cur_frm.add_child('part_list_items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
+                        frappe.model.set_value(child.doctype, child.name, 'belongs_to', items[i].belongs_to);
+                        setTimeout(function(child, rate) {
+                            frappe.model.set_value(child.doctype, child.name, 'rate', rate);
+                        }, 3000, child, items[i].rate);
+                    }
+                }
+            }
+        });
+    }
+}
+
+function set_row_options(frm) {
+    if (frm.doc.part_list_items) {
+        var options = [];
+        for (i=0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].with_bom) {
+                options.push(frm.doc.items[i].idx);
+            }
+        }
+        var options_string = options.join("\n");
+        cur_frm.get_field("part_list_items").grid.docfields[4].options = options_string;
+        cur_frm.refresh_field("part_list_items");
+    }
+}
+
+function calculate_part_list_prices(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom) {
+            var amount = 0
+            for (j=0; j < frm.doc.part_list_items.length; j++) {
+                if (frm.doc.part_list_items[j].belongs_to == i + 1) {
+                    amount += frm.doc.part_list_items[j].amount
+                }
+            }
+            frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
+        }
+    }
+}
+
+function check_for_family(item_code, quantity) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Item",
+            'name': item_code
+        },
+        'callback': function(response) {
+            if (response.message.item_family == 1 && !locals.item_family) {
+                locals.item_family=true;
+                frappe.confirm('Dieser Artikel gehört zu einer Artikelfamilie, möchten Sie die Geschwister ebenfalls einfügen?', function() {
+                    if (!quantity) {
+                        quantity = 1
+                    }
+                    for (var i=0; i < response.message.family_items.length; i++) {
+                        var child = cur_frm.add_child('items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', response.message.family_items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', response.message.family_items[i].qty * quantity);
+                        cur_frm.refresh_field("items");
+                    }
+                });
+            }
+        }
+    });
+    setTimeout(function(){
+        locals.item_family=false;
+    }, 3000);
+}
+
+function get_customer_sales_order_note(frm) {
+    frappe.call({
+        'method': "frappe.client.get_list",
+        'args':{
+     	    'doctype': "Customer",
+         	'filters': [
+         	    ["name","IN", [cur_frm.doc.customer]]
+         	],
+            'fields': ["leave_sales_order_note", "sales_order_note_box"]
+        },
+        'callback': function (r) {
+            var customer = r.message[0];
+            
+            if (customer.leave_sales_order_note === 1) {
+                frappe.msgprint({
+                    title: __('Dieser Kunde hat einen Auftragsvermerk hinterlassen:'),
+                    indicator: 'red',
+                    message: __(` &nbsp;  &nbsp; ${ customer.sales_order_note_box }`)
+                });
+            }
+        }
+    });
 }

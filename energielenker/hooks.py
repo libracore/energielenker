@@ -60,9 +60,11 @@ doctype_js = {
     "BOM": "energielenker/bom/bom.js",
     "Auto Repeat": "energielenker/auto_repeat/auto_repeat.js",
     "Lead": "energielenker/lead/lead.js",
-	"Cost Center": "energielenker/cost_center/cost_center.js",
-	"Item Price": "energielenker/item_price/item_price.js",
-	"Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js"
+    "Cost Center": "energielenker/cost_center/cost_center.js",
+    "Item Price": "energielenker/item_price/item_price.js",
+    "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js",
+    "Work Order": "energielenker/work_order/work_order.js",
+    "Product Bundle": "energielenker/product_bundle/product_bundle.js"
 }
 
 doctype_list_js = {
@@ -75,13 +77,16 @@ doctype_list_js = {
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt_list.js",
     "Delivery Note": "energielenker/delivery_note/delivery_note_list.js",
     "Task": "energielenker/task/task_list.js",
+    "Material Request" : "energielenker/material_request/material_request_list.js"
 }
 
 jenv = {
     "methods": [
         "get_print_items:energielenker.energielenker.print_utils.utils.get_print_items",
         "get_delivery_note_lizenzgutschein:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_delivery_note_lizenzgutschein",
-        "get_lizenz_qty_so:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_lizenz_qty_so"
+        "get_lizenz_qty_so:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_lizenz_qty_so",
+        "get_items_html:energielenker.energielenker.doctype.depot.depot.get_items_html",
+        "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items"
     ]
 }
 
@@ -96,7 +101,7 @@ jenv = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+#   "Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -125,11 +130,11 @@ jenv = {
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+#   "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
+#   "Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # Document Events
@@ -141,7 +146,8 @@ doc_events = {
         "autoname": "energielenker.energielenker.project.project.autoname",
         "onload": "energielenker.energielenker.project.project.onload",
         "validate": "energielenker.energielenker.project.project.validate",
-        "on_update": "energielenker.energielenker.zahlungsplan.zahlungsplan.update_projektbewertung_ignorieren_in_project_or_in_so"
+        "on_update": "energielenker.energielenker.zahlungsplan.zahlungsplan.update_projektbewertung_ignorieren_in_project_or_in_so",
+        "before_save": "energielenker.energielenker.project.project.check_open_depots"
     },
     "Task": {
         "on_update": "energielenker.energielenker.task.task.on_update"
@@ -154,7 +160,9 @@ doc_events = {
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
     },
     "Timesheet": {
-        "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all"
+        "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
+        "on_submit": "energielenker.energielenker.issue.issue.set_booked_hours",
+        "on_cancel": "energielenker.energielenker.issue.issue.set_booked_hours"
     },
     "Item": {
         "after_insert": "energielenker.energielenker.item.item.check_item_code"
@@ -185,11 +193,14 @@ doc_events = {
         "on_trash": "energielenker.energielenker.utils.lead.delete_events"
     },
     "Address": {
-		"validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
-	},
-	"Quotation": {
-		"validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
-	}
+        "validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
+    },
+    "Quotation": {
+        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+    },
+    "Product Bundle": {
+        "on_trash": "energielenker.energielenker.product_bundle.product_bundle.delete_redord"
+    }
 }
 
 # Scheduled Tasks
@@ -201,29 +212,13 @@ scheduler_events = {
         "energielenker.energielenker.utils.auto_reminder.check_for_reminder",
         "energielenker.energielenker.utils.auto_email_report.send_monthly_reports",
         "energielenker.energielenker.quotation.quotation.update_quotation_status",
-        "energielenker.energielenker.lead.lead.update_lead_status"
+        "energielenker.energielenker.lead.lead.update_lead_status",
+        "energielenker.energielenker.doctype.depot.depot.daily_depot_check"
     ],
     "all": [
         "energielenker.energielenker.issue.issue.delete_based_on_mark"
     ]
 }
-# scheduler_events = {
-# 	"all": [
-# 		"energielenker.tasks.all"
-# 	],
-# 	"daily": [
-# 		"energielenker.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"energielenker.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"energielenker.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"energielenker.tasks.monthly"
-# 	]
-# }
 
 # Testing
 # -------
@@ -234,12 +229,12 @@ scheduler_events = {
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "energielenker.event.get_events"
+#   "frappe.desk.doctype.event.event.get_events": "energielenker.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "energielenker.task.get_dashboard_data"
+#   "Task": "energielenker.task.get_dashboard_data"
 # }

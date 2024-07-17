@@ -1,0 +1,102 @@
+DocType: Delivery Note,Manual date,Manuelles Datum
+DocType: Delivery Note,Set manual date,Manuelles Datum setzen
+DocType: Delivery Note,Configuration pending,Konfiguration ausstehend
+DocType: Issue,Booked Hours,Gebuchte Stunden
+DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
+DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
+DocType: Charging Point Key Account,Disabled,Deaktiviert
+DocType: Charging Point Key Account,Users,Benutzer
+DocType: Charging Point Key Account,Past Avtivities,Vergangene Aktivitäten
+DocType: Charging Point Key Account,Users,Benutzer
+DocType: Charging Point Key Account,Date,Datum
+DocType: Charging Point Key Account,Activity,Aktivität
+DocType: Charging Point Key Account,Amount,Menge
+DocType: Charging Point Key Account,User,Benutzer
+DocType: Webshop Settings,Webshop Settings,Webshop Einstellungen
+DocType: Webshop Settings,Sales Order Item,Artikel Kundenauftrag
+DocType: Webshop Settings,Item Name,Artikel Name
+DocType: Webshop Settings,Purchase Order,Lieferantenauftrag
+DocType: Webshop Settings,Supplier,Lieferant
+DocType: Webshop Settings,Purchase Order Item,Artikel Lieferantenauftrag
+DocType: Customer,Blocked Customer,Sperrkunde
+DocType: Customer,Blocking Reason,Grund der Sperrung
+DocType: Depot,Depot,Kommissionierung
+DocType: Depot,To Warehouse,Ziellager
+DocType: Depot,Project,Projekt
+DocType: Depot,Sales Order,Kundenauftrag
+DocType: Delivery Note,Please select Depot,Bitte Kommissionierung wählen
+DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel
+DocType: Delivery Note,Depot,Kommissionierung
+DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen
+DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
+DocType: Stock Entry,Source Depot,Kommissionierung
+DocType: Depot,Book back items,Artikel zurück buchen
+DocType: Depot,Write off items,Artikel ausbuchen
+DocType: Timesheet,Issue Name,Anfrage Name
+DocType: Item,Item Code,Artikel
+DocType: Item,Item Name,Artikelname
+DocType: Item,Quantity,Menge
+DocType: Item,Unit of Measure,Einheit
+DocType: Quotation,Part List Items,Stücklistenartikel
+DocType: Sales Order,Part List Items,Stücklistenartikel
+DocType: Quotation,With BOM,Mit Stückliste
+DocType: BOM,Select Item Row of in Sales Order,Bitte Artikelzeile aus dem Kundenauftrag angeben
+DocType: BOM,Item Row,Bitte Artikelzeile
+DocType: BOM,Get Items,Artikel holen
+DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel
+DocType: Project,Open Depots,Offene Kommissionierungen
+DocType: Sales Order,Open Depots,Offene Kommissionierungen
+DocType: Depot,Depot Status,Status Kommissionierung
+DocType: Depot,Project Status,Projektstatus
+Report: Customer Overview,Customer Overview,Kundenübersicht
+Report: Customer Overview,Customer,Kunde
+Report: Customer Overview,Street,Strasse
+Report: Customer Overview,Locality,Ort
+Report: Customer Customer,Customer Group,Kundengruppe
+Report: Customer Overview,Territory,Region
+Report: Customer Overview,Customer Support,Kundenbetreuung
+Report: Customer Overview,Lead Owner,Lead Eigentümer
+Report: Customer Overview,Lead Source,Lead Quelle
+Report: Customer Overview,Contact,Kontakt
+Report: Customer Overview,Contact Name,Kontakt Name
+Report: Customer Overview,Contact First Name,Kontakt Vorname
+Report: Customer Overview,Contact E-Mail,Kontakt E-Mail
+Report: Customer Overview,Contact Phone,Kontakt Telefon
+Report: Customer Overview,Contact Mobile,Kontakt Handy
+Report: Customer Overview,Contact Descrition,Beschreibung / Funktion
+Report: Customer Overview,Contact Department,Bereich / Abteilung
+Report: Customer Overview,Relevant Contact,Relevanter Kontakt
+DocType: Item,No Standard BOM,Keine Standardstückliste
+DocType: Item,Part List Item,Stücklistenartikel
+DocType: energielenker Settings,Sales Overview,Verkaufsübersicht
+DocType: energielenker Settings,Item Code,Artikelnummer
+DocType: energielenker Settings,Item Name,Artikelname
+DocType: energielenker Settings,Lot calculation required,Los Umrechnung erforderlich
+Report: Sales Overview,Description,Beschreibung
+Report: Sales Overview,Quantity,Menge
+Report: Sales Overview,Net amount,Nettosumme
+Report: Sales Overview,Sold Items,Verkaufte Artikel
+Report: Sales Overview,Sales Invoice per Cost Center,Ausgangsrechnungen per Kostenstelle
+Report: Sales Overview,Sales Order per Cost Center,Kundenaufträge per Kostenstelle
+DocType: Item,Item Family and Product Bundle ,Artikelfamilie und Produkt-Bundle
+DocType: Item,Belongs to item family,Gehört zu Artikelfamilie
+DocType: Item,Unit of Measure,Einheit
+DocType: energielenker Settings,Send Depot Reminder,Erinnerung offene Kommissionierungen senden
+DocType: Project,Bill on reporting date,Abzurechnen am Stichtag
+DocType: Project,Revoke activation code,Aktivierungscode widerrufen
+DocType: Item,Is Product Bundle,Ist Produkt-Bundle
+DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
+DocType: Delivery Note,Packing List,Packliste
+DocType: Customer,Invoice Note,Notiz Rechnung
+DocType: Customer,Leave Invoice Note,Notiz für Rechnung hinterlassen
+DocType: Customer,Sales Order Note,Notiz Kundenauftrag
+DocType: Customer,Leave Sales Order Note,Notiz für Kundenauftrag hinterlassen
+Report: Lead Source Report,Lead Source Report,Bericht Lead Quellen
+Report: Lead Source Report,Sales Order,Kundenauftrag
+Report: Lead Source Report,Lead Source,Lead Quelle
+Report: Lead Source Report,Lead Source Report,Bericht Lead Quellen
+Report: Lead Source Report,Sales Order Date,Datum Kundenauftrag
+Report: Lead Source Report,Customer Name,Kundenname
+Report: Lead Source Report,Net Amount,Nettosumme
+Report: Lead Source Report,Customer Advisor (Sales Order),Kundenbetreuer (Auftrag)
+Report: Lead Source Report,Customer Care (Customer),Kundenbetreuung (Kunde)

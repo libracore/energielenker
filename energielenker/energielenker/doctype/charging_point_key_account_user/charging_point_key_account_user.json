@@ -1,0 +1,31 @@
+{
+ "creation": "2024-04-29 14:21:15.535416",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2024-05-08 13:27:06.566232",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Charging Point Key Account User",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

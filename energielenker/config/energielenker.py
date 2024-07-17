@@ -4,6 +4,39 @@ from frappe import _
 def get_data():
     return[
         {
+            "label": _("Energielenker"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Depot",
+                    "label": _("Kommissionierung"),
+                    "description": _("Depot")
+                },
+                {
+                    "type": "report",
+                    "name": "Customer Overview",
+                    "label": _("Kundenübersicht"),
+                    "doctype": "Customer",
+                    "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "Sales Overview",
+                    "label": _("Verkaufsübersicht"),
+                    "doctype": "Sales Order",
+                    "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "Lead Source Report",
+                    "label": _("Lead Quelle"),
+                    "doctype": "Sales Order",
+                    "is_query_report": True
+                }
+            ]
+        },
+        {
             "label": _("Dashboards"),
             "icon": "fa fa-money-bill",
             "items": [
@@ -32,5 +65,47 @@ def get_data():
                     "description": _("energielenker Settings")
                 }
             ]
+        },
+        {
+            "label": _("API"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Ladepunkt Key API",
+                    "label": _("Ladepunkt Key API"),
+                    "description": _("Ladepunkt Key API")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Ladepunkt Key API Purchase Order",
+                    "label": _("Ladepunkt Key API - Purchase Order"),
+                    "description": _("Ladepunkt Key API Purchase Order")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Lizenz Anfrage",
+                    "label": _("Lizenz Anfrage"),
+                    "description": _("Lizenz Anfrage")
+                }
+            ]
+        },
+        {
+            "label": _("Ladepunkt-Key Webshop"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Charging Point Key Account",
+                    "label": _("Charging Point Key Account"),
+                    "description": _("Charging Point Key Account")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Webshop Settings",
+                    "label": _("Webshop Settings"),
+                    "description": _("Webshop Settings")
+                }
+            ]
         }
-]
+    ]

@@ -1,0 +1,18 @@
+<nav class="navbar navbar-light bg-white navbar-expand-lg sticky-top">
+    <div class="container" style="flex-wrap: nowrap;">
+        <div style="float: left;"><a class="navbar-brand" href="/webshop_login">
+            <span><img src="/assets/energielenker/images/Briefkopf_randlos_logo.jpg" style="max-width: 30%;"></span>
+        </a></div>
+        {% if frappe.session.user != "Guest" %}
+            <div style="float: rigth; margin-right: 2vw; color: #7190A6; font-family: 'Lato', sans-serif;">Kunde<br>{{ frappe.session.user }}</div>
+            <div style="float: rigth;"><a style="color: #7190A6;" onclick="logout_from_webshop();"><i class="fa fa-sign-out" aria-hidden="true">&nbsp;Logout</i></a></div>
+        {% endif %}
+    </div>
+</nav>
+
+<!--
+{% block script %}
+    <script>{% include "www/retrieving_charging_points.js" %}</script>
+{% endblock %}
+-->
+

@@ -4,6 +4,19 @@
 frappe.ui.form.on("Item", {
     refresh: function(frm) {
         set_timestamps(frm);
+
+        // add label button
+        frm.add_custom_button(__("Etikette erstellen"), function() {
+            frappe.prompt([
+                {'fieldname': 'label_printer', 'fieldtype': 'Link', 'label': 'Etikette', 'reqd': 1, 'options': 'Label Printer'}
+            ],
+            function(values){
+                create_label(frm, values.label_printer);
+            },
+            'Etiketten Auswahl',
+            'Auswählen'
+            )
+        }).addClass("btn-primary");
     },
     validate: function(frm) {
         if (frm.doc.__islocal) {
@@ -81,4 +94,65 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function create_label(frm, label_printer) {
+    var item_name = frm.doc.item_name;
+    if ((item_name != frm.doc.item_purchasing_name)&&(frm.doc.item_purchasing_name)) {
+        var item_name = frm.doc.item_purchasing_name;
+    }
+    var item_code = frm.doc.name;
+    var qr_url = `https://erp.energielenker.de/desk%23Form/Item/${item_code}`;
+    var supplier_item_entries = '';
+    for (var i=0; i < frm.doc.supplier_items.length; i++) {
+        var supplier = frm.doc.supplier_items[i].supplier
+        if (supplier.split(" ").length > 2) {
+            var supplier_full = supplier;
+            supplier = `${supplier_full.split(" ")[0]} ${supplier_full.split(" ")[1]}`;
+        }
+        var supplier_part_no = frm.doc.supplier_items[i].supplier_part_no
+        supplier_item_entries += `${supplier}: ${supplier_part_no}<br>`
+    }
+
+    frappe.call({
+        'method': "energielenker.energielenker.utils.utils.get_label_dimension_settings",
+        'args': {
+            'label_printer': label_printer
+        },
+        'async': false,
+        'callback': function(response) {
+            var dimensions = JSON.parse(response.message);
+            console.log(dimensions);
+            if (!dimensions[label_printer]) {
+                frappe.throw("Für dieses Etikett wurde kein Format hinterlegt.");
+            } else {
+                var dimensions = dimensions[label_printer];
+                var content = `
+                    <div style="width: ${dimensions.width}%; position: absolute; height: ${dimensions.height}px;">
+                        <div style="position: absolute; z-index: 1;">
+                            <div style="padding-top: 10px; font-size: ${dimensions.large_font_size}pt;">
+                                <b>${item_name}</b>
+                            </div>
+                            <div style="padding-top: 10px; font-size: ${dimensions.small_font_size}pt;">
+                                ${supplier_item_entries}
+                            </div>
+                            <div style="padding-top: 10px; font-size: ${dimensions.large_font_size}pt;">
+                                <b>${item_code}</b>
+                            </div>
+                        </div>
+                        <div style="position: absolute; top: 0px; left: 0px; z-index: 2; min-width: 100%; min-height: 100%;background-image: url('https://data.libracore.ch/phpqrcode/api/qrcode.php?content=${qr_url}&ecc=H&size=6&frame=2'); background-repeat: no-repeat; background-position: right bottom; background-size: ${dimensions.qr_background_size}%;">
+                        </div>
+                    </div>
+                `
+                var w = window.open(
+                    frappe.urllib.get_full_url("/api/method/erpnextswiss.erpnextswiss.doctype.label_printer.label_printer.download_label"  
+                       + "?label_reference=" + encodeURIComponent(label_printer)
+                       + "&content=" + encodeURIComponent(content))
+               );
+               if (!w) {
+                   frappe.msgprint(__("Please enable pop-ups")); return;
+               }
+            }
+        }
+    });
 }

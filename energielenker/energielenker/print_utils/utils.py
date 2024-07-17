@@ -7,7 +7,7 @@ import frappe
 from frappe.utils import get_datetime
 from energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein import get_lizenz_qty_so
 
-def get_print_items(dt, dn):
+def get_print_items(dt, dn, total_value_needed=False):
     doc = frappe.get_doc(dt, dn)
     verpackung_versand = []
     summe_interne_positionen = 0
@@ -1383,7 +1383,10 @@ def get_print_items(dt, dn):
         
         table += tr
     
-    return table
+    if total_value_needed:
+        return table, total_brutto
+    else:
+        return table
 
 def get_lieferschein(disable=False, item=None, no_join=False):
     if not item:
@@ -1435,22 +1438,22 @@ def get_seriennummer(item):
         return False
 
 def get_lieferdata(lieferscheine):
-	lieferdata = None
-	
-	if lieferscheine:
-		if "," in lieferscheine:
-			ls_datum_arr = []
-			ls_arr = lieferscheine.split(",")
-			
-			for ls in ls_arr:
-				lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", " ".join(ls.split())).posting_date)).strftime('%d.%m.%Y')
-				ls_datum_str = "{0} v. {1}".format(ls, lieferdatum)
-				ls_datum_arr.append(ls_datum_str)
-			
-			lieferdata = ' - '.join(ls_datum_arr)		
-			return lieferdata
-		else:
-			lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", lieferscheine).posting_date)).strftime('%d.%m.%Y')
-			lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)		
-			return lieferdata
-	
+    lieferdata = None
+    
+    if lieferscheine:
+        if "," in lieferscheine:
+            ls_datum_arr = []
+            ls_arr = lieferscheine.split(",")
+            
+            for ls in ls_arr:
+                lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", " ".join(ls.split())).posting_date)).strftime('%d.%m.%Y')
+                ls_datum_str = "{0} v. {1}".format(ls, lieferdatum)
+                ls_datum_arr.append(ls_datum_str)
+            
+            lieferdata = ' - '.join(ls_datum_arr)       
+            return lieferdata
+        else:
+            lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", lieferscheine).posting_date)).strftime('%d.%m.%Y')
+            lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)        
+            return lieferdata
+    

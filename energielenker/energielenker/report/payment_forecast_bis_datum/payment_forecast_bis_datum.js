@@ -12,12 +12,6 @@ frappe.query_reports["Payment Forecast bis Datum"] = {
             "reqd": 1
         },
         {
-            "fieldname":"not_null",
-            "label": __("Saldo > 0"),
-            "fieldtype": "Check",
-            "default": 1
-        },
-        {
             "fieldname":"ausfuehrung",
             "label": __("Ausführung"),
             "fieldtype": "Select",

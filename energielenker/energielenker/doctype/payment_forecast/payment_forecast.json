@@ -12,9 +12,11 @@
   "postpone",
   "invoice_date",
   "invoice",
+  "bill_on_reporting_date",
   "invoice_created",
   "create_invoice",
-  "so_ref"
+  "so_ref",
+  "rollback_invoice"
  ],
  "fields": [
   {
@@ -99,10 +101,22 @@
    "fieldname": "projektbewertung_ignorieren",
    "fieldtype": "Check",
    "label": "Projektbewertung ignorieren"
+  },
+  {
+   "depends_on": "eval:doc.invoice_created",
+   "fieldname": "rollback_invoice",
+   "fieldtype": "Button",
+   "label": "Rechnung l\u00f6schen"
+  },
+  {
+   "default": "0",
+   "fieldname": "bill_on_reporting_date",
+   "fieldtype": "Check",
+   "label": "Bill on reporting date"
   }
  ],
  "istable": 1,
- "modified": "2024-01-19 10:48:58.096086",
+ "modified": "2024-07-10 16:06:35.879811",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",

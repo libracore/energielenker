@@ -89,6 +89,7 @@ frappe.ui.form.on('Quotation', {
         }
         
         cost_center_query(frm);
+        set_row_options(frm);
     },
     party_name: function(frm) {
         if (cur_frm.doc.quotation_to == 'Customer') {
@@ -97,6 +98,17 @@ frappe.ui.form.on('Quotation', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+        calculate_part_list_prices(frm);
+        
+        if (cur_frm.doc.part_list_items) {
+            for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
+                if (cur_frm.doc.part_list_items[i].qty && cur_frm.doc.part_list_items[i].rate) {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", cur_frm.doc.part_list_items[i].qty * cur_frm.doc.part_list_items[i].rate);
+                } else {
+                    frappe.model.set_value(cur_frm.doc.part_list_items[i].doctype, cur_frm.doc.part_list_items[i].name, "amount", 0);
+                }
+            }
+        }
     },
     wahrscheindlichkeit: function(frm) {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {
@@ -105,6 +117,45 @@ frappe.ui.form.on('Quotation', {
         }
     }
 })
+
+frappe.ui.form.on('Quotation Item', {
+    with_bom(frm, cdt, cdn) {
+        set_row_options(frm);
+    },
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_for_family(row.item_code, row.qty);
+            frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
+               if (value.message.part_list_item == 1) {
+                    frappe.model.set_value(cdt, cdn, 'with_bom', 1);
+                }
+            });
+        }
+    }
+});
+
+frappe.ui.form.on('Quotation Part List Item', {
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    rate(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.qty && row.rate) {
+            frappe.model.set_value(cdt, cdn, "amount", row.qty * row.rate);
+        } else {
+            frappe.model.set_value(cdt, cdn, "amount", 0);
+        }
+    },
+    part_list_items_add(frm) {
+    set_row_options(frm);
+    }
+});
 
 // Allow Expired Quotation to be transferable to Sales Order
 cur_frm.cscript['Make Expired Sales Order'] = function() {
@@ -151,6 +202,11 @@ frappe.ui.form.on("Quotation Item", "kalkulationssumme_interner_positionen", fun
     set_item_typ(item);
 });
 
+frappe.ui.form.on("Quotation Item", "with_bom", function(frm, cdt, cdn) {
+    var item = locals[cdt][cdn];
+    set_item_typ(item);
+});
+
 function check_text_and_or_alternativ(item) {
     if (item.textposition == 1 || item.alternative_position == 1) {
         item.discount_percentage = 100.00;
@@ -175,10 +231,14 @@ function set_item_typ(item) {
             if (item.interne_position == 1) {
                 item.typ = 'Int. ';
             } else {
-                if (item.kalkulationssumme_interner_positionen == 1) {
-                    item.typ = 'KS';
-                } else {
-                    item.typ = 'Norm.';
+                if (item.with_bom == 1) {
+                    item.typ = 'St.';
+                    } else {
+                    if (item.kalkulationssumme_interner_positionen == 1) {
+                        item.typ = 'KS';
+                    } else {
+                        item.typ = 'Norm.';
+                    }
                 }
             }
         }
@@ -300,4 +360,61 @@ function get_quotation_template(frm) {
     'Quotation Template',
     'Get'
     )
+}
+
+function set_row_options(frm) {
+    if (frm.doc.part_list_items) {
+        var options = [];
+        for (i=0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].with_bom) {
+                options.push(frm.doc.items[i].idx);
+            }
+        }
+        var options_string = options.join("\n");
+        cur_frm.get_field("part_list_items").grid.docfields[4].options = options_string;
+        cur_frm.refresh_field("part_list_items");
+    }
+}
+
+function calculate_part_list_prices(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom) {
+            var amount = 0
+            for (j=0; j < frm.doc.part_list_items.length; j++) {
+                if (frm.doc.part_list_items[j].belongs_to == i + 1) {
+                    amount += frm.doc.part_list_items[j].amount
+                }
+            }
+            frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "rate", amount);
+        }
+    }
+}
+
+function check_for_family(item_code, quantity) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Item",
+            'name': item_code
+        },
+        'callback': function(response) {
+            if (response.message.item_family == 1 && !locals.item_family) {
+                locals.item_family=true;
+                frappe.confirm('Dieser Artikel gehört zu einer Artikelfamilie, möchten Sie die Geschwister ebenfalls einfügen?', function() {
+                    if (!quantity) {
+                        quantity = 1
+                    }
+                    for (var i=0; i < response.message.family_items.length; i++) {
+                        var child = cur_frm.add_child('items');
+                        frappe.model.set_value(child.doctype, child.name, 'item_code', response.message.family_items[i].item_code);
+                        frappe.model.set_value(child.doctype, child.name, 'qty', response.message.family_items[i].qty * quantity);
+                        cur_frm.refresh_field("items");
+                    }
+                });
+            }
+        }
+    });
+    setTimeout(function(){
+        locals.item_family=false;
+    }, 3000);
 }
