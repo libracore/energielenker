@@ -376,6 +376,7 @@ frappe.ui.form.on("Sales Order", {
     },
     before_submit: function(frm) {
         check_for_webshop_points(frm);
+        deliver_int_positions(frm);
     },
     on_submit: function(frm) {
         create_dn_for_webshop_points(frm);
@@ -916,4 +917,12 @@ function get_customer_sales_order_note(frm) {
             }
         }
     });
+}
+
+function deliver_int_positions(frm) {
+    for (i=0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].interne_position == 1) {
+            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "delivered_qty", cur_frm.doc.items[i].qty);
+        }
+    }
 }
