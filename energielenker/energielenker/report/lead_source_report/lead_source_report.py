@@ -27,36 +27,38 @@ def get_columns():
 
 def get_data(filters):
     data = frappe.db.sql("""
-        SELECT DISTINCT
-            `so`.`name` AS `sales_order`,
-            `so`.`transaction_date` AS `sales_order_date`,
-            `so`.`customer` AS `customer_name`,
-            `so`.`total` AS `net_amount`,
-            `so`.`ansprechpartner` AS `customer_advisor`,
-            `cust`.`ansprechpartner` AS `customer_care`,
-            `lead`.`source` AS `lead_source`,
-            `addr`.`plz` AS `plz`
-        FROM
-            `tabSales Order` AS `so`
-        LEFT JOIN
-            `tabCustomer` AS `cust` ON `cust`.`name` = `so`.`customer`
-        INNER JOIN
-            `tabLead` AS `lead` ON `lead`.`name` = `cust`.`lead_name`
-        LEFT JOIN
-            `tabDynamic Link` AS `link`
-                ON `link`.`link_name` = `so`.`customer`
-        INNER JOIN
-            (SELECT
-                `name`, `plz`, `is_primary_address`
+        SELECT *
+        FROM (
+            SELECT 
+                `so`.`name` AS `sales_order`,
+                `so`.`transaction_date` AS `sales_order_date`,
+                `so`.`customer` AS `customer_name`,
+                `so`.`total` AS `net_amount`,
+                `so`.`ansprechpartner` AS `customer_advisor`,
+                `cust`.`ansprechpartner` AS `customer_care`,
+                (SELECT `source` 
+                 FROM `tabLead` AS `lead`
+                 WHERE `lead`.`name` = `cust`.`lead_name`
+                ) AS `lead_source`,
+                (SELECT `plz`
+                 FROM `tabAddress` AS `addr`
+                 WHERE `addr`.`name` IN 
+                    (SELECT `link`.`parent`
+                     FROM `tabDynamic Link` AS `link`
+                     WHERE `link`.`link_name` = `so`.`customer`
+                        AND `link`.`parenttype` = "Address"
+                        AND `link`.`link_doctype` = "Customer"
+                    )
+                    AND `addr`.`is_primary_address` = 1
+                 LIMIT 1) AS `plz`
             FROM
-                `tabAddress`
+                `tabSales Order` AS `so`
+            LEFT JOIN
+                `tabCustomer` AS `cust` ON `cust`.`name` = `so`.`customer`
             WHERE
-                `is_primary_address` = 1) AS `addr` ON `link`.`parent` = `addr`.`name`
-        WHERE
-            `so`.`docstatus` = 1
-        AND
-            `lead`.`source` IS NOT NULL
-        ORDER BY
-            `lead`.`source`""", as_dict=True)
+                `so`.`docstatus` = 1
+            ) AS `raw`
+        WHERE `raw`.`lead_source` IS NOT NULL
+        ORDER BY `raw`.`lead_source` ASC;""", as_dict=True)
    
     return data

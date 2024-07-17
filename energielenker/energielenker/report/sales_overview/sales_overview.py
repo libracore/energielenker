@@ -164,7 +164,6 @@ def get_data(filters):
                                     
         for line in lines:
             line['indent'] = 0
-            line['has_children'] = 1
             data.append(line)
             sub_lines = frappe.db.sql("""
                                         SELECT
@@ -187,7 +186,6 @@ def get_data(filters):
             
             for sub_line in sub_lines:
                 sub_line['indent'] = 1
-                sub_line['parent'] = line.get('description')
                 data.append(sub_line)
-    frappe.log_error(data, "Data")
+    
     return data
