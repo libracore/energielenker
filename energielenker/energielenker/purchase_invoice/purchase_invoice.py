@@ -34,3 +34,42 @@ def check_for_streckengeschaeft(doc_):
                     update_stock = 0
                 
     return update_stock
+
+@frappe.whitelist()
+def check_purchase_order_receipts(doc):
+    json_doc=json.loads(doc)
+    items = json_doc['items']
+
+    #collect items that are already received
+    received_items = []
+    items_to_book = []
+    for item in items:
+        po_item = frappe.db.sql("""
+                                SELECT
+                                    `received_qty`
+                                FROM
+                                    `tabPurchase Receipt Item`
+                                WHERE
+                                    `purchase_order_item` = '{po_detail}'
+                                AND
+                                    `docstatus` = 1""".format(po_detail=item['po_detail']), as_dict=True)
+        if len(po_item) > 0:
+            if po_item[0]['received_qty'] == item['qty']:
+                received_items.append(item)
+            else:
+                item['qty'] = item['qty'] - po_item[0]['received_qty']
+                items_to_book.append(item)
+        else:
+            items_to_book.append(item)
+    #if the list is empty, proceed normally
+    if len(received_items) > 0:
+        #remove the update stock checkmark
+        json_doc['update_stock'] = 0
+    #else remove the update stock checkmark and create a purchase receipt for the rest of the items
+    return items_to_book
+
+@frappe.whitelist()
+def set_update_stock(doc, value): #value is 0 or 1
+    doc=json.loads(doc)
+    doc.update_stock = value
+    return

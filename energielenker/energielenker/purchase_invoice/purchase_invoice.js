@@ -32,6 +32,7 @@ frappe.ui.form.on('Purchase Invoice', {
     },
     before_submit: function(frm) {
 		validate_streckengeschäft(frm);
+        check_purchase_order_receipts(frm);
     },
     before_save: function(frm) {
         if (frm.doc.__islocal) {
@@ -87,6 +88,22 @@ function validate_vielfaches(frm) {
         } 
     });
 }
+
+function check_purchase_order_receipts(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_purchase_order_receipts',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            if (response.message) {
+                console.log(response.message);
+            }
+        }
+    })
+}
+
 
 function set_update_stock(frm) {
 	frappe.call({
