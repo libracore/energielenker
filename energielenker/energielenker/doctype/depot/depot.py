@@ -252,8 +252,7 @@ def daily_depot_check():
             html += "<br>- {0} / {1}".format(open_depot.get('depot_name'), open_depot.get('so_name'))
         
         make_email(
-        # ~ recipients= ["ruhkamp@energielenker.de", "pham@energielenker.de"],
-        recipients= ["ivan.lochbihler@libracore.com", "gokuflynn@gmail.com"],
+        recipients= ["ruhkamp@energielenker.de", "pham@energielenker.de"],
         sender= "Administrator",
         subject="Offene Kommissionen mit geschlossenen Kundenaufträgen",
         content=html,
