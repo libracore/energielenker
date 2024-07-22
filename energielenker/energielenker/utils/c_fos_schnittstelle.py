@@ -3,6 +3,8 @@
 # For license information, please see license.txt
 
 import frappe
+import sys
+sys.path.append('/home/frappe/.local/lib/python3.9/site-packages')
 from sshtunnel import SSHTunnelForwarder
 import requests
 from frappe.utils import get_site_name
