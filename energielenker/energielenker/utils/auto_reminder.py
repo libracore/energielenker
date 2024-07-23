@@ -6,29 +6,29 @@ import frappe
 from frappe.utils.data import today, add_to_date
 
 def check_for_reminder():
-    # ~ customer_reminder = frappe.db.sql("""SELECT
-                                            # ~ `name`
-                                        # ~ FROM `tabCustomer`
-                                        # ~ WHERE `wiederkehrende_benachrichtigung_aktiviert` = 1
-                                        # ~ AND `naechste_ausfuehrung` = '{today}'""".format(today=today()), as_dict=True)
-    # ~ for cr in customer_reminder:
-        # ~ customer = frappe.get_doc("Customer", cr.name)
-        # ~ frappe.sendmail(recipients=get_recipients(customer.empfaenger), message=customer.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(customer.name))
-        # ~ new_execution_date = get_new_execution_date(customer)
-        # ~ customer.naechste_ausfuehrung = new_execution_date
-        # ~ customer.save()
+    customer_reminder = frappe.db.sql("""SELECT
+                                            `name`
+                                        FROM `tabCustomer`
+                                        WHERE `wiederkehrende_benachrichtigung_aktiviert` = 1
+                                        AND `naechste_ausfuehrung` = '{today}'""".format(today=today()), as_dict=True)
+    for cr in customer_reminder:
+        customer = frappe.get_doc("Customer", cr.name)
+        frappe.sendmail(recipients=get_recipients(customer.empfaenger), message=customer.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(customer.name))
+        new_execution_date = get_new_execution_date(customer)
+        customer.naechste_ausfuehrung = new_execution_date
+        customer.save()
     
-    # ~ issue_reminder = frappe.db.sql("""SELECT
-                                            # ~ `name`
-                                        # ~ FROM `tabIssue`
-                                        # ~ WHERE `wiederkehrende_benachrichtigung_aktiviert` = 1
-                                        # ~ AND `naechste_ausfuehrung` = '{today}'""".format(today=today()), as_dict=True)
-    # ~ for ir in issue_reminder:
-        # ~ issue = frappe.get_doc("Issue", ir.name)
-        # ~ frappe.sendmail(recipients=get_recipients(issue.empfaenger), message=issue.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(issue.name))
-        # ~ new_execution_date = get_new_execution_date(issue)
-        # ~ issue.naechste_ausfuehrung = new_execution_date
-        # ~ issue.save()
+    issue_reminder = frappe.db.sql("""SELECT
+                                            `name`
+                                        FROM `tabIssue`
+                                        WHERE `wiederkehrende_benachrichtigung_aktiviert` = 1
+                                        AND `naechste_ausfuehrung` = '{today}'""".format(today=today()), as_dict=True)
+    for ir in issue_reminder:
+        issue = frappe.get_doc("Issue", ir.name)
+        frappe.sendmail(recipients=get_recipients(issue.empfaenger), message=issue.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(issue.name))
+        new_execution_date = get_new_execution_date(issue)
+        issue.naechste_ausfuehrung = new_execution_date
+        issue.save()
         
     project_reminder = frappe.db.sql("""SELECT
                                             `name`
