@@ -410,6 +410,12 @@ frappe.ui.form.on('Sales Order Item', {
                 frm.doc.part_list_items.splice(i, 1);
             }
         }
+    },
+    delivered_by_supplier(frm, cdt, cdn) {
+        var row = frappe.get_doc(cdt, cdn);
+        if (row.delivered_by_supplier == 0) {
+            frappe.model.set_value(cdt, cdn, "delivered_qty", 0);
+        }
     }
 });
 
