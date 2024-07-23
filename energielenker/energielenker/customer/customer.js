@@ -26,7 +26,6 @@ frappe.ui.form.on('Customer', {
         kontakt_verknupfen(frm);
     },
     validate: function(frm) {
-		set_wiederkehrende_benachrichtigung(frm);
         cur_frm.set_value("adresse_lookup", "");
         cur_frm.set_value("kontakt_lookup", "");
         
@@ -174,35 +173,36 @@ function erstelle_supportrechnung(frm) {
     });
 }
 
-function set_wiederkehrende_benachrichtigung(frm) {
-	frappe.call({
-		"method": "frappe.client.get_list",
-		"args": {
-			"doctype": "Project",
-			"filters": {
-				"customer": frm.doc.customer_name,
-				"status": ["not in", ["Completed", "Cancelled"]]
-			}
-		},
-		"callback": function(response) {
-			if (response.message) {
-				var projects = response.message;
+// Probably not needed anymore, will be clarified
+//~ function set_wiederkehrende_benachrichtigung(frm) {
+	//~ frappe.call({
+		//~ "method": "frappe.client.get_list",
+		//~ "args": {
+			//~ "doctype": "Project",
+			//~ "filters": {
+				//~ "customer": frm.doc.customer_name,
+				//~ "status": ["not in", ["Completed", "Cancelled"]]
+			//~ }
+		//~ },
+		//~ "callback": function(response) {
+			//~ if (response.message) {
+				//~ var projects = response.message;
 
-				if (projects.length > 0) {
-					projects.forEach(function(project) {
-						frappe.call({
-							"method": "frappe.client.set_value",
-							"args": {
-								"doctype": "Project",
-								"name": project.name,
-								"fieldname": {
-									"wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
-								},
-							},
-						});
-					});
-				}
-			}
-		}
-	});
-}
+				//~ if (projects.length > 0) {
+					//~ projects.forEach(function(project) {
+						//~ frappe.call({
+							//~ "method": "frappe.client.set_value",
+							//~ "args": {
+								//~ "doctype": "Project",
+								//~ "name": project.name,
+								//~ "fieldname": {
+									//~ "wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
+								//~ },
+							//~ },
+						//~ });
+					//~ });
+				//~ }
+			//~ }
+		//~ }
+	//~ });
+//~ }
