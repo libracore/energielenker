@@ -29,6 +29,18 @@ def check_for_reminder():
         new_execution_date = get_new_execution_date(issue)
         issue.naechste_ausfuehrung = new_execution_date
         issue.save()
+        
+    project_reminder = frappe.db.sql("""SELECT
+                                            `name`
+                                        FROM `tabProject`
+                                        WHERE `wiederkehrende_benachrichtigung_aktiviert` = 1
+                                        AND `naechste_ausfuehrung` = '{today}'""".format(today=today()), as_dict=True)
+    for pr in project_reminder:
+        project = frappe.get_doc("Project", pr.name)
+        frappe.sendmail(recipients=get_recipients(project.empfaenger), message=project.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(project.name))
+        new_execution_date = get_new_execution_date(project)
+        project.naechste_ausfuehrung = new_execution_date
+        project.save()
     
     return
 
