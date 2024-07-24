@@ -109,7 +109,7 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         
-        if (cur_frm.doc.__islocal && frm.doc.part_list_items.length < 1) {
+        if (cur_frm.doc.__islocal && frm.doc.part_list_items) {
             check_for_part_list_items(frm);
         }
         
@@ -156,6 +156,7 @@ frappe.ui.form.on("Sales Order", {
         }
     },
     validate: function(frm) {
+        part_list_items_check(frm);
         check_navision(frm);
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
@@ -409,6 +410,12 @@ frappe.ui.form.on('Sales Order Item', {
                 var bom_row = frm.doc.part_list_items[i];
                 frm.doc.part_list_items.splice(i, 1);
             }
+        }
+    },
+    delivered_by_supplier(frm, cdt, cdn) {
+        var row = frappe.get_doc(cdt, cdn);
+        if (row.delivered_by_supplier == 0) {
+            frappe.model.set_value(cdt, cdn, "delivered_qty", 0);
         }
     }
 });
@@ -923,6 +930,14 @@ function deliver_int_positions(frm) {
     for (i=0; i < frm.doc.items.length; i++) {
         if (frm.doc.items[i].interne_position == 1) {
             frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "delivered_qty", cur_frm.doc.items[i].qty);
+        }
+    }
+}
+
+function part_list_items_check(frm) {
+    for (i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].with_bom && !frm.doc.part_list_items) {
+            frappe.msgprint("Dokument enthält keine Stücklistenartikel, obwohl mind. 1 Artikel eine Stückliste benötigt.", "Fehlende Stücklistenartikel");
         }
     }
 }
