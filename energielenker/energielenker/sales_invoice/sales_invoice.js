@@ -2,17 +2,11 @@
 // For license information, please see license.txt
 frappe.ui.form.on('Sales Invoice Item', {
     items_add(frm, cdt, cdn) {
-        console.log("hello")
-        removeBilledItems(frm);
-        updateAbrechnenNachAufwandQuantity(frm);
+
     }
 });
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
-        if (frm.doc.docstatus == 0 && frm.doc.__islocal == 1) {
-            removeBilledItems(frm);
-            updateAbrechnenNachAufwandQuantity(frm);
-        }
 
        set_timestamps(frm);
        setTimeout(function(){ 
@@ -141,7 +135,6 @@ frappe.ui.form.on("Sales Invoice", {
         }
     },
     before_submit: function(frm) {
-        containsAbrechnenNachAufwandItem(frm);
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
@@ -490,120 +483,4 @@ function check_stundensatz(frm) {
 	}
 }
 
-function getCorrespondingSalesOrders(salesInvoice){
-    //gets the the sales orders without duplicates whose items are listed in a sales invoice
-    var salesOrders = [];
-    var invoiceItems = salesInvoice.items;
-
-    invoiceItems.forEach(item => {
-        if (item.sales_order && !salesOrders.includes(item.sales_order)){
-            salesOrders.push(item.sales_order);
-        }
-    });
-    return salesOrders;
-}
-
-function containsAbrechnenNachAufwandItem(frm){
-    //checks if a sales invoice contains items that are billed by the hour in python hehehe
-    const salesOrders = getCorrespondingSalesOrders(frm.doc);
-
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.contains_abrechnen_nach_aufwand',
-        'args': {
-            'sales_orders': salesOrders
-        },
-        'callback': function(r){
-            var incompleteSalesOrders = r.message[0] || [];
-            var toBillSalesOrders = r.message[1] || [];
-
-            if (!locals.force_save){
-                if(incompleteSalesOrders.length > 0){
-                    frappe.validated = false;
-                    frappe.confirm(
-                        'Achtung! Der Kundenauftrag ' + incompleteSalesOrders.join(", ") + ' ist noch nicht vollständig geliefert. Diese Aktion schliesst den Kundenauftrag. Sind Sie sicher, dass Sie die Rechnung buchen möchten?',
-                        function(){
-                            locals.force_save = true;
-                            cur_frm.savesubmit().then(() => {
-                                closeSalesOrder(incompleteSalesOrders);
-                                closeSalesOrder(toBillSalesOrders);
-                            });
-                        },
-                        function(){
-                            cur_frm.reload_doc();
-                        }
-                    );
-                } else if (toBillSalesOrders.length > 0) {
-                    locals.force_save = true;
-                    frappe.validated = false;
-                    cur_frm.savesubmit().then(() => {
-                        closeSalesOrder(toBillSalesOrders);
-                    });
-                }
-            }
-        }
-    });
-}
-
-function closeSalesOrder(salesOrders){
-    salesOrders.forEach(salesOrder =>{
-        frappe.ui.form.is_saving = true;
-        frappe.call({
-            method: "erpnext.selling.doctype.sales_order.sales_order.update_status",
-            args: {status: "Closed", name: salesOrder},
-            callback: function(r){
-                cur_frm.reload_doc();
-            },
-            always: function() {
-                frappe.ui.form.is_saving = false;
-            }
-        });
-    });
-}
-
-function removeBilledItems(frm){
-    var salesOrder = getCorrespondingSalesOrders(frm.doc);
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.get_billed_items',
-        'args': {
-            'sales_order': salesOrder
-        },
-        'async': false,
-        'callback': function(r){
-            var billedSalesOrderPositions = r.message || [];
-            var items = frm.doc.items || [];
-
-            for (var i = items.length-1; i >= 0; i--) {
-                if (billedSalesOrderPositions.includes(items[i].so_detail)){
-                    cur_frm.get_field("items").grid.grid_rows[i].remove();
-                }
-            }
-            cur_frm.refresh_field("items");
-        }
-    });
-}
-
-function updateAbrechnenNachAufwandQuantity(frm){
-    var salesOrder = getCorrespondingSalesOrders(frm.doc);
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_invoice.sales_invoice.update_quantity_abrechnen_nach_aufwand',
-        'args': {
-            'sales_order': salesOrder
-        },
-        'async': false,
-        'callback': function(r){
-            var toUpdate = r.message ? JSON.parse(r.message) : [];
-            var items = frm.doc.items || [];
-
-            for (var i = 0; i < toUpdate.length; i++) {
-                var item = toUpdate[i];
-                var index = items.findIndex(obj => obj.so_detail === item.name);
-                if (index != -1){
-                    cur_frm.get_field("items").grid.grid_rows[index].doc.qty = item.qty;
-                }
-            }
-
-            cur_frm.refresh_field("items");
-        }
-    });
-}
 
