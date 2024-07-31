@@ -16,6 +16,8 @@ def check_for_reminder():
         frappe.sendmail(recipients=get_recipients(customer.empfaenger), message=customer.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(customer.name))
         new_execution_date = get_new_execution_date(customer)
         customer.naechste_ausfuehrung = new_execution_date
+        if not customer.get('naechste_ausfuehrung'):
+            customer.wiederkehrende_benachrichtigung_aktiviert = 0
         customer.save()
     
     issue_reminder = frappe.db.sql("""SELECT
@@ -28,6 +30,8 @@ def check_for_reminder():
         frappe.sendmail(recipients=get_recipients(issue.empfaenger), message=issue.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(issue.name))
         new_execution_date = get_new_execution_date(issue)
         issue.naechste_ausfuehrung = new_execution_date
+        if not issue.get('naechste_ausfuehrung'):
+            issue.wiederkehrende_benachrichtigung_aktiviert = 0
         issue.save()
         
     project_reminder = frappe.db.sql("""SELECT
@@ -40,6 +44,8 @@ def check_for_reminder():
         frappe.sendmail(recipients=get_recipients(project.empfaenger), message=project.informationstext, sender='vertrieb@energielenker.de', subject='Reminder: {0}'.format(project.name))
         new_execution_date = get_new_execution_date(project)
         project.naechste_ausfuehrung = new_execution_date
+        if not project.get('naechste_ausfuehrung'):
+            project.wiederkehrende_benachrichtigung_aktiviert = 0
         project.save()
     
     return
@@ -66,6 +72,8 @@ def get_new_execution_date(record):
         months = 6
     elif intervall_typ == 'Jährlich':
         years = 1
+    elif intervall_typ == 'Einmalig':
+        return None
     weeks = weeks * intervall
     months = months * intervall
     years = years * intervall
