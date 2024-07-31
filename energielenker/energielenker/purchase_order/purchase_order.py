@@ -15,3 +15,18 @@ def get_default_cost_center(user):
             return employee_default_cost_center[0].default_cost_center
     if fallback:
         return frappe.db.get_value("energielenker Settings", "energielenker Settings", "default_cost_center")
+
+def autoclose_purchase_order()
+    affected_supplier = frappe.db.get_value("energielenker Settings", "energielenker Settings", "supplier_to_autoclose")
+    
+    orders = frappe.db.sql("""
+                            SELECT
+                                `name`
+                            FROM
+                                `tabPurchase Order`
+                            WHERE
+                                `supplier` = '{supplier}'
+                            AND
+                                `docstatus` = 1
+                            AND
+                                `status` NOT IN ("Completed", "Closed", "On Hold")"""

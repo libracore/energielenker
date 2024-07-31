@@ -213,7 +213,8 @@ scheduler_events = {
         "energielenker.energielenker.utils.auto_email_report.send_monthly_reports",
         "energielenker.energielenker.quotation.quotation.update_quotation_status",
         "energielenker.energielenker.lead.lead.update_lead_status",
-        "energielenker.energielenker.doctype.depot.depot.daily_depot_check"
+        "energielenker.energielenker.doctype.depot.depot.daily_depot_check",
+        "energielenker.energielenker.purchase_order.purchase_order.autoclose_purchase_order"
     ],
     "all": [
         "energielenker.energielenker.issue.issue.delete_based_on_mark"
