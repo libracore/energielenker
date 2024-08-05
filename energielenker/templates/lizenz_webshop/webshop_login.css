@@ -227,3 +227,7 @@ p {
     margin: 0px;
     display: none;
 }
+
+.pointer {
+    cursor: pointer;
+}

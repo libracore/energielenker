@@ -128,7 +128,6 @@ frappe.ui.form.on("Sales Order", {
                 callback: function (r) {}
             });
         }
-        remove_webshop_points(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -376,11 +375,7 @@ frappe.ui.form.on("Sales Order", {
 		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
     },
     before_submit: function(frm) {
-        check_for_webshop_points(frm);
         deliver_int_positions(frm);
-    },
-    on_submit: function(frm) {
-        create_dn_for_webshop_points(frm);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
@@ -754,48 +749,6 @@ function amend_so_issue(frm) {
 			"amended_from": frm.doc.amended_from, 
 		},
    });
-}
-
-function check_for_webshop_points(frm) {
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
-        'args': {
-            'doc': cur_frm.doc
-        },
-        'async': false,
-        'callback': function(response) {
-            var validation = response.message;
-            if (!validation) {
-                frappe.validated=false;
-            }
-        }
-    });
-}
-
-function remove_webshop_points(frm) {
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_order.sales_order.check_for_webshop_points',
-        'args': {
-            'doc': cur_frm.doc,
-            'event': "cancel"
-        },
-        'async': false,
-        'callback': function(response) {
-            var validation = response.message;
-            if (!validation) {
-                frappe.validated=false;
-            }
-        }
-    });
-}
-
-function create_dn_for_webshop_points(frm) {
-    frappe.call({
-        'method': 'energielenker.energielenker.sales_order.sales_order.create_delivery_note',
-        'args': {
-            'sales_order_name': cur_frm.doc.name
-        }
-    });
 }
 
 function validate_customer(frm, event) {
