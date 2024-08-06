@@ -88,3 +88,7 @@ frappe.ready(function() {
     login.bind_events();
     $(".for-login").toggle(true);
 });
+
+function forgot_password() {
+    window.location.href = '/login#forgot';
+}

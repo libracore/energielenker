@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 from energielenker.energielenker.doctype.depot.depot import get_items_html
+from frappe.utils.data import getdate
 
 @frappe.whitelist()
 def fetch_kontakt_aus_lieferadresse(lieferadresse):
@@ -55,3 +56,48 @@ def validate_depot(items_string):
         frappe.msgprint(html, title='Vorsicht', indicator='orange')
     
     return
+
+@frappe.whitelist()
+def check_for_webshop_points(doc, event="submit"):
+    delivery_note_doc = json.loads(doc)
+    validation = True
+    #get points item
+    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    
+    #check if there are webshop points in items
+    qty = 0
+    
+    for item in delivery_note_doc['items']:
+        if item.get('item_code') == points_item:
+            qty += item.get('qty')
+            validation = False
+            
+    
+    #return nothing, if there are no points in sales order
+    if validation:
+        return validation
+    
+    #check if customer has account
+    try:
+        account_doc = frappe.get_doc("Charging Point Key Account", delivery_note_doc.get('customer'))
+        validation = True
+    except:
+        if event == "cancel":
+            frappe.throw("Konto für diesen Kunden fehlt!")
+        return validation
+
+    #if there are points and an account, add/remove points to account
+    account_doc.avaliable_points += qty if event == "submit" else qty * -1
+    #create log entry
+    log_entry = {
+        'date': getdate(),
+        'activity': delivery_note_doc['name'],
+        'amount': qty if event == "submit" else qty * -1,
+        'user': delivery_note_doc['owner']
+    }
+    account_doc.append('past_activities', log_entry)
+    #save document
+    account_doc.save()
+    frappe.db.commit()
+    
+    return validation

@@ -328,7 +328,11 @@ frappe.ui.form.on("Delivery Note", {
         }
     },
     before_submit: function(frm) {
+        check_for_webshop_points(frm);
         check_for_depot(frm);
+    },
+    after_cancel: function(frm) {
+        remove_webshop_points(frm);
     }
 });
 
@@ -628,4 +632,38 @@ async function check_product_bundle(frm) {
             break;
         }
     }
+}
+
+function check_for_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+                //~ frappe.msgprint( __("Dieser Kunde hat kein Konto!"), __("Validation") );
+            }
+        }
+    });
+}
+
+function remove_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc,
+            'event': "cancel"
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
 }
