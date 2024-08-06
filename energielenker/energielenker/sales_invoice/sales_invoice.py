@@ -17,5 +17,20 @@ def validate_navision_of_items(sales_invoice, event):
             navision_deviation += str(item.idx) + "<br>"
     sales_invoice.navision_deviation = navision_deviation
     return
+    
+def charged_at_cost(self, event):
+    so_doc = None
+    for si_item in self.get('items'):
+        if item.get('artikel_nach_aufwand'):
+            if not so_doc:
+                so_doc = frappe.db.get_doc("Sales Order", si_item.get('sales_order'))
+            for so_item in so_doc.get('items')
+                if so_item.get('name') == si_item.get('so_detail'):
+                    diff_amt = 0
+                    if so_item.get('rate') > si_item.get('rate'):
+                        # ~ diff_amt = so_item.get('rate')
+                    so_item.billed_amt += diff_amt
+            
+    return
 
 
