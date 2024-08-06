@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Sales Order Part List Item",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2024-07-23 17:24:17.083986",
+   "default_value": null,
+   "doc_type": "Sales Order Part List Item",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "belongs_to",
+   "idx": 0,
+   "modified": "2024-07-23 17:24:17.083986",
+   "modified_by": "Administrator",
+   "name": "Sales Order Part List Item-belongs_to-fieldtype",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "fieldtype",
+   "property_type": "Select",
+   "value": "Data"
+  }
+ ],
+ "sync_on_migrate": 1
+}

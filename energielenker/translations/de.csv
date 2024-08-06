@@ -101,3 +101,4 @@ Report: Lead Source Report,Net Amount,Nettosumme
 Report: Lead Source Report,Customer Advisor (Sales Order),Kundenbetreuer (Auftrag)
 Report: Lead Source Report,Customer Care (Customer),Kundenbetreuung (Kunde)
 DocType: energielenker Settings,Supplier to autoclose,Lieferant für automatische Schliessung
+DocType: Sales Order,Set with Quantity,Mit Stückzahl gesetzt

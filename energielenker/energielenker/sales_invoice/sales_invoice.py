@@ -19,17 +19,18 @@ def validate_navision_of_items(sales_invoice, event):
     return
     
 def charged_at_cost(self, event):
-    so_doc = None
+    #get all sales orders which are affected
+    affected_sales_orders = []
     for si_item in self.get('items'):
-        if item.get('artikel_nach_aufwand'):
-            if not so_doc:
-                so_doc = frappe.db.get_doc("Sales Order", si_item.get('sales_order'))
-            for so_item in so_doc.get('items')
-                if so_item.get('name') == si_item.get('so_detail'):
-                    diff_amt = 0
-                    if so_item.get('rate') > si_item.get('rate'):
-                        # ~ diff_amt = so_item.get('rate')
-                    so_item.billed_amt += diff_amt
+        if si_item.get('artikel_nach_aufwand') and si_item.get('artikel_nach_aufwand') not in affected_sales_orders:
+            affected_sales_orders.append(si_item.get('sales_order'))
+    
+    for sales_order in affected_sales_orders:
+        sales_order_doc = frappe.get_doc("Sales Order", sales_order)
+        
+            
+    frappe.db.set_value("Sales Order", "AB0001479", "per_billed", 100)
+    frappe.db.set_value("Sales Order", "AB0001479", "status", "To Deliver")
             
     return
 
