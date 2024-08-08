@@ -39,7 +39,11 @@ def charged_at_cost(self, event):
                                         `docstatus` = 1""".format(so=sales_order), as_dict=True)
         frappe.log_error(invoices[0].qty, "invoices[0].qty")
         frappe.log_error(sales_order_doc.get('total_qty'), "sales_order_doc.get('total_qty')")
-        per_billed = invoices[0].qty / sales_order_doc.get('total_qty') * 100
+        
+        if invoices[0].qty:
+            per_billed = invoices[0].qty / sales_order_doc.get('total_qty') * 100
+        else:
+            per_billed = 0
         
         frappe.db.set_value("Sales Order", sales_order_doc.get('name'), "per_billed", per_billed)
         frappe.db.set_value("Sales Order", sales_order_doc.get('name'), "set_with_quantity", 1)
