@@ -90,5 +90,40 @@ frappe.ready(function() {
 });
 
 function forgot_password() {
-    window.location.href = '/login#forgot';
+    window.location.href = '/forgot_password_webshop';
+}
+
+function back_to_login() {
+    window.location.href = '/webshop_login';
+}
+
+//forgot password
+	$(".form-forgot").on("submit", function(event) {
+		event.preventDefault();
+		var args = {};
+		args.cmd = "energielenker.www.webshop_login.reset_password_figgdi";
+		args.user = ($("#forgot_password_email").val() || "").trim();
+        console.log(args.user);
+        console.log(args.cmd);
+		if(!args.user) {
+            console.log("tschau");
+			//~ login.set_indicator('{{ _("Valid Login id required.") }}', 'red');
+			return false;
+		}
+		login.call(args);
+		return false;
+	});
+    
+// Login
+login.call = function(args, callback) {
+    console.log("hoi");
+	//~ login.set_indicator('{{ _("Verifying...") }}', 'blue');
+
+	return frappe.call({
+		type: "POST",
+		args: args,
+		callback: callback,
+		freeze: true,
+		statusCode: login.login_handlers
+	});
 }
