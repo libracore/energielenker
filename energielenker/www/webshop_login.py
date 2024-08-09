@@ -18,9 +18,8 @@ def get_context(context):
     return context
     
 @frappe.whitelist(allow_guest=True)
-def reset_password_figgdi(user, send_email=False, password_expired=False):
+def reset_webshop_password(user, send_email=False, password_expired=False):
     from frappe.utils import random_string, get_url
-    from frappe.core.doctype.user.user import send_login_mail
     
     self = frappe.get_doc("User", user)
     
@@ -33,7 +32,36 @@ def reset_password_figgdi(user, send_email=False, password_expired=False):
 
     link = get_url(url)
     if send_email:
-        self.send_login_mail(_("Password Reset"),
-            "password_reset", {"link": link}, now=True)
-
+        webshop_password_reset_mail(self, link)
+    frappe.log_error(link, "link")
     return link
+    
+def webshop_password_reset_mail(self, link):
+    frappe.log_error(self, "self")
+    send_webshop_login_mail(self, "Password Reset",
+        "password_reset", {"link": link}, now=True)
+        
+def send_webshop_login_mail(self, subject, template, add_args, now=None):
+    """send mail with login details"""
+    from frappe.utils.user import get_user_fullname
+    from frappe.utils import get_url
+
+    full_name = get_user_fullname(frappe.session['user'])
+    if full_name == "Guest":
+        full_name = "Administrator"
+    frappe.log_error(full_name, "full_name")
+    args = {
+        'first_name': self.first_name or self.last_name or "user",
+        'user': self.name,
+        'title': subject,
+        'login_url': get_url(),
+        'user_fullname': full_name
+    }
+
+    args.update(add_args)
+
+    sender = frappe.session.user not in STANDARD_USERS and get_formatted_email(frappe.session.user) or None
+    frappe.log_error(sender, "sender")
+    frappe.sendmail(recipients=self.email, sender=sender, subject=subject,
+        template=template, args=args, header=[subject, "green"],
+        delayed=(not now) if now!=None else self.flags.delay_emails, retry=3)

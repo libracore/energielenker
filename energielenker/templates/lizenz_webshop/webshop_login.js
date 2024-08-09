@@ -101,22 +101,21 @@ function back_to_login() {
 	$(".form-forgot").on("submit", function(event) {
 		event.preventDefault();
 		var args = {};
-		args.cmd = "energielenker.www.webshop_login.reset_password_figgdi";
+		args.cmd = "energielenker.www.webshop_login.reset_webshop_password";
 		args.user = ($("#forgot_password_email").val() || "").trim();
-        console.log(args.user);
-        console.log(args.cmd);
+        args.send_email = true
 		if(!args.user) {
             console.log("tschau");
 			//~ login.set_indicator('{{ _("Valid Login id required.") }}', 'red');
 			return false;
 		}
 		login.call(args);
+        //~ was machi da weni uf return zuegriffe will?
 		return false;
 	});
     
 // Login
 login.call = function(args, callback) {
-    console.log("hoi");
 	//~ login.set_indicator('{{ _("Verifying...") }}', 'blue');
 
 	return frappe.call({
