@@ -26,9 +26,9 @@ def reset_webshop_password(user, send_email=False, password_expired=False):
     key = random_string(32)
     self.db_set("reset_password_key", key)
 
-    url = "/update-password?key=" + key
+    url = "/reset_password_webshop?key=" + key
     if password_expired:
-        url = "/update-password?key=" + key + '&password_expired=true'
+        url = "/reset_password_webshop?key=" + key + '&password_expired=true'
 
     link = get_url(url)
     if send_email:
@@ -45,23 +45,19 @@ def send_webshop_login_mail(self, subject, template, add_args, now=None):
     """send mail with login details"""
     from frappe.utils.user import get_user_fullname
     from frappe.utils import get_url
-
-    full_name = get_user_fullname(frappe.session['user'])
-    if full_name == "Guest":
-        full_name = "Administrator"
-    frappe.log_error(full_name, "full_name")
+    
     args = {
         'first_name': self.first_name or self.last_name or "user",
         'user': self.name,
         'title': subject,
         'login_url': get_url(),
-        'user_fullname': full_name
+        'user_fullname': "Administrator"
     }
 
     args.update(add_args)
 
-    sender = frappe.session.user not in STANDARD_USERS and get_formatted_email(frappe.session.user) or None
-    frappe.log_error(sender, "sender")
+    sender = frappe.get_value("Email Account", {"default_outgoing": 1}, "email_id")
+    
     frappe.sendmail(recipients=self.email, sender=sender, subject=subject,
         template=template, args=args, header=[subject, "green"],
         delayed=(not now) if now!=None else self.flags.delay_emails, retry=3)

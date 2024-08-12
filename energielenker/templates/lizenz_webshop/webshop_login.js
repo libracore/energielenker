@@ -126,3 +126,53 @@ login.call = function(args, callback) {
 		statusCode: login.login_handlers
 	});
 }
+
+	$(".form-reset").on("submit", function(event) {
+		var args = {
+			key: frappe.utils.get_url_arg("key") || "",
+			new_password: $("#new_password").val(),
+			logout_all_sessions: 1
+		}
+
+		if(!args.key) {
+			frappe.msgprint("{{ _("Key required.") }}");
+			return;
+		}
+		if(!args.new_password) {
+			frappe.msgprint("{{ _("New Password Required.") }}");
+			return;
+		}
+		frappe.call({
+			type: "POST",
+			method: "frappe.core.doctype.user.user.update_password",
+			btn: $("#for-reset"),
+			args: args,
+			statusCode: {
+				401: function() {
+					$('.page-card-head .indicator').removeClass().addClass('indicator red')
+						.text("{{ _('Invalid Password') }}");
+				},
+				200: function(r) {
+					$("input").val("");
+					strength_indicator.addClass('hidden');
+					strength_message.addClass('hidden');
+					$('.page-card-head .indicator')
+						.removeClass().addClass('indicator green')
+						.html("{{ _('Password Updated') }}");
+					if(r.message) {
+						frappe.msgprint({
+							message: "{{ _("Password Updated") }}",
+							// password is updated successfully
+							// clear any server message
+							clear: true
+						});
+						setTimeout(function() {
+							window.location.href = r.message;
+						}, 2000);
+					}
+				}
+			}
+		});
+
+		return false;
+	});
