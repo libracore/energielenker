@@ -18,7 +18,7 @@ def get_context(context):
     return context
     
 @frappe.whitelist(allow_guest=True)
-def reset_webshop_password(user, send_email=False, password_expired=False):
+def reset_webshop_password(user, send_email=False):
     from frappe.utils import random_string, get_url
     
     self = frappe.get_doc("User", user)
@@ -27,18 +27,15 @@ def reset_webshop_password(user, send_email=False, password_expired=False):
     self.db_set("reset_password_key", key)
 
     url = "/reset_password_webshop?key=" + key
-    if password_expired:
-        url = "/reset_password_webshop?key=" + key + '&password_expired=true'
 
     link = get_url(url)
     if send_email:
         webshop_password_reset_mail(self, link)
-    frappe.log_error(link, "link")
+    frappe.msgprint("Eine Anleitung zum Zurücksetzen des Passworts wurde an ihre E-Mail-Adresse verschickt", indicator='green')
     return link
     
 def webshop_password_reset_mail(self, link):
-    frappe.log_error(self, "self")
-    send_webshop_login_mail(self, "Password Reset",
+    send_webshop_login_mail(self, "Ladepunktabruf - Passwort zurücksetzten",
         "password_reset", {"link": link}, now=True)
         
 def send_webshop_login_mail(self, subject, template, add_args, now=None):

@@ -105,19 +105,14 @@ function back_to_login() {
 		args.user = ($("#forgot_password_email").val() || "").trim();
         args.send_email = true
 		if(!args.user) {
-            console.log("tschau");
-			//~ login.set_indicator('{{ _("Valid Login id required.") }}', 'red');
 			return false;
 		}
 		login.call(args);
-        //~ was machi da weni uf return zuegriffe will?
 		return false;
 	});
     
 // Login
 login.call = function(args, callback) {
-	//~ login.set_indicator('{{ _("Verifying...") }}', 'blue');
-
 	return frappe.call({
 		type: "POST",
 		args: args,
@@ -145,21 +140,18 @@ login.call = function(args, callback) {
 		frappe.call({
 			type: "POST",
 			method: "frappe.core.doctype.user.user.update_password",
-			btn: $("#for-reset"),
+			btn: $("#update"),
 			args: args,
 			statusCode: {
-				401: function() {
-					$('.page-card-head .indicator').removeClass().addClass('indicator red')
-						.text("{{ _('Invalid Password') }}");
-				},
 				200: function(r) {
 					$("input").val("");
-					strength_indicator.addClass('hidden');
-					strength_message.addClass('hidden');
-					$('.page-card-head .indicator')
-						.removeClass().addClass('indicator green')
-						.html("{{ _('Password Updated') }}");
-					if(r.message) {
+                    console.log(r.message);
+					if(r.message == "Cannot Update: Incorrect / Expired Link." || r.message == "Aktualisierung nicht möglich : Falsche / ausgelaufene Verknüpfung.") {
+						frappe.msgprint({
+							message: "{{ _("Ungültiger Link") }}",
+							clear: true
+                        });
+                    } else {
 						frappe.msgprint({
 							message: "{{ _("Password Updated") }}",
 							// password is updated successfully
@@ -167,12 +159,16 @@ login.call = function(args, callback) {
 							clear: true
 						});
 						setTimeout(function() {
-							window.location.href = r.message;
+							window.location.href = 'webshop_login';
 						}, 2000);
-					}
+                    }
 				}
 			}
 		});
 
 		return false;
 	});
+    
+function callback_function(statusCode) {
+    console.log(statusCode);
+}
