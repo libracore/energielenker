@@ -226,6 +226,10 @@ def get_so_detail(dn_item, sales_order):
     return False
 
 def daily_depot_check():
+    #Step 1: Close all depots which are empty
+    close_empty_depots()
+    
+    #Step 2: Check all Depots which are Open and have a Closed or Completed Sales Order - Send E-Mail
     #check settings
     reminder_active = frappe.db.get_value("energielenker Settings", "energielenker Settings", "send_depot_reminder")
     if cint(reminder_active) == 0:
@@ -257,5 +261,31 @@ def daily_depot_check():
         subject="Offene Kommissionen mit geschlossenen Kundenaufträgen",
         content=html,
         send_email=True)
+    
+    return
 
+def close_empty_depots():
+    #get all open depots
+    open_depots = frappe.db.sql("""SELECT 
+                                        `name`
+                                    FROM
+                                        `tabDepot`
+                                    WHERE
+                                        `status` = 'Open'""", as_dict=True)
+    
+    for depot in open_depots:
+        #get items for open depot
+        depot_items = get_items_html(depot.get('name'), "daily_check")
+        to_close = True
+        for depot_item in depot_items:
+            #if there is balance on an item, dont close the depot
+            if depot_item.get('balance_qty') > 0:
+                to_close = False
+                break
+        #if no balance was found, close the depot
+        if to_close:
+            depot_doc = frappe.get_doc("Depot", depot.get('name'))
+            depot_doc.status = "Closed"
+            depot_doc.save()
+            frappe.db.commit()
     return
