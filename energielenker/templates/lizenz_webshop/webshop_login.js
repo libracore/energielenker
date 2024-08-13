@@ -145,7 +145,6 @@ login.call = function(args, callback) {
 			statusCode: {
 				200: function(r) {
 					$("input").val("");
-                    console.log(r.message);
 					if(r.message == "Cannot Update: Incorrect / Expired Link." || r.message == "Aktualisierung nicht möglich : Falsche / ausgelaufene Verknüpfung.") {
 						frappe.msgprint({
 							message: "{{ _("Ungültiger Link") }}",
@@ -168,7 +167,3 @@ login.call = function(args, callback) {
 
 		return false;
 	});
-    
-function callback_function(statusCode) {
-    console.log(statusCode);
-}
