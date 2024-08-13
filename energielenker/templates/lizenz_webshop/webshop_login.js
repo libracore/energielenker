@@ -90,5 +90,80 @@ frappe.ready(function() {
 });
 
 function forgot_password() {
-    window.location.href = '/login#forgot';
+    window.location.href = '/forgot_password_webshop';
 }
+
+function back_to_login() {
+    window.location.href = '/webshop_login';
+}
+
+//forgot password
+	$(".form-forgot").on("submit", function(event) {
+		event.preventDefault();
+		var args = {};
+		args.cmd = "energielenker.www.webshop_login.reset_webshop_password";
+		args.user = ($("#forgot_password_email").val() || "").trim();
+        args.send_email = true
+		if(!args.user) {
+			return false;
+		}
+		login.call(args);
+		return false;
+	});
+    
+// Login
+login.call = function(args, callback) {
+	return frappe.call({
+		type: "POST",
+		args: args,
+		callback: callback,
+		freeze: true,
+		statusCode: login.login_handlers
+	});
+}
+
+	$(".form-reset").on("submit", function(event) {
+		var args = {
+			key: frappe.utils.get_url_arg("key") || "",
+			new_password: $("#new_password").val(),
+			logout_all_sessions: 1
+		}
+
+		if(!args.key) {
+			frappe.msgprint("{{ _("Key required.") }}");
+			return;
+		}
+		if(!args.new_password) {
+			frappe.msgprint("{{ _("New Password Required.") }}");
+			return;
+		}
+		frappe.call({
+			type: "POST",
+			method: "frappe.core.doctype.user.user.update_password",
+			btn: $("#update"),
+			args: args,
+			statusCode: {
+				200: function(r) {
+					$("input").val("");
+					if(r.message == "Cannot Update: Incorrect / Expired Link." || r.message == "Aktualisierung nicht möglich : Falsche / ausgelaufene Verknüpfung.") {
+						frappe.msgprint({
+							message: "{{ _("Ungültiger Link") }}",
+							clear: true
+                        });
+                    } else {
+						frappe.msgprint({
+							message: "{{ _("Password Updated") }}",
+							// password is updated successfully
+							// clear any server message
+							clear: true
+						});
+						setTimeout(function() {
+							window.location.href = 'webshop_login';
+						}, 2000);
+                    }
+				}
+			}
+		});
+
+		return false;
+	});
