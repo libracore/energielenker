@@ -376,6 +376,7 @@ frappe.ui.form.on("Sales Order", {
     },
     before_submit: function(frm) {
         deliver_int_positions(frm);
+        check_for_charged_at_cost(frm);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
@@ -891,6 +892,21 @@ function part_list_items_check(frm) {
     for (i = 0; i < frm.doc.items.length; i++) {
         if (frm.doc.items[i].with_bom && !frm.doc.part_list_items) {
             frappe.msgprint("Dokument enthält keine Stücklistenartikel, obwohl mind. 1 Artikel eine Stückliste benötigt.", "Fehlende Stücklistenartikel");
+        }
+    }
+}
+
+function check_for_charged_at_cost(frm) {
+    let charged_at_cost = false
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].artikel_nach_aufwand) {
+            charged_at_cost = true
+            break;
+        }
+    }
+    if (charged_at_cost) {
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "enthaelt_artikel_nach_aufwand", 1);
         }
     }
 }
