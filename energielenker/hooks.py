@@ -168,10 +168,7 @@ doc_events = {
         "after_insert": "energielenker.energielenker.item.item.check_item_code"
     },
     "Sales Invoice": {
-        "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items",
-        "on_submit": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
-        "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost"
-    },
+        "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items"    },
     "Purchase Invoice": {
         "validate": "energielenker.energielenker.purchase_invoice.purchase_invoice.validate_lagerfuehrung_of_items"
     },
