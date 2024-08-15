@@ -108,7 +108,7 @@ function back_to_login() {
 			return false;
 		}
 		login.call(args);
-		return false;
+		return;
 	});
     
 // Login

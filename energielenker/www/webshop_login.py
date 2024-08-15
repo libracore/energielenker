@@ -32,7 +32,7 @@ def reset_webshop_password(user, send_email=False):
     if send_email:
         webshop_password_reset_mail(self, link)
     frappe.msgprint("Eine Anleitung zum Zurücksetzen des Passworts wurde an ihre E-Mail-Adresse verschickt", indicator='green')
-    return link
+    return
     
 def webshop_password_reset_mail(self, link):
     send_webshop_login_mail(self, "Ladepunktabruf - Passwort zurücksetzten",
@@ -40,7 +40,6 @@ def webshop_password_reset_mail(self, link):
         
 def send_webshop_login_mail(self, subject, template, add_args, now=None):
     """send mail with login details"""
-    from frappe.utils.user import get_user_fullname
     from frappe.utils import get_url
     
     args = {
