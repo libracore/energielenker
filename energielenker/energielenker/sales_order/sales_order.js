@@ -130,9 +130,10 @@ frappe.ui.form.on("Sales Order", {
         }
     },
     customer: function(frm) {
+        check_foreign_customers(frm);
         shipping_address_query(frm);
         if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
-            frm.add_custom_button(__("Hinterlege cFos als Lieferant"), function() {
+            frm.add_custom_button(__("Hinterlege Lieferant"), function() {
                 hinterlege_cfos_als_lieferant(frm);
             });
         }
@@ -376,6 +377,7 @@ frappe.ui.form.on("Sales Order", {
     },
     before_submit: function(frm) {
         deliver_int_positions(frm);
+        check_for_charged_at_cost(frm);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
@@ -894,3 +896,40 @@ function part_list_items_check(frm) {
         }
     }
 }
+
+function check_foreign_customers(frm) {
+    if (frm.doc.customer) {
+        frappe.call({
+            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
+            'args': {
+                'customer': frm.doc.customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    let taxes = response.message
+                    cur_frm.set_value('taxes_and_charges', taxes);
+                } else {
+                    cur_frm.set_value('taxes_and_charges', null);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value('taxes_and_charges', null);
+    }
+}
+
+function check_for_charged_at_cost(frm) {
+    let charged_at_cost = false
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].artikel_nach_aufwand) {
+            charged_at_cost = true
+            break;
+        }
+    }
+    if (charged_at_cost) {
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "enthaelt_artikel_nach_aufwand", 1);
+        }
+    }
+}
+

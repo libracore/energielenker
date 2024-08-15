@@ -116,6 +116,7 @@ frappe.ui.form.on("Sales Invoice", {
 	},
     customer: function(frm) {
         shipping_address_query(frm);
+        check_foreign_customers(frm);
     },
     validate: function(frm) {
         check_navision(frm);
@@ -483,4 +484,24 @@ function check_stundensatz(frm) {
 	}
 }
 
+function check_foreign_customers(frm) {
+    if (frm.doc.customer) {
+        frappe.call({
+            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
+            'args': {
+                'customer': frm.doc.customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    let taxes = response.message
+                    cur_frm.set_value('taxes_and_charges', taxes);
+                } else {
+                    cur_frm.set_value('taxes_and_charges', null);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value('taxes_and_charges', null);
+    }
+}
 
