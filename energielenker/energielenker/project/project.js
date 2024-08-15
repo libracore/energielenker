@@ -570,31 +570,3 @@ function set_main_project_title(frm) {
         });
     });
 }
-
-// Probably not needed anymore, will be clarified
-//~ function set_wiederkehrende_benachrichtigung(frm) {
-    //~ frappe.call({
-        //~ "method": "frappe.client.get",
-        //~ "args": {
-            //~ "doctype": "Customer",
-            //~ "name": frm.doc.customer
-        //~ },
-        //~ "callback": function(response) {
-            //~ if (response.message) {
-                //~ var customer = response.message;
-                //~ if (customer) {
-                    //~ frappe.call({
-                        //~ "method": "frappe.client.set_value",
-                        //~ "args": {
-                            //~ "doctype": "Customer",
-                            //~ "name": customer.name,
-                            //~ "fieldname": {
-                                //~ "wiederkehrende_benachrichtigung_aktiviert": cur_frm.doc.wiederkehrende_benachrichtigung_aktiviert
-                            //~ },
-                        //~ },
-                    //~ });
-                //~ }
-            //~ }
-        //~ }
-    //~ });
-//~ }

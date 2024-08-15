@@ -92,6 +92,7 @@ frappe.ui.form.on('Quotation', {
         set_row_options(frm);
     },
     party_name: function(frm) {
+        check_foreign_customers(frm);
         if (cur_frm.doc.quotation_to == 'Customer') {
             setTimeout(function(){ shipping_address_query(frm); }, 500);
         }
@@ -417,4 +418,25 @@ function check_for_family(item_code, quantity) {
     setTimeout(function(){
         locals.item_family=false;
     }, 3000);
+}
+
+function check_foreign_customers(frm) {
+    if (frm.doc.party_name && frm.doc.quotation_to == "Customer") {
+        frappe.call({
+            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
+            'args': {
+                'customer': frm.doc.party_name
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    let taxes = response.message
+                    cur_frm.set_value('taxes_and_charges', taxes);
+                } else {
+                    cur_frm.set_value('taxes_and_charges', null);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value('taxes_and_charges', null);
+    }
 }
