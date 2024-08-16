@@ -116,3 +116,20 @@ def validate_customer(customer):
     valdiation = frappe.db.get_value("Customer", customer, "blocked_customer")
     return valdiation
     
+@frappe.whitelist()
+def get_lead_source(customer):
+    lead_source = frappe.db.sql("""
+                                SELECT
+                                    `tabLead`.`source`
+                                FROM
+                                    `tabLead`
+                                LEFT JOIN
+                                    `tabCustomer` ON `tabCustomer`.`lead_name` = `tabLead`.`name`
+                                WHERE
+                                    `tabCustomer`.`name` = '{cust}'""".format(cust=customer), as_dict=True)
+                                    
+    if len(lead_source) > 0:
+        return lead_source[0].get('source')
+    else:
+        return None
+    

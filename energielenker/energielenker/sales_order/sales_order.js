@@ -130,6 +130,7 @@ frappe.ui.form.on("Sales Order", {
         }
     },
     customer: function(frm) {
+        set_lead_source(frm.doc.customer);
         check_foreign_customers(frm);
         shipping_address_query(frm);
         if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
@@ -381,6 +382,10 @@ frappe.ui.form.on("Sales Order", {
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
+        if (cur_frm.doc.__islocal && !frm.doc.source) {
+            console.log("peace");
+            set_lead_source(frm.doc.customer);
+        }
     }
 });
 
@@ -930,6 +935,26 @@ function check_for_charged_at_cost(frm) {
         for (let i = 0; i < frm.doc.items.length; i++) {
             frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "enthaelt_artikel_nach_aufwand", 1);
         }
+    }
+}
+
+function set_lead_source(customer) {
+    if (customer) {
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_order.sales_order.get_lead_source',
+            'args': {
+                'customer': customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    cur_frm.set_value('source', response.message);
+                } else {
+                    cur_frm.set_value('source', null);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value('source', null);
     }
 }
 
