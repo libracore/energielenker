@@ -107,11 +107,16 @@ def set_update_stock(doc, value): #value is 0 or 1
     return
     
 @frappe.whitelist()
-def check_for_shortage(purchase_invoice):
+def check_for_shortage(purchase_invoice=None, purchase_receipt=None):
     shortfall_items = []
-    purchase_order_doc = frappe.get_doc("Purchase Invoice", purchase_invoice)
+    if purchase_invoice:
+        doc = frappe.get_doc("Purchase Invoice", purchase_invoice)
+    elif purchase_receipt:
+        doc = frappe.get_doc("Purchase Receipt", purchase_receipt)
+    else:
+        return
     
-    for item in purchase_order_doc.items:
+    for item in doc.items:
         bin_list = frappe.get_list("Bin", filters={'warehouse': item.get('warehouse'), 'item_code': item.get('item_code')}, fields=['actual_qty', 'reserved_qty'])
         if len(bin_list) > 0:
             real_qty = bin_list[0].get('actual_qty') - bin_list[0].get('reserved_qty')
