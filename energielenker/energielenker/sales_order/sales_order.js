@@ -383,7 +383,6 @@ frappe.ui.form.on("Sales Order", {
     before_save(frm) {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
-            console.log("peace");
             set_lead_source(frm.doc.customer);
         }
     }
