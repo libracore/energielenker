@@ -422,22 +422,13 @@ class PowerProject():
                                                             WHERE `is_stock_item` = 1
                                                         )""".format(project=self.project.name), as_dict=True)
         summe_Lieferscheinpositionen = 0
-        # ~ frappe.log_error(_summe_Lieferscheinpositionen, "_summe_Lieferscheinpositionen")
-        # ~ frappe.log_error(type(_summe_Lieferscheinpositionen[0].serial_no), "summe_Lieferscheinpositionen[0].serial_no")
         for value in _summe_Lieferscheinpositionen:
-            frappe.log_error(value.get('serial_no'), "value.get('serial_no')")
-            frappe.log_error(type(value.get('serial_no')), "typevalue.get('serial_no')")
-            if value.get('serial_no'):
-                test_ = json.loads(value.get('serial_no'))
-                frappe.log_error(test_, "test_")
             valuation_rate = 0
             if not value.get('serial_no'):
                 valuation_rate = frappe.db.sql("""SELECT `valuation_rate` FROM `tabStock Ledger Entry` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
                 if len(valuation_rate) > 0:
                     valuation_rate = valuation_rate[0].valuation_rate
-            else:
-                test = frappe.db.get_value("Stock Entry Detail", "ba00bfc86a", "serial_no")
-                frappe.log_error(type(test), "test")
+            # ~ else:
                 # ~ valuation_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
                 # ~ if len(valuation_rate) > 0:
                     # ~ valuation_rate = valuation_rate[0].valuation_rate
