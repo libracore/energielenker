@@ -9,6 +9,9 @@ frappe.ui.form.on('Purchase Receipt', {
     },
     refresh: function(frm) {
         set_timestamps(frm);
+    },
+    on_submit: function(frm) {
+        check_for_shortage(frm);
     }
 })
 
@@ -29,4 +32,18 @@ function copy_project(frm) {
         entry.project = cur_frm.doc.project
     });
     cur_frm.refresh_field('items');
+}
+
+function check_for_shortage(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_for_shortage',
+        'args': {
+            'purchase_receipt': frm.doc.name
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint("Folgende Artikel haben aktuell eine Unterdeckung: " + response.message, "Achtung!")
+            }
+        }
+    });
 }
