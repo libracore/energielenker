@@ -9,7 +9,6 @@ from frappe.model.naming import make_autoname
 from frappe.utils.data import get_datetime, today, add_days
 from frappe.utils import cint
 from datetime import datetime
-import json
 
 
 class PowerProject():
