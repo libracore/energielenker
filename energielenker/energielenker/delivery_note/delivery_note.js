@@ -329,7 +329,8 @@ frappe.ui.form.on("Delivery Note", {
     },
     before_submit: function(frm) {
         check_for_webshop_points(frm);
-        check_for_depot(frm);
+        //~ check_for_depot(frm);
+        check_depot_delivery(frm);
     },
     after_cancel: function(frm) {
         remove_webshop_points(frm);
@@ -657,6 +658,22 @@ function remove_webshop_points(frm) {
         'args': {
             'doc': cur_frm.doc,
             'event': "cancel"
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
+}
+
+function check_depot_delivery(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_depot_delivery',
+        'args': {
+            'doc': frm
         },
         'async': false,
         'callback': function(response) {

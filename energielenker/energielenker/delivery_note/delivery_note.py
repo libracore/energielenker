@@ -101,3 +101,65 @@ def check_for_webshop_points(doc, event="submit"):
     frappe.db.commit()
     
     return validation
+    
+@frappe.whitelist
+def check_depot_delivery(delivery_note_doc):
+    #get all affected sales order
+    affected_sales_orders = []
+    for item in delivery_note_doc.items:
+        if item.get('against_sales_order') not in affected_sales_orders:
+            affected_sales_orders.append(item.get('against_sales_order'))
+    
+    #check of there is an open depot for any affected sales order -> if not, return True
+    open_affected_depots = frappe.db.sql("""
+                                            SELECT
+                                                `name`
+                                            FROM
+                                                `tabDepot`
+                                            WHERE
+                                                `sales_order` in '{0}'
+                                            AND
+                                                `status` = 'Open'""".format(affected_sales_orders), as_dict=True)
+    if len(open_affected_depots) < 1:
+        return True
+    
+    #Compare affected Depots with releated sales order and delivery notes and validate false if there are too many items in delivery note without link to depot
+    
+    #
+    for sales_order in affected_sales_orders:
+        open_depots = frappe.db.sql("""
+                                    SELECT
+                                        `name`
+                                    FROM
+                                        `tabDepot`
+                                    WHERE
+                                        `name` = '{so}'
+                                    AND
+                                        `status` = 'Open'""".format(so=sales_order), as_dict=True)
+        if len(open_depots) == 1:
+            depot_items = get_items_html(open_depots[0].get('name'), "check_depot_delivery")
+        elif len(open_depots) > 1:
+            depot_items = []
+            for open_depot in open_depots:
+                depot_items_ = get_items_html(open_depot, "check_depot_delivery")
+                for depot_item_ in depot_items_:
+                    existing_item = False
+                    for depot_item in depot_items:
+                        if depot_item.get('item_code') == depot_item_.get('item_code'):
+                            depot_item.get('balance_qty') += depot_item.get('balance_qty')
+                            existing_item = True
+                    if not existing_item:
+                    depot_items.append(depot_item_)
+                    
+        deliverable_items = []
+        sales_order_items = frappe.db.sql("""
+                                            SELECT
+                                                `item_code`,
+                                                `qty`
+                                            FROM
+                                                `tabSales Order Item`
+                                            WHERE
+                                                `parent`.`name` = '{so}'
+                                            AND
+                                                `docstatus` = 1""".format(so=sales_order), as_dict=True
+        
