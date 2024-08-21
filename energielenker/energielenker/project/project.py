@@ -428,10 +428,11 @@ class PowerProject():
                 valuation_rate = frappe.db.sql("""SELECT `valuation_rate` FROM `tabStock Ledger Entry` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
                 if len(valuation_rate) > 0:
                     valuation_rate = valuation_rate[0].valuation_rate
-            # ~ else:
-                # ~ valuation_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
-                # ~ if len(valuation_rate) > 0:
-                    # ~ valuation_rate = valuation_rate[0].valuation_rate
+            else:
+                serial_no = value.get('serial_no').replace(" ", "").split("/n")[0]
+                basic_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `serial_no` LIKE "%{0}%" """.format(serial_no), as_dict=True)
+                if len(basic_rate) > 0:
+                    valuation_rate = basic_rate[0].basic_rate
             summe_Lieferscheinpositionen += (value.qty * valuation_rate)
         
         return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
