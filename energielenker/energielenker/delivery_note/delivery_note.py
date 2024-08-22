@@ -102,64 +102,57 @@ def check_for_webshop_points(doc, event="submit"):
     
     return validation
     
-@frappe.whitelist
-def check_depot_delivery(delivery_note_doc):
-    #get all affected sales order
-    affected_sales_orders = []
-    for item in delivery_note_doc.items:
-        if item.get('against_sales_order') not in affected_sales_orders:
-            affected_sales_orders.append(item.get('against_sales_order'))
+@frappe.whitelist()
+def check_depot_delivery(self, event):
+    items = frappe.db.sql("""
+                            SELECT 
+                                *,
+                                (SELECT SUM(`qty` - `delivered_qty`) 
+                                 FROM `tabSales Order Item`
+                                 WHERE `parent` = `dn`.`against_sales_order`
+                                   AND `item_code` = `dn`.`item_code`
+                                ) AS `so_qty`
+                            FROM (
+                                SELECT 
+                                    `parent`,
+                                    `against_sales_order`,
+                                    `item_code`,
+                                    SUM(`qty`) AS `dn_qty`
+                                FROM `tabDelivery Note Item`
+                                WHERE `parent` = "{dn}"
+                                  AND `source_depot` IS NULL
+                                GROUP BY CONCAT(`against_sales_order`, ":", `item_code`)
+                            ) AS `dn`""".format(dn=self.name), as_dict=True)
+                            
+    for item in items:
+        item['depot_qty'] = get_depot_qty(item.get('item_code'), item.get('against_sales_order'))
+        avaliable_qty = item.get('so_qty') - item.get('depot_qty')
+        if item.get('dn_qty') > avaliable_qty:
+            frappe.throw("Es können nicht mehr als {0} von Artikel {1} ausgeliefert werden!".format(avaliable_qty, item.get('item_code')))
     
-    #check of there is an open depot for any affected sales order -> if not, return True
-    open_affected_depots = frappe.db.sql("""
-                                            SELECT
-                                                `name`
-                                            FROM
-                                                `tabDepot`
-                                            WHERE
-                                                `sales_order` in '{0}'
-                                            AND
-                                                `status` = 'Open'""".format(affected_sales_orders), as_dict=True)
-    if len(open_affected_depots) < 1:
-        return True
+    return
     
-    #Compare affected Depots with releated sales order and delivery notes and validate false if there are too many items in delivery note without link to depot
-    
-    #
-    for sales_order in affected_sales_orders:
-        open_depots = frappe.db.sql("""
-                                    SELECT
-                                        `name`
-                                    FROM
-                                        `tabDepot`
-                                    WHERE
-                                        `name` = '{so}'
-                                    AND
-                                        `status` = 'Open'""".format(so=sales_order), as_dict=True)
-        if len(open_depots) == 1:
-            depot_items = get_items_html(open_depots[0].get('name'), "check_depot_delivery")
-        elif len(open_depots) > 1:
-            depot_items = []
-            for open_depot in open_depots:
-                depot_items_ = get_items_html(open_depot, "check_depot_delivery")
-                for depot_item_ in depot_items_:
-                    existing_item = False
-                    for depot_item in depot_items:
-                        if depot_item.get('item_code') == depot_item_.get('item_code'):
-                            depot_item.get('balance_qty') += depot_item.get('balance_qty')
-                            existing_item = True
-                    if not existing_item:
-                    depot_items.append(depot_item_)
-                    
-        deliverable_items = []
-        sales_order_items = frappe.db.sql("""
-                                            SELECT
-                                                `item_code`,
-                                                `qty`
-                                            FROM
-                                                `tabSales Order Item`
-                                            WHERE
-                                                `parent`.`name` = '{so}'
-                                            AND
-                                                `docstatus` = 1""".format(so=sales_order), as_dict=True
-        
+def get_depot_qty(item_code, sales_order):
+    depot_qty = frappe.db.sql("""
+            SELECT 
+                IFNULL(SUM(`transactions`.`qty`), 0) AS `balance_qty`
+            FROM (
+                SELECT 
+                    SUM(IF (`tabStock Entry Detail`.`s_warehouse` IN (SELECT `to_warehouse` FROM `tabDepot` WHERE `sales_order` = "{sales_order}"), (-1) * `tabStock Entry Detail`.`qty`, `tabStock Entry Detail`.`qty`)) AS `qty`
+                FROM `tabStock Entry Detail`
+                LEFT JOIN `tabStock Entry` ON `tabStock Entry`.`name` = `tabStock Entry Detail`.`parent`
+                WHERE `tabStock Entry`.`source_depot` IN (SELECT `name` FROM `tabDepot` WHERE `sales_order` = "{sales_order}")
+                  AND `tabStock Entry`.`docstatus` = 1
+                  AND `tabStock Entry Detail`.`item_code` = "{item}"
+                UNION SELECT
+                    (-1) * `qty`
+                FROM `tabDelivery Note Item`
+                WHERE `tabDelivery Note Item`.`source_depot` IN (SELECT `name` FROM `tabDepot` WHERE `sales_order` = "{sales_order}")
+                  AND `tabDelivery Note Item`.`item_code` = "{item}"
+                  AND `tabDelivery Note Item`.`docstatus` = 1
+            ) AS `transactions`;""".format(sales_order=sales_order, item=item_code), as_dict=True)
+            
+    if len(depot_qty) > 0:
+        return depot_qty[0]['balance_qty']
+    else:
+        return 0
