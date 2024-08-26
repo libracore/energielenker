@@ -28,7 +28,7 @@ def execute(filters=None):
         # ~ frappe.throw(str(sle))
         
         if sle['actual_qty'] < 0:
-            sle['valuation_withdrawal'] = abs(sle.actual_qty * sle.valuation_rate)
+            sle['valuation_withdrawal'] = abs(sle.stock_value_difference)
         else:
             sle['valuation_withdrawal'] = 0
         
@@ -85,7 +85,7 @@ def get_stock_ledger_entries(filters, items):
 
     return frappe.db.sql("""select concat_ws(" ", posting_date, posting_time) as date,
             item_code, warehouse, actual_qty, qty_after_transaction, incoming_rate, valuation_rate,
-            stock_value, voucher_type, voucher_no, batch_no, serial_no, company, project, voucher_detail_no
+            stock_value, stock_value_difference, voucher_type, voucher_no, batch_no, serial_no, company, project, voucher_detail_no
         from `tabStock Ledger Entry` sle
         where company = %(company)s and
             posting_date between %(from_date)s and %(to_date)s
