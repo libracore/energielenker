@@ -176,7 +176,8 @@ doc_events = {
         "validate": "energielenker.energielenker.purchase_invoice.purchase_invoice.validate_lagerfuehrung_of_items"
     },
     "Delivery Note": {
-        "validate": "energielenker.energielenker.delivery_note.delivery_note.validate_valuation_rate"
+        "validate": "energielenker.energielenker.delivery_note.delivery_note.validate_valuation_rate",
+        "before_submit": "energielenker.energielenker.delivery_note.delivery_note.check_depot_delivery"
     },
     "Issue": {
         "onload": "energielenker.energielenker.issue.issue.onload_functions",

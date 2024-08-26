@@ -329,7 +329,7 @@ frappe.ui.form.on("Delivery Note", {
     },
     before_submit: function(frm) {
         check_for_webshop_points(frm);
-        check_for_depot(frm);
+        //~ check_for_depot(frm);
     },
     after_cancel: function(frm) {
         remove_webshop_points(frm);

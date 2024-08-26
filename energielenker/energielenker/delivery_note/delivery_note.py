@@ -101,3 +101,58 @@ def check_for_webshop_points(doc, event="submit"):
     frappe.db.commit()
     
     return validation
+    
+@frappe.whitelist()
+def check_depot_delivery(self, event):
+    items = frappe.db.sql("""
+                            SELECT 
+                                *,
+                                (SELECT SUM(`qty` - `delivered_qty`) 
+                                 FROM `tabSales Order Item`
+                                 WHERE `parent` = `dn`.`against_sales_order`
+                                   AND `item_code` = `dn`.`item_code`
+                                ) AS `so_qty`
+                            FROM (
+                                SELECT 
+                                    `parent`,
+                                    `against_sales_order`,
+                                    `item_code`,
+                                    SUM(`qty`) AS `dn_qty`
+                                FROM `tabDelivery Note Item`
+                                WHERE `parent` = "{dn}"
+                                  AND `source_depot` IS NULL
+                                GROUP BY CONCAT(`against_sales_order`, ":", `item_code`)
+                            ) AS `dn`""".format(dn=self.name), as_dict=True)
+                            
+    for item in items:
+        item['depot_qty'] = get_depot_qty(item.get('item_code'), item.get('against_sales_order'))
+        avaliable_qty = item.get('so_qty') - item.get('depot_qty')
+        if item.get('dn_qty') > avaliable_qty:
+            frappe.throw("Es können nicht mehr als {0} von Artikel {1} ausgeliefert werden!".format(avaliable_qty, item.get('item_code')))
+    
+    return
+    
+def get_depot_qty(item_code, sales_order):
+    depot_qty = frappe.db.sql("""
+            SELECT 
+                IFNULL(SUM(`transactions`.`qty`), 0) AS `balance_qty`
+            FROM (
+                SELECT 
+                    SUM(IF (`tabStock Entry Detail`.`s_warehouse` IN (SELECT `to_warehouse` FROM `tabDepot` WHERE `sales_order` = "{sales_order}"), (-1) * `tabStock Entry Detail`.`qty`, `tabStock Entry Detail`.`qty`)) AS `qty`
+                FROM `tabStock Entry Detail`
+                LEFT JOIN `tabStock Entry` ON `tabStock Entry`.`name` = `tabStock Entry Detail`.`parent`
+                WHERE `tabStock Entry`.`source_depot` IN (SELECT `name` FROM `tabDepot` WHERE `sales_order` = "{sales_order}")
+                  AND `tabStock Entry`.`docstatus` = 1
+                  AND `tabStock Entry Detail`.`item_code` = "{item}"
+                UNION SELECT
+                    (-1) * `qty`
+                FROM `tabDelivery Note Item`
+                WHERE `tabDelivery Note Item`.`source_depot` IN (SELECT `name` FROM `tabDepot` WHERE `sales_order` = "{sales_order}")
+                  AND `tabDelivery Note Item`.`item_code` = "{item}"
+                  AND `tabDelivery Note Item`.`docstatus` = 1
+            ) AS `transactions`;""".format(sales_order=sales_order, item=item_code), as_dict=True)
+            
+    if len(depot_qty) > 0:
+        return depot_qty[0]['balance_qty']
+    else:
+        return 0
