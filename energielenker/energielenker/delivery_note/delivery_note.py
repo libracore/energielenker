@@ -126,9 +126,10 @@ def check_depot_delivery(self, event):
                             
     for item in items:
         item['depot_qty'] = get_depot_qty(item.get('item_code'), item.get('against_sales_order'))
-        avaliable_qty = item.get('so_qty') - item.get('depot_qty')
-        if item.get('dn_qty') > avaliable_qty:
-            frappe.throw("Es können nicht mehr als {0} von Artikel {1} ausgeliefert werden!".format(avaliable_qty, item.get('item_code')))
+        if item['depot_qty']:
+            avaliable_qty = item.get('so_qty') - item.get('depot_qty')
+            if item.get('dn_qty') > avaliable_qty:
+                frappe.throw("Es können nicht mehr als {0} von Artikel {1} ausgeliefert werden!".format(avaliable_qty, item.get('item_code')))
     
     return
     
