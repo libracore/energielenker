@@ -7,6 +7,8 @@ frappe.ui.form.on('Work Order', {
             if (frm.doc.bom_no) {
                 set_bom_values(frm);
             }
+        } else {
+            check_not_transferred_items(frm);
         }
     }
 });
@@ -33,3 +35,18 @@ function set_bom_values(frm) {
         }
     });
 }
+
+function check_not_transferred_items(frm) {
+    if (frm.doc.status == "In Process" || frm.doc.status == "Stopped" || frm.doc.status == "Completed") {
+        let affected_items = []
+        for (let i = 0; i < frm.doc.required_items.length; i++) {
+            if (frm.doc.required_items[i].required_qty > frm.doc.required_items[i].transferred_qty) {
+                affected_items.push(frm.doc.required_items[i].item_code);
+            }
+        }
+        if (affected_items.length > 0) {
+            cur_frm.dashboard.add_comment("Achtung folgende Artikel wurden noch nicht komplett bezogen: " + affected_items.join(', '), 'red', true);
+        }
+    }
+}
+
