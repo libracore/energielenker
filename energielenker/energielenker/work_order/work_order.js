@@ -45,7 +45,7 @@ function check_not_transferred_items(frm) {
             }
         }
         if (affected_items.length > 0) {
-            cur_frm.dashboard.add_comment("Achtung folgende Artikel wurden noch nicht komplett bezogen: " + affected_items.join(', '), 'red', true);
+            cur_frm.dashboard.add_comment("<b>ACHTUNG! Es ist noch nicht alles kommissioniert. Bitte VOR der Fertigmeldung alles kommissionieren!<br>Artikel " + affected_items.join(', ') + " sind noch nicht komissioniert.</b>", 'green', true);
         }
     }
 }
