@@ -74,11 +74,13 @@ function autofill_project(frm) {
 }
 
 function fetch_items_from_so(bom_item, sales_order) {
+    console.log(bom_item);
+    console.log(sales_order);
     frappe.call({
-        'method': "frappe.client.get",
+        'method': "energielenker.energielenker.bom.bom.get_bom_items",
         'args': {
-            'doctype': "Sales Order",
-            'name': sales_order
+            'bom_item': bom_item,
+            'sales_order': sales_order
         },
         'callback': function(response) {
             var items = response.message.items;
@@ -107,22 +109,23 @@ function fetch_items_from_so(bom_item, sales_order) {
     });
 }
 
-function set_part_list_items(raw_part_list_items, row) {
-    if (raw_part_list_items) {
-        let part_list_items = merge_items(raw_part_list_items)
+function set_part_list_items(part_list_items, row) {
+    //~ if (raw_part_list_items) {
+        //~ let part_list_items = merge_items(raw_part_list_items)
         console.log(part_list_items);
         for (let i = 0; i < part_list_items.length; i++) {
             if (part_list_items[i].belongs_to == row) {
                 var child = cur_frm.add_child('items');
-                frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i]['item_code']).then(() => {
-                    frappe.model.set_value(child.doctype, child.name, 'qty', part_list_items[i]['qty']).then(() => {
-                        frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i]['uom'])
+                frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code).then(() => {
+                    console.log(part_list_items[i].qty);
+                    frappe.model.set_value(child.doctype, child.name, 'qty', part_list_items[i].qty).then(() => {
+                        frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i].uom)
                     });
                 });
                 cur_frm.refresh_field("items");
             }
         }
-    }
+    //~ }
 }
 
 function merge_items(raw_part_list_items) {
