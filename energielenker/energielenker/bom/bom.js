@@ -110,22 +110,16 @@ function fetch_items_from_so(bom_item, sales_order) {
 }
 
 function set_part_list_items(part_list_items, row) {
-    //~ if (raw_part_list_items) {
-        //~ let part_list_items = merge_items(raw_part_list_items)
-        console.log(part_list_items);
-        for (let i = 0; i < part_list_items.length; i++) {
-            if (part_list_items[i].belongs_to == row) {
-                var child = cur_frm.add_child('items');
-                frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code).then(() => {
-                    console.log(part_list_items[i].qty);
-                    frappe.model.set_value(child.doctype, child.name, 'qty', part_list_items[i].qty).then(() => {
-                        frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i].uom)
-                    });
-                });
-                cur_frm.refresh_field("items");
-            }
+    for (let i = 0; i < part_list_items.length; i++) {
+        if (part_list_items[i].belongs_to == row) {
+            var child = cur_frm.add_child('items');
+            //~ child.item_code = part_list_items[i].item_code;
+            frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code)
+            child.qty = part_list_items[i].qty
+            child.uom = part_list_items[i].uom
+            cur_frm.refresh_field("items");
         }
-    //~ }
+    }
 }
 
 function merge_items(raw_part_list_items) {
