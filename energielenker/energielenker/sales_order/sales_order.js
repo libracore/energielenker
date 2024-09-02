@@ -109,7 +109,7 @@ frappe.ui.form.on("Sales Order", {
             });
         }
         
-        if (cur_frm.doc.__islocal && frm.doc.part_list_items) {
+        if (cur_frm.doc.__islocal) {
             check_for_part_list_items(frm);
         }
         
@@ -779,7 +779,7 @@ function validate_customer(frm, event) {
 }
 
 function check_for_part_list_items(frm) {
-    if (frm.doc.items[0].prevdoc_docname) {
+    if (frm.doc.items[0].prevdoc_docname && frm.doc.part_list_items.length < 1) {
         frappe.call({
             'method': "frappe.client.get",
             'args': {

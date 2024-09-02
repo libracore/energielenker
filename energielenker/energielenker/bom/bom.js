@@ -74,35 +74,31 @@ function autofill_project(frm) {
 }
 
 function fetch_items_from_so(bom_item, sales_order) {
-    console.log(bom_item);
-    console.log(sales_order);
     frappe.call({
         'method': "energielenker.energielenker.bom.bom.get_bom_items",
         'args': {
             'bom_item': bom_item,
-            'sales_order': sales_order
+            'sales_order': sales_order,
+            'doc': cur_frm.doc
         },
         'callback': function(response) {
-            var items = response.message.items;
+            var affected_items = response.message.items;
+            console.log(affected_items)
             var part_list_items = response.message.part_list_items;
-            var affected_items = []
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].item_code == bom_item && items[i].with_bom == 1) {
-                    affected_items.push(items[i].idx)
-                }
-            }
             if (affected_items.length > 1) {
                 var options = affected_items.join("\n");
                 frappe.prompt([
                     {'fieldname': 'item_row', 'fieldtype': 'Select', 'options': options, 'label': 'Item Row', 'reqd': 1}  
                 ],
                 function(values){
+                    cur_frm.set_value("sales_order_line", values.item_row);
                     set_part_list_items(part_list_items, values.item_row);
                 },
                 'Select Item Row of in Sales Order',
                 'Get Items'
                 )
             } else {
+                cur_frm.set_value("sales_order_line", affected_items[0]);
                 set_part_list_items(part_list_items, affected_items[0]);
             }
         }
@@ -113,36 +109,11 @@ function set_part_list_items(part_list_items, row) {
     for (let i = 0; i < part_list_items.length; i++) {
         if (part_list_items[i].belongs_to == row) {
             var child = cur_frm.add_child('items');
-            //~ child.item_code = part_list_items[i].item_code;
-            frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code)
-            child.qty = part_list_items[i].qty
-            child.uom = part_list_items[i].uom
-            cur_frm.refresh_field("items");
+            $.extend(child, part_list_items[i]);
         }
+        
     }
-}
-
-function merge_items(raw_part_list_items) {
-    let merged_items = [];
-
-    raw_part_list_items.forEach(function(item) {
-        let existingItem = merged_items.find(function(i) {
-            return i.item_code === item.item_code && i.uom === item.uom;
-        });
-
-        if (existingItem) {
-            existingItem.qty += item.qty;
-        } else {
-            merged_items.push({
-                'item_code': item.item_code,
-                'qty': item.qty,
-                'uom': item.uom,
-                'belongs_to': item.belongs_to
-            });
-        }
-    });
-    
-    return merged_items
+    cur_frm.refresh_field("items");
 }
 
 function check_default_bom(frm) {

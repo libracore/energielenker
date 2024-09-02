@@ -3,6 +3,8 @@
 # For license information, please see license.txt
 
 import frappe
+from erpnext.manufacturing.doctype.bom.bom import BOM
+import json
 
 @frappe.whitelist()
 def sales_order_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
@@ -25,18 +27,8 @@ def sales_order_query(doctype, txt, searchfield, start, page_len, filters, as_di
     return items
     
 @frappe.whitelist()
-def get_bom_items(bom_item, sales_order):
-    items = frappe.db.sql("""
-                            SELECT
-                                `idx`,
-                                `item_code`,
-                                `with_bom`
-                            FROM
-                                `tabSales Order Item`
-                            WHERE
-                                `parent` = '{so}'
-                            AND
-                                `item_code` = '{item}'""".format(so=sales_order, item=bom_item), as_dict=True)
+def get_bom_items(bom_item, sales_order, doc):
+    doc = json.loads(doc)
     
     part_list_items = frappe.db.sql("""
                             SELECT
@@ -52,5 +44,23 @@ def get_bom_items(bom_item, sales_order):
                                 `item_code`,
                                 `uom`,
                                 `belongs_to`""".format(so=sales_order), as_dict=True)
+    
+    item_lines = []
+    my_bom = frappe.get_doc({'doctype': "BOM", 'items': part_list_items})
+    for d in part_list_items:
+        if not d.get('belongs_to') in item_lines:
+            item_lines.append(d.get('belongs_to'))
+        d.update(my_bom.get_bom_material_detail({
+                                            'item_code': d.get('item_code'),
+                                            'bom_no': doc.get('bom_no') or '',
+                                            # ~ "scrap_items": None,
+                                            'qty': d.get('qty'),
+                                            "stock_qty": d.get('qty'),
+                                            "include_item_in_manufacturing": 1,
+                                            "uom": d.get('uom'),
+                                            "stock_uom": d.get('uom'),
+                                            "conversion_factor": 1
+                                        }))
                                 
-    return {'items': items, 'part_list_items': part_list_items}
+                                
+    return {'items': item_lines, 'part_list_items': part_list_items}
