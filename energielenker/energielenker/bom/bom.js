@@ -83,7 +83,6 @@ function fetch_items_from_so(bom_item, sales_order) {
         },
         'callback': function(response) {
             var affected_items = response.message.items;
-            console.log(affected_items)
             var part_list_items = response.message.part_list_items;
             if (affected_items.length > 1) {
                 var options = affected_items.join("\n");
