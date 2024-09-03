@@ -7,6 +7,12 @@ frappe.ui.form.on('Work Order', {
             if (frm.doc.bom_no) {
                 set_bom_values(frm);
             }
+        } else {
+            check_not_transferred_items(frm);
+        }
+        
+        if (frm.doc.status == "In Process") {
+            
         }
     }
 });
@@ -28,8 +34,28 @@ function set_bom_values(frm) {
                 cur_frm.set_value("project", project);
                 cur_frm.set_value("fg_warehouse", fg_warehouse);
                 cur_frm.set_value("wip_warehouse", wip_warehouse);
-                cur_frm.set_value("sales_order", sales_order);
             }, 1000);
+            setTimeout(function(){
+                cur_frm.set_value("sales_order", sales_order);
+            }, 2000);
         }
     });
 }
+
+function check_not_transferred_items(frm) {
+    if (frm.doc.status == "In Process" || frm.doc.status == "Stopped" || frm.doc.status == "Completed") {
+        let affected_items = []
+        for (let i = 0; i < frm.doc.required_items.length; i++) {
+            if (frm.doc.required_items[i].required_qty > frm.doc.required_items[i].transferred_qty) {
+                affected_items.push(frm.doc.required_items[i].item_code);
+            }
+        }
+        if (affected_items.length > 0) {
+            cur_frm.dashboard.add_comment("<b>ACHTUNG! Es ist noch nicht alles kommissioniert. Bitte VOR der Fertigmeldung alles kommissionieren!<br>Artikel " + affected_items.join(', ') + " sind noch nicht komissioniert.</b>", 'green', true);
+            if (frm.doc.status == "In Process") {
+                frm.page.remove_inner_button('Finish');
+            }
+        }
+    }
+}
+

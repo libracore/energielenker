@@ -75,32 +75,29 @@ function autofill_project(frm) {
 
 function fetch_items_from_so(bom_item, sales_order) {
     frappe.call({
-        'method': "frappe.client.get",
+        'method': "energielenker.energielenker.bom.bom.get_bom_items",
         'args': {
-            'doctype': "Sales Order",
-            'name': sales_order
+            'bom_item': bom_item,
+            'sales_order': sales_order,
+            'doc': cur_frm.doc
         },
         'callback': function(response) {
-            var items = response.message.items;
+            var affected_items = response.message.items;
             var part_list_items = response.message.part_list_items;
-            var affected_items = []
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].item_code == bom_item && items[i].with_bom == 1) {
-                    affected_items.push(items[i].idx)
-                }
-            }
             if (affected_items.length > 1) {
                 var options = affected_items.join("\n");
                 frappe.prompt([
                     {'fieldname': 'item_row', 'fieldtype': 'Select', 'options': options, 'label': 'Item Row', 'reqd': 1}  
                 ],
                 function(values){
+                    cur_frm.set_value("sales_order_line", values.item_row);
                     set_part_list_items(part_list_items, values.item_row);
                 },
                 'Select Item Row of in Sales Order',
                 'Get Items'
                 )
             } else {
+                cur_frm.set_value("sales_order_line", affected_items[0]);
                 set_part_list_items(part_list_items, affected_items[0]);
             }
         }
@@ -108,17 +105,14 @@ function fetch_items_from_so(bom_item, sales_order) {
 }
 
 function set_part_list_items(part_list_items, row) {
-    if (part_list_items) {
-        for (let i = 0; i < part_list_items.length; i++) {
-            if (part_list_items[i].belongs_to == row) {
-                var child = cur_frm.add_child('items');
-                frappe.model.set_value(child.doctype, child.name, 'item_code', part_list_items[i].item_code);
-                frappe.model.set_value(child.doctype, child.name, 'qty', part_list_items[i].qty);
-                frappe.model.set_value(child.doctype, child.name, 'uom', part_list_items[i].uom);
-                cur_frm.refresh_field("items");
-            }
+    for (let i = 0; i < part_list_items.length; i++) {
+        if (part_list_items[i].belongs_to == row) {
+            var child = cur_frm.add_child('items');
+            $.extend(child, part_list_items[i]);
         }
+        
     }
+    cur_frm.refresh_field("items");
 }
 
 function check_default_bom(frm) {

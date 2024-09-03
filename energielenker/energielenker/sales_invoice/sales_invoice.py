@@ -22,8 +22,9 @@ def validate_navision_of_items(sales_invoice, event):
 def get_vat_template(customer):
     template = None
     territory = frappe.db.get_value("Customer", customer, "territory")
+    parent_territory = frappe.db.get_value("Territory", territory, "parent_territory")
 
-    if territory in ("Deutschland", "Nord", "Ost", "West", "Süd"):
+    if territory == "Deutschland" or parent_territory == "Deutschland":
         template = frappe.db.get_value("Sales Taxes and Charges Template", {"is_default": 1}, "name")
     else:
         data = frappe.db.sql("""
