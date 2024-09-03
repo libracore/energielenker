@@ -157,3 +157,9 @@ def get_depot_qty(item_code, sales_order):
         return depot_qty[0]['balance_qty']
     else:
         return 0
+        
+def set_invoiced_items(self, event):
+    if not self.total:
+        self.per_billed = 100
+        self.status = "Completed"
+    return

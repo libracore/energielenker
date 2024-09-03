@@ -177,7 +177,8 @@ doc_events = {
     },
     "Delivery Note": {
         "validate": "energielenker.energielenker.delivery_note.delivery_note.validate_valuation_rate",
-        "before_submit": "energielenker.energielenker.delivery_note.delivery_note.check_depot_delivery"
+        "before_submit": "energielenker.energielenker.delivery_note.delivery_note.check_depot_delivery",
+        "on_submit": "energielenker.energielenker.delivery_note.delivery_note.set_invoiced_items"
     },
     "Issue": {
         "onload": "energielenker.energielenker.issue.issue.onload_functions",
