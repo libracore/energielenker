@@ -354,11 +354,23 @@ class PowerProject():
                                     )
                                     AND `item_group` != 'Produkt Verkauf energielenker Arbeitszeit'""".format(project=self.project.name), as_dict=True)
                                     
+        part_list_items = frappe.db.sql("""SELECT `item_code`, `qty` FROM `tabSales Order Part List Item`
+                                    WHERE `parent` IN (
+                                        SELECT `name` FROM `tabSales Order` WHERE `project` = '{project}' AND `docstatus` = 1
+                                    )""".format(project=self.project.name), as_dict=True)
+                                    
         for item in items:
             price = frappe.get_all("Item Price", fields=["price_list_rate"],
                 filters={"price_list": 'Standard Einkauf', "item_code": item.item_code})
             if price:
                 amount += (price[0].price_list_rate * item.qty)
+        
+        if len(part_list_items) > 0:
+            for part_list_item in part_list_items:
+                price = frappe.get_all("Item Price", fields=["price_list_rate"],
+                    filters={"price_list": 'Standard Einkauf', "item_code": part_list_item.item_code})
+                if price:
+                    amount += (price[0].price_list_rate * part_list_item.qty)
         
         return amount
     
