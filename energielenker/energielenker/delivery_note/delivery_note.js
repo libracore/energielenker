@@ -667,3 +667,4 @@ function remove_webshop_points(frm) {
         }
     });
 }
+
