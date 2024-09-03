@@ -364,12 +364,13 @@ class PowerProject():
                 filters={"price_list": 'Standard Einkauf', "item_code": item.item_code})
             if price:
                 amount += (price[0].price_list_rate * item.qty)
-                
-        for part_list_item in part_list_items:
-            price = frappe.get_all("Item Price", fields=["price_list_rate"],
-                filters={"price_list": 'Standard Einkauf', "item_code": part_list_item.item_code})
-            if price:
-                amount += (price[0].price_list_rate * part_list_item.qty)
+        
+        if len(part_list_items) > 0:
+            for part_list_item in part_list_items:
+                price = frappe.get_all("Item Price", fields=["price_list_rate"],
+                    filters={"price_list": 'Standard Einkauf', "item_code": part_list_item.item_code})
+                if price:
+                    amount += (price[0].price_list_rate * part_list_item.qty)
         
         return amount
     
