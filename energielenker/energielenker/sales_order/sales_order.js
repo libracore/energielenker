@@ -405,9 +405,9 @@ frappe.ui.form.on('Sales Order Item', {
     },
     before_items_remove(frm, cdt, cdn) {
         var row = locals[cdt][cdn]
-        var index = row.idx
+        locals.deleted_row = row.idx
         for (var i = frm.doc.part_list_items.length - 1; i >= 0; i--) {
-            if (frm.doc.part_list_items[i].belongs_to == index) {
+            if (frm.doc.part_list_items[i].belongs_to == locals.deleted_row) {
                 var bom_row = frm.doc.part_list_items[i];
                 frm.doc.part_list_items.splice(i, 1);
             }
@@ -417,6 +417,12 @@ frappe.ui.form.on('Sales Order Item', {
         var row = frappe.get_doc(cdt, cdn);
         if (row.delivered_by_supplier == 0) {
             frappe.model.set_value(cdt, cdn, "delivered_qty", 0);
+        }
+    },
+    items_remove(frm, cdt, cdn) {
+        if (frm.doc.part_list_items) {
+            set_row_options(frm);
+            set_new_rows(frm);
         }
     }
 });
@@ -955,5 +961,14 @@ function set_lead_source(customer) {
     } else {
         cur_frm.set_value('source', null);
     }
+}
+
+function set_new_rows(frm) {
+    for (var i = 0; i < frm.doc.part_list_items.length; i++) {
+        if (frm.doc.part_list_items[i].belongs_to >= locals.deleted_row) {
+            frm.doc.part_list_items[i].belongs_to = frm.doc.part_list_items[i].belongs_to -1
+        }
+    }
+    cur_frm.refresh_field('part_list_item');
 }
 
