@@ -377,7 +377,7 @@ frappe.ui.form.on("Sales Order", {
 		updateSalesInvoices(frm.doc.name, frm.doc.zusatzgeschaft);
     },
     before_submit: function(frm) {
-        deliver_int_positions(frm);
+        //~ deliver_int_positions(frm);
         check_for_charged_at_cost(frm);
     },
     before_save(frm) {
