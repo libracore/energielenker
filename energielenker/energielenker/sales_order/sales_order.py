@@ -136,7 +136,6 @@ def get_lead_source(customer):
     
 @frappe.whitelist()
 def close_so_position(parent_doctype, trans_items, parent_doctype_name):
-    frappe.log_error(trans_items, "trans_items")
     update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name)
     
     item = json.loads(trans_items)
