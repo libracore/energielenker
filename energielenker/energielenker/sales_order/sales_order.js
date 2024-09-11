@@ -26,7 +26,8 @@ frappe.ui.form.on("Sales Order", {
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
-       set_row_options(frm)
+       set_row_options(frm);
+       display_closed_positions(frm);
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
        
@@ -379,6 +380,7 @@ frappe.ui.form.on("Sales Order", {
     before_submit: function(frm) {
         //~ deliver_int_positions(frm);
         check_for_charged_at_cost(frm);
+        cur_frm.set_value("original_total", cur_frm.doc.total);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
@@ -424,6 +426,9 @@ frappe.ui.form.on('Sales Order Item', {
             set_row_options(frm);
             set_new_rows(frm);
         }
+    },
+    close_position(frm, cdt, cdn) {
+        close_so_position(frm, cdt, cdn);
     }
 });
 
@@ -972,3 +977,33 @@ function set_new_rows(frm) {
     cur_frm.refresh_field('part_list_item');
 }
 
+function close_so_position(frm, cdt, cdn) {
+    let row = frappe.get_doc(cdt, cdn);
+    let trans_item = [{'docname': cdn, 'item_code': row.item_code, 'qty': row.delivered_qty, 'rate': row.rate, 'idx': row.idx}];
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.close_so_position',
+        'args': {
+            'parent_doctype': "Sales Order",
+            'trans_items': trans_item,
+            'parent_doctype_name': frm.doc.name
+        },
+        'callback': function(response) {
+            frappe.show_alert('Artikel wurde aktualisiert', 5);
+            cur_frm.reload_doc();
+        }
+    });
+}
+
+function display_closed_positions(frm) {
+    let display = false
+    let closed_items = ""
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].closed_position) {
+            closed_items += "Artikel " + frm.doc.items[i].item_code + " (Zeile " + frm.doc.items[i].idx + ")<br>"
+            display = true
+        }
+    }
+    if (display) {
+        cur_frm.dashboard.add_comment( "Achtung, folgende Positionen wurden manuell geschlossen: <br>" + closed_items, 'red', true);
+    }
+}

@@ -7,6 +7,7 @@ import frappe
 from frappe.utils import flt
 import json
 from frappe.utils.data import getdate
+from erpnext.controllers.accounts_controller import update_child_qty_rate
 
 @frappe.whitelist() 
 def overwrite_before_update_after_submit():
@@ -133,3 +134,19 @@ def get_lead_source(customer):
     else:
         return None
     
+@frappe.whitelist()
+def close_so_position(parent_doctype, trans_items, parent_doctype_name):
+    update_child_qty_rate(parent_doctype, trans_items, parent_doctype_name)
+    
+    item = json.loads(trans_items)
+    sales_order_doc = frappe.get_doc("Sales Order", parent_doctype_name)
+    sales_order_line = item[0].get('idx') - 1
+    
+    if not sales_order_doc.get('with_closed_position'):
+        sales_order_doc.with_closed_position = 1
+        
+    if not sales_order_doc.items[sales_order_line].get('closed_position'):
+        sales_order_doc.items[sales_order_line].closed_position = 1
+        
+    sales_order_doc.save()
+    return
