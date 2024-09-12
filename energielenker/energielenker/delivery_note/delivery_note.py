@@ -191,8 +191,6 @@ def check_for_overdelivery(doc):
                                 AND
                                     `item_code` = '{item_code}'""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code')), as_dict=True)
         #Validate quantities
-        frappe.log_error(delivery_note, "delivery_note")
-        frappe.log_error(sales_order, "sales_order")
         if len(sales_order) < 1:
             frappe.throw("Artikel {0} nicht in Kundenauftrag {1} vorhanden".format(item.get('item_code'), item.get('against_sales_order')))
             return False

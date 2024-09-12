@@ -678,7 +678,6 @@ function check_for_overdelivery(frm) {
         'async': false,
         'callback': function(response) {
             var validation = response.message;
-            console.log(validation);
             if (!validation) {
                 frappe.validated=false;
             }
