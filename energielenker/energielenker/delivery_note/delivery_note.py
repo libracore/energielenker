@@ -163,3 +163,44 @@ def set_invoiced_items(self, event):
         self.per_billed = 100
         self.status = "Completed"
     return
+
+@frappe.whitelist()
+def check_for_overdelivery(doc):
+    doc = json.loads(doc)
+    #get qty of all Delivery Notes and Sales Orders
+    for item in doc['items']:
+        delivery_note = frappe.db.sql("""
+                                SELECT
+                                    SUM(`qty`) AS `dn_qty`,
+                                    `item_code`
+                                FROM
+                                    `tabDelivery Note Item`
+                                WHERE
+                                    (`docstatus` = 1 AND `against_sales_order` = '{so_name}' AND `item_code` = '{item_code}')
+                                OR
+                                    (`item_code` = '{item_code}' AND `parent` = '{dn}')
+                                GROUP BY `item_code`""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code'), dn=doc.get('name')), as_dict=True)
+                                    
+        sales_order = frappe.db.sql("""
+                                SELECT
+                                    SUM(`qty`) AS `so_qty`
+                                FROM
+                                    `tabSales Order Item`
+                                WHERE
+                                    `parent` = '{so_name}'
+                                AND
+                                    `item_code` = '{item_code}'""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code')), as_dict=True)
+        #Validate quantities
+        frappe.log_error(delivery_note, "delivery_note")
+        frappe.log_error(sales_order, "sales_order")
+        if len(sales_order) < 1:
+            frappe.throw("Artikel {0} nicht in Kundenauftrag {1} vorhanden".format(item.get('item_code'), item.get('against_sales_order')))
+            return False
+        else:
+            if len(delivery_note) < 1:
+                frappe.msgprint("Es ist ein Fehler aufgetreten")
+                return False
+            elif delivery_note[0].dn_qty > sales_order[0].so_qty:
+                frappe.msgprint("Artikel {0} kann nicht überliefert werden!".format(item.get('item_code')))
+                return False
+    return True
