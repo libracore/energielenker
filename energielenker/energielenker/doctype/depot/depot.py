@@ -183,47 +183,35 @@ def create_delivery_note(depot, warehouse, sales_order, project):
         'po_date': sales_order_doc.po_date
         })
     
-    items_without_so = []
+    additional_items = False
     
     for item in items:
         if item.get('balance_qty') > 0:
-            so_detail = get_so_detail(item.get('item_code'), sales_order)
-            if not so_detail:
-                so_detail = ""
-                items_without_so.append(item.get('item_code'))
-            entry = {
-                'reference_doctype': 'Delivery Note Item',
-                'item_code': item.get('item_code'),
-                'qty': item.get('balance_qty'),
-                'uom': item.get('uom'),
-                'against_sales_order': sales_order,
-                'so_detail': so_detail,
-                'source_depot': depot,
-                'warehouse': warehouse
-            }
-            new_dn.append('items', entry)
-    
+            item_lines, open_qty = get_item_lines(item.get('item_code'), item.get('balance_qty'),  item.get('uom'), sales_order)
+            if open_qty > 0:
+                additional_items = True
+            for item_line in item_lines:
+                entry = {
+                    'reference_doctype': 'Delivery Note Item',
+                    'item_code': item.get('item_code'),
+                    'qty': item_line.get('qty'),
+                    'uom': item.get('uom'),
+                    'against_sales_order': sales_order,
+                    'so_detail': item_line.get('so_detail'),
+                    'source_depot': depot,
+                    'warehouse': warehouse
+                }
+                new_dn.append('items', entry)
+                
+    if len(new_dn.get('items')) < 1:
+        frappe.throw("Keine Artikel aus Kundenauftrag in der Kommissionierung enhalten.")
+        
     new_dn = new_dn.insert()
     
     #get name of new Delivery Note and return it
     delivery_note = new_dn.name
     
-    if len(items_without_so) > 0:
-        message = "Achtung, folgende Artikel befinden sich nicht in {0}:".format(sales_order)
-        for item_without_so in items_without_so:
-            message += "<br>- {0}".format(item_without_so)
-    else:
-        message = False
-    
-    return delivery_note, message
-
-def get_so_detail(dn_item, sales_order):
-    sales_order_doc = frappe.get_doc("Sales Order", sales_order)
-    for so_item in sales_order_doc.items:
-        if so_item.get('item_code') == dn_item:
-            if so_item.get('delivered_qty') < so_item.get('qty'):
-                return so_item.get('name')
-    return False
+    return delivery_note, additional_items
 
 def daily_depot_check():
     #Step 1: Close all depots which are empty
@@ -289,3 +277,33 @@ def close_empty_depots():
             depot_doc.save()
             frappe.db.commit()
     return
+    
+def get_item_lines(item, dn_qty, uom, sales_order):
+    open_qty = dn_qty
+    so_items = frappe.db.sql("""
+                            SELECT
+                                `name`,
+                                (`qty` - `delivered_qty`) AS `avaliable_qty`
+                            FROM
+                                `tabSales Order Item`
+                            WHERE
+                                `parent` = '{so}'
+                            AND
+                                `item_code` = '{item}'
+                            AND
+                                `uom` = '{uom}'
+                            AND
+                                `docstatus` = 1""".format(so=sales_order, item=item, uom=uom), as_dict=True)
+    
+    dn_lines = []
+    if len(so_items) > 0:
+        for so_item in so_items:
+            if open_qty > 0:
+                if open_qty <= so_item.get('avaliable_qty'):
+                    dn_lines.append({'qty': open_qty, 'so_detail': so_item.get('name')})
+                    open_qty = 0
+                else:
+                    dn_lines.append({'qty': so_item.get('avaliable_qty'), 'so_detail': so_item.get('name')})
+                    open_qty -= so_item.get('avaliable_qty')
+    
+    return dn_lines, open_qty

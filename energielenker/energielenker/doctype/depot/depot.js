@@ -185,8 +185,6 @@ function book_back_items(frm) {
         'callback': function(response) {
             if (response.message) {
                 frappe.set_route("Form", "Stock Entry", response.message);
-            } else {
-                show_alert('Keine Artikel vorhanden', 5, 'red');
             }
         }
     });
@@ -250,14 +248,13 @@ function create_delivery_note(frm) {
             'project': frm.doc.project
         },
         'callback': function(response) {
-            var message = response.message[1]
             if (response.message[0]) {
                 frappe.set_route("Form", "Delivery Note", response.message[0]);
-                if (message) {
-                    frappe.msgprint(message, "Artikel ohne Kundenauftrag")
-                }
             } else {
-                show_alert('Keine Artikel vorhanden', 5, 'red');
+                show_alert({message: 'Keine Artikel vorhanden', indicator: 'red'}, 5);
+            }
+            if (response.message[1]) {
+                show_alert({message: 'Achtung, es sind noch weitere Artikel in der Kommissionierung.', indicator: 'orange'}, 5);
             }
         }
     });
