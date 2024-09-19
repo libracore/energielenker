@@ -112,6 +112,18 @@ frappe.ui.form.on("Delivery Note", {
             frm.add_custom_button(__("Get Depot Items"),  function(){
               get_depot_items(frm);
             });
+
+            if (!frm.doc.__islocal) {
+                if (frm.doc.skip_check_against_sales_order != 1) {
+                    frm.add_custom_button(__("Kundenauftrag Prüfung deaktivieren"),  function(){
+                        toggle_check_against_sales_order(frm, 1);
+                    });
+                } else {
+                    frm.add_custom_button(__("Kundenauftrag Prüfung aktivieren"),  function(){
+                        toggle_check_against_sales_order(frm, 0);
+                    });
+                }
+            }
         }
         if (frm.doc.__islocal) {
             validate_depot(frm);
@@ -685,3 +697,16 @@ function check_for_overdelivery(frm) {
     });
 }
 
+function toggle_check_against_sales_order(frm, flag) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.toggle_check_against_sales_order',
+        'args': {
+            'dn': cur_frm.doc.name,
+            'flag': parseInt(flag)||0
+        },
+        'async': false,
+        'callback': function(response) {
+            cur_frm.reload_doc();
+        }
+    });
+}

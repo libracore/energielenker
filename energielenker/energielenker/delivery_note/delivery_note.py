@@ -7,6 +7,7 @@ import frappe
 import json
 from energielenker.energielenker.doctype.depot.depot import get_items_html
 from frappe.utils.data import getdate
+from frappe.utils import cint
 
 @frappe.whitelist()
 def fetch_kontakt_aus_lieferadresse(lieferadresse):
@@ -165,44 +166,64 @@ def set_invoiced_items(self, event):
     return
 
 @frappe.whitelist()
-def check_for_overdelivery(doc):
+def check_for_overdelivery(doc, check_items=True):
     doc = json.loads(doc)
-    #get qty of all Delivery Notes and Sales Orders
-    for item in doc['items']:
-        if item.get('against_sales_order'):
-            delivery_note = frappe.db.sql("""
-                                    SELECT
-                                        SUM(`qty`) AS `dn_qty`,
-                                        `item_code`
-                                    FROM
-                                        `tabDelivery Note Item`
-                                    WHERE
-                                        (`docstatus` = 1 AND `against_sales_order` = '{so_name}' AND `item_code` = '{item_code}')
-                                    OR
-                                        (`item_code` = '{item_code}' AND `parent` = '{dn}')
-                                    GROUP BY `item_code`""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code'), dn=doc.get('name')), as_dict=True)
-                                        
-            sales_order = frappe.db.sql("""
-                                    SELECT
-                                        SUM(`qty`) AS `so_qty`
-                                    FROM
-                                        `tabSales Order Item`
-                                    WHERE
-                                        `parent` = '{so_name}'
-                                    AND
-                                        `item_code` = '{item_code}'""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code')), as_dict=True)
-            #Validate quantities
-            if not sales_order[0].so_qty or len(sales_order) < 1:
-                frappe.msgprint("Artikel {0} nicht in Kundenauftrag {1} vorhanden".format(item.get('item_code'), item.get('against_sales_order')))
-                return False
-            else:
-                if len(delivery_note) < 1:
-                    frappe.msgprint("Es ist ein Fehler aufgetreten")
+    items_without_so = []
+
+    if cint(doc['skip_check_against_sales_order']) == 1:
+        check_items = False
+    else:
+        for item in doc['items']:
+            if not item.get('against_sales_order'):
+                items_without_so.append("""Pos. {0} {1}""".format(item.get('idx'), item.get('item_code')))
+    
+    if len(items_without_so) > 0:
+        msgprint_txt = """
+            Nachfolgende Artikel besitzen keinen Kundenauftrag und müssen geprüft werden:<br><br>{0}<br><br>
+            Wenn es korrekt ist dass diese Artikel keinen Kundenauftrag besitzen sollen, dann können Sie oben rechts auf "Kundenauftrag Prüfung deaktivieren" klicken und den Lieferschein erneut buchen.
+        """.format("<br>".join(items_without_so))
+        frappe.msgprint(msgprint_txt)
+        return False
+    else:
+        #get qty of all Delivery Notes and Sales Orders
+        for item in doc['items']:
+            if item.get('against_sales_order'):
+                delivery_note = frappe.db.sql("""
+                                        SELECT
+                                            SUM(`qty`) AS `dn_qty`,
+                                            `item_code`
+                                        FROM
+                                            `tabDelivery Note Item`
+                                        WHERE
+                                            (`docstatus` = 1 AND `against_sales_order` = '{so_name}' AND `item_code` = '{item_code}')
+                                        OR
+                                            (`item_code` = '{item_code}' AND `parent` = '{dn}')
+                                        GROUP BY `item_code`""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code'), dn=doc.get('name')), as_dict=True)
+                                            
+                sales_order = frappe.db.sql("""
+                                        SELECT
+                                            SUM(`qty`) AS `so_qty`
+                                        FROM
+                                            `tabSales Order Item`
+                                        WHERE
+                                            `parent` = '{so_name}'
+                                        AND
+                                            `item_code` = '{item_code}'""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code')), as_dict=True)
+                #Validate quantities
+                if not sales_order[0].so_qty or len(sales_order) < 1:
+                    frappe.msgprint("Artikel {0} nicht in Kundenauftrag {1} vorhanden".format(item.get('item_code'), item.get('against_sales_order')))
                     return False
-                elif delivery_note[0].dn_qty > sales_order[0].so_qty:
-                    frappe.msgprint("Artikel {0} kann nicht überliefert werden!".format(item.get('item_code')))
-                    return False
-        else:
-            frappe.msgprint("Artikel {0} hat keinen Kundenauftrag".format(item.get('item_code')))
-            return False
+                else:
+                    if len(delivery_note) < 1:
+                        frappe.msgprint("Es ist ein Fehler aufgetreten")
+                        return False
+                    elif delivery_note[0].dn_qty > sales_order[0].so_qty:
+                        frappe.msgprint("Artikel {0} kann nicht überliefert werden!".format(item.get('item_code')))
+                        return False
     return True
+
+@frappe.whitelist()
+def toggle_check_against_sales_order(dn, flag):
+    frappe.db.set_value("Delivery Note", dn, "skip_check_against_sales_order", flag)
+    frappe.db.commit()
+    return
