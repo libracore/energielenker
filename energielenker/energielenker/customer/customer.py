@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.utils.background_jobs import enqueue
 
 @frappe.whitelist()
 def adresse_verknupfen(address, customer):
@@ -26,6 +27,17 @@ def kontakt_verknupfen(contact, customer):
 
 @frappe.whitelist()
 def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
+    args = {
+        'customer': customer,
+        'von': von,
+        'bis': bis,
+        'adresse': adresse,
+        'support_kunde': support_kunde
+    }
+    enqueue("energielenker.energielenker.customer.customer._erstelle_supportrechnung", queue='long', job_name='erstelle_supportrechnung {0}'.format(customer), timeout=1500, **args)
+    return 'erstelle_supportrechnung {0}'.format(customer)
+
+def _erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
     sinv = False
     if int(support_kunde) == 1:
         sup_1 = {
@@ -163,18 +175,20 @@ def erstelle_supportrechnung(customer, von, bis, adresse=None, support_kunde=0):
             sinv.save()
             for ticket_for_sinv_linking in tickets_for_sinv_linking:
                 link_sinv_in_timelog = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_sinv` = '{sinv}' WHERE `name` = '{time_log_name}'""".format(time_log_name=ticket_for_sinv_linking, sinv=sinv.name), as_list=True)
-            return sinv.name
+            
+            frappe.db.sql("""UPDATE `tabCustomer` SET `supportrechnung_sinv` = '{0}' WHERE `name` = '{1}'""".format(sinv.name, customer))
         else:
-            return 'no sinv'
+            frappe.db.sql("""UPDATE `tabCustomer` SET `supportrechnung_sinv` = 'no sinv' WHERE `name` = '{0}'""".format(customer))
     else:
         if sinv:
             sinv.flags.ignore_mandatory = True
             sinv.save()
             for ticket_for_sinv_linking in tickets_for_sinv_linking:
                 link_sinv_in_timelog = frappe.db.sql("""UPDATE `tabTimesheet Detail` SET `billed_with_sinv` = '{sinv}' WHERE `name` = '{time_log_name}'""".format(time_log_name=ticket_for_sinv_linking, sinv=sinv.name), as_list=True)
-            return sinv.name
+            
+            frappe.db.sql("""UPDATE `tabCustomer` SET `supportrechnung_sinv` = '{0}' WHERE `name` = '{1}'""".format(sinv.name, customer))
         else:
-            return 'no sinv'
+            frappe.db.sql("""UPDATE `tabCustomer` SET `supportrechnung_sinv` = 'no sinv' WHERE `name` = '{0}'""".format(customer))
 
 def get_item(employee):
     employee = frappe.get_doc("Employee", employee)
@@ -212,4 +226,53 @@ def get_adressen_zum_verrechnen(customer):
     for a in adressen_zum_verrechnen_aus_tickets:
         adress_liste.append(a[0])
     return adress_liste
+
+@frappe.whitelist()
+def check_supportrechnung_job(jobname):
+    from rq import Queue, Worker
+    from frappe.utils.background_jobs import get_redis_conn
+    from frappe.utils import format_datetime, cint, convert_utc_to_user_timezone
+    colors = {
+        'queued': 'orange',
+        'failed': 'red',
+        'started': 'blue',
+        'finished': 'green'
+    }
+    conn = get_redis_conn()
+    queues = Queue.all(conn)
+    workers = Worker.all(conn)
+    jobs = []
+    show_failed=False
+
+    def add_job(j, name):
+        if j.kwargs.get('site')==frappe.local.site:
+            jobs.append({
+                'job_name': j.kwargs.get('kwargs', {}).get('playbook_method') \
+                    or str(j.kwargs.get('job_name')),
+                'status': j.status, 'queue': name,
+                'creation': format_datetime(convert_utc_to_user_timezone(j.created_at)),
+                'color': colors[j.status]
+            })
+            if j.exc_info:
+                jobs[-1]['exc_info'] = j.exc_info
+
+    for w in workers:
+        j = w.get_current_job()
+        if j:
+            add_job(j, w.name)
+
+    for q in queues:
+        if q.name != 'failed':
+            for j in q.get_jobs(): add_job(j, q.name)
+
+    if cint(show_failed):
+        for q in queues:
+            if q.name == 'failed':
+                for j in q.get_jobs()[:10]: add_job(j, q.name)
     
+    found_job = 'refresh'
+    for job in jobs:
+        if job['job_name'] == jobname:
+            found_job = True
+
+    return found_job

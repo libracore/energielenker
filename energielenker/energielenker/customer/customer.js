@@ -155,13 +155,33 @@ function erstelle_supportrechnung(frm) {
                             'support_kunde': cur_frm.doc.ist_support_kunde
                         },
                         "async": true,
-                        "freeze": true,
-                        "freeze_message": "Bitte warten, die Rechnung wird erstellt...",
                         "callback": function(r) {
-                            if (r.message != 'no sinv') {
-                                frappe.set_route("Form", "Sales Invoice", r.message)
-                            } else {
-                                frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+                            frappe.dom.freeze(__("Bitte warten, die Rechnung wird erstellt..."));
+                            var jobname = r.message;
+                            if (jobname) {
+                                let calc_refresher = setInterval(calc_refresher_handler, 3000, jobname);
+                                function calc_refresher_handler(jobname) {
+                                    frappe.call({
+                                    'method': "energielenker.energielenker.customer.customer.check_supportrechnung_job",
+                                        'args': {
+                                            'jobname': jobname
+                                        },
+                                        'callback': function(res) {
+                                            if (res.message == 'refresh') {
+                                                clearInterval(calc_refresher);
+                                                cur_frm.reload_doc();
+                                                frappe.dom.unfreeze();
+                                                frappe.db.get_value("Customer", cur_frm.doc.name, 'supportrechnung_sinv').then(function(res){
+                                                    if (res.message.supportrechnung_sinv != 'no sinv') {
+                                                        frappe.set_route("Form", "Sales Invoice", res.message.supportrechnung_sinv)
+                                                    } else {
+                                                        frappe.msgprint("Keine Daten zum verrechnen gefunden.");
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
