@@ -19,18 +19,18 @@ def check_for_streckengeschaeft(doc_):
     #check if one item is streckengeschaeft
     for item in doc['items']:
         if item.get('purchase_order'):
-            po_item = frappe.db.sql("""
-                                    SELECT
-                                        `delivered_by_supplier`
-                                    FROM
-                                        `tabPurchase Order Item`
-                                    WHERE
-                                        `name` = '{po_detail}'
-                                    AND
-                                        `docstatus` = 1""".format(po_detail=item['po_detail']), as_dict=True)
+            po = frappe.db.sql("""
+                                SELECT
+                                    `drop_ship_check`
+                                FROM
+                                    `tabPurchase Order`
+                                WHERE
+                                    `name` = '{po}'
+                                AND
+                                    `docstatus` = 1""".format(po=item.get('purchase_order')), as_dict=True)
             #if one item is streckengeschaeft, dont update stock - discussed with MR. Ruhkamp by call
-            if len(po_item) > 0:
-                if po_item[0]['delivered_by_supplier'] == 1:
+            if len(po) > 0:
+                if po[0].get('drop_ship_check') == 1:
                     update_stock = 0
                 
     return update_stock
@@ -74,7 +74,7 @@ def check_purchase_order_receipts(doc):
 
 
         if len(po_item) > 0:
-            if po_item[0]['received_qty'] == item['qty']:
+            if po_item[0]['received_qty'] >= item['qty']:
                 received_items.append(item)
             else:
                 new_item['received_qty'] = item['qty'] - po_item[0]['received_qty']

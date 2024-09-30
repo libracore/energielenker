@@ -32,7 +32,7 @@ frappe.ui.form.on('Purchase Invoice', {
     },
     before_submit: function(frm) {
 		validate_streckengeschäft(frm);
-        check_purchase_order_receipts(frm);
+        //~ check_purchase_order_receipts(frm); -> To be clarified because of conflicts with Streckengeschäft Process
     },
     before_save: function(frm) {
         if (frm.doc.__islocal) {
