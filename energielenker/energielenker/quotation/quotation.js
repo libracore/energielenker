@@ -100,6 +100,7 @@ frappe.ui.form.on('Quotation', {
     validate: function(frm) {
         check_vielfaches(frm);
         calculate_part_list_prices(frm);
+        validate_customer(frm, "validate");
         
         if (cur_frm.doc.part_list_items) {
             for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
@@ -115,6 +116,11 @@ frappe.ui.form.on('Quotation', {
         if (cur_frm.doc.wahrscheindlichkeit > 100) {
             cur_frm.set_value('wahrscheindlichkeit', 100);
             frappe.msgprint( "Die Wahrscheindlichkeit kann nicht über 100% liegen", __("Validation") );
+        }
+    },
+    party_name: function(frm) {
+        if (cur_frm.doc.party_name && cur_frm.doc.quotation_to == "Customer") {
+            validate_customer(frm, "customer");
         }
     }
 })
@@ -464,4 +470,25 @@ function set_new_rows(frm) {
         }
     }
     cur_frm.refresh_field('part_list_item');
+}
+
+function validate_customer(frm, event) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.validate_customer',
+        'args': {
+            'customer': frm.doc.party_name
+        },
+        "async": false,
+        'callback': function(response) {
+            var validation = response.message
+            if (validation) {
+                frappe.msgprint( __("Kunde ist gesperrt!"), __("Sperrkunde") );
+                if (event == "customer") {
+                    cur_frm.set_value("party_name", "");
+                } else {
+                    frappe.validated=false;
+                }
+            }
+        }
+    });
 }
