@@ -999,20 +999,40 @@ def payment_forecast_rollback_invoice(so, sinv, project):
         return return_data(307, info='Unbekannter Rechnungstyp')
 
 @frappe.whitelist()
-def check_order_payment_forecast_item_deactivations(order):
-    disabled_items = 0
-    msg = ''
+def check_order_payment_forecast_errors(order):
     o = frappe.get_doc("Sales Order", order)
+    if cint(frappe.db.get_value("Customer", o.get('customer'), "blocked_customer")) == 1:
+        return {
+            'errors': 1,
+            'msg': "Die Rechnung konnte nicht erstellt werden, da Kunde der {0} gesperrt ist. <br> Entsperren Sie diesen Kunden und versuchen Sie es erneut.".format(o.get('customer'))
+        }
+    disabled_items = 0
+    whole_number_uom = 0
+    disabled_msg = ''
+    whole_number_msg = ''
     for item in o.items:
         if cint(frappe.db.get_value("Item", item.item_code, "disabled")) == 1:
             disabled_items += 1
-            msg += '''
+            disabled_msg += '''
                 <br>Zeile: {0} // Artikel: {1}
-            '''.format(item.idx, item.item_name)
-    return {
-        'disabled_items': disabled_items,
-        'msg': msg
-    }
+            '''.format(item.idx, item.get('item_name'))
+        elif cint(frappe.db.get_value("UOM", item.get('uom'), "must_be_whole_number")) == 1:
+            whole_number_uom += 1
+            whole_number_msg += '''
+                <br>Zeile: {0} // Artikel: {1} // Einheit: <b>{2}</b>
+            '''.format(item.idx, item.get('item_name'), item.get('uom'))
+    if disabled_items > 0:
+        return {
+            'errors': disabled_items,
+            'msg': "Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Artikel sind deaktivert:<br>{0}<br><br>Aktivieren Sie diese und versuchen Sie es erneut.".format(disabled_msg)
+        }
+    elif whole_number_uom > 0:
+        return {
+            'errors': whole_number_uom,
+            'msg': "Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Einheiten müssen ganze Zahl sein:<br>{0}<br><br>Entfernen Sie dies und versuchen Sie es erneut.".format(whole_number_msg)
+        }
+    else:
+        cancelled_payments = check_for_chancelled_payments(order)
     
 def check_open_depots(self, event):
     if self.open_depots:
