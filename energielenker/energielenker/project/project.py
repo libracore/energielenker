@@ -1039,3 +1039,18 @@ def check_open_depots(self, event):
         if self.open_depots > 0 and self.status != "Open":
             frappe.throw("Projekt enthält offene Kommissionierungen und kann nicht geschlossen werden!")
     return
+
+def check_for_chancelled_payments(order_doc):
+    cancelled_payments = 0
+    cancelled_payments_msg = ''
+    for invoice in order_doc.billing_overview:
+    cancelled_payments = frappe.db.sql("""
+                                        SELECT
+                                            `parent`
+                                        FROM
+                                            `tabPayment Entry Reference`
+                                        WHERE
+                                            `reference_name` = '{si}'
+                                        AND
+                                            `docstatus` = 2""".format(si=invoice.get('sales_invoice'), as_dict=True)
+    
