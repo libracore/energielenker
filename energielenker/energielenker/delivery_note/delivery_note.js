@@ -393,6 +393,9 @@ frappe.ui.form.on('Delivery Note Item', {
     },
     items_remove: function(frm, cdt, cdn) {
         mark_depot_items(frm);
+    },
+    items_add: function(frm, cdt, cdn) {
+        set_cost_center(frm, cdt, cdn);
     }
 })
 
@@ -709,4 +712,8 @@ function toggle_check_against_sales_order(frm, flag) {
             cur_frm.reload_doc();
         }
     });
+}
+
+function set_cost_center(frm, cdt, cdn) {
+    
 }
