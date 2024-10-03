@@ -1032,7 +1032,17 @@ def check_order_payment_forecast_errors(order):
             'msg': "Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Einheiten müssen ganze Zahl sein:<br>{0}<br><br>Entfernen Sie dies und versuchen Sie es erneut.".format(whole_number_msg)
         }
     else:
-        cancelled_payments = check_for_chancelled_payments(order)
+        cancelled_payments, cancelled_payments_msg = check_for_chancelled_payments(o)
+        if cancelled_payments > 0:
+            return {
+                'errors': cancelled_payments,
+                'msg': "Folgende Zahlungen sind abgebrochen und würden zum Absturz vom Prozess führen:<br>{0}<br><br>Bereinigen Sie die Zahlungen und versuchen Sie es erneut.".format(cancelled_payments_msg)
+            }
+    return {
+            'errors': 0,
+            'msg': ""
+            }
+    
     
 def check_open_depots(self, event):
     if self.open_depots:
@@ -1044,13 +1054,29 @@ def check_for_chancelled_payments(order_doc):
     cancelled_payments = 0
     cancelled_payments_msg = ''
     for invoice in order_doc.billing_overview:
-    cancelled_payments = frappe.db.sql("""
-                                        SELECT
-                                            `parent`
-                                        FROM
-                                            `tabPayment Entry Reference`
-                                        WHERE
-                                            `reference_name` = '{si}'
-                                        AND
-                                            `docstatus` = 2""".format(si=invoice.get('sales_invoice'), as_dict=True)
-    
+        stock_uom_check(invoice.get('sales_invoice'))
+        cancelled_invoice_payments = frappe.db.sql("""
+                                            SELECT
+                                                `parent`
+                                            FROM
+                                                `tabPayment Entry Reference`
+                                            WHERE
+                                                `reference_name` = '{si}'
+                                            AND
+                                                `docstatus` = 2""".format(si=invoice.get('sales_invoice')), as_dict=True)
+        if len(cancelled_invoice_payments) > 0:
+            for cancelled_invoice_payment in cancelled_invoice_payments:
+                cancelled_payments += 1
+                cancelled_payments_msg += '''
+                <br>Zahlung: {0} (Rechnung: {1})
+                '''.format(cancelled_invoice_payment.get('parent'), invoice.get('sales_invoice'))
+            
+    return cancelled_payments, cancelled_payments_msg
+
+def stock_uom_check(invoice):
+    invoice_doc = frappe.get_doc("Sales Invoice", invoice)
+    for item in invoice_doc.get('items'):
+        if item.get('stock_qty') != item.get('qty'):
+            frappe.db.set_value('Sales Invoice Item', item.get('name'), 'qty', item.get('stock_qty'))
+            frappe.db.commit()
+    return
