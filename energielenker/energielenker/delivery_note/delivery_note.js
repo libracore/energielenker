@@ -192,22 +192,23 @@ frappe.ui.form.on("Delivery Note", {
             
         }
         
-        if (frm.doc.__islocal) {
-           cur_frm.doc.items.forEach(function(entry){
-               frappe.call({
-                    "method": "frappe.client.get",
-                    "args": {
-                        "doctype": "Item",
-                        "name": entry.item_code
-                    },
-                    "callback": function(r) {
-                        if (r.message.item_defaults[0].default_warehouse) {
-                            entry.warehouse = r.message.item_defaults[0].default_warehouse;
-                        }
-                    }
-                })
-           });
-        }
+        // function deactivated because of conflict with new process -> should not be needed anymore (2024-10-04)
+        //~ if (frm.doc.__islocal) {
+           //~ cur_frm.doc.items.forEach(function(entry){
+               //~ frappe.call({
+                    //~ "method": "frappe.client.get",
+                    //~ "args": {
+                        //~ "doctype": "Item",
+                        //~ "name": entry.item_code
+                    //~ },
+                    //~ "callback": function(r) {
+                        //~ if (r.message.item_defaults[0].default_warehouse) {
+                            //~ entry.warehouse = r.message.item_defaults[0].default_warehouse;
+                        //~ }
+                    //~ }
+                //~ })
+           //~ });
+        //~ }
         
     },
     on_submit: function(frm) {
@@ -715,5 +716,19 @@ function toggle_check_against_sales_order(frm, flag) {
 }
 
 function set_cost_center(frm, cdt, cdn) {
-    
+    if (!frm.doc.project) {
+        let cost_center = false
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            if (!cost_center) {
+                if (frm.doc.items[i].against_sales_order) {
+                    cost_center = frm.doc.items[i].cost_center
+                }
+            } else {
+                break;
+            }
+        }
+        if (cost_center) {
+            frappe.model.set_value(cdt, cdn, "cost_center", cost_center)
+        }
+    }
 }
