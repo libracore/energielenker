@@ -1194,7 +1194,7 @@ def get_print_items(dt, dn, total_value_needed=False):
         # Abschlagspositionen
         total_anzahlung = 0
         total_anzahlung_mwst = 0
-        if len(sales_order.billing_overview) > 0:
+        if len(sales_order.billing_overview) > 1:
             tr = """
                 <tr style="background-color: rgb(186, 210, 226) !important;">
                     <td style="text-align: center;"><b>{position}</b></td>
