@@ -193,14 +193,14 @@ frappe.ui.form.on("Payment Forecast", {
     create_invoice: function(frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
         frappe.call({
-            "method": "energielenker.energielenker.project.project.check_order_payment_forecast_item_deactivations",
+            "method": "energielenker.energielenker.project.project.check_order_payment_forecast_errors",
             "args": {
                 "order": row.order
             },
             "async": true,
-            "callback": function(item_deactivations) {
-                if (item_deactivations.message.disabled_items > 0){
-                    frappe.msgprint(`Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Artikel sind deaktivert:<br>${item_deactivations.message.msg}<br><br>Aktivieren Sie diese und versuchen Sie es erneut.`);
+            "callback": function(response) {
+                if (response.message.errors > 0){
+                    frappe.msgprint(response.message.msg);
                 } else {
                     frappe.call({
                         "method": "energielenker.energielenker.project.project.get_order_payment_forecast_details",
