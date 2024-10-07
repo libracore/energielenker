@@ -103,3 +103,5 @@ Report: Lead Source Report,Customer Care (Customer),Kundenbetreuung (Kunde)
 DocType: energielenker Settings,Supplier to autoclose,Lieferant für automatische Schliessung
 DocType: Sales Order,Set with Quantity,Mit Stückzahl gesetzt
 DocType: BOM,Sales Order Line,Zeile in Kunden-AB
+DocType: Project,Software Handover Date,Datum Übergabe Software (z.B. EDM)
+DocType: Project,corresponds to start of license year,entspricht Beginn Lizenzjahr
