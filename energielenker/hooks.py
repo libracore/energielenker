@@ -170,6 +170,7 @@ doc_events = {
     "Sales Invoice": {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items",
         "on_submit": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+        "before_submit": "energielenker.energielenker.sales_invoice.sales_invoice.set_navision_export_check",
         "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost"
     },
     "Purchase Invoice": {
