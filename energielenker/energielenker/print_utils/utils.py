@@ -1358,7 +1358,7 @@ def get_print_items(dt, dn, total_value_needed=False):
         total_brutto = "{:,.2f}".format(doc.grand_total - total_anzahlung - total_anzahlung_mwst).replace(",", "'").replace(".", ",").replace("'", ".")
         total_anzahlung = "{:,.2f}".format(total_anzahlung).replace(",", "'").replace(".", ",").replace("'", ".")
         total_anzahlung_mwst = "{:,.2f}".format(total_anzahlung_mwst).replace(",", "'").replace(".", ",").replace("'", ".")
-        frappe.log_error(total_brutto, "total_brutto")
+        
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
