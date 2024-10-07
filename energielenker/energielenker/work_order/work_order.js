@@ -4,6 +4,7 @@
 frappe.ui.form.on('Work Order', {
     refresh: function(frm) {
         if (frm.doc.__islocal) {
+            cur_frm.set_value("use_multi_level_bom", 0);
             if (frm.doc.bom_no) {
                 set_bom_values(frm);
             }
