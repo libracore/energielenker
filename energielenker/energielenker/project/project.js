@@ -101,6 +101,12 @@ frappe.ui.form.on("Project", {
             cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
         }
         
+        if (cur_frm.doc.einkaufskosten_manuell_festsetzen) {
+            cur_frm.set_df_property('summe_einkaufskosten_via_einkaufsrechnung','read_only', 0);
+        } else {
+            cur_frm.set_df_property('summe_einkaufskosten_via_einkaufsrechnung','read_only', '1');
+        }
+        
         if (!cur_frm.doc.noch_nicht_abgerechnete_stunden_updated) {
             cur_frm.set_value("noch_nicht_abgerechnete_stunden", cur_frm.doc.zeit_gebucht_ueber_zeiterfassung);
             cur_frm.set_value("noch_nicht_abgerechnete_stunden_updated", 1);
@@ -111,6 +117,13 @@ frappe.ui.form.on("Project", {
             cur_frm.set_df_property('auftragsummen_gesamt','read_only', 0);
         } else {
             cur_frm.set_df_property('auftragsummen_gesamt','read_only', '1');
+        }
+    },
+    einkaufskosten_manuell_festsetzen: function(frm) {
+        if (cur_frm.doc.einkaufskosten_manuell_festsetzen) {
+            cur_frm.set_df_property('summe_einkaufskosten_via_einkaufsrechnung','read_only', 0);
+        } else {
+            cur_frm.set_df_property('summe_einkaufskosten_via_einkaufsrechnung','read_only', '1');
         }
     },
     customer: function (frm) {
