@@ -115,13 +115,10 @@ frappe.ui.form.on('Quotation', {
             frappe.msgprint( "Die Wahrscheindlichkeit kann nicht über 100% liegen", __("Validation") );
         }
     },
-    party_name: function(frm) {
-        if (frm.doc.quotation_to == "Customer") {
-            check_foreign_customers(frm.doc.party_name);
-        }
-        
+    party_name: function(frm) {        
         if (cur_frm.doc.quotation_to == 'Customer') {
             setTimeout(function(){ shipping_address_query(frm); }, 500);
+            check_foreign_customers(frm.doc.party_name);
         }
         
         if (cur_frm.doc.party_name && cur_frm.doc.quotation_to == "Customer") {
