@@ -17,6 +17,7 @@ def get_default_cost_center(user):
         return frappe.db.get_value("energielenker Settings", "energielenker Settings", "default_cost_center")
 
 def autoclose_purchase_order():
+    #close all orders from specific supplier
     affected_supplier = frappe.db.get_value("energielenker Settings", "energielenker Settings", "supplier_to_autoclose")
     
     autoclosed_documents = []
@@ -51,6 +52,44 @@ def autoclose_purchase_order():
             frappe.db.commit()
             autoclosed_documents.append(order.get('name'))
             
+    #close order with 100% delivery and no actions sice 3 Months
+    open_orders = frappe.db.sql("""
+                            SELECT
+                                `name`,
+                                `status`,
+                                `per_received`,
+                                `per_billed`,
+                                `modified`
+                            FROM
+                                `tabPurchase Order`
+                            WHERE
+                                `docstatus` = 1
+                            AND
+                                `status` IN ("To Receive and Bill", "To Receive", "To Bill")""", as_dict=True)
+    closed_by_receiving = []
+    closed_by_billed = []
+    three_months_ago = add_months(getdate(), -3)
+    for open_order in open_orders:
+        if open_order.get('modified') < three_months_ago and open_order.get('per_received') > 99:
+            po_doc = frappe.get_doc("Purchase Order", open_order.get('name'))
+            po_doc.set_status(update=True, status="Closed")
+            po_doc.save()
+            frappe.db.commit()
+            closed_by_receiving.append(open_order.get('name'))
+        elif open_order.get('per_billed') > 99.995 and open_order.get('status') == "To Bill":
+            frappe.db.set_value("Purchase Order", open_order.get('name'), "status", "Completed")
+            frappe.db.set_value("Purchase Order", open_order.get('name'), "per_billed", 100)
+            frappe.db.commit()
+            closed_by_billed.append(open_order.get('name'))
     frappe.log_error(autoclosed_documents, "Closed Purchase Orders")
-            
+    frappe.log_error(closed_by_receiving, "Closed Purchase Orders")
+    frappe.log_error(closed_by_billed, "Closed Purchase Orders")
+    return
+    
+def test_something():
+    # ~ frappe.db.set_value("Purchase Order", "BE0002232", "status", "To Bill")
+    # ~ frappe.db.set_value("Purchase Order", "BE0002232", "per_billed", 99)
+    po_doc = frappe.get_doc("Purchase Order", "BE0002232")
+    po_doc.set_status(update=True, status="Closed")
+    frappe.db.commit()
     return
