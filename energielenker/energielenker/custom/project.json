@@ -2145,7 +2145,7 @@
    "creation": "2021-09-22 16:24:08.401328",
    "default": null,
    "depends_on": null,
-   "description": null,
+   "description": "Mit Bezug auf Mitarbeitersatz",
    "docstatus": 0,
    "dt": "Project",
    "fetch_from": null,
