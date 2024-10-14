@@ -4,7 +4,6 @@
 frappe.ui.form.on('Work Order', {
     refresh: function(frm) {
         if (frm.doc.__islocal) {
-            cur_frm.set_value("use_multi_level_bom", 0);
             if (frm.doc.bom_no) {
                 set_bom_values(frm);
             }
@@ -35,6 +34,7 @@ function set_bom_values(frm) {
                 cur_frm.set_value("project", project);
                 cur_frm.set_value("fg_warehouse", fg_warehouse);
                 cur_frm.set_value("wip_warehouse", wip_warehouse);
+                cur_frm.set_value("use_multi_level_bom", 0);
             }, 1000);
             setTimeout(function(){
                 cur_frm.set_value("sales_order", sales_order);
