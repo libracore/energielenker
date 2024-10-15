@@ -385,69 +385,71 @@ class PowerProject():
           -> summe_Lieferscheinpositionen
         '''
         
-        summe_einkaufsrechnungspositionen = frappe.db.sql("""SELECT
+        if not self.project.einkaufskosten_manuell_festsetzen == 1:
+            summe_einkaufsrechnungspositionen = frappe.db.sql("""SELECT
+                                                                    SUM(`amount`) AS `amount`
+                                                                FROM `tabPurchase Invoice Item`
+                                                                WHERE `parent` IN (
+                                                                    SELECT
+                                                                        `name`
+                                                                    FROM `tabPurchase Invoice`
+                                                                    WHERE `project` = '{project}'
+                                                                    AND `docstatus` = 1
+                                                                )
+                                                                AND `item_code` NOT IN (
+                                                                    SELECT
+                                                                        `name`
+                                                                    FROM `tabItem`
+                                                                    WHERE `is_stock_item` = 1
+                                                                )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+            
+            summe_lagerbuchungspositionen = frappe.db.sql("""SELECT
                                                                 SUM(`amount`) AS `amount`
-                                                            FROM `tabPurchase Invoice Item`
+                                                            FROM `tabStock Entry Detail`
                                                             WHERE `parent` IN (
                                                                 SELECT
                                                                     `name`
-                                                                FROM `tabPurchase Invoice`
+                                                                FROM `tabStock Entry`
+                                                                WHERE `project` = '{project}'
+                                                                AND `docstatus` = 1
+                                                                AND `stock_entry_type` = 'Material Issue'
+                                                            )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+            
+            _summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
+                                                                `qty` AS `qty`,
+                                                                `name` AS `voucher_detail_no`,
+                                                                `serial_no`
+                                                            FROM `tabDelivery Note Item`
+                                                            WHERE `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabDelivery Note`
                                                                 WHERE `project` = '{project}'
                                                                 AND `docstatus` = 1
                                                             )
-                                                            AND `item_code` NOT IN (
+                                                            AND `item_code` IN (
                                                                 SELECT
                                                                     `name`
                                                                 FROM `tabItem`
                                                                 WHERE `is_stock_item` = 1
-                                                            )""".format(project=self.project.name), as_dict=True)[0].amount or 0
-        
-        summe_lagerbuchungspositionen = frappe.db.sql("""SELECT
-                                                            SUM(`amount`) AS `amount`
-                                                        FROM `tabStock Entry Detail`
-                                                        WHERE `parent` IN (
-                                                            SELECT
-                                                                `name`
-                                                            FROM `tabStock Entry`
-                                                            WHERE `project` = '{project}'
-                                                            AND `docstatus` = 1
-                                                            AND `stock_entry_type` = 'Material Issue'
-                                                        )""".format(project=self.project.name), as_dict=True)[0].amount or 0
-        
-        _summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
-                                                            `qty` AS `qty`,
-                                                            `name` AS `voucher_detail_no`,
-                                                            `serial_no`
-                                                        FROM `tabDelivery Note Item`
-                                                        WHERE `parent` IN (
-                                                            SELECT
-                                                                `name`
-                                                            FROM `tabDelivery Note`
-                                                            WHERE `project` = '{project}'
-                                                            AND `docstatus` = 1
-                                                        )
-                                                        AND `item_code` IN (
-                                                            SELECT
-                                                                `name`
-                                                            FROM `tabItem`
-                                                            WHERE `is_stock_item` = 1
-                                                        )""".format(project=self.project.name), as_dict=True)
-        summe_Lieferscheinpositionen = 0
-        for value in _summe_Lieferscheinpositionen:
-            valuation_rate = 0
-            if not value.get('serial_no'):
-                valuation_rate = frappe.db.sql("""SELECT `valuation_rate` FROM `tabStock Ledger Entry` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
-                if len(valuation_rate) > 0:
-                    valuation_rate = valuation_rate[0].valuation_rate
-            else:
-                serial_no = value.get('serial_no').replace(" ", "").split("/n")[0]
-                basic_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `serial_no` LIKE "%{0}%" """.format(serial_no), as_dict=True)
-                if len(basic_rate) > 0:
-                    valuation_rate = basic_rate[0].basic_rate
-            summe_Lieferscheinpositionen += (value.qty * valuation_rate)
-        
-        return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
-    
+                                                            )""".format(project=self.project.name), as_dict=True)
+            summe_Lieferscheinpositionen = 0
+            for value in _summe_Lieferscheinpositionen:
+                valuation_rate = 0
+                if not value.get('serial_no'):
+                    valuation_rate = frappe.db.sql("""SELECT `valuation_rate` FROM `tabStock Ledger Entry` WHERE `voucher_detail_no` = '{0}'""".format(value.voucher_detail_no), as_dict=True)
+                    if len(valuation_rate) > 0:
+                        valuation_rate = valuation_rate[0].valuation_rate
+                else:
+                    serial_no = value.get('serial_no').replace(" ", "").split("/n")[0]
+                    basic_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `serial_no` LIKE "%{0}%" """.format(serial_no), as_dict=True)
+                    if len(basic_rate) > 0:
+                        valuation_rate = basic_rate[0].basic_rate
+                summe_Lieferscheinpositionen += (value.qty * valuation_rate)
+            
+            return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
+        else:
+            return self.project.summe_einkaufskosten_via_einkaufsrechnung
     def get_auftragsummen_gesamt(self):
         if not self.project.auftragsumme_manuell_festsetzen == 1:
             return self.project.total_sales_amount - get_projektbewertung_ignorieren_amount(self)
