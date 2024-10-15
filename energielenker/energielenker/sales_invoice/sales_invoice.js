@@ -109,6 +109,10 @@ frappe.ui.form.on("Sales Invoice", {
         if (cur_frm.doc.navision_deviation) {
             frappe.msgprint("Achtung, folgende Positionen besitzen eine abweichende Navision Kontonummer:<br>" + cur_frm.doc.navision_deviation, "Abweichende Navision Kontonummern");
         }
+        
+        if (cur_frm.doc.__islocal) {
+            check_foreign_customers(frm.doc.customer);
+        }
     },
     before_save(frm) {
 		set_zusatzgeschaft(frm);
@@ -116,7 +120,7 @@ frappe.ui.form.on("Sales Invoice", {
 	},
     customer: function(frm) {
         shipping_address_query(frm);
-        check_foreign_customers(frm);
+        check_foreign_customers(frm.doc.customer);
     },
     validate: function(frm) {
         check_navision(frm);
@@ -482,26 +486,5 @@ function check_stundensatz(frm) {
 			}
 		});
 	}
-}
-
-function check_foreign_customers(frm) {
-    if (frm.doc.customer) {
-        frappe.call({
-            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
-            'args': {
-                'customer': frm.doc.customer
-            },
-            'callback': function(response) {
-                if (response.message) {
-                    let taxes = response.message
-                    cur_frm.set_value('taxes_and_charges', taxes);
-                } else {
-                    cur_frm.set_value('taxes_and_charges', null);
-                }
-            }
-        });
-    } else {
-        cur_frm.set_value('taxes_and_charges', null);
-    }
 }
 

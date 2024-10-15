@@ -112,6 +112,7 @@ frappe.ui.form.on("Sales Order", {
         
         if (cur_frm.doc.__islocal) {
             check_for_part_list_items(frm);
+            check_foreign_customers(frm.doc.customer);
         }
         
         // hack to remove "+" in dashboard
@@ -132,7 +133,7 @@ frappe.ui.form.on("Sales Order", {
     },
     customer: function(frm) {
         set_lead_source(frm.doc.customer);
-        check_foreign_customers(frm);
+        check_foreign_customers(frm.doc.customer);
         shipping_address_query(frm);
         if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
             frm.add_custom_button(__("Hinterlege Lieferant"), function() {
@@ -909,27 +910,6 @@ function part_list_items_check(frm) {
         if (frm.doc.items[i].with_bom && !frm.doc.part_list_items) {
             frappe.msgprint("Dokument enthält keine Stücklistenartikel, obwohl mind. 1 Artikel eine Stückliste benötigt.", "Fehlende Stücklistenartikel");
         }
-    }
-}
-
-function check_foreign_customers(frm) {
-    if (frm.doc.customer) {
-        frappe.call({
-            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
-            'args': {
-                'customer': frm.doc.customer
-            },
-            'callback': function(response) {
-                if (response.message) {
-                    let taxes = response.message
-                    cur_frm.set_value('taxes_and_charges', taxes);
-                } else {
-                    cur_frm.set_value('taxes_and_charges', null);
-                }
-            }
-        });
-    } else {
-        cur_frm.set_value('taxes_and_charges', null);
     }
 }
 

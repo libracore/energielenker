@@ -630,3 +630,24 @@ frappe.new_doc = function (doctype, opts, init_callback) {
 
 	});
 }
+
+function check_foreign_customers(customer) {
+    if (customer) {
+        frappe.call({
+            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
+            'args': {
+                'customer': customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    let taxes = response.message
+                    cur_frm.set_value('taxes_and_charges', taxes);
+                } else {
+                    cur_frm.set_value('taxes_and_charges', null);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value('taxes_and_charges', null);
+    }
+}

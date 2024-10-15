@@ -86,16 +86,13 @@ frappe.ui.form.on('Quotation', {
             frm.add_custom_button(__("Get Quotation Template"), function() {
                 get_quotation_template(frm);
             });
+            if (frm.doc.quotation_to == "Customer") {
+                check_foreign_customers(frm.doc.party_name);
+            }
         }
         
         cost_center_query(frm);
         set_row_options(frm);
-    },
-    party_name: function(frm) {
-        check_foreign_customers(frm);
-        if (cur_frm.doc.quotation_to == 'Customer') {
-            setTimeout(function(){ shipping_address_query(frm); }, 500);
-        }
     },
     validate: function(frm) {
         check_vielfaches(frm);
@@ -118,7 +115,12 @@ frappe.ui.form.on('Quotation', {
             frappe.msgprint( "Die Wahrscheindlichkeit kann nicht über 100% liegen", __("Validation") );
         }
     },
-    party_name: function(frm) {
+    party_name: function(frm) {        
+        if (cur_frm.doc.quotation_to == 'Customer') {
+            setTimeout(function(){ shipping_address_query(frm); }, 500);
+            check_foreign_customers(frm.doc.party_name);
+        }
+        
         if (cur_frm.doc.party_name && cur_frm.doc.quotation_to == "Customer") {
             validate_customer(frm, "customer");
         }
@@ -440,27 +442,6 @@ function check_for_family(item_code, quantity) {
     setTimeout(function(){
         locals.item_family=false;
     }, 3000);
-}
-
-function check_foreign_customers(frm) {
-    if (frm.doc.party_name && frm.doc.quotation_to == "Customer") {
-        frappe.call({
-            'method': "energielenker.energielenker.sales_invoice.sales_invoice.get_vat_template",
-            'args': {
-                'customer': frm.doc.party_name
-            },
-            'callback': function(response) {
-                if (response.message) {
-                    let taxes = response.message
-                    cur_frm.set_value('taxes_and_charges', taxes);
-                } else {
-                    cur_frm.set_value('taxes_and_charges', null);
-                }
-            }
-        });
-    } else {
-        cur_frm.set_value('taxes_and_charges', null);
-    }
 }
 
 function set_new_rows(frm) {

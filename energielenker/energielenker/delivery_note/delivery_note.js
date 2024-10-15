@@ -128,6 +128,7 @@ frappe.ui.form.on("Delivery Note", {
         if (frm.doc.__islocal) {
             validate_depot(frm);
             check_product_bundle(frm);
+            check_foreign_customers(frm.doc.customer);
         }
     },
     before_save(frm) {
@@ -218,6 +219,7 @@ frappe.ui.form.on("Delivery Note", {
     },
     customer: function(frm) {
         shipping_address_query(frm);
+        check_foreign_customers(frm.doc.customer);
     },
     project: function(frm) {
        if (frm.doc.__islocal && cur_frm.doc.project) {
