@@ -22,12 +22,15 @@ def add_mail_as_description_to_issue(self, event):
                     frappe.db.set_value("Issue", self.reference_name, 'description', self.content, update_modified=False)
                     frappe.db.set_value("Issue", self.reference_name, 'mark_for_reply', 0, update_modified=False)
                     frappe.db.commit()
+                else:
+                    update_timestamp(self.reference_name)
         else:
             frappe.db.set_value("Issue", self.reference_name, 'description', 'Dieses Ticket wird innert 4 Minuten gelöscht und kann/muss ignoriert werden!', update_modified=False)
             frappe.db.set_value("Issue", self.reference_name, 'subject', 'Löschvormerkung', update_modified=False)
             frappe.db.set_value("Issue", self.reference_name, 'issue_type', 'Reklamation', update_modified=False)
             frappe.db.set_value("Issue", self.reference_name, 'mark_for_deletion', 1, update_modified=False)
             relink(name=self.name, reference_doctype='Issue', reference_name=betreff_check.get('belongs_to'))
+            update_timestamp(betreff_check.get('belongs_to'))
 
 def send_issue_creation_notification_to_customer(issue, description, sender, subject):
     subject = subject
@@ -113,3 +116,7 @@ def set_booked_hours(self, event):
 
 	return
 		
+        
+def update_timestamp(issue):
+    frappe.db.set_value("Issue", issue, 'update_timestamp', frappe.db.get_value("Issue", issue, 'update_timestamp') + 1)
+    return
