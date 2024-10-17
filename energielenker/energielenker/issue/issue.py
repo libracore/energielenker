@@ -86,37 +86,52 @@ def delete_based_on_mark():
 
 @frappe.whitelist()
 def set_booked_hours(self, event):
-	
-	affected_issues = []
-	
-	for time_log in self.time_logs:
-		if time_log.issue and time_log.issue not in affected_issues:
-			affected_issues.append(time_log.issue)
-	
-	for issue in affected_issues:
-		sql_query = """
-			SELECT SUM(`hours`) AS `total_hours`
-			FROM `tabTimesheet Detail`
-			WHERE `issue` = '{issue}'
-			AND `docstatus` = 1;""".format(issue=issue)
-	
-		total_hours = frappe.db.sql(sql_query, as_dict=True)
+    
+    affected_issues = []
+    
+    for time_log in self.time_logs:
+        if time_log.issue and time_log.issue not in affected_issues:
+            affected_issues.append(time_log.issue)
+    
+    for issue in affected_issues:
+        sql_query = """
+            SELECT SUM(`hours`) AS `total_hours`
+            FROM `tabTimesheet Detail`
+            WHERE `issue` = '{issue}'
+            AND `docstatus` = 1;""".format(issue=issue)
+    
+        total_hours = frappe.db.sql(sql_query, as_dict=True)
 
-		if len(total_hours) > 0:
-			booked_hours = total_hours[0].total_hours
-		else:
-			booked_hours = 0
-		
-		if not booked_hours:
-			booked_hours = 0
-		
-		frappe.db.set_value("Issue", issue, "booked_hours", booked_hours)
-	
-	frappe.db.commit()
+        if len(total_hours) > 0:
+            booked_hours = total_hours[0].total_hours
+        else:
+            booked_hours = 0
+        
+        if not booked_hours:
+            booked_hours = 0
+        
+        frappe.db.set_value("Issue", issue, "booked_hours", booked_hours)
+    
+    frappe.db.commit()
 
-	return
-		
+    return
+        
         
 def update_timestamp(issue):
     frappe.db.set_value("Issue", issue, 'update_timestamp', frappe.db.get_value("Issue", issue, 'update_timestamp') + 1)
     return
+
+@frappe.whitelist()
+def send_invoice_notification(issue):
+    recipient = frappe.db.get_value("energielenker Settings", "energielenker Settings", "issue_notification_to")
+    
+    cc = frappe.db.get_value("energielenker Settings", "energielenker Settings", "issue_notification_cc")
+
+    message = "Guten Tag,<br><br>Anfrage {0} wurde zur Berechnung freigegeben.<br><br>Ich wünsche Ihnen einen schönen Tag.".format(issue)
+    
+    
+    return {
+        'recipient': recipient,
+        'cc': cc,
+        'message': message
+        }

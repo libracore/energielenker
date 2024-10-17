@@ -28,7 +28,11 @@
   "cfos_ssh_public_key",
   "cfos_api_secret",
   "sales_overview",
-  "items"
+  "items",
+  "approval_for_invoice_section",
+  "issue_notification_to",
+  "column_break_27",
+  "issue_notification_cc"
  ],
  "fields": [
   {
@@ -170,10 +174,31 @@
    "label": "Supplier to autoclose",
    "options": "Supplier",
    "reqd": 1
+  },
+  {
+   "fieldname": "approval_for_invoice_section",
+   "fieldtype": "Section Break",
+   "label": "Approval for Invoice"
+  },
+  {
+   "fieldname": "issue_notification_to",
+   "fieldtype": "Link",
+   "label": "Issue Notification To",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_27",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_notification_cc",
+   "fieldtype": "Link",
+   "label": "Issue Notification cc",
+   "options": "User"
   }
  ],
  "issingle": 1,
- "modified": "2024-07-31 16:08:54.679467",
+ "modified": "2024-10-17 17:36:41.975248",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

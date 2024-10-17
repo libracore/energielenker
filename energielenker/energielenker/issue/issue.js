@@ -93,6 +93,9 @@ frappe.ui.form.on('Issue', {
             cur_frm.set_value("reklamationsverfolgung", "");
         }
     },
+    before_save: function(frm) {
+        send_invoice_notification(frm);
+    }
 })
 
 // Change the timeline specification, from "X days ago" to the exact date and time
@@ -119,4 +122,35 @@ function custom_mail_dialog(frm) {
     });
 }
 
+function send_invoice_notification(frm) {
+    if (frm.doc.zur_berechnung_freigegeben && !frm.doc.berechnung_email_sent) {
+        frappe.call({
+            'method': 'energielenker.energielenker.issue.issue.send_invoice_notification',
+            'args': {
+                'issue': frm.doc.name
+            },
+            'callback': function(response) {
+                var recipient = response.message.recipient;
+                var cc = response.message.cc
+                var message = response.message.message
+                new frappe.views.CommunicationComposer({
+                    doc: {
+                        doctype: cur_frm.doc.doctype,
+                        name: cur_frm.doc.name
+                    },
+                    subject: "Anfrage " + cur_frm.doc.name + " wurde zur Berechnung freigegeben",
+                    cc: cc,
+                    recipients: recipient,
+                    attach_document_print: false,
+                    message: message
+                });
+                console.log(recipient);
+                console.log(cc);
+                console.log(message);
+                cur_frm.set_value("berechnung_email_sent", 1);
+            }
+        });
+    }
+
+}
 
