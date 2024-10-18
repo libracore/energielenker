@@ -129,9 +129,18 @@ def send_invoice_notification(issue):
 
     message = "Guten Tag,<br><br>Anfrage {0} wurde zur Berechnung freigegeben.<br><br>Ich wünsche Ihnen einen schönen Tag.".format(issue)
     
+    subject = "Anfrage {0} wurde zur Berechnung freigegeben".format(issue)
     
-    return {
-        'recipient': recipient,
-        'cc': cc,
-        'message': message
-        }
+    if not recipient and not cc:
+        frappe.throw("Achtung es wurde keine Erinnerung zur Verrechnung gesendet, da keine E-Mail Adressen in den energielenker Settings hinterlegt sind.")
+    else:
+        frappe.sendmail( 
+                recipients=[recipient],
+                cc= [cc],
+                subject= subject,
+                message= message, 
+                reference_doctype="Issue",
+                reference_name=issue,
+                sender='support@energielenker.de')
+                
+        return
