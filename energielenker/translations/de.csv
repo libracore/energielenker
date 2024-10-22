@@ -105,3 +105,6 @@ DocType: Sales Order,Set with Quantity,Mit Stückzahl gesetzt
 DocType: BOM,Sales Order Line,Zeile in Kunden-AB
 DocType: Project,Software Handover Date,Datum Übergabe Software (z.B. EDM)
 DocType: Project,corresponds to start of license year,entspricht Beginn Lizenzjahr
+DocType: energielenker Settings,Approval for Invoice,Zur Berechnung freigegeben
+DocType: energielenker Settings,Issue Notification cc,Anfrage Meldung cc
+DocType: energielenker Settings,Issue Notification To,Anfrage Meldung an
