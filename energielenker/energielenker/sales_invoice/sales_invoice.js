@@ -218,6 +218,8 @@ frappe.ui.form.on("Sales Invoice", {
                     }
                 }
             });
+        } else {
+            frm.set_value('billing_address', null);
         }
     },
     billing_contact: function(frm) {
@@ -233,6 +235,8 @@ frappe.ui.form.on("Sales Invoice", {
                     }
                 }
             });
+        } else {
+            frm.set_value('billing_contact_display', null);
         }
     }
 });
