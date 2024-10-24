@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.utils import get_datetime
 from energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein import get_lizenz_qty_so
+from decimal import Decimal, ROUND_HALF_UP
 
 def get_print_items(dt, dn, total_value_needed=False):
     doc = frappe.get_doc(dt, dn)
@@ -1456,4 +1457,7 @@ def get_lieferdata(lieferscheine):
             lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", lieferscheine).posting_date)).strftime('%d.%m.%Y')
             lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)        
             return lieferdata
-    
+            
+#Round economic with Jinja
+def rounded(amount):
+    return Decimal(str(amount)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)

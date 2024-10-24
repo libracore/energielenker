@@ -86,7 +86,8 @@ jenv = {
         "get_delivery_note_lizenzgutschein:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_delivery_note_lizenzgutschein",
         "get_lizenz_qty_so:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_lizenz_qty_so",
         "get_items_html:energielenker.energielenker.doctype.depot.depot.get_items_html",
-        "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items"
+        "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items",
+        "rounded:energielenker.energielenker.print_utils.utils.rounded"
     ]
 }
 

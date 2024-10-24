@@ -27,3 +27,4 @@ def get_label_dimension_settings(label_printer):
         return dimension_settings
     else:
         return False
+
