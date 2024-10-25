@@ -266,7 +266,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     if item.discount_percentage:
                         if item.rate_with_margin:
-                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin)).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate*-1).replace(",", "'").replace(".", ",").replace("'", ".")
                         else:
                             rate = cur_icon + " " + "{:,.2f}".format(rounded(item.price_list_rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
@@ -672,7 +672,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     if item.discount_percentage:
                         if item.rate_with_margin:
-                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin)).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
                         else:
                             rate = cur_icon + " " + "{:,.2f}".format(rounded(item.price_list_rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
@@ -1213,7 +1213,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     tr_print_name = "Rechnung-Nr." + tr_sales_invoice.name
                 tr_sales_invoice_posting_date = tr_sales_invoice.get_formatted('posting_date')
-                tr_sales_invoice_total = "{:,.2f}".format(rounded(tr_sales_invoice.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(tr_sales_invoice.total).replace(",", "'").replace(".", ",").replace("'", ".")
+                tr_sales_invoice_total = "{:,.2f}".format(rounded(tr_sales_invoice.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(rounded(tr_sales_invoice.total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_total_taxes_and_charges = "{:,.2f}".format(rounded(tr_sales_invoice.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_grand_total = "{:,.2f}".format(rounded(tr_sales_invoice.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_taxes_rate = "{:,.0f}".format(tr_sales_invoice.taxes[0].rate)
