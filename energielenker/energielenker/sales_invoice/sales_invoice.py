@@ -4,6 +4,8 @@
 
 import frappe
 import json
+from frappe.contacts.doctype.address.address import get_address_display
+from frappe.contacts.doctype.contact.contact import get_contact_details
 
 def validate_navision_of_items(sales_invoice, event):
     navision_deviation = ''
@@ -89,3 +91,26 @@ def set_navision_export_check(self, event):
     else:
         self.rechnung_nach_navision_exportiert = 1
     return
+
+def set_billing_information(self, event):
+    if not self.billing_address_name:
+        #check for standrad address
+        check = frappe.db.get_value("Customer", self.customer, "set_manual_billing_address")
+        if check:
+            billing_information = frappe.db.sql("""
+                                                SELECT
+                                                    `manual_billing_address`,
+                                                    `billing_contact`
+                                                FROM
+                                                    `tabCustomer`
+                                                WHERE
+                                                    `name` = '{cust}'""".format(cust=self.customer), as_dict=True)
+            
+            if len(billing_information) > 0:
+                self.billing_address_name = billing_information[0].get('manual_billing_address')
+                self.billing_contact = billing_information[0].get('billing_contact')
+                self.billing_address = get_address_display(self.billing_address_name)
+                billing_contact_display_dict = get_contact_details(self.billing_contact)
+                self.billing_contact_display = billing_contact_display_dict.get('contact_display')
+                self.save()
+                frappe.db.commit()

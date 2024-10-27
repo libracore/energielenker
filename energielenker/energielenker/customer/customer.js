@@ -15,6 +15,27 @@ frappe.ui.form.on('Customer', {
        frm.add_custom_button(__("Erstelle Supportrechnung"), function() {
             erstelle_supportrechnung(frm);
         });
+        
+        frm.set_query('manual_billing_address', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.name
+                }
+            };
+        });
+        
+        frm.set_query('billing_contact', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.name
+                }
+            };
+        });
+        if (frm.doc.__islocal) {
+            cur_frm.set_df_property('set_manual_billing_address', 'hidden', 1);
+        }
     },
     customer_primary_contact: function(frm) {
         fetch_email(frm);
@@ -52,6 +73,48 @@ frappe.ui.form.on('Customer', {
                 cur_frm.set_value("hash", r.message);
             }
         });
+    },
+    manual_billing_address: function(frm) {
+        if (frm.doc.manual_billing_address) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.address.address.get_address_display',
+                args: {
+                    address_dict: frm.doc.manual_billing_address
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('manual_billing_address_display', r.message);
+                    }
+                }
+            });
+        } else {
+           frm.set_value('manual_billing_address_display', null); 
+        }
+    },
+    billing_contact: function(frm) {
+        if (frm.doc.billing_contact) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.contact.contact.get_contact_details',
+                args: {
+                    contact: frm.doc.billing_contact
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('billing_contact_display', r.message.contact_display);
+                    }
+                }
+            });
+        } else {
+           frm.set_value('billing_contact_display', null); 
+        }
+    },
+    set_manual_billing_address: function(frm) {
+        if (!frm.doc.set_manual_billing_address) {
+            frm.set_value('manual_billing_address', null);
+            frm.set_value('manual_billing_address_display', null);
+            frm.set_value('billing_contact', null);
+            frm.set_value('billing_contact_display', null);
+        }
     }
 })
 
@@ -67,25 +130,27 @@ function set_timestamps(frm){
 }
 
 function render_address_and_contact(frm) {
+    if (!frm.doc.__islocal) {
     // render address
-    if(cur_frm.fields_dict['address_html'] && "addr_list" in cur_frm.doc.__onload) {
-        $(cur_frm.fields_dict['address_html'].wrapper)
-            .html(frappe.render_template("energielenker_address_list",
-                cur_frm.doc.__onload))
-            .find(".btn-address").on("click", function() {
-                frappe.new_doc("Address");
-            });
-    }
+        if(cur_frm.fields_dict['address_html'] && "addr_list" in cur_frm.doc.__onload) {
+            $(cur_frm.fields_dict['address_html'].wrapper)
+                .html(frappe.render_template("energielenker_address_list",
+                    cur_frm.doc.__onload))
+                .find(".btn-address").on("click", function() {
+                    frappe.new_doc("Address");
+                });
+        }
 
-    // render contact
-    if(cur_frm.fields_dict['contact_html'] && "contact_list" in cur_frm.doc.__onload) {
-        $(cur_frm.fields_dict['contact_html'].wrapper)
-            .html(frappe.render_template("kontakt_template",
-                cur_frm.doc.__onload))
-            .find(".btn-contact").on("click", function() {
-                frappe.new_doc("Contact");
-            }
-        );
+        //~ // render contact
+        if(cur_frm.fields_dict['contact_html'] && "contact_list" in cur_frm.doc.__onload) {
+            $(cur_frm.fields_dict['contact_html'].wrapper)
+                .html(frappe.render_template("kontakt_template",
+                    cur_frm.doc.__onload))
+                .find(".btn-contact").on("click", function() {
+                    frappe.new_doc("Contact");
+                }
+            );
+        }
     }
 }
 

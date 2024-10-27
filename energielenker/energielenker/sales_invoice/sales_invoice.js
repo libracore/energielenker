@@ -113,6 +113,24 @@ frappe.ui.form.on("Sales Invoice", {
         if (cur_frm.doc.__islocal) {
             check_foreign_customers(frm.doc.customer);
         }
+        
+        frm.set_query('billing_address_name', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.customer
+                }
+            };
+        });
+        
+        frm.set_query('billing_contact', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.customer
+                }
+            };
+        });
     },
     before_save(frm) {
 		set_zusatzgeschaft(frm);
@@ -121,6 +139,7 @@ frappe.ui.form.on("Sales Invoice", {
     customer: function(frm) {
         shipping_address_query(frm);
         check_foreign_customers(frm.doc.customer);
+        remove_billing_address(frm);
     },
     validate: function(frm) {
         check_navision(frm);
@@ -185,6 +204,40 @@ frappe.ui.form.on("Sales Invoice", {
                 }
             }
         });
+    },
+    billing_address_name: function(frm) {
+        if (frm.doc.billing_address_name) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.address.address.get_address_display',
+                args: {
+                    address_dict: frm.doc.billing_address_name
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('billing_address', r.message);
+                    }
+                }
+            });
+        } else {
+            frm.set_value('billing_address', null);
+        }
+    },
+    billing_contact: function(frm) {
+        if (frm.doc.billing_contact) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.contact.contact.get_contact_details',
+                args: {
+                    contact: frm.doc.billing_contact
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('billing_contact_display', r.message.contact_display);
+                    }
+                }
+            });
+        } else {
+            frm.set_value('billing_contact_display', null);
+        }
     }
 });
 
@@ -486,5 +539,12 @@ function check_stundensatz(frm) {
 			}
 		});
 	}
+}
+
+function remove_billing_address(frm) {
+    cur_frm.set_value("billing_address_name", null);
+    cur_frm.set_value("billing_address", null);
+    cur_frm.set_value("billing_contact", null);
+    cur_frm.set_value("billing_contact_display", null);
 }
 

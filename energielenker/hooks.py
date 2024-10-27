@@ -86,7 +86,8 @@ jenv = {
         "get_delivery_note_lizenzgutschein:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_delivery_note_lizenzgutschein",
         "get_lizenz_qty_so:energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein.get_lizenz_qty_so",
         "get_items_html:energielenker.energielenker.doctype.depot.depot.get_items_html",
-        "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items"
+        "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items",
+        "rounded:frappe.utils.data.rounded"
     ]
 }
 
@@ -157,7 +158,8 @@ doc_events = {
             "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so",
             "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
         ],
-        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet",
+        "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information"
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
@@ -171,7 +173,8 @@ doc_events = {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items",
         "on_submit": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
         "before_submit": "energielenker.energielenker.sales_invoice.sales_invoice.set_navision_export_check",
-        "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost"
+        "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+        "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information"
     },
     "Purchase Invoice": {
         "validate": "energielenker.energielenker.purchase_invoice.purchase_invoice.validate_lagerfuehrung_of_items"

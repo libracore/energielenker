@@ -6,6 +6,8 @@ from __future__ import unicode_literals
 import frappe
 from frappe.utils import get_datetime
 from energielenker.energielenker.doctype.lizenzgutschein.lizenzgutschein import get_lizenz_qty_so
+from frappe.utils import rounded
+
 
 def get_print_items(dt, dn, total_value_needed=False):
     doc = frappe.get_doc(dt, dn)
@@ -65,7 +67,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.preis_alternative_position).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -137,7 +139,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty=1, \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(summe_interne_positionen).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(summe_interne_positionen, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -206,8 +208,8 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", "."), \
-                            amount="{:,.2f}".format(item.amount*-1).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            amount="{:,.2f}".format(rounded(item.amount*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -264,13 +266,13 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     if item.discount_percentage:
                         if item.rate_with_margin:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.rate_with_margin).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate*-1).replace(",", "'").replace(".", ",").replace("'", ".")
                         else:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.price_list_rate).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.price_list_rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate*-1).replace(",", "'").replace(".", ",").replace("'", ".")
                     else:
-                        rate = "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
+                        rate = "{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
@@ -286,7 +288,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
                             rate=rate, \
-                            amount="{:,.2f}".format(item.amount*-1).replace(",", "'").replace(".", ",").replace("'", "."))
+                            amount="{:,.2f}".format(rounded(item.amount*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -359,7 +361,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 
             """.format(item_name=item['name'], \
                     cur_icon=cur_icon, \
-                    amount="{:,.2f}".format(item['amount']*-1).replace(",", "'").replace(".", ",").replace("'", "."))
+                    amount="{:,.2f}".format(rounded(item['amount']*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
             
             table += tr
         
@@ -377,7 +379,7 @@ def get_print_items(dt, dn, total_value_needed=False):
             
         """.format(titel=titel, \
                 cur_icon=cur_icon, \
-                amount="{:,.2f}".format(doc.total*-1).replace(",", "'").replace(".", ",").replace("'", "."))
+                amount="{:,.2f}".format(rounded(doc.total*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
         
         table += tr
         
@@ -387,8 +389,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             else:
                 additional_discount_percentage = ''
             
-            discount_amount = "{:,.2f}".format(doc.discount_amount*-1).replace(",", "'").replace(".", ",").replace("'", ".")
-            net_total = "{:,.2f}".format(doc.net_total*-1).replace(",", "'").replace(".", ",").replace("'", ".")
+            discount_amount = "{:,.2f}".format(rounded(doc.discount_amount*-1, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            net_total = "{:,.2f}".format(rounded(doc.net_total*-1, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
             
             tr = """
                 <tr class="blue-white">
@@ -409,8 +411,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             
             table += tr
         
-        total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges*-1).replace(",", "'").replace(".", ",").replace("'", ".")
-        grand_total = "{:,.2f}".format(doc.grand_total*-1).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_taxes_and_charges = "{:,.2f}".format(rounded(doc.total_taxes_and_charges*-1, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+        grand_total = "{:,.2f}".format(rounded(doc.grand_total*-1, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         tr = """
             <tr class="blue-white">
                 <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
@@ -471,7 +473,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.preis_alternative_position).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -543,7 +545,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty=1, \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(summe_interne_positionen).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(summe_interne_positionen, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -612,8 +614,8 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", "."), \
-                            amount="{:,.2f}".format(item.amount).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -670,13 +672,13 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     if item.discount_percentage:
                         if item.rate_with_margin:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.rate_with_margin).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
                         else:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.price_list_rate).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.price_list_rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
                     else:
-                        rate = "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
+                        rate = "{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
@@ -692,7 +694,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
                             rate=rate, \
-                            amount="{:,.2f}".format(item.amount).replace(",", "'").replace(".", ",").replace("'", "."))
+                            amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -766,7 +768,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 
             """.format(item_name=item['name'], \
                     cur_icon=cur_icon, \
-                    amount="{:,.2f}".format(item['amount']).replace(",", "'").replace(".", ",").replace("'", "."))
+                    amount="{:,.2f}".format(rounded(item['amount'], 2)).replace(",", "'").replace(".", ",").replace("'", "."))
             
             table += tr
         
@@ -784,7 +786,7 @@ def get_print_items(dt, dn, total_value_needed=False):
             
         """.format(titel=titel, \
                 cur_icon=cur_icon, \
-                amount="{:,.2f}".format(doc.total).replace(",", "'").replace(".", ",").replace("'", "."))
+                amount="{:,.2f}".format(rounded(doc.total, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
         
         table += tr
         
@@ -794,8 +796,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             else:
                 additional_discount_percentage = ''
             
-            discount_amount = "{:,.2f}".format(doc.discount_amount).replace(",", "'").replace(".", ",").replace("'", ".")
-            net_total = "{:,.2f}".format(doc.net_total).replace(",", "'").replace(".", ",").replace("'", ".")
+            discount_amount = "{:,.2f}".format(rounded(doc.discount_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            net_total = "{:,.2f}".format(rounded(doc.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
             
             tr = """
                 <tr class="blue-white">
@@ -816,8 +818,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             
             table += tr
         
-        total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
-        grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_taxes_and_charges = "{:,.2f}".format(rounded(doc.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+        grand_total = "{:,.2f}".format(rounded(doc.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         taxes_name = "zzgl. 19% MwSt."
         if doc.taxes_and_charges == "Germany VAT 0% - S - S":
             taxes_name = "zzgl. 0% MwSt."
@@ -853,14 +855,14 @@ def get_print_items(dt, dn, total_value_needed=False):
             sales_order = frappe.get_doc("Sales Order", doc.items[0].sales_order)
             for teilrechnung in sales_order.billing_overview:
                 if teilrechnung.sales_invoice == doc.name:
-                    total = "{:,.2f}".format(doc.total).replace(",", "'").replace(".", ",").replace("'", ".")
+                    total = "{:,.2f}".format(rounded(doc.total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     idx = teilrechnung.idx
                     project = sales_order.project
-                    billing_portion = "{:,.1f}".format(teilrechnung.billing_portion).replace(",", "'").replace(".", ",").replace("'", ".")
-                    net_total = "{:,.2f}".format(doc.net_total).replace(",", "'").replace(".", ",").replace("'", ".")
+                    billing_portion = "{:,.1f}".format(rounded(teilrechnung.billing_portion, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                    net_total = "{:,.2f}".format(rounded(doc.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     tax_rate = doc.taxes[0].rate
-                    total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
-                    grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+                    total_taxes_and_charges = "{:,.2f}".format(rounded(doc.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                    grand_total = "{:,.2f}".format(rounded(doc.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>1</b></td>
@@ -954,7 +956,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.preis_alternative_position).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -1015,7 +1017,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty=1, \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(summe_interne_positionen).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(summe_interne_positionen, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -1073,8 +1075,8 @@ def get_print_items(dt, dn, total_value_needed=False):
                             item_name=item.item_name, \
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
-                            rate="{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", "."), \
-                            amount="{:,.2f}".format(item.amount).replace(",", "'").replace(".", ",").replace("'", "."))
+                            rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -1120,13 +1122,13 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     if item.discount_percentage:
                         if item.rate_with_margin:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.rate_with_margin).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.rate_with_margin, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
                         else:
-                            rate = cur_icon + " " + "{:,.2f}".format(item.price_list_rate).replace(",", "'").replace(".", ",").replace("'", ".") + \
+                            rate = cur_icon + " " + "{:,.2f}".format(rounded(item.price_list_rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".") + \
                                     '<br>' + '-' + str(item.discount_percentage) + '%<br>' + cur_icon + " " + "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
                     else:
-                        rate = "{:,.2f}".format(item.rate).replace(",", "'").replace(".", ",").replace("'", ".")
+                        rate = "{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
@@ -1142,7 +1144,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
                             cur_icon=cur_icon, \
                             rate=rate, \
-                            amount="{:,.2f}".format(item.amount).replace(",", "'").replace(".", ",").replace("'", "."))
+                            amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
                     for line in item.description.split("</div>"):
                         tr += """
@@ -1211,12 +1213,12 @@ def get_print_items(dt, dn, total_value_needed=False):
                 else:
                     tr_print_name = "Rechnung-Nr." + tr_sales_invoice.name
                 tr_sales_invoice_posting_date = tr_sales_invoice.get_formatted('posting_date')
-                tr_sales_invoice_total = "{:,.2f}".format(tr_sales_invoice.net_total).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(tr_sales_invoice.total).replace(",", "'").replace(".", ",").replace("'", ".")
-                tr_sales_invoice_total_taxes_and_charges = "{:,.2f}".format(tr_sales_invoice.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
-                tr_sales_invoice_grand_total = "{:,.2f}".format(tr_sales_invoice.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+                tr_sales_invoice_total = "{:,.2f}".format(rounded(tr_sales_invoice.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(rounded(tr_sales_invoice.total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                tr_sales_invoice_total_taxes_and_charges = "{:,.2f}".format(rounded(tr_sales_invoice.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                tr_sales_invoice_grand_total = "{:,.2f}".format(rounded(tr_sales_invoice.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                 tr_sales_invoice_taxes_rate = "{:,.0f}".format(tr_sales_invoice.taxes[0].rate)
                 if tr_sales_invoice.status == 'Paid':
-                    tr_sales_invoice_paid_amount = cur_icon + "{:,.2f}".format(tr_sales_invoice.grand_total - tr_sales_invoice.outstanding_amount).replace(",", "'").replace(".", ",").replace("'", ".")
+                    tr_sales_invoice_paid_amount = cur_icon + "{:,.2f}".format(rounded(tr_sales_invoice.grand_total - tr_sales_invoice.outstanding_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                 else:
                     tr_sales_invoice_paid_amount = "-"
                 
@@ -1279,7 +1281,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 
             """.format(item_name=item['name'], \
                     cur_icon=cur_icon, \
-                    amount="{:,.2f}".format(item['amount']).replace(",", "'").replace(".", ",").replace("'", "."))
+                    amount="{:,.2f}".format(rounded(item['amount'], 2)).replace(",", "'").replace(".", ",").replace("'", "."))
             
             table += tr
         
@@ -1297,7 +1299,7 @@ def get_print_items(dt, dn, total_value_needed=False):
             
         """.format(titel=titel, \
                 cur_icon=cur_icon, \
-                amount="{:,.2f}".format(doc.total).replace(",", "'").replace(".", ",").replace("'", "."))
+                amount="{:,.2f}".format(rounded(doc.total, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
         
         table += tr
         
@@ -1307,8 +1309,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             else:
                 additional_discount_percentage = ''
             
-            discount_amount = "{:,.2f}".format(doc.discount_amount).replace(",", "'").replace(".", ",").replace("'", ".")
-            net_total = "{:,.2f}".format(doc.net_total).replace(",", "'").replace(".", ",").replace("'", ".")
+            discount_amount = "{:,.2f}".format(rounded(doc.discount_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            net_total = "{:,.2f}".format(rounded(doc.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
             
             tr = """
                 <tr class="blue-white">
@@ -1329,8 +1331,8 @@ def get_print_items(dt, dn, total_value_needed=False):
             
             table += tr
         
-        total_taxes_and_charges = "{:,.2f}".format(doc.total_taxes_and_charges).replace(",", "'").replace(".", ",").replace("'", ".")
-        grand_total = "{:,.2f}".format(doc.grand_total).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_taxes_and_charges = "{:,.2f}".format(rounded(doc.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+        grand_total = "{:,.2f}".format(rounded(doc.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         taxes_name = "zzgl. 19% MwSt."
         taxes_abschlage_name = "abzgl. Abschläge 19 % MwSt."
         if doc.taxes_and_charges == "Germany VAT 0% - S - S":
@@ -1355,9 +1357,9 @@ def get_print_items(dt, dn, total_value_needed=False):
         
         table += tr
         
-        total_brutto = "{:,.2f}".format(doc.grand_total - total_anzahlung - total_anzahlung_mwst).replace(",", "'").replace(".", ",").replace("'", ".")
-        total_anzahlung = "{:,.2f}".format(total_anzahlung).replace(",", "'").replace(".", ",").replace("'", ".")
-        total_anzahlung_mwst = "{:,.2f}".format(total_anzahlung_mwst).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_brutto = "{:,.2f}".format(rounded(doc.grand_total - total_anzahlung - total_anzahlung_mwst, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_anzahlung = "{:,.2f}".format(rounded(total_anzahlung, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+        total_anzahlung_mwst = "{:,.2f}".format(rounded(total_anzahlung_mwst, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         
         tr = """
             <tr class="blue-white">
@@ -1456,4 +1458,4 @@ def get_lieferdata(lieferscheine):
             lieferdatum = get_datetime(str(frappe.get_doc("Delivery Note", lieferscheine).posting_date)).strftime('%d.%m.%Y')
             lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)        
             return lieferdata
-    
+            

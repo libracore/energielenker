@@ -117,6 +117,24 @@ frappe.ui.form.on("Sales Order", {
         
         // hack to remove "+" in dashboard
         $(":button[data-doctype='Issue']").remove();
+        
+        frm.set_query('billing_address_name', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.customer
+                }
+            };
+        });
+        
+        frm.set_query('billing_contact', function() {
+            return {
+                filters: {
+                    'link_doctype': 'Customer',
+                    'link_name': frm.doc.customer
+                }
+            };
+        });
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -135,6 +153,7 @@ frappe.ui.form.on("Sales Order", {
         set_lead_source(frm.doc.customer);
         check_foreign_customers(frm.doc.customer);
         shipping_address_query(frm);
+        remove_billing_address(frm);
         if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
             frm.add_custom_button(__("Hinterlege Lieferant"), function() {
                 hinterlege_cfos_als_lieferant(frm);
@@ -387,6 +406,40 @@ frappe.ui.form.on("Sales Order", {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
+        }
+    },
+    billing_address_name: function(frm) {
+        if (frm.doc.billing_address_name) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.address.address.get_address_display',
+                args: {
+                    address_dict: frm.doc.billing_address_name
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('billing_address', r.message);
+                    }
+                }
+            });
+        } else {
+            frm.set_value('billing_address', null);
+        }
+    },
+    billing_contact: function(frm) {
+        if (frm.doc.billing_contact) {
+            frappe.call({
+                method: 'frappe.contacts.doctype.contact.contact.get_contact_details',
+                args: {
+                    contact: frm.doc.billing_contact
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('billing_contact_display', r.message.contact_display);
+                    }
+                }
+            });
+        } else {
+            frm.set_value('billing_contact_display', null);
         }
     }
 });
@@ -986,4 +1039,11 @@ function display_closed_positions(frm) {
     if (display) {
         cur_frm.dashboard.add_comment( "Achtung, folgende Positionen wurden manuell geschlossen: <br>" + closed_items, 'red', true);
     }
+}
+
+function remove_billing_address(frm) {
+    cur_frm.set_value("billing_address_name", null);
+    cur_frm.set_value("billing_address", null);
+    cur_frm.set_value("billing_contact", null);
+    cur_frm.set_value("billing_contact_display", null);
 }
