@@ -238,7 +238,6 @@ def check_so_quantities(doc):
     for item in doc.get('items'):
         if item.get('against_sales_order'):
             undelivered_so_qty = frappe.db.get_value("Sales Order Item", item.get('so_detail'), "qty") - frappe.db.get_value("Sales Order Item", item.get('so_detail'), "delivered_qty")
-            frappe.log_error(undelivered_so_qty, "undelivered_so_qty")
             if item.get('qty') > undelivered_so_qty:
                 message +=  '<li><b>{0} (Zeile {1})</b></li>'.format(item.get('item_code'), item.get('idx'))
                 affected_items.append({'item_line_name': item.get('name'), 'undelivered_qty': undelivered_so_qty})
