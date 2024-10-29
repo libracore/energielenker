@@ -229,19 +229,18 @@ def toggle_check_against_sales_order(dn, flag):
     return
     
 @frappe.whitelist()
-def check_so_quantities(_doc):
-    doc = json.loads(_doc)
-    
+def check_so_quantities(doc):
+    doc = json.loads(doc)
     message = '<ul style="padding-left: 32px !important; ">'
     overdelivery = False
     affected_items = []
     
-    for item in doc.items
+    for item in doc.get('items'):
         if item.get('against_sales_order'):
             undelivered_so_qty = frappe.db.get_value("Sales Order Item", item.get('so_detail'), "qty") - frappe.db.get_value("Sales Order Item", item.get('so_detail'), "delivered_qty")
             frappe.log_error(undelivered_so_qty, "undelivered_so_qty")
             if item.get('qty') > undelivered_so_qty:
-                message +=  '<li><b>{0} (Zeile {1})</b></li>'.format(item.get('item_code'), item.get('idx') + 1)
+                message +=  '<li><b>{0} (Zeile {1})</b></li>'.format(item.get('item_code'), item.get('idx'))
                 affected_items.append({'item_line_name': item.get('name'), 'undelivered_qty': undelivered_so_qty})
                 overdelivery = True
                 

@@ -694,16 +694,21 @@ function check_so_quantities(frm) {
     frappe.call({
         'method': 'energielenker.energielenker.delivery_note.delivery_note.check_so_quantities',
         'args': {
-            '_doc': frm.doc
+            'doc': frm.doc
         },
         'callback': function(response) {
             let overdelivery = response.message.overdelivery;
             if (overdelivery) {
                 let affected_items = response.message.affected_items;
-                let affected_items = response.message.message;
+                let message = response.message.message;
                 for (let i = 0; i < affected_items.length; i++) {
                     frappe.model.set_value("Delivery Note Item", affected_items[i].item_line_name, 'qty', affected_items[i].undelivered_qty);
                 }
+                frappe.msgprint({
+                    title: __('Überlieferung aus Kundenauftrag unzulässig'),
+                    indicator: 'red',
+                    message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ message }`),
+                });
             }
         }
     });
