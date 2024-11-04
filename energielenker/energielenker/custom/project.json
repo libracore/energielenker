@@ -2093,7 +2093,7 @@
    "creation": "2021-09-22 16:22:50.367387",
    "default": null,
    "depends_on": null,
-   "description": null,
+   "description": "Mit Bezug auf Internen Standardtarif",
    "docstatus": 0,
    "dt": "Project",
    "fetch_from": null,
