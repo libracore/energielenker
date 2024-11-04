@@ -146,52 +146,7 @@ frappe.ui.form.on("Delivery Note", {
             )
         }
         
-        if (frm.doc.items[0].against_sales_order) {
-            frappe.call({
-                "method": "frappe.client.get",
-                "args": {
-                    "doctype": "Sales Order",
-                    "name": frm.doc.items[0].against_sales_order
-                },
-                "callback": function(r) {
-
-                    var so = r.message;
-                    var items = frm.doc.items || [];
-                    var affected_items = `<ul style="padding-left: 32px !important; ">`;
-                    var overdelivery = 0;
-                    var dn_current_index = 0;
-                    var so_current_index = 0;
-                    
-                    for (var i = 0; i < items.length; i++) {
-                        for (var x = 0; x < so.items.length; x++) {
-                            
-                            if (items[i].item_code === so.items[x].item_code ) {
-                                                            
-                                if (items[i].idx != dn_current_index && so.items[x].idx != so_current_index ) {
-                                    dn_current_index = items[i].idx;
-                                    so_current_index = so.items[x].idx;
-                                    
-                                    if (items[i].qty > so.items[x].qty ) {
-                                        overdelivery = 1;
-                                        affected_items =  affected_items + `<li><b>${frm.doc.items[i].item_code}</b></li>`;
-                                        frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, 'qty', so.items[x].qty);
-                                    }
-                                } 
-                            } 
-                        }   
-                    }
-                    affected_items =  affected_items + `</ul>`;
-                    if (overdelivery == 1) {
-                        frappe.msgprint({
-                            title: __('Überlieferung aus Kundenauftrag unzulässig'),
-                            indicator: 'red',
-                            message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ affected_items }`),
-                        });
-                    }
-                }
-            });
-            
-        }
+        check_so_quantities(frm);
         
         // function deactivated because of conflict with new process -> should not be needed anymore (2024-10-04)
         //~ if (frm.doc.__islocal) {
@@ -733,4 +688,28 @@ function set_cost_center(frm, cdt, cdn) {
             frappe.model.set_value(cdt, cdn, "cost_center", cost_center)
         }
     }
+}
+
+function check_so_quantities(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_so_quantities',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            let overdelivery = response.message.overdelivery;
+            if (overdelivery) {
+                let affected_items = response.message.affected_items;
+                let message = response.message.message;
+                for (let i = 0; i < affected_items.length; i++) {
+                    frappe.model.set_value("Delivery Note Item", affected_items[i].item_line_name, 'qty', affected_items[i].undelivered_qty);
+                }
+                frappe.msgprint({
+                    title: __('Überlieferung aus Kundenauftrag unzulässig'),
+                    indicator: 'red',
+                    message: __(`Die Menge der folgenden Artikel wurde entsprechend der Bestellmenge korrigiert: <br><br> ${ message }`),
+                });
+            }
+        }
+    });
 }
