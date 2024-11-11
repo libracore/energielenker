@@ -21,6 +21,11 @@ frappe.ui.form.on('Stock Entry', {
     },
     work_order: function(frm) {
         set_sales_order(frm);
+    },
+    before_submit: function(frm) {
+        if (frm.doc.work_order && frm.doc.stock_entry_type == "Manufacture") {
+            set_item_so_detail(frm);
+        }
     }
 })
 
@@ -96,4 +101,24 @@ function set_sales_order(frm) {
     } else {
         cur_frm.set_value("sales_order", "");
     }
+}
+
+function set_item_so_detail(frm) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Work Order",
+            'name': frm.doc.work_order
+        },
+        'callback': function(response) {
+            let so_detail = response.message.item_so_detail;
+            if (so_detail) {
+                for (let i = 0; i < frm.doc.items.length; i++) {
+                    if (frm.doc.items[i].t_warehouse) {
+                        frappe.model.set_value(frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "item_so_detail", so_detail);
+                    }
+                }
+            }
+        }
+    });
 }

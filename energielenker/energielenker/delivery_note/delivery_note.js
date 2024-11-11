@@ -354,6 +354,9 @@ frappe.ui.form.on('Delivery Note Item', {
     },
     items_add: function(frm, cdt, cdn) {
         set_cost_center(frm, cdt, cdn);
+    },
+    fetch_serial_no: function(frm, cdt, cdn) {
+        fetch_serial_no(frm, cdt, cdn);
     }
 })
 
@@ -712,4 +715,8 @@ function check_so_quantities(frm) {
             }
         }
     });
+}
+
+function fetch_serial_no(frm, cdt, cdn) {
+    console.log("maschine");
 }

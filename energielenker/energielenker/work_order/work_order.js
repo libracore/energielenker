@@ -29,12 +29,14 @@ function set_bom_values(frm) {
             var project = response.message[0].project;
             var fg_warehouse = response.message[0].default_warehouse_readonly;
             var wip_warehouse = response.message[0].depot_warehouse;
+            var item_so_detail = response.message[0].item_so_detail;
             cur_frm.set_value("production_item", item);
             setTimeout(function(){
                 cur_frm.set_value("project", project);
                 cur_frm.set_value("fg_warehouse", fg_warehouse);
                 cur_frm.set_value("wip_warehouse", wip_warehouse);
                 cur_frm.set_value("use_multi_level_bom", 0);
+                cur_frm.set_value("item_so_detail", item_so_detail);
             }, 1000);
             setTimeout(function(){
                 cur_frm.set_value("sales_order", sales_order);
