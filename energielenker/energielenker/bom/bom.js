@@ -34,6 +34,9 @@ frappe.ui.form.on('BOM', {
         cur_frm.set_df_property('sales_order', 'read_only', 1);
     },
     item: function(frm) {
+        frm.clear_table('items');
+        frm.refresh_field('items');
+        frm.refresh_field('items');
         if (frm.doc.item && frm.doc.sales_order) {
             fetch_items_from_so(frm.doc.item, frm.doc.sales_order);
         }
@@ -109,6 +112,7 @@ function set_part_list_items(part_list_items, row) {
         if (part_list_items[i].belongs_to == row) {
             var child = cur_frm.add_child('items');
             $.extend(child, part_list_items[i]);
+            cur_frm.set_value("item_so_detail", part_list_items[i].so_detail);
         }
         
     }
