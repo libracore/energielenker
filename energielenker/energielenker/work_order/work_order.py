@@ -12,6 +12,7 @@ def get_bom_values(bom):
                     `tabBOM`.`item`,
                     `tabBOM`.`sales_order`,
                     `tabBOM`.`project`,
+                    `tabBOM`.`item_so_detail`,
                     `tabItem`.`default_warehouse_readonly`,
                     "{depot}" AS depot_warehouse
                 FROM `tabBOM`

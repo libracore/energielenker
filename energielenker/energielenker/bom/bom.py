@@ -31,19 +31,26 @@ def get_bom_items(bom_item, sales_order, doc):
     doc = json.loads(doc)
     
     part_list_items = frappe.db.sql("""
-                            SELECT
-                                `item_code`,
-                                SUM(`qty`) AS `qty`,
-                                `uom`,
-                                `belongs_to`
-                            FROM
-                                `tabSales Order Part List Item`
-                            WHERE
-                                `parent` = '{so}'
-                            GROUP BY
-                                `item_code`,
-                                `uom`,
-                                `belongs_to`""".format(so=sales_order), as_dict=True)
+                                    SELECT
+                                        `tabSales Order Part List Item`.`item_code`,
+                                        SUM(`tabSales Order Part List Item`.`qty`) AS `qty`,
+                                        `tabSales Order Part List Item`.`uom`,
+                                        `tabSales Order Part List Item`.`belongs_to`,
+                                        `tabSales Order Item`.`name` AS `so_detail`
+                                    FROM
+                                        `tabSales Order Part List Item`
+                                    LEFT JOIN
+                                        `tabSales Order Item` ON `tabSales Order Item`.`idx` = `tabSales Order Part List Item`.`belongs_to`
+                                    WHERE
+                                        `tabSales Order Part List Item`.`parent` = '{so}'
+                                    AND
+                                        `tabSales Order Item`.`item_code` = '{bom_item}'
+                                    AND
+                                        `tabSales Order Item`.`parent` = '{so}'
+                                    GROUP BY
+                                        `tabSales Order Part List Item`.`item_code`,
+                                        `tabSales Order Part List Item`.`uom`,
+                                        `tabSales Order Part List Item`.`belongs_to`""".format(so=sales_order, bom_item=bom_item), as_dict=True)
     
     item_lines = []
     my_bom = frappe.get_doc({'doctype': "BOM", 'items': part_list_items})
