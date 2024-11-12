@@ -718,5 +718,71 @@ function check_so_quantities(frm) {
 }
 
 function fetch_serial_no(frm, cdt, cdn) {
-    console.log("maschine");
+    let row = frappe.get_doc(cdt, cdn);
+    let by_item_filters = {'item_code': row.item_code, 'delivery_document_no': null, 'warehouse': row.warehouse }
+    if (row.batch_no) {
+        by_item_filters['batch_no'] = row.batch_no;
+    }
+    let serial_dialog = new frappe.ui.Dialog({
+        title: "Select Serial Numbers",
+        fields: [
+            { fieldtype: 'Section Break', label: 'Allgemeine Informationen' },
+
+            {
+                fieldname: 'item_code',
+                label: 'Item Code',
+                fieldtype: 'Data',
+                read_only: 1,
+                options: 'Customer'
+            },
+            
+            { fieldtype: 'Column Break' },
+            
+            {
+                fieldname: 'warehouse',
+                label: 'Warehouse',
+                fieldtype: 'Link',
+                options: 'Warehouse'
+            },
+
+            { fieldtype: 'Section Break', label: 'Serial Numbers' },
+
+            {
+                fieldname: 'serial_no_by_pos',
+                label: 'Add Serial Number by Line',
+                fieldtype: 'Link',
+                options: 'Serial No',
+                'onchange' : function() { serial_dialog.set_value("selected_serial_no", serial_dialog.get_value('serial_no_by_pos')) },
+                'get_query': function() { return { query: "energielenker.energielenker.delivery_note.delivery_note.serial_no_by_pos_query", filters: {'so_detail': row.so_detail } } }
+            },
+            
+            {
+                fieldname: 'serial_no_by_item',
+                label: 'Add Serial Number by Item',
+                fieldtype: 'Link',
+                options: 'Serial No',
+                'get_query': function() { return { filters: by_item_filters } }
+            },
+
+            { fieldtype: 'Column Break' },
+
+            {
+                fieldname: 'selected_serial_no',
+                label: 'Selected Serial Numbers',
+                fieldtype: 'Small Text',
+            }
+        ],
+        primary_action: function(){
+            serial_dialog.hide();
+            set_serial_values();
+        },
+    primary_action_label: __('Insert')
+    });
+    serial_dialog.set_value("item_code", row.item_code);
+    serial_dialog.set_value("warehouse", row.warehouse);
+    serial_dialog.show();
+}
+
+function set_serial_values() {
+    console.log("hi");
 }

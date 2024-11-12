@@ -244,3 +244,17 @@ def check_so_quantities(doc):
                 overdelivery = True
                 
     return {'overdelivery': overdelivery, 'affected_items' : affected_items, 'message': message}
+
+def serial_no_by_pos_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
+    serial_nos = frappe.db.sql("""
+                                SELECT
+                                    `tabSerial No`.`name`
+                                FROM
+                                    `tabSerial No`
+                                LEFT JOIN
+                                    `tabStock Entry Detail` ON `tabStock Entry Detail`.`serial_no` LIKE CONCAT('%', `tabSerial No`.`name`, '%')
+                                WHERE
+                                    `item_so_detail` = '{so_detail}'
+                                AND
+                                    `tabStock Entry Detail`.`docstatus` = 1""".format(so_detail=filters.get('so_detail')), as_dict=as_dict)
+    return serial_nos
