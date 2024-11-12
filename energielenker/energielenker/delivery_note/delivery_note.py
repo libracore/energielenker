@@ -246,6 +246,10 @@ def check_so_quantities(doc):
     return {'overdelivery': overdelivery, 'affected_items' : affected_items, 'message': message}
 
 def serial_no_by_pos_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
+    if filters.get('batch_no'):
+        batch_condition = """AND `tabSerial No`.`batch_no` = '{batch}'""".format(batch=filters.get('batch_no'))
+    else:
+        batch_condition = """"""
     serial_nos = frappe.db.sql("""
                                 SELECT
                                     `tabSerial No`.`name`
@@ -256,5 +260,8 @@ def serial_no_by_pos_query(doctype, txt, searchfield, start, page_len, filters, 
                                 WHERE
                                     `item_so_detail` = '{so_detail}'
                                 AND
-                                    `tabStock Entry Detail`.`docstatus` = 1""".format(so_detail=filters.get('so_detail')), as_dict=as_dict)
+                                    `tabSerial No`.`warehouse` = '{warehouse}'
+                                {batch_condition}
+                                AND
+                                    `tabStock Entry Detail`.`docstatus` = 1""".format(so_detail=filters.get('so_detail'), warehouse=filters.get('warehouse'), batch_condition=batch_condition), as_dict=as_dict)
     return serial_nos

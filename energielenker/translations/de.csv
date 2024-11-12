@@ -108,3 +108,10 @@ DocType: Project,corresponds to start of license year,entspricht Beginn Lizenzja
 DocType: energielenker Settings,Approval for Invoice,Zur Berechnung freigegeben
 DocType: energielenker Settings,Issue Notification cc,Anfrage Meldung cc
 DocType: energielenker Settings,Issue Notification To,Anfrage Meldung an
+DocType: Delivery Note,Fetch Serial No,Seriennummern hinzufügen
+DocType: Delivery Note,Select Serial Numbers,Seriennummern auswählen
+DocType: Delivery Note,Item Code,Artikelnummer
+DocType: Delivery Note,Add Serial Number by Line,Seriennummer nach Auftragsposition hinzufügen 
+DocType: Delivery Note,Add Serial Number by Item,Seriennummer nach Artikel hinzufügen
+DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
+DocType: Delivery Note,With reference to Batch and Warehouse,Mit Bezug auf Batch und Lager
