@@ -115,3 +115,5 @@ DocType: Delivery Note,Add Serial Number by Line,Seriennummer nach Auftragsposit
 DocType: Delivery Note,Add Serial Number by Item,Seriennummer nach Artikel hinzufügen
 DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Delivery Note,With reference to Batch and Warehouse,Mit Bezug auf Batch und Lager
+DocType: Sales Order,Contact Salutation,Anrede Kontakt
+DocType: Sales Order,Contact Last Name,Nachnamen Kontakt
