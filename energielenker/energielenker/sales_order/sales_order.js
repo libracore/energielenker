@@ -381,10 +381,20 @@ frappe.ui.form.on("Sales Order", {
         d.show();
     },
     contact_person_two: function(frm) {
-        contact_info_display(frm, cur_frm.doc.contact_person_two, "contact_display_two") 
+        if (frm.doc.contact_person_two) {
+            contact_info_display(frm, cur_frm.doc.contact_person_two, "contact_display_two")
+        } else {
+            cur_frm.set_value("contact_display_two", null);
+            cur_frm.set_value("contact_salutation", null);
+            cur_frm.set_value("contact_last_name", null);
+        }
     },
     shipping_contact: function(frm) {
-        contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
+        if (frm.doc.contact_person_two) {
+            contact_info_display(frm, cur_frm.doc.shipping_contact, "shipping_contact_display") 
+        } else {
+            cur_frm.set_value("shipping_contact_display", null);
+        }
     },
     delivery_date (frm) {
         if ( frm.doc.delivery_date != frm.doc.items[0].delivery_date ) {
@@ -581,6 +591,10 @@ function contact_info_display(frm, name, field) {
                 cur_frm.set_value(field, info);
             } else {
                 cur_frm.set_value(field, full_name);
+            }
+            if (field == "contact_display_two") {
+                cur_frm.set_value("contact_salutation", res[0].salutation);
+                cur_frm.set_value("contact_last_name", res[0].first_name);
             }
         }
     });
