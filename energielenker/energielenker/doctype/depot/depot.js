@@ -248,13 +248,18 @@ function create_delivery_note(frm) {
             'project': frm.doc.project
         },
         'callback': function(response) {
+            let corrected_items = response.message[1]
             if (response.message[0]) {
                 frappe.set_route("Form", "Delivery Note", response.message[0]);
             } else {
                 show_alert({message: 'Keine Artikel vorhanden', indicator: 'red'}, 5);
             }
-            if (response.message[1]) {
-                show_alert({message: 'Achtung, es sind noch weitere Artikel in der Kommissionierung.', indicator: 'orange'}, 5);
+            if (corrected_items.length > 0) {
+                let message = "Achtung! Folgende Auslieferungsmengen wurden auf die maximal offene Auslieferungsmenge angepasst. Bitte prüfen.<br>"
+                for (let i = 0; i < corrected_items.length; i++) {
+                    message = message + "<br>- " + corrected_items[i]
+                }
+                frappe.msgprint(message, "Überlieferung verhindert")
             }
         }
     });
