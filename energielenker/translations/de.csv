@@ -117,3 +117,6 @@ DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Delivery Note,With reference to Batch and Warehouse,Mit Bezug auf Batch und Lager
 DocType: Sales Order,Contact Salutation,Anrede Kontakt
 DocType: Sales Order,Contact Last Name,Nachnamen Kontakt
+DocType: Item,Manufacturing by Energielenker,Fertigung durch Energielenker
+Report: energielenker Stock Balance,energielenker Stock Balance,energielenker Lagerbestand
+Report: energielenker Stock Balance,Show disabled Items,Deaktivierte Artikel anzeigen

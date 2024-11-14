@@ -33,6 +33,13 @@ def get_data():
                     "label": _("Lead Quelle"),
                     "doctype": "Sales Order",
                     "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "energielenker Stock Balance",
+                    "label": _("energielenker Stock Balance"),
+                    "doctype": "Stock Ledger Entry",
+                    "is_query_report": True
                 }
             ]
         },
