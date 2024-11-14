@@ -127,3 +127,21 @@ def check_for_shortage(purchase_invoice=None, purchase_receipt=None):
         return shortfall_items
     else:
         return None
+
+@frappe.whitelist()
+def check_default_warehouse(doc):
+    doc = json.loads(doc)
+    unmatching_items = []
+    #get all items with not default warehouse
+    for item in doc.get('items'):
+        default_warehouse = frappe.get_value("Item", item.get('item_code'), "default_warehouse_readonly");
+        if default_warehouse and item.get('warehouse') != default_warehouse:
+            unmatching_items.append({'idx': item.get('idx'), 'item_code': item.get('item_code')})
+    #prepare message
+    if len(unmatching_items) > 0:
+        message = "Achtung, folgende Artikel besitzen nicht dessen Standardlager<br>"
+        for unmatching_item in unmatching_items:
+            message += "<br>Artikel: {0} (Zeile {1})".format(unmatching_item.get('item_code'), unmatching_item.get('idx'))
+        return message
+    else:
+        return None

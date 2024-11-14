@@ -37,6 +37,7 @@ frappe.ui.form.on('Purchase Invoice', {
     before_save: function(frm) {
         if (frm.doc.__islocal) {
             validate_for_so(frm);
+            check_default_warehouse(frm);
         }
     },
     on_submit: function(frm) {
@@ -190,6 +191,20 @@ function check_for_shortage(frm) {
         'callback': function(response) {
             if (response.message) {
                 frappe.msgprint("Folgende Artikel haben aktuell eine Unterdeckung: " + response.message, "Achtung!")
+            }
+        }
+    });
+}
+
+function check_default_warehouse(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_default_warehouse',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint(response.message, "Information")
             }
         }
     });
