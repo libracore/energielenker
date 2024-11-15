@@ -183,13 +183,13 @@ def create_delivery_note(depot, warehouse, sales_order, project):
         'po_date': sales_order_doc.po_date
         })
     
-    additional_items = False
+    additional_items = []
     
     for item in items:
         if item.get('balance_qty') > 0:
             item_lines, open_qty = get_item_lines(item.get('item_code'), item.get('balance_qty'),  item.get('uom'), sales_order)
             if open_qty > 0:
-                additional_items = True
+                additional_items.append(item.get('item_code'))
             for item_line in item_lines:
                 entry = {
                     'reference_doctype': 'Delivery Note Item',
@@ -280,6 +280,7 @@ def close_empty_depots():
     
 def get_item_lines(item, dn_qty, uom, sales_order):
     open_qty = dn_qty
+    #get all sales order lines with same item_code and uom
     so_items = frappe.db.sql("""
                             SELECT
                                 `name`,
@@ -295,15 +296,19 @@ def get_item_lines(item, dn_qty, uom, sales_order):
                             AND
                                 `docstatus` = 1""".format(so=sales_order, item=item, uom=uom), as_dict=True)
     
+    #spread needed qty to on sales order lines
     dn_lines = []
     if len(so_items) > 0:
         for so_item in so_items:
             if open_qty > 0:
+                #if needed qty is equal or smaller than avaliable qty, add all needed pcs to sales order line
                 if open_qty <= so_item.get('avaliable_qty'):
                     dn_lines.append({'qty': open_qty, 'so_detail': so_item.get('name')})
                     open_qty = 0
+                #else only add avalaible qty and subract it from needed qty (maybe there is another line to add it)
                 else:
                     dn_lines.append({'qty': so_item.get('avaliable_qty'), 'so_detail': so_item.get('name')})
                     open_qty -= so_item.get('avaliable_qty')
     
+    #return Delivery Note lines and unspreaded qty
     return dn_lines, open_qty
