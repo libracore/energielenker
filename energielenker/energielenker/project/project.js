@@ -239,7 +239,7 @@ frappe.ui.form.on("Payment Forecast", {
                             } else {
                                 var order_amount_total = 0.00;
                             }
-                            if (percent_already_billed >= 100) {
+                            if (percent_already_billed >= 101) {
                                 frappe.msgprint("Es wurden bereits 100% dieses Auftrags in Rechnung gestellt.");
                             } else {
                                 var orderindexrow = 0;
@@ -351,6 +351,7 @@ function get_rollback_error_msg(statuscode) {
 }
 
 function options_list(row, percent_to_bill, percent_already_billed, order_amount_total, data, options, defaults) {
+    console.log(percent_to_bill);
     if (options != "message" ) {
         var d = new frappe.ui.Dialog({
             'fields': [
@@ -408,7 +409,7 @@ function options_list(row, percent_to_bill, percent_already_billed, order_amount
                         }
                     }
                 },
-                {'fieldname': 'invoice_amount', 'label': 'Betrag (zu Verrechnen)', 'fieldtype': 'Currency', 'default': row.amount, 'reqd': 1, 'read_only': 1,
+                {'fieldname': 'invoice_amount', 'label': 'Betrag (zu Verrechnen)', 'fieldtype': 'Currency', 'default': row.amount, 'read_only': 1,
                     'change': function() {
                         if (cur_dialog.fields_dict.invoice_gestaltung.get_value() == 'Als Betrag') {
                             if ((d.get_value('invoice_amount') + order_amount_total) <= data.grand_total) {
@@ -488,6 +489,10 @@ function options_list(row, percent_to_bill, percent_already_billed, order_amount
             },
             primary_action_label: __('Rechnung erstellen')
         });
+        if (percent_to_bill === 0) {
+            d.set_value('invoice_percent',  0);
+            d.set_value('invoice_amount',  0);
+        }
         d.show();
     } else {
         frappe.msgprint("Eine Schlussrechnung für diese Bestellung ist bereits erstellt worden.");
