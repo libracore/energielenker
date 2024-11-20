@@ -105,7 +105,8 @@ def get_columns(filters):
         {"label": _("Reorder Level"), "fieldname": "reorder_level", "fieldtype": "Float", "width": 80, "convertible": "qty"},
         {"label": _("Reorder Qty"), "fieldname": "reorder_qty", "fieldtype": "Float", "width": 80, "convertible": "qty"},
         {"label": _("Company"), "fieldname": "company", "fieldtype": "Link", "options": "Company", "width": 100},
-        {"label": _("Manufacturing by Energielenker"), "fieldname": "manufacturing_by_energielenker", "fieldtype": "Check", "width": 100}
+        {"label": _("Manufacturing by Energielenker"), "fieldname": "manufacturing_by_energielenker", "fieldtype": "Check", "width": 100},
+        {"label": _("Disabled"), "fieldname": "disabled", "fieldtype": "Check", "width": 100}
     ]
 
     if filters.get('show_stock_ageing_data'):
@@ -260,7 +261,7 @@ def get_item_details(items, sle, filters):
 
     res = frappe.db.sql("""
         select
-            item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom, item.manufacturing_by_energielenker %s
+            item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom, item.manufacturing_by_energielenker, disabled %s
         from
             `tabItem` item
             %s
