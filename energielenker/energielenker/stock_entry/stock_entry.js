@@ -134,7 +134,6 @@ function check_closed_depot(frm) {
                 fieldname: "status"
             },
             callback: function(response) {
-                console.log(response);
                 if (response.message.status === "Closed") {
                     frappe.msgprint("Kommissionierung ist geschlossen. Bitte vor dem Buchen die Kommissionierung wieder öffnen.", "Achtung");
                     frappe.validated=false;
