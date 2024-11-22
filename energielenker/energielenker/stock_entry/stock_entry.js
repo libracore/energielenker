@@ -26,6 +26,7 @@ frappe.ui.form.on('Stock Entry', {
         if (frm.doc.work_order && frm.doc.stock_entry_type == "Manufacture") {
             set_item_so_detail(frm);
         }
+        check_closed_depot(frm);
     }
 })
 
@@ -121,4 +122,24 @@ function set_item_so_detail(frm) {
             }
         }
     });
+}
+
+function check_closed_depot(frm) {
+    if (frm.doc.source_depot) {
+        frappe.call({
+            method: "frappe.client.get_value",
+            args: {
+                doctype: "Depot",
+                filters: { name: frm.doc.source_depot },
+                fieldname: "status"
+            },
+            callback: function(response) {
+                console.log(response);
+                if (response.message.status === "Closed") {
+                    frappe.msgprint("Kommissionierung ist geschlossen. Bitte vor dem Buchen die Kommissionierung wieder öffnen.", "Achtung");
+                    frappe.validated=false;
+                }
+            }
+        });
+    }
 }
