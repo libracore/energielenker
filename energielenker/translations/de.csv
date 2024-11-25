@@ -67,7 +67,7 @@ Report: Customer Overview,Contact Descrition,Beschreibung / Funktion
 Report: Customer Overview,Contact Department,Bereich / Abteilung
 Report: Customer Overview,Relevant Contact,Relevanter Kontakt
 DocType: Item,No Standard BOM,Keine Standardstückliste
-DocType: Item,Part List Item,Stücklistenartikel
+DocType: Item,Part List Item,auftragsbezogene Fertigung
 DocType: energielenker Settings,Sales Overview,Verkaufsübersicht
 DocType: energielenker Settings,Item Code,Artikelnummer
 DocType: energielenker Settings,Item Name,Artikelname
