@@ -129,6 +129,9 @@ frappe.ui.form.on("Delivery Note", {
             validate_depot(frm);
             check_product_bundle(frm);
             check_foreign_customers(frm.doc.customer);
+            if (frm.doc.is_return) {
+                set_depot_item_warehouse(frm);
+            }
         }
     },
     before_save(frm) {
@@ -820,6 +823,23 @@ function set_new_serial_no(serial_dialog, trigger_field) {
         }
     serial_dialog.set_value(trigger_field, null)
     }
+}
+
+function set_depot_item_warehouse(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.get_depot_item_warehouse',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                let depot_items = response.message;
+                for (let i = 0; i < depot_items.length; i++) {
+                    frappe.model.set_value("Delivery Note Item", depot_items[i].line_name, "warehouse", depot_items[i].warehouse);
+                }
+            }
+        }
+    });
 }
 
 

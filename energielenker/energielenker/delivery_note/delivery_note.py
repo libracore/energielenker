@@ -265,3 +265,18 @@ def serial_no_by_pos_query(doctype, txt, searchfield, start, page_len, filters, 
                                 AND
                                     `tabStock Entry Detail`.`docstatus` = 1""".format(so_detail=filters.get('so_detail'), warehouse=filters.get('warehouse'), batch_condition=batch_condition), as_dict=as_dict)
     return serial_nos
+
+@frappe.whitelist()
+def get_depot_item_warehouse(doc):
+    doc = json.loads(doc)
+    depot_items = []
+    
+    for item in doc.get('items'):
+        if item.get('source_depot'):
+            default_warehouse = frappe.db.get_value("Item", item.get('item_code'), "default_warehouse_readonly")
+            depot_items.append({'line_name': item.get('name'), 'warehouse': default_warehouse })
+    
+    if len(depot_items) > 0:
+        return depot_items
+    else:
+        return None
