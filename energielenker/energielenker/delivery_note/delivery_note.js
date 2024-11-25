@@ -346,6 +346,12 @@ frappe.ui.form.on("Delivery Note Item", "with_bom", function(frm, cdt, cdn) {
 });
 
 frappe.ui.form.on('Delivery Note Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            fetch_stock_items(row.item_code, cdt, cdn);
+        }
+    },
     source_depot: function(frm, cdt, cdn) {
         mark_depot_items(frm)
     },

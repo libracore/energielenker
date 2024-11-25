@@ -135,6 +135,7 @@ frappe.ui.form.on('Quotation Item', {
         var row = locals[cdt][cdn];
         if (row.item_code) {
             check_for_family(row.item_code, row.qty);
+            fetch_stock_items(row.item_code, cdt, cdn);
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
@@ -473,3 +474,4 @@ function validate_customer(frm, event) {
         }
     });
 }
+
