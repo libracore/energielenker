@@ -16,6 +16,7 @@ frappe.ui.form.on('Purchase Invoice', {
         
         if (frm.doc.__islocal) {
 			set_update_stock(frm);
+            check_manual_purchase_reciept(frm);
 		}
     },
     validate: function(frm) {
@@ -208,4 +209,13 @@ function check_default_warehouse(frm) {
             }
         }
     });
+}
+
+function check_manual_purchase_reciept(frm) {
+    let orders = []
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (!orders.includes(frm.doc.items[i].purchase_order)) {
+            orders.push(frm.doc.items[i].purchase_order);
+        }
+    }
 }
