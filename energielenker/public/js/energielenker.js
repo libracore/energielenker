@@ -651,3 +651,21 @@ function check_foreign_customers(customer) {
         cur_frm.set_value('taxes_and_charges', null);
     }
 }
+
+function fetch_stock_items(item_code, cdt, cdn) {
+    frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+            doctype: "Item",
+            filters: {
+                name: item_code
+            },
+            fieldname: "is_stock_item" 
+        },
+        callback: function(response) {
+            if (response.message.is_stock_item) {
+                frappe.model.set_value(cdt, cdn, "maintain_stock", 1);
+            }
+        }
+    });
+}

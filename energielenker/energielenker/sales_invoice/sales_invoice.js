@@ -274,6 +274,15 @@ function set_zusatzgeschaft(frm) {
 	}
 }
 
+frappe.ui.form.on('Sales Invoice Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            fetch_stock_items(row.item_code, cdt, cdn);
+        }
+    }
+});
+
 function filter_contact(frm) {
     frm.set_query("contact_person_two" , function() {
         return {
