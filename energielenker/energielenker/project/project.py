@@ -414,6 +414,18 @@ class PowerProject():
                                                                 AND `docstatus` = 1
                                                                 AND `stock_entry_type` = 'Material Issue'
                                                             )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+                                                            
+            summe_lagerbuchungspositionen_negativ = frappe.db.sql("""SELECT
+                                                                SUM(`amount`) AS `amount`
+                                                            FROM `tabStock Entry Detail`
+                                                            WHERE `parent` IN (
+                                                                SELECT
+                                                                    `name`
+                                                                FROM `tabStock Entry`
+                                                                WHERE `project` = '{project}'
+                                                                AND `docstatus` = 1
+                                                                AND `stock_entry_type` = 'Material Receipt'
+                                                            )""".format(project=self.project.name), as_dict=True)[0].amount or 0
             
             _summe_Lieferscheinpositionen = frappe.db.sql("""SELECT
                                                                 `qty` AS `qty`,
@@ -447,7 +459,7 @@ class PowerProject():
                         valuation_rate = basic_rate[0].basic_rate
                 summe_Lieferscheinpositionen += (value.qty * valuation_rate)
             
-            return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
+            return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen - summe_lagerbuchungspositionen_negativ) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
         else:
             return self.project.summe_einkaufskosten_via_einkaufsrechnung
     def get_auftragsummen_gesamt(self):
