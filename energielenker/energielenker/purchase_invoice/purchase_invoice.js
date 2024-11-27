@@ -214,8 +214,8 @@ function check_default_warehouse(frm) {
 function check_manual_purchase_reciept(frm) {
     let orders = []
     for (let i = 0; i < frm.doc.items.length; i++) {
-        if (!orders.includes(frm.doc.items[i].purchase_order)) {
-            orders.push(frm.doc.items[i].purchase_order);
+        if (!orders.includes(`${frm.doc.items[i].purchase_order}`)) {
+            orders.push(`${frm.doc.items[i].purchase_order}`);
         }
     }
     if (orders.length > 0) {
@@ -225,7 +225,6 @@ function check_manual_purchase_reciept(frm) {
                 'orders': orders
             },
             'callback': function(response) {
-                console.log(response.message);
                 if (response.message) {
                     frappe.msgprint(response.message, "Achtung!")
                 }
