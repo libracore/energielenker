@@ -105,3 +105,12 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
     # postprocess: fetch shipping address, set missing values
 
     return doclist
+
+@frappe.whitelist()
+def get_payment_terms_template(customer):
+    template = None
+    if customer:
+        template = frappe.db.get_value("Customer", customer, "payment_terms")
+    if not template:
+        template = frappe.db.get_value("Company", "energielenker solutions GmbH", "payment_terms")
+    return template
