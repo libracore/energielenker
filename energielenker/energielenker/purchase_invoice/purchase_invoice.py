@@ -150,7 +150,8 @@ def check_default_warehouse(doc):
 def check_manual_purchase_reciept(orders):
     #preapre condition
     orders = json.loads(orders)
-    condition = ", ".join(orders)
+    frappe.log_error(orders, "orders")
+    condition = ', '.join(orders)
     frappe.log_error(condition, "condition")
     #get related orders
     orders_with_pruchase_reciept = frappe.db.sql("""
