@@ -130,7 +130,7 @@ frappe.ui.form.on("Delivery Note", {
             check_product_bundle(frm);
             check_foreign_customers(frm.doc.customer);
             if (frm.doc.is_return) {
-                set_depot_item_warehouse(frm);
+                set_return_warehouse(frm);
             }
         }
     },
@@ -221,7 +221,7 @@ frappe.ui.form.on("Delivery Note", {
             frappe.msgprint( __("Es muss eine Lieferadresse hinterlegt werden"), __("Validation") );
             frappe.validated=false;
         }
-        validate_warehouse(frm);
+        validate_depot_warehouse(frm);
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -533,22 +533,24 @@ function get_depot_items() {
     )
 }
 
-function validate_warehouse(frm) {
-    for (let i = 0; i < cur_frm.doc.items.length; i++) {
-        if (cur_frm.doc.items[i].source_depot) {
-            frappe.call({
-                'method': "frappe.client.get",
-                'args': {
-                    'doctype': "Depot",
-                    'name': cur_frm.doc.items[i].source_depot
-                },
-                'callback': function(response) {
-                    var warehouse = response.message.to_warehouse;
-                    if (warehouse) {
-                            frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
+function validate_depot_warehouse(frm) {
+    if (!frm.doc.is_return) {
+        for (let i = 0; i < cur_frm.doc.items.length; i++) {
+            if (cur_frm.doc.items[i].source_depot) {
+                frappe.call({
+                    'method': "frappe.client.get",
+                    'args': {
+                        'doctype': "Depot",
+                        'name': cur_frm.doc.items[i].source_depot
+                    },
+                    'callback': function(response) {
+                        var warehouse = response.message.to_warehouse;
+                        if (warehouse) {
+                                frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 }
@@ -825,17 +827,18 @@ function set_new_serial_no(serial_dialog, trigger_field) {
     }
 }
 
-function set_depot_item_warehouse(frm) {
+function set_return_warehouse(frm) {
     frappe.call({
-        'method': 'energielenker.energielenker.delivery_note.delivery_note.get_depot_item_warehouse',
+        'method': "frappe.client.get",
         'args': {
-            'doc': cur_frm.doc
+            'doctype': "energielenker Settings",
+            'name': "energielenker Settings"
         },
         'callback': function(response) {
-            if (response.message) {
-                let depot_items = response.message;
-                for (let i = 0; i < depot_items.length; i++) {
-                    frappe.model.set_value("Delivery Note Item", depot_items[i].line_name, "warehouse", depot_items[i].warehouse);
+            if (response.message.return_warehouse) {
+                var warehouse = response.message.return_warehouse;
+                for (let i = 0; i < frm.doc.items.length; i++) {
+                    frappe.model.set_value(cur_frm.doc.items[i].doctype, cur_frm.doc.items[i].name, "warehouse", warehouse);
                 }
             }
         }
