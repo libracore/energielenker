@@ -195,9 +195,9 @@ def check_for_overdelivery(doc, check_items=True):
                                         FROM
                                             `tabDelivery Note Item`
                                         WHERE
-                                            (`docstatus` = 1 AND `against_sales_order` = '{so_name}' AND `item_code` = '{item_code}')
+                                            (`docstatus` = 1 AND `against_sales_order` = '{so_name}' AND `item_code` = '{item_code}' AND `exclude_from_overdelivery_check` = 0)
                                         OR
-                                            (`item_code` = '{item_code}' AND `parent` = '{dn}')
+                                            (`item_code` = '{item_code}' AND `parent` = '{dn}' AND `exclude_from_overdelivery_check` = 0)
                                         GROUP BY `item_code`""".format(so_name=item.get('against_sales_order'), item_code=item.get('item_code'), dn=doc.get('name')), as_dict=True)
                                             
                 sales_order = frappe.db.sql("""
