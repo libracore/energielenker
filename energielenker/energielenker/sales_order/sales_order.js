@@ -466,8 +466,12 @@ frappe.ui.form.on('Sales Order Item', {
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
+                } else {
+                    frappe.model.set_value(cdt, cdn, 'with_bom', 0);
                 }
             });
+        } else {
+            frappe.model.set_value(cdt, cdn, 'with_bom', 0);
         }
     },
     before_items_remove(frm, cdt, cdn) {

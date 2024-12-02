@@ -83,6 +83,7 @@ frappe.ui.form.on('Quotation', {
         }    
         
         if (frm.doc.__islocal) {
+            set_payment_terms(frm)
             frm.add_custom_button(__("Get Quotation Template"), function() {
                 get_quotation_template(frm);
             });
@@ -139,8 +140,12 @@ frappe.ui.form.on('Quotation Item', {
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
+                } else {
+                    frappe.model.set_value(cdt, cdn, 'with_bom', 0);
                 }
             });
+        } else {
+            frappe.model.set_value(cdt, cdn, 'with_bom', 0);
         }
     },
     before_items_remove(frm, cdt, cdn) {
@@ -473,5 +478,28 @@ function validate_customer(frm, event) {
             }
         }
     });
+}
+
+function set_payment_terms(frm) {
+    if (!frm.doc.payment_terms_template) {
+        let customer;
+        if (frm.doc.party_name && frm.doc.quotation_to == "Customer") {
+            customer = frm.doc.party_name;
+        } else {
+            customer = false
+        }
+        
+        frappe.call({
+            'method': 'energielenker.energielenker.quotation.quotation.get_payment_terms_template',
+            'args': {
+                'customer': customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    cur_frm.set_value('payment_terms_template', response.message);
+                }
+            }
+        });
+    }
 }
 
