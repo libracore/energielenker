@@ -145,3 +145,32 @@ def check_default_warehouse(doc):
         return message
     else:
         return None
+
+@frappe.whitelist()
+def check_manual_purchase_reciept(orders):
+    #preapre condition
+    orders = json.loads(orders)
+    if len(orders) > 1:
+        orders = tuple(orders)
+    else:
+        orders = "('{0}')".format(orders[0])
+        
+    #get related orders
+    orders_with_pruchase_reciept = frappe.db.sql("""
+                                                SELECT DISTINCT
+                                                    `purchase_order`
+                                                FROM
+                                                    `tabPurchase Receipt Item`
+                                                WHERE
+                                                    `purchase_order` IN {orders}
+                                                AND
+                                                    `docstatus` = 1""".format(orders=orders), as_dict=True)
+    
+    #if related orders, prepare message and send it back
+    if len(orders_with_pruchase_reciept) > 0:
+        message = "Folgende Bestellungen besitzen bereits einen manuellen Wareneingang<br>"
+        for order in orders_with_pruchase_reciept:
+            message += "<br>- {0}".format(order.get('purchase_order'))
+        return message
+    else:
+        return None

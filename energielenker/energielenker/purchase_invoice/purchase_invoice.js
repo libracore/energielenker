@@ -38,6 +38,7 @@ frappe.ui.form.on('Purchase Invoice', {
         if (frm.doc.__islocal) {
             validate_for_so(frm);
             check_default_warehouse(frm);
+            check_manual_purchase_reciept(frm);
         }
     },
     on_submit: function(frm) {
@@ -208,4 +209,26 @@ function check_default_warehouse(frm) {
             }
         }
     });
+}
+
+function check_manual_purchase_reciept(frm) {
+    let orders = []
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (!orders.includes(`${frm.doc.items[i].purchase_order}`)) {
+            orders.push(`${frm.doc.items[i].purchase_order}`);
+        }
+    }
+    if (orders.length > 0) {
+        frappe.call({
+            'method': 'energielenker.energielenker.purchase_invoice.purchase_invoice.check_manual_purchase_reciept',
+            'args': {
+                'orders': orders
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    frappe.msgprint(response.message, "Achtung!")
+                }
+            }
+        });
+    }
 }
