@@ -15,6 +15,8 @@
   "section_purchase_order",
   "default_cost_center",
   "supplier_to_autoclose",
+  "return_section",
+  "return_warehouse",
   "depot",
   "depot_warehouse",
   "send_depot_reminder",
@@ -195,10 +197,22 @@
    "fieldtype": "Link",
    "label": "Issue Notification cc",
    "options": "User"
+  },
+  {
+   "fieldname": "return_section",
+   "fieldtype": "Section Break",
+   "label": "Return"
+  },
+  {
+   "fieldname": "return_warehouse",
+   "fieldtype": "Link",
+   "label": "Return Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2024-10-17 17:36:41.975248",
+ "modified": "2024-11-28 10:29:21.366958",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
