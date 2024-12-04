@@ -280,3 +280,18 @@ def get_depot_item_warehouse(doc):
         return depot_items
     else:
         return None
+
+@frappe.whitelist()
+def get_default_warehouses(doc):
+    doc = json.loads(doc)
+    affected_items = []
+    
+    for item in doc.get('items'):
+        if not item.get('source_depot'):
+            default_warehouse = frappe.db.get_value("Item", item.get('item_code'), "default_warehouse_readonly")
+            affected_items.append({'line_name': item.get('name'), 'warehouse': default_warehouse })
+    
+    if len(affected_items) > 0:
+        return affected_items
+    else:
+        return None
