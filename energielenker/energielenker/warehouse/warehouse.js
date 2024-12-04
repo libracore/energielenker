@@ -29,7 +29,7 @@ function open_stock_transfer(frm) {
                 confirm_message,
                 function(){
                     // on yes
-                    transfer_stock(dialog_values.from_warehouse, dialog_values.to_warehouse, dialog_values.update_items);
+                    transfer_stock(dialog_values.from_warehouse, dialog_values.to_warehouse, dialog_values.description, dialog_values.update_items);
                 },
                 function(){
                     // on no, do nothing
@@ -41,16 +41,21 @@ function open_stock_transfer(frm) {
     stock_transfer_dialog.show();
 }
 
-function transfer_stock(from_warehouse, to_warehouse, update_items) {
+function transfer_stock(from_warehouse, to_warehouse, description, update_items) {
     frappe.call({
         'method': 'energielenker.energielenker.warehouse.warehouse.transfer_stock',
         'args': {
             'from_warehouse': from_warehouse,
             'to_warehouse': to_warehouse,
-            'update_items': update_items
+            'update_items': update_items,
+            'remarks': description
         },
         'callback': function(response) {
-            frappe.msgprint("Der Prozess wurde abgeschlossen")
+            if (response.message) {
+                frappe.msgprint("Lagerbuchung <b>" + response.message + "</b> wurde erstellt.");
+            } else {
+                frappe.msgprint('Es wurde keine Lagerbuchung erstellt, da keine Artikel in Lager "' + from_warehouse + '" gefunden wurden.');
+            }
         }
     });
 }
