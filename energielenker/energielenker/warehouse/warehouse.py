@@ -27,7 +27,6 @@ def transfer_stock(from_warehouse, to_warehouse, update_items, remarks=None):
     
     #create stock entry
     if len(warehouse_items) > 0:
-        frappe.log_error(warehouse_items, "warehouse_items")
         stock_entry_items = []
         for warehouse_item in warehouse_items:
             log_message += "\n{0} {1} {2}".format(warehouse_item.get('actual_qty'), warehouse_item.get('stock_uom'), warehouse_item.get('item_code'))
@@ -54,7 +53,7 @@ def transfer_stock(from_warehouse, to_warehouse, update_items, remarks=None):
         log_message += "\nKeine Artikel mit Lager {0} gefunden".format(from_warehouse)
     
     #set new default warehouse if checkox is set
-    if update_items:
+    if int(update_items):
         #get items to update
         items_to_update = frappe.db.sql("""
                                         SELECT
@@ -74,7 +73,7 @@ def transfer_stock(from_warehouse, to_warehouse, update_items, remarks=None):
                                             
         if len(items_to_update) > 0:
             for item_to_update in items_to_update:
-                log_message += "\n-{0}".format(item_to_update.get('parent'))
+                log_message += "\n{0}".format(item_to_update.get('parent'))
         else:
             log_message += "\nKeine Artikel mit Standardlager {0} gefunden.".format(from_warehouse)
         
