@@ -131,6 +131,8 @@ frappe.ui.form.on("Delivery Note", {
             check_foreign_customers(frm.doc.customer);
             if (frm.doc.is_return) {
                 set_return_warehouse(frm);
+            } else {
+                set_default_warehouse(frm);
             }
         }
     },
@@ -148,27 +150,7 @@ frappe.ui.form.on("Delivery Note", {
                 }
             )
         }
-        
         check_so_quantities(frm);
-        
-        // function deactivated because of conflict with new process -> should not be needed anymore (2024-10-04)
-        //~ if (frm.doc.__islocal) {
-           //~ cur_frm.doc.items.forEach(function(entry){
-               //~ frappe.call({
-                    //~ "method": "frappe.client.get",
-                    //~ "args": {
-                        //~ "doctype": "Item",
-                        //~ "name": entry.item_code
-                    //~ },
-                    //~ "callback": function(r) {
-                        //~ if (r.message.item_defaults[0].default_warehouse) {
-                            //~ entry.warehouse = r.message.item_defaults[0].default_warehouse;
-                        //~ }
-                    //~ }
-                //~ })
-           //~ });
-        //~ }
-        
     },
     on_submit: function(frm) {
         if (cur_frm.doc.so_return){
@@ -845,4 +827,20 @@ function set_return_warehouse(frm) {
     });
 }
 
+function set_default_warehouse(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.get_default_warehouses',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                let warehouses = response.message
+                for (let i= 0; warehouses.length; i++) {
+                    frappe.model.set_value("Delivery Note Item", warehouses[i].line_name, "warehouse", warehouses[i].warehouse);
+                }
+            }
+        }
+    });
+}
 
