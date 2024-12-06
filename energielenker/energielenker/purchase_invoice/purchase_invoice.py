@@ -168,7 +168,7 @@ def check_manual_purchase_reciept(orders):
     
     #if related orders, prepare message and send it back
     if len(orders_with_pruchase_reciept) > 0:
-        message = "Folgende Bestellungen besitzen bereits einen manuellen Wareneingang<br>"
+        message = "Folgende Bestellungen besitzen bereits einen manuellen Wareneingang - bitte prüfen und auf korrekte Lagerbuchung achten.<br>"
         for order in orders_with_pruchase_reciept:
             message += "<br>- {0}".format(order.get('purchase_order'))
         return message
