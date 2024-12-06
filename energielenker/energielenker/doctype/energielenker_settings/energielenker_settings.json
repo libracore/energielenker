@@ -31,6 +31,8 @@
   "cfos_api_secret",
   "sales_overview",
   "items",
+  "ibn_remote_section",
+  "ibn_remote_items",
   "approval_for_invoice_section",
   "issue_notification_to",
   "column_break_27",
@@ -209,10 +211,21 @@
    "label": "Return Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "ibn_remote_section",
+   "fieldtype": "Section Break",
+   "label": "IBN Remote"
+  },
+  {
+   "fieldname": "ibn_remote_items",
+   "fieldtype": "Table",
+   "label": "IBN remote Items",
+   "options": "IBN remote Items"
   }
  ],
  "issingle": 1,
- "modified": "2024-11-28 10:29:21.366958",
+ "modified": "2024-12-06 09:22:49.799504",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
