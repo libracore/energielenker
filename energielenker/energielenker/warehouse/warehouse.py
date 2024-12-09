@@ -62,20 +62,37 @@ def transfer_stock(from_warehouse, to_warehouse, update_items, remarks=None):
                                             `tabItem Default`
                                         WHERE
                                             `default_warehouse` = '{warehouse}'""".format(warehouse=from_warehouse), as_dict=True)
+                                            
+        reorders_to_update = frappe.db.sql("""
+                                SELECT
+                                    `parent`
+                                FROM
+                                    `tabItem Reorder`
+                                WHERE
+                                    `warehouse` = '{warehouse}'""".format(warehouse=from_warehouse), as_dict=True)
         
-        #items to update
+        #update items
         frappe.db.sql("""UPDATE `tabItem Default` SET `default_warehouse` = '{to_warehouse}' WHERE `default_warehouse` = '{from_warehouse}'""".format(to_warehouse=to_warehouse, from_warehouse=from_warehouse))
         frappe.db.sql("""UPDATE `tabItem` SET `default_warehouse_readonly` = '{to_warehouse}' WHERE `default_warehouse_readonly` = '{from_warehouse}'""".format(to_warehouse=to_warehouse, from_warehouse=from_warehouse))
+        frappe.db.sql("""UPDATE `tabItem Reorder` SET `warehouse` = '{to_warehouse}' WHERE `warehouse` = '{from_warehouse}'""".format(to_warehouse=to_warehouse, from_warehouse=from_warehouse))
         
-        #update log message
+        #update log message für default warehouse
         log_message += "\n\n\nBei folgenden Artikel wurde das Standardlager von {0} auf {1} angepasst:\n".format(from_warehouse, to_warehouse)
-        
                                             
         if len(items_to_update) > 0:
             for item_to_update in items_to_update:
                 log_message += "\n{0}".format(item_to_update.get('parent'))
         else:
             log_message += "\nKeine Artikel mit Standardlager {0} gefunden.".format(from_warehouse)
+        
+        #update log message für auto re-order
+        log_message += "\n\n\nBei folgenden Artikel wurde das Eingangslager der automatischen Nachbestellung von {0} auf {1} angepasst:\n".format(from_warehouse, to_warehouse)
+        
+        if len(reorders_to_update) > 0:
+            for reorder_to_update in reorders_to_update:
+                log_message += "\n{0}".format(reorder_to_update.get('parent'))
+        else:
+            log_message += "\nKeine Artikel mit automatischer Nachbestellung für Lager {0} gefunden.".format(from_warehouse)
         
     if stock_movement:
         frappe.log_error(log_message, "Umbuchung {0}".format(stock_entry.name))
