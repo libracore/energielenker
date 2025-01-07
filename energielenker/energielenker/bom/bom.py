@@ -5,7 +5,6 @@
 import frappe
 from erpnext.manufacturing.doctype.bom.bom import BOM
 import json
-from frappe.model.document import Document
 from frappe.utils import cint
 
 def autoname(self, event):
