@@ -210,6 +210,9 @@ doc_events = {
     },
     "Product Bundle": {
         "on_trash": "energielenker.energielenker.product_bundle.product_bundle.delete_redord"
+    },
+    "BOM": {
+        "autoname": "energielenker.energielenker.bom.bom.autoname"
     }
 }
 

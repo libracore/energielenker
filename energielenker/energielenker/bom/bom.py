@@ -5,6 +5,26 @@
 import frappe
 from erpnext.manufacturing.doctype.bom.bom import BOM
 import json
+from frappe.utils import cint
+
+def autoname(self, event):
+    names = frappe.db.sql_list("""select name from `tabBOM` where item=%s""", self.item)
+
+    if names:
+        # name can be BOM/ITEM/001, BOM/ITEM/001-1, BOM-ITEM-001, BOM-ITEM-001-1
+
+        # split by item
+        names = [name.split(self.item)[-1][1:] for name in names]
+
+        # split by (-) if cancelled
+        names = [cint(name.split('-')[-1]) for name in names]
+
+        idx = max(names) + 1
+    else:
+        idx = 1
+
+    self.name = 'BOM-' + self.item + ('-%.4i' % idx)
+
 
 @frappe.whitelist()
 def sales_order_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
