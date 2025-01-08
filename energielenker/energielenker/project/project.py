@@ -738,6 +738,11 @@ def make_final_sales_invoice(order, invoice_date):
 
 @frappe.whitelist()
 def auto_kpi_refresh():
+    from frappe.utils.background_jobs import enqueue
+    args = {}
+    enqueue("energielenker.energielenker.project.project._auto_kpi_refresh", queue='long', job_name='Auto-KPI-Refresh', timeout=6000, **args)
+
+def _auto_kpi_refresh():
     frappe.log_error("auto_kpi_refresh Process started", "auto_kpi_refresh Process started")
     projects = frappe.db.sql("""SELECT `name` FROM `tabProject`""", as_dict=True)
     errors = []
