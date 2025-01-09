@@ -68,6 +68,8 @@ frappe.ui.form.on("Delivery Note", {
     },
 
     refresh: function(frm) {
+        //Display Checkbox to Show Hidden Serial No in Print format
+        display_show_serial_no(frm);
         mark_depot_items(frm);
         set_timestamps(frm);
         setTimeout(() => {
@@ -749,7 +751,7 @@ function fetch_serial_no(frm, cdt, cdn) {
                 },
 
                 { fieldtype: 'Section Break', label: 'Serial Numbers' },
-
+        
                 {
                     fieldname: 'serial_no_by_pos',
                     label: 'Add Serial Number by Line',
@@ -761,10 +763,20 @@ function fetch_serial_no(frm, cdt, cdn) {
                 },
                 
                 {
+                    fieldname: 'select_by_item',
+                    label: 'Select Serial Number by Item',
+                    fieldtype: 'Check',
+                    'onchange': function() {
+                       serial_dialog.set_df_property('serial_no_by_item', 'hidden', 0);
+                    }
+                },
+                
+                {
                     fieldname: 'serial_no_by_item',
                     label: 'Add Serial Number by Item',
                     fieldtype: 'Link',
                     options: 'Serial No',
+                    hidden: 1,
                     description: 'With reference to Batch and Warehouse',
                     'onchange' : function() { set_new_serial_no(serial_dialog, "serial_no_by_item") },
                     'get_query': function() { return { filters: by_item_filters } }
@@ -844,3 +856,11 @@ function set_default_warehouse(frm) {
     });
 }
 
+function display_show_serial_no(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.get_hidden_serial_nos',
+        'callback': function(response) {
+            console.log("Hoi Maschine");
+        }
+    });
+}

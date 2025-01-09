@@ -1,6 +1,11 @@
 DocType: Delivery Note,Manual date,Manuelles Datum
 DocType: Delivery Note,Set manual date,Manuelles Datum setzen
 DocType: Delivery Note,Configuration pending,Konfiguration ausstehend
+DocType: Delivery Note,Select Serial Number by Item,Seriennummer über Artikel suchen
+DocType: Delivery Note,Serial Numbers,Seriennummern
+DocType: Delivery Note,Add Serial Number by Line,Seriennummern über Artikelposition hinzufügen
+DocType: Delivery Note,With reference to Batch and Warehouse,Mit Referenz zu Batch und Lager
+DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Issue,Booked Hours,Gebuchte Stunden
 DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
 DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte

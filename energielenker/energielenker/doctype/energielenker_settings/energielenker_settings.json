@@ -34,7 +34,9 @@
   "approval_for_invoice_section",
   "issue_notification_to",
   "column_break_27",
-  "issue_notification_cc"
+  "issue_notification_cc",
+  "serial_numbers_section",
+  "hidden_serial_numbers"
  ],
  "fields": [
   {
@@ -209,10 +211,22 @@
    "label": "Return Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "serial_numbers_section",
+   "fieldtype": "Section Break",
+   "label": "Serial Numbers"
+  },
+  {
+   "description": "Serial Numbers for those Items will not be shown in Delivery Note",
+   "fieldname": "hidden_serial_numbers",
+   "fieldtype": "Table",
+   "label": "Hidden Serial Numbers",
+   "options": "Delivery Note Hidden Serial Numbers"
   }
  ],
  "issingle": 1,
- "modified": "2024-11-28 10:29:21.366958",
+ "modified": "2025-01-09 17:17:44.777828",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
