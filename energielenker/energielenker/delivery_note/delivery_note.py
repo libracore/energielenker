@@ -295,3 +295,17 @@ def get_default_warehouses(doc):
         return affected_items
     else:
         return None
+
+@frappe.whitelist()
+def get_hidden_serial_nos():
+    items = frappe.db.sql("""
+                    SELECT
+                        `item_code`
+                    FROM
+                        `tabDelivery Note Hidden Serial Numbers`""", as_dict=True)
+                        
+    item_list = []
+    for item in items:
+        item_list.append(item.get('item_code'))
+    
+    return item_list

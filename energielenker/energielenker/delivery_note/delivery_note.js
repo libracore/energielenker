@@ -68,8 +68,6 @@ frappe.ui.form.on("Delivery Note", {
     },
 
     refresh: function(frm) {
-        //Display Checkbox to Show Hidden Serial No in Print format
-        display_show_serial_no(frm);
         mark_depot_items(frm);
         set_timestamps(frm);
         setTimeout(() => {
@@ -128,13 +126,15 @@ frappe.ui.form.on("Delivery Note", {
             }
         }
         if (frm.doc.__islocal) {
+            //Set Checkbox to Hide Serial No in Print format
+            set_show_serial_no(frm, "refresh");
             validate_depot(frm);
             check_product_bundle(frm);
             check_foreign_customers(frm.doc.customer);
             if (frm.doc.is_return) {
                 set_return_warehouse(frm);
             } else {
-                set_default_warehouse(frm);
+                //~ set_default_warehouse(frm);
             }
         }
     },
@@ -338,6 +338,8 @@ frappe.ui.form.on('Delivery Note Item', {
         if (row.item_code) {
             fetch_stock_items(row.item_code, cdt, cdn);
         }
+        //Set Checkbox to Hide Serial No in Print format
+        set_show_serial_no(frm, "item_code", row.item_code, cdt, cdn);
     },
     source_depot: function(frm, cdt, cdn) {
         mark_depot_items(frm)
@@ -856,11 +858,26 @@ function set_default_warehouse(frm) {
     });
 }
 
-function display_show_serial_no(frm) {
+function set_show_serial_no(frm, trigger, row_item_code = null, cdt = null, cdn = null) {
     frappe.call({
         'method': 'energielenker.energielenker.delivery_note.delivery_note.get_hidden_serial_nos',
         'callback': function(response) {
-            console.log("Hoi Maschine");
+            let hidden_items = response.message;
+            if (trigger == "item_code") {
+                if (hidden_items.includes(row_item_code)) {
+                    frappe.model.set_value(cdt, cdn, "hide_serial_no", 1);
+                } else {
+                    frappe.model.set_value(cdt, cdn, "hide_serial_no", 0);
+                }
+            } else {
+                for (let i = 0; i < frm.doc.items.length; i++) {
+                    if (hidden_items.includes(frm.doc.items[i].item_code)) {
+                        frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "hide_serial_no", 1);
+                    } else {
+                        frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "hide_serial_no", 0);
+                    }
+                }
+            }
         }
     });
 }
