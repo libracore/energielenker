@@ -134,7 +134,7 @@ frappe.ui.form.on("Delivery Note", {
             if (frm.doc.is_return) {
                 set_return_warehouse(frm);
             } else {
-                //~ set_default_warehouse(frm);
+                set_default_warehouse(frm);
             }
         }
     },
