@@ -469,7 +469,7 @@ function validate_customer(frm, event) {
         'callback': function(response) {
             var validation = response.message
             if (validation) {
-                frappe.msgprint( __("Kunde ist gesperrt!"), __("Sperrkunde") );
+                frappe.msgprint( __("Kunde ist gesperrt!<br><br>Lobas-Anfragen von Hymes-Sperrkunden weiterleiten an info@hymes.de. Nicht Lobas-bezogene Anfragen/Aufträge (z.B. EZA-Regler) können angenommen und verarbeitet werden."), __("Sperrkunde") );
                 if (event == "customer") {
                     cur_frm.set_value("party_name", "");
                 } else {
