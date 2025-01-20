@@ -387,6 +387,7 @@ frappe.ui.form.on("Sales Order", {
             cur_frm.set_value("contact_display_two", null);
             cur_frm.set_value("contact_salutation", null);
             cur_frm.set_value("contact_last_name", null);
+            cur_frm.set_value("contact_email_two", null);
         }
     },
     shipping_contact: function(frm) {
@@ -600,6 +601,7 @@ function contact_info_display(frm, name, field) {
             if (field == "contact_display_two") {
                 cur_frm.set_value("contact_salutation", res[0].salutation);
                 cur_frm.set_value("contact_last_name", res[0].first_name);
+                cur_frm.set_value("contact_email_two", res[0].email_id);
             }
         }
     });
