@@ -94,6 +94,7 @@ DocType: Project,Bill on reporting date,Abzurechnen am Stichtag
 DocType: Project,Revoke activation code,Aktivierungscode widerrufen
 DocType: Item,Is Product Bundle,Ist Produkt-Bundle
 DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
+DocType: Item,Temporarily deactivated,Vorübergehend deaktiviert
 DocType: Delivery Note,Packing List,Packliste
 DocType: Customer,Invoice Note,Notiz Rechnung
 DocType: Customer,Leave Invoice Note,Notiz für Rechnung hinterlassen
