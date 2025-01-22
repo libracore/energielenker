@@ -51,6 +51,8 @@ DocType: BOM,Item Row,Bitte Artikelzeile
 DocType: BOM,Get Items,Artikel holen
 DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel
 DocType: Project,Open Depots,Offene Kommissionierungen
+DocType: Project,"To Deliver and Bill","Auszuliefern und Abzurechnen"
+DocType: Project,Sales Order Status,Status Kundenauftrag
 DocType: Sales Order,Open Depots,Offene Kommissionierungen
 DocType: Depot,Depot Status,Status Kommissionierung
 DocType: Depot,Project Status,Projektstatus
