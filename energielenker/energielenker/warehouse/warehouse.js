@@ -6,6 +6,10 @@ frappe.ui.form.on('Warehouse', {
         frm.add_custom_button(__("Stock transfer"),  function(){
           open_stock_transfer(frm);
         });
+        
+        // Remove "Duplicate" from Menu
+        var target ="span[data-label='" + __("Duplicate") + "']";
+        $(target).parent().parent().remove();
     }
 });
 
