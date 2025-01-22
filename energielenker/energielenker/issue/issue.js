@@ -155,7 +155,6 @@ function send_invoice_notification(frm) {
 }
 
 function display_contact_information(frm) {
-    console.log("grüzi");
     if (frm.doc.contact_customer) {
         frappe.call({
             'method': "frappe.client.get",
