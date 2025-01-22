@@ -8,6 +8,7 @@ DocType: Delivery Note,With reference to Batch and Warehouse,Mit Referenz zu Bat
 DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Delivery Note,Hide Serial No in Print Format,Seriennummer in Druckformat ausblenden
 DocType: Issue,Booked Hours,Gebuchte Stunden
+DocType: Issue,Contact Customer,Kontakt Kunde
 DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
 DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
 DocType: Charging Point Key Account,Disabled,Deaktiviert

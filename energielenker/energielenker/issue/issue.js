@@ -26,6 +26,21 @@ frappe.ui.form.on('Issue', {
                 var target ="span[data-label='" + __("Email") + "']";
                 $(target).parent().parent().remove();   // remove Menu > Email
             }
+            
+            //query to filter contacts
+            frm.set_query('contact_customer', function() {
+                return {
+                    filters: {
+                        'link_doctype': 'Customer',
+                        'link_name': frm.doc.customer
+                    }
+                };
+            });
+            
+            //Make Field "Contact Customer" mandatory when User opens the Issue
+            if (!frm.doc.__islocal) {
+                cur_frm.set_df_property('contact_customer', 'reqd', 1);
+            }
 
     },
     validate: function(frm) {
@@ -95,6 +110,9 @@ frappe.ui.form.on('Issue', {
     },
     before_save: function(frm) {
         send_invoice_notification(frm);
+    },
+    contact_customer: function(frm) {
+        display_contact_information(frm);
     }
 })
 
@@ -136,3 +154,27 @@ function send_invoice_notification(frm) {
     }
 }
 
+function display_contact_information(frm) {
+    console.log("grüzi");
+    if (frm.doc.contact_customer) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Contact",
+                'name': frm.doc.contact_customer
+            },
+            'callback': function(response) {
+                let contact_doc = response.message;
+                if (contact_doc) {
+                    cur_frm.set_value("contact_customer_salutation", contact_doc.salutation);
+                    cur_frm.set_value("contact_customer_name", contact_doc.last_name + " " + contact_doc.first_name);
+                    cur_frm.set_value("contact_customer_email", contact_doc.email_id);
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("contact_customer_salutation", null);
+        cur_frm.set_value("contact_customer_name", null);
+        cur_frm.set_value("contact_customer_email", null);
+    }
+}
