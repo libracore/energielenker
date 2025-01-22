@@ -418,6 +418,11 @@ frappe.ui.form.on("Sales Order", {
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
         }
+        
+        if (cur_frm.doc.__islocal) {
+            //check if default warehouse ist set in all items, otherwise give information.
+            check_default_warehouses(frm);
+        }
     },
     billing_address_name: function(frm) {
         if (frm.doc.billing_address_name) {
@@ -1067,4 +1072,18 @@ function remove_billing_address(frm) {
     cur_frm.set_value("billing_address", null);
     cur_frm.set_value("billing_contact", null);
     cur_frm.set_value("billing_contact_display", null);
+}
+
+function check_default_warehouses(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_default_warehouses',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>" + response.message, "Achtung")
+            }
+        }
+    });
 }
