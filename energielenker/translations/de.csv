@@ -8,6 +8,7 @@ DocType: Delivery Note,With reference to Batch and Warehouse,Mit Referenz zu Bat
 DocType: Delivery Note,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Delivery Note,Hide Serial No in Print Format,Seriennummer in Druckformat ausblenden
 DocType: Issue,Booked Hours,Gebuchte Stunden
+DocType: Issue,Contact Customer,Kontakt Kunde
 DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
 DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
 DocType: Charging Point Key Account,Disabled,Deaktiviert
@@ -51,6 +52,8 @@ DocType: BOM,Item Row,Bitte Artikelzeile
 DocType: BOM,Get Items,Artikel holen
 DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel
 DocType: Project,Open Depots,Offene Kommissionierungen
+DocType: Project,"To Deliver and Bill","Auszuliefern und Abzurechnen"
+DocType: Project,Sales Order Status,Status Kundenauftrag
 DocType: Sales Order,Open Depots,Offene Kommissionierungen
 DocType: Depot,Depot Status,Status Kommissionierung
 DocType: Depot,Project Status,Projektstatus
@@ -92,6 +95,7 @@ DocType: Project,Bill on reporting date,Abzurechnen am Stichtag
 DocType: Project,Revoke activation code,Aktivierungscode widerrufen
 DocType: Item,Is Product Bundle,Ist Produkt-Bundle
 DocType: Item,Is Part of Product Bundle,Gehört zu Produkt-Bundle
+DocType: Item,Temporarily deactivated,Vorübergehend deaktiviert
 DocType: Delivery Note,Packing List,Packliste
 DocType: Customer,Invoice Note,Notiz Rechnung
 DocType: Customer,Leave Invoice Note,Notiz für Rechnung hinterlassen

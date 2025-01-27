@@ -150,3 +150,18 @@ def close_so_position(parent_doctype, trans_items, parent_doctype_name):
         
     sales_order_doc.save()
     return
+
+@frappe.whitelist()
+def check_default_warehouses(doc):
+    doc = json.loads(doc)
+    
+    message = ""
+    for item in doc['items']:
+        default_warehouse = frappe.get_value("Item", item.get('item_code'), "default_warehouse_readonly")
+        if default_warehouse and item.get('warehouse') != default_warehouse:
+            message += "{0} (Position {1})<br>".format(item.get('item_code'), item.get('idx'))
+            
+    if message:
+        return message
+    else:
+        return None
