@@ -387,6 +387,7 @@ frappe.ui.form.on("Sales Order", {
             cur_frm.set_value("contact_display_two", null);
             cur_frm.set_value("contact_salutation", null);
             cur_frm.set_value("contact_last_name", null);
+            cur_frm.set_value("contact_email_two", null);
         }
     },
     shipping_contact: function(frm) {
@@ -416,6 +417,11 @@ frappe.ui.form.on("Sales Order", {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
+        }
+        
+        if (cur_frm.doc.__islocal) {
+            //check if default warehouse ist set in all items, otherwise give information.
+            check_default_warehouses(frm);
         }
     },
     billing_address_name: function(frm) {
@@ -600,6 +606,7 @@ function contact_info_display(frm, name, field) {
             if (field == "contact_display_two") {
                 cur_frm.set_value("contact_salutation", res[0].salutation);
                 cur_frm.set_value("contact_last_name", res[0].first_name);
+                cur_frm.set_value("contact_email_two", res[0].email_id);
             }
         }
     });
@@ -851,7 +858,7 @@ function validate_customer(frm, event) {
         'callback': function(response) {
             var validation = response.message
             if (validation) {
-                frappe.msgprint( __("Kunde ist gesperrt!"), __("Sperrkunde") );
+                frappe.msgprint( __("Kunde ist gesperrt!<br><br>Lobas-Anfragen von Hymes-Sperrkunden weiterleiten an info@hymes.de. Nicht Lobas-bezogene Anfragen/Aufträge (z.B. EZA-Regler) können angenommen und verarbeitet werden."), __("Sperrkunde") );
                 if (event == "customer") {
                     cur_frm.set_value("customer", "");
                 } else {
@@ -1065,4 +1072,18 @@ function remove_billing_address(frm) {
     cur_frm.set_value("billing_address", null);
     cur_frm.set_value("billing_contact", null);
     cur_frm.set_value("billing_contact_display", null);
+}
+
+function check_default_warehouses(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.check_default_warehouses',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>" + response.message, "Achtung")
+            }
+        }
+    });
 }

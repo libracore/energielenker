@@ -16,7 +16,9 @@
   "invoice_created",
   "create_invoice",
   "so_ref",
-  "rollback_invoice"
+  "rollback_invoice",
+  "column_break_14",
+  "so_status"
  ],
  "fields": [
   {
@@ -113,10 +115,21 @@
    "fieldname": "bill_on_reporting_date",
    "fieldtype": "Check",
    "label": "Bill on reporting date"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "order.status",
+   "fieldname": "so_status",
+   "fieldtype": "Data",
+   "label": "Sales Order Status",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2024-07-10 16:06:35.879811",
+ "modified": "2025-01-16 20:23:48.646383",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",

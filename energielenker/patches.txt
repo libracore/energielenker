@@ -8,3 +8,4 @@ energielenker.patches.v2_129_0.default_warehouse_info
 energielenker.patches.v2_131_1.stock_reconsiliation
 energielenker.patches.plz_gebiet.plz_gebiet
 energielenker.patches.v2_140_0.contact_salutation_lastname
+energielenker.patches.v2_141_0.contact_and_so_email

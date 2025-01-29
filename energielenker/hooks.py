@@ -64,7 +64,8 @@ doctype_js = {
     "Item Price": "energielenker/item_price/item_price.js",
     "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js",
     "Work Order": "energielenker/work_order/work_order.js",
-    "Product Bundle": "energielenker/product_bundle/product_bundle.js"
+    "Product Bundle": "energielenker/product_bundle/product_bundle.js",
+    "Warehouse": "energielenker/warehouse/warehouse.js"
 }
 
 doctype_list_js = {
@@ -209,6 +210,9 @@ doc_events = {
     },
     "Product Bundle": {
         "on_trash": "energielenker.energielenker.product_bundle.product_bundle.delete_redord"
+    },
+    "BOM": {
+        "autoname": "energielenker.energielenker.bom.bom.autoname"
     }
 }
 
