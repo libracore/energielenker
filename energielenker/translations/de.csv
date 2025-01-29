@@ -27,6 +27,8 @@ DocType: Webshop Settings,Supplier,Lieferant
 DocType: Webshop Settings,Purchase Order Item,Artikel Lieferantenauftrag
 DocType: Customer,Blocked Customer,Sperrkunde
 DocType: Customer,Blocking Reason,Grund der Sperrung
+DocType: Customer,Delivery Note Note,Notiz Lieferschein
+DocType: Customer,Leave Delivery Note Note,Notiz für Kundenauftrag hinterlassen
 DocType: Depot,Depot,Kommissionierung
 DocType: Depot,To Warehouse,Ziellager
 DocType: Depot,Project,Projekt
