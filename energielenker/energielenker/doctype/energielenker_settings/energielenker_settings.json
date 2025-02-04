@@ -36,7 +36,9 @@
   "column_break_27",
   "issue_notification_cc",
   "serial_numbers_section",
-  "hidden_serial_numbers"
+  "hidden_serial_numbers",
+  "ibn_remote_section",
+  "ibn_remote_items"
  ],
  "fields": [
   {
@@ -223,10 +225,21 @@
    "fieldtype": "Table",
    "label": "Hidden Serial Numbers",
    "options": "Delivery Note Hidden Serial Numbers"
+  },
+  {
+   "fieldname": "ibn_remote_section",
+   "fieldtype": "Section Break",
+   "label": "IBN Remote"
+  },
+  {
+   "fieldname": "ibn_remote_items",
+   "fieldtype": "Table",
+   "label": "IBN remote Items",
+   "options": "IBN remote Items"
   }
  ],
  "issingle": 1,
- "modified": "2025-01-09 17:17:44.777828",
+ "modified": "2025-01-29 12:25:29.019895",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
