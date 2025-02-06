@@ -153,6 +153,7 @@ frappe.ui.form.on("Delivery Note", {
             )
         }
         check_so_quantities(frm);
+        get_customer_delivery_note_note(frm);
     },
     on_submit: function(frm) {
         if (cur_frm.doc.so_return){
@@ -877,6 +878,30 @@ function set_show_serial_no(frm, trigger, row_item_code = null, cdt = null, cdn 
                         frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "hide_serial_no", 0);
                     }
                 }
+            }
+        }
+    });
+}
+
+function get_customer_delivery_note_note(frm) {
+    frappe.call({
+        'method': "frappe.client.get_list",
+        'args':{
+     	    'doctype': "Customer",
+         	'filters': [
+         	    ["name","IN", [cur_frm.doc.customer]]
+         	],
+            'fields': ["leave_delivery_note_note", "delivery_note_note_box"]
+        },
+        'callback': function (r) {
+            var customer = r.message[0];
+            
+            if (customer.leave_delivery_note_note === 1) {
+                frappe.msgprint({
+                    title: __('Dieser Kunde hat einen Lieferungsvermerk hinterlassen:'),
+                    indicator: 'red',
+                    message: __(` &nbsp;  &nbsp; ${ customer.delivery_note_note_box }`)
+                });
             }
         }
     });
