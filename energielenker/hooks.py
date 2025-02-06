@@ -215,7 +215,7 @@ doc_events = {
         "autoname": "energielenker.energielenker.bom.bom.autoname"
     },
     "Work Order": {
-        "after_insert": "energielenker.energielenker.work_order.work_order.set_has_work_order_in_sales_order",
+        "on_submit": "energielenker.energielenker.work_order.work_order.set_has_work_order_in_sales_order",
         "on_cancel": "energielenker.energielenker.work_order.work_order.unset_has_work_order_in_sales_order"
     }
 }
