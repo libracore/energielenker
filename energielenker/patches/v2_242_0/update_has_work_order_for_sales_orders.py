@@ -1,6 +1,8 @@
 import frappe
 
 def execute():
+    frappe.reload_doc("Selling", "doctype", "Sales Order")
+
     work_orders = frappe.get_all("Work Order", filters={"docstatus": 1}, fields=["name", "sales_order"])
     i = 0
 
