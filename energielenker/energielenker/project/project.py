@@ -743,7 +743,6 @@ def auto_kpi_refresh():
     enqueue("energielenker.energielenker.project.project._auto_kpi_refresh", queue='long', job_name='Auto-KPI-Refresh', timeout=6000, **args)
 
 def _auto_kpi_refresh():
-    frappe.log_error("auto_kpi_refresh Process started", "auto_kpi_refresh Process started")
     projects = frappe.db.sql("""SELECT `name` FROM `tabProject`""", as_dict=True)
     errors = []
     successes = []
@@ -756,10 +755,9 @@ def _auto_kpi_refresh():
         except:
             errors.append(_project.name)
     if len(errors) > 0:
-        frappe.log_error("{0}".format(str(errors)), 'auto_kpi_refresh')
+        frappe.log_error("{0}".format(str(errors)), 'auto_kpi_refresh_errors')
     if len(successes) > 0:
         frappe.log_error("{0}".format(str(successes)), 'auto_kpi_refresh_successes')
-        frappe.log_error(len(successes), 'auto_kpi_refresh_successes_len')
 
 def get_projektbewertung_ignorieren_amount(self):
     return float(frappe.db.sql("""SELECT IFNULL(SUM(`base_net_total`), 0) AS `qty` FROM `tabSales Order` WHERE `project` = '{0}' AND `docstatus` = 1 AND `projektbewertung_ignorieren` = 1""".format(self.project.name), as_dict=True)[0].qty)
