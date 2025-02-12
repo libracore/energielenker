@@ -669,3 +669,38 @@ function fetch_stock_items(item_code, cdt, cdn) {
         }
     });
 }
+
+function check_deactivation(item_code) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "Item",
+            'name': item_code
+        },
+        'callback': function(response) {
+            if (response.message && response.message.temporarily_deactivated) {
+                frappe.msgprint("Artikel " + item_code + " ist vorübergehend deaktiviert");
+            }
+        }
+    });
+}
+
+function check_deactivated_items(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.utils.utils.get_deactivated_items',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                let deactivated_items = response.message;
+                let message = `Folgende Artikel sind vorübergehend deaktiviert:<br>`
+                for (let i = 0; i < deactivated_items.length; i++) {
+                    message = message + `<br>${deactivated_items[i]}`
+                }
+                frappe.msgprint(message);
+                frappe.validated=false;
+            }
+        }
+    });
+}

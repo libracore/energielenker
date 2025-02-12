@@ -99,6 +99,7 @@ frappe.ui.form.on('Quotation', {
         check_vielfaches(frm);
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
+        check_deactivated_items(frm);
         
         if (cur_frm.doc.part_list_items) {
             for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
@@ -137,6 +138,7 @@ frappe.ui.form.on('Quotation Item', {
         if (row.item_code) {
             check_for_family(row.item_code, row.qty);
             fetch_stock_items(row.item_code, cdt, cdn);
+            check_deactivation(row.item_code);
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
@@ -167,6 +169,12 @@ frappe.ui.form.on('Quotation Item', {
 });
 
 frappe.ui.form.on('Quotation Part List Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_deactivation(row.item_code);
+        }
+    },
     qty(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.qty && row.rate) {
@@ -502,4 +510,3 @@ function set_payment_terms(frm) {
         });
     }
 }
-

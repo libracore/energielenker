@@ -207,6 +207,7 @@ frappe.ui.form.on("Delivery Note", {
             frappe.validated=false;
         }
         validate_depot_warehouse(frm);
+        check_deactivated_items(frm);
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -338,6 +339,7 @@ frappe.ui.form.on('Delivery Note Item', {
         var row = locals[cdt][cdn];
         if (row.item_code) {
             fetch_stock_items(row.item_code, cdt, cdn);
+            check_deactivation(row.item_code);
         }
         //Set Checkbox to Hide Serial No in Print format
         set_show_serial_no(frm, "item_code", row.item_code, cdt, cdn);

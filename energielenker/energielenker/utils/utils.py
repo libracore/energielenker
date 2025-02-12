@@ -5,6 +5,7 @@
 import frappe
 import re
 from erpnext.stock.reorder_item import reorder_item
+import json
 
 def get_plz_gebiet(self, event):
     if not self.gebiet and self.customer_address:
@@ -28,3 +29,24 @@ def get_label_dimension_settings(label_printer):
     else:
         return False
 
+@frappe.whitelist()
+def get_deactivated_items(doc):
+    doc = json.loads(doc)
+    
+    deactivated_items = []
+    
+    for item in doc.get('items'):
+        deactivated = frappe.get_value("Item", item.get('item_code'), "temporarily_deactivated")
+        if deactivated:
+            deactivated_items.append(item.get('item_code'))
+    
+    if doc.get('doctype') == "Quotation" or doc.get('doctype') == "Sales Order":
+        for item in doc.get('part_list_items'):
+            deactivated = frappe.get_value("Item", item.get('item_code'), "temporarily_deactivated")
+            if deactivated:
+                deactivated_items.append(item.get('item_code'))
+    
+    if len(deactivated_items) > 0:
+        return deactivated_items
+    else:
+        return False
