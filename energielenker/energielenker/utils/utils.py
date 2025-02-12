@@ -40,6 +40,12 @@ def get_deactivated_items(doc):
         if deactivated:
             deactivated_items.append(item.get('item_code'))
     
+    if doc.get('doctype') == "Quotation" or doc.get('doctype') == "Sales Order":
+        for item in doc.get('part_list_items'):
+            deactivated = frappe.get_value("Item", item.get('item_code'), "temporarily_deactivated")
+            if deactivated:
+                deactivated_items.append(item.get('item_code'))
+    
     if len(deactivated_items) > 0:
         return deactivated_items
     else:

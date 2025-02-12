@@ -169,6 +169,12 @@ frappe.ui.form.on('Quotation Item', {
 });
 
 frappe.ui.form.on('Quotation Part List Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_deactivation(row.item_code);
+        }
+    },
     qty(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.qty && row.rate) {
@@ -503,42 +509,4 @@ function set_payment_terms(frm) {
             }
         });
     }
-}
-
-function check_deactivation(item_code) {
-    console.log(item_code);
-    frappe.call({
-        'method': "frappe.client.get_value",
-        'args': {
-            'doctype': "Item",
-            'name': item_code,
-            'fieldname': "temporarily_deactivated"
-        },
-        'callback': function(response) {
-            console.log(response.message)
-            if (response.message && response.message.temporarily_deactivated) {
-                frappe.msgprint("Artikel " + item_code + " ist vorübergehend deaktiviert");
-            }
-        }
-    });
-}
-
-function check_deactivated_items(frm) {
-    frappe.call({
-        'method': 'energielenker.energielenker.utils.utils.get_deactivated_items',
-        'args': {
-            'doc': frm.doc
-        },
-        'callback': function(response) {
-            if (response) {
-                let deactivated_items = response.message;
-                let message = `Folgende Artikel sind vorübergehend deaktiviert:<br>`
-                for (let i = 0; i < deactivated_items.length; i++) {
-                    message = message + `<br>${deactivated_items[i]}`
-                }
-                frappe.msgprint(message);
-                frappe.validated=false;
-            }
-        }
-    });
 }

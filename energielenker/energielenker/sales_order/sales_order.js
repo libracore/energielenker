@@ -182,6 +182,7 @@ frappe.ui.form.on("Sales Order", {
         check_navision(frm);
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
+        check_deactivated_items(frm);
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
         } else {
@@ -469,6 +470,7 @@ frappe.ui.form.on('Sales Order Item', {
         if (row.item_code) {
             check_for_family(row.item_code, row.qty);
             fetch_stock_items(row.item_code, cdt, cdn);
+            check_deactivation(row.item_code);
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
@@ -508,6 +510,12 @@ frappe.ui.form.on('Sales Order Item', {
 });
 
 frappe.ui.form.on('Sales Order Part List Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_deactivation(row.item_code);
+        }
+    },
     qty(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.qty && row.rate) {

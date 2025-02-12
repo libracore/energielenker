@@ -76,6 +76,7 @@ frappe.ui.form.on('Purchase Order', {
     },
     validate: function(frm) {
         check_vielfaches(frm);
+        check_deactivated_items(frm);
         if (cur_frm.doc.project) {
             frappe.call({
                 'method': "frappe.client.get",
@@ -98,6 +99,15 @@ frappe.ui.form.on('Purchase Order', {
         }
     }
 })
+
+frappe.ui.form.on('Purchase Order Item', {
+    item_code(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.item_code) {
+            check_deactivation(row.item_code);
+        }
+    }
+});
 
 // Change the timeline specification, from "X days ago" to the exact date and time
 function set_timestamps(frm){
