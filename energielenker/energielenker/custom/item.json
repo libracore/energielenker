@@ -955,7 +955,7 @@
    "fetch_from": null,
    "fetch_if_empty": 0,
    "fieldname": "reason_for_deactivation",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "hidden": 0,
    "idx": 16,
    "ignore_user_permissions": 0,
