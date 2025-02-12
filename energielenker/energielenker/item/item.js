@@ -4,6 +4,7 @@
 frappe.ui.form.on("Item", {
     refresh: function(frm) {
         set_timestamps(frm);
+        set_disabled_reason_property(frm);
 
         // add label button
         frm.add_custom_button(__("Etikette erstellen"), function() {
@@ -58,6 +59,12 @@ frappe.ui.form.on("Item", {
         if (cur_frm.doc.item_name) {
             cur_frm.set_value("item_purchasing_name", cur_frm.doc.item_name);
         }
+    },
+    disabled: function(frm) {
+        set_disabled_reason_property(frm);
+    },
+    temporarily_deactivated: function(frm) {
+        set_disabled_reason_property(frm);
     }
 });
 
@@ -155,4 +162,12 @@ function create_label(frm, label_printer) {
             }
         }
     });
+}
+
+function set_disabled_reason_property(frm) {
+    if (frm.doc.disabled || frm.doc.temporarily_deactivated) {
+        cur_frm.set_df_property('reason_for_deactivation', 'reqd', 1);
+    } else {
+        cur_frm.set_df_property('reason_for_deactivation', 'reqd', 0);
+    }
 }

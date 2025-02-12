@@ -99,6 +99,7 @@ frappe.ui.form.on('Quotation', {
         check_vielfaches(frm);
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
+        check_deactivated_items(frm);
         
         if (cur_frm.doc.part_list_items) {
             for (i=0; i < cur_frm.doc.part_list_items.length; i++) {
@@ -137,6 +138,7 @@ frappe.ui.form.on('Quotation Item', {
         if (row.item_code) {
             check_for_family(row.item_code, row.qty);
             fetch_stock_items(row.item_code, cdt, cdn);
+            check_deactivation(row.item_code);
             frappe.db.get_value("Item", row.item_code, "part_list_item").then( (value) => {
                if (value.message.part_list_item == 1) {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 1);
@@ -503,3 +505,40 @@ function set_payment_terms(frm) {
     }
 }
 
+function check_deactivation(item_code) {
+    console.log(item_code);
+    frappe.call({
+        'method': "frappe.client.get_value",
+        'args': {
+            'doctype': "Item",
+            'name': item_code,
+            'fieldname': "temporarily_deactivated"
+        },
+        'callback': function(response) {
+            console.log(response.message)
+            if (response.message && response.message.temporarily_deactivated) {
+                frappe.msgprint("Artikel " + item_code + " ist vorübergehend deaktiviert");
+            }
+        }
+    });
+}
+
+function check_deactivated_items(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.utils.utils.get_deactivated_items',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response) {
+                let deactivated_items = response.message;
+                let message = `Folgende Artikel sind vorübergehend deaktiviert:<br>`
+                for (let i = 0; i < deactivated_items.length; i++) {
+                    message = message + `<br>${deactivated_items[i]}`
+                }
+                frappe.msgprint(message);
+                frappe.validated=false;
+            }
+        }
+    });
+}
