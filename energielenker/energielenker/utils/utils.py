@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2024, libracore and contributors
+# Copyright (c) 2025, libracore and contributors
 # For license information, please see license.txt
 
 import frappe
@@ -40,7 +40,7 @@ def get_deactivated_items(doc):
         if deactivated:
             deactivated_items.append(item.get('item_code'))
     
-    if doc.get('doctype') == "Quotation" or doc.get('doctype') == "Sales Order":
+    if (doc.get('doctype') == "Quotation" or doc.get('doctype') == "Sales Order") and doc.get('part_list_items'):
         for item in doc.get('part_list_items'):
             deactivated = frappe.get_value("Item", item.get('item_code'), "temporarily_deactivated")
             if deactivated:
