@@ -238,6 +238,9 @@ frappe.ui.form.on("Sales Invoice", {
         } else {
             frm.set_value('billing_contact_display', null);
         }
+    },
+    leistungsdatum: function(frm) {
+        frm.set_value("delivery_date", frm.doc.leistungsdatum);
     }
 });
 
@@ -508,7 +511,9 @@ function set_leistungsdatum(frm) {
 				cur_frm.set_value("leistungsdatum", response.posting_date);
 			}
 		});
-	}	
+	} else {
+        cur_frm.set_value("leistungsdatum", cur_frm.doc.posting_date);
+    }
 }
 
 function check_stundensatz(frm) {
