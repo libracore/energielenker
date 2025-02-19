@@ -88,8 +88,13 @@ function timesheet_manager_quick_start(ts) {
 }
 
 function timesheet_manager_start(ts) {
+    console.log("Grüezi");
     frappe.prompt([
-        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project'},
+        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project', 
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'task', 'fieldtype': 'Link', 'label': 'Task', 'reqd': 0, 'options': 'Task',
             'get_query': function() {
                 if ($('[data-fieldname="project"]')[$('[data-fieldname="project"]').length - 1].value) {
@@ -171,7 +176,11 @@ function timesheet_manager_stop(ts) {
 
 function timesheet_manager_stop_from_quick_entry(ts) {
     frappe.prompt([
-        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project'},
+        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project',
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'task', 'fieldtype': 'Link', 'label': 'Task', 'reqd': 0, 'options': 'Task',
             'get_query': function() {
                 if ($('[data-fieldname="project"]')[$('[data-fieldname="project"]').length - 1].value) {
@@ -233,7 +242,11 @@ function timesheet_manager_stop_from_quick_entry(ts) {
 function timesheet_manager_add_timeblock(ts) {
     frappe.prompt([
         {'fieldname': 'hours', 'fieldtype': 'Float', 'label': 'Hours', 'reqd': 1},
-        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project'},
+        {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project',
+            'get_query': function() {
+                return { 'filters': { 'status': 'Open' } };
+            }
+        },
         {'fieldname': 'task', 'fieldtype': 'Link', 'label': 'Task', 'reqd': 0, 'options': 'Task',
             'get_query': function() {
                 if ($('[data-fieldname="project"]')[$('[data-fieldname="project"]').length - 1].value) {
