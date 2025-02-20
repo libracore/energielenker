@@ -47,6 +47,8 @@ DocType: Item,Item Name,Artikelname
 DocType: Item,Quantity,Menge
 DocType: Item,Unit of Measure,Einheit
 DocType: Quotation,Part List Items,Stücklistenartikel
+DocType: Quotation,Header,Kopfzeile
+DocType: Quotation,Print Header,Kopfzeile drucken
 DocType: Sales Order,Part List Items,Stücklistenartikel
 DocType: Sales Order,Has Work Order,Hat Arbeitsauftrag
 DocType: Quotation,With BOM,Mit Stückliste
