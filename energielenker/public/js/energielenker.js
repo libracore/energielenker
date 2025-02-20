@@ -88,7 +88,6 @@ function timesheet_manager_quick_start(ts) {
 }
 
 function timesheet_manager_start(ts) {
-    console.log("Grüezi");
     frappe.prompt([
         {'fieldname': 'project', 'fieldtype': 'Link', 'label': 'Project', 'reqd': 0, 'options': 'Project', 
             'get_query': function() {
