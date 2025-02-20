@@ -199,6 +199,9 @@ frappe.ui.form.on("Project", {
     },
     project_template: function(frm) {
         load_template(frm);
+    },
+    no_end_date: function() {
+        cur_frm.set_value("expected_end_date", null);
     }
 });
 
