@@ -206,7 +206,10 @@ doc_events = {
         "validate": "energielenker.energielenker.utils.lead.insert_plz_gebiet"
     },
     "Quotation": {
-        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet"
+        "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet",
+        "on_submit": "energielenker.energielenker.lead.lead.update_lead_status",
+        "before_update_after_submit": "energielenker.energielenker.lead.lead.update_lead_status",
+        "on_cancel": "energielenker.energielenker.lead.lead.update_lead_status"
     },
     "Product Bundle": {
         "on_trash": "energielenker.energielenker.product_bundle.product_bundle.delete_redord"
@@ -229,7 +232,6 @@ scheduler_events = {
         "energielenker.energielenker.utils.auto_reminder.check_for_reminder",
         "energielenker.energielenker.utils.auto_email_report.send_monthly_reports",
         "energielenker.energielenker.quotation.quotation.update_quotation_status",
-        "energielenker.energielenker.lead.lead.update_lead_status",
         "energielenker.energielenker.doctype.depot.depot.daily_depot_check",
         "energielenker.energielenker.purchase_order.purchase_order.autoclose_purchase_order"
     ],
