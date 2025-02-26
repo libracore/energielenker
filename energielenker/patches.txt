@@ -10,3 +10,5 @@ energielenker.patches.plz_gebiet.plz_gebiet
 energielenker.patches.v2_140_0.contact_salutation_lastname
 energielenker.patches.v2_141_0.contact_and_so_email
 energielenker.patches.v2_242_0.update_has_work_order_for_sales_orders
+energielenker.patches.v2_143_0.items_evse_count
+
