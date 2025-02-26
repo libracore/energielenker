@@ -9,45 +9,46 @@ from datetime import datetime, timedelta
 from erpnext.crm.doctype.lead.lead import Lead
 
 @frappe.whitelist()
-def update_lead_status():
+def update_lead_status(self, method):
     #************************************************************************************
     #overwrite the lead validation where set_status is called
     overwrite_lead_validation()
     #************************************************************************************
     
-    today = datetime.now().date()
-    first_day_of_year = datetime(today.year, 1, 1)
-    # ~ last_week = today - timedelta(days=7)
+    # Query to retrieve all quotations that are linked to a lead
+    if (self.quotation_to == 'Lead'):
+        lead = frappe.get_doc("Lead", self.party_name)
+        quotations = frappe.get_all('Quotation', filters={'quotation_to': 'Lead', 'party_name': lead.name, 'docstatus': 1}, fields=['name', 'status', 'valid_till'])
 
-    # Query to retrieve leads from the beginning of the year that are not already lost or expired
-    leads_list = frappe.get_all("Lead", filters={"creation": (">=", first_day_of_year), "status": ["not in", ["Lost Quotation", "Verfallene Angebote"]] }, fields=["name", "creation"])
-    count = 0    
-    for lead in leads_list:
-        count += 1
-        lead = frappe.get_doc("Lead", lead['name'])
-        # ~ print("{0} {1} {2}".format(lead.name, lead.creation, count))
-        quotations = frappe.get_all('Quotation', filters={'quotation_to': 'Lead', 'party_name': lead.name}, fields=['name', 'status', 'valid_till'])
-
+        # if there is an open quotation, set the status to "Quotation", if there is a lost quotation, set the status to "Lost Quotation", if all quotations are expired, set the status to "Verfallenes Angebot"
         if quotations:
-            all_expired = all(q.valid_till and str(q.valid_till) < nowdate() for q in quotations)
+            any_open = any(q.status == 'Open' for q in quotations)
+            all_expired = all(q.status == 'Expired' for q in quotations)
             any_lost = any(q.status == 'Lost' for q in quotations)
             
-            if any_lost:
+            if any_open:
                 try:
-                    print(" any_lost {0}".format(lead.name))
+                    lead.status = 'Quotation'
+                except Exception as err:
+                    frappe.log_error(err, "lead.status {0}".format(lead.status))
+            elif any_lost:
+                try:
                     lead.status = 'Lost Quotation'
                     lead.contact_date = ''
                 except Exception as err:
                     frappe.log_error(err, "lead.status {0}".format(lead.status))
             elif all_expired:
                 try:
-                    print(" all_expired {0}".format(lead.name))
                     lead.status = 'Verfallene Angebote'
                     lead.contact_date = ''
                 except Exception as err:
                     frappe.log_error(err, "lead.status {0}".format(lead.status))
-            
-            lead.save(ignore_permissions=True)
+            else:
+                #status remains unchanged
+                pass
+        else:
+            lead.status = 'Lead'
+        lead.save(ignore_permissions=True)
 
 def overwrite_lead_validation():
     Lead.validate = lead_validation
