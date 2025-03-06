@@ -174,6 +174,7 @@ def create_overbilling_invoice(doc, cdt, cdn):
     
     invoice = make_sales_invoice(doc.get('name'))
     
+    #ACHTUNG ZUERST CLEAR TABLE UND SO DETAILS SETZEN
     invoice.append("items", {
                         'reference_doctype': "Sales Invoice Item",
                         'item_code': "A-00155",
