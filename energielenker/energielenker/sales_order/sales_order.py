@@ -8,6 +8,7 @@ from frappe.utils import flt
 import json
 from frappe.utils.data import getdate
 from erpnext.controllers.accounts_controller import update_child_qty_rate
+from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 
 @frappe.whitelist() 
 def overwrite_before_update_after_submit():
@@ -165,3 +166,40 @@ def check_default_warehouses(doc):
         return message
     else:
         return None
+
+@frappe.whitelist()
+def create_overbilling_invoice(doc, cdt, cdn):
+    frappe.log_error(cdn, "cdn")
+    doc = json.loads(doc)
+    
+    invoice = make_sales_invoice(doc.get('name'))
+    
+    invoice.append("items", {
+                        'reference_doctype': "Sales Invoice Item",
+                        'item_code': "A-00155",
+                        'qty': 1
+                    })
+    
+    invoice.save()
+    frappe.db.commit()
+    
+    #Create and remove Link to new Invoice
+    link = "/desk#Form/Sales Invoice/{0}".format(invoice.get('name'))
+    
+    return link
+    # ~ invoice = frappe.get_doc({
+        # ~ 'doctype': "Sales Invoice",
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'navision_konto': doc.get('navision_konto'),
+        # ~ 'navision_kontonummer': doc.get('navision_kontonummer'),
+        # ~ 'cost_center': doc.get('cost_center'),
+        # ~ 'project': doc.get('project'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        # ~ 'customer': doc.get('customer'),
+        
