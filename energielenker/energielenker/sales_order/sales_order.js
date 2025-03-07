@@ -1100,7 +1100,6 @@ function check_default_warehouses(frm) {
 }
 
 function create_overbilling_invoice(frm, cdt, cdn) {
-    console.log("Started");
     frappe.call({
         'method': 'energielenker.energielenker.sales_order.sales_order.create_overbilling_invoice',
         'args': {
@@ -1110,7 +1109,6 @@ function create_overbilling_invoice(frm, cdt, cdn) {
         },
         'callback': function(response) {
             if (response.message) {
-                console.log(response.message);
                 window.open(response.message, '_blank');
             }
         }
