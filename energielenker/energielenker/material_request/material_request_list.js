@@ -25,7 +25,11 @@ frappe.listview_settings['Material Request'] = {
     onload: function(listview) {
         listview.page.add_menu_item( __("Autocreate Material Request"), function() {
           autocreate_material_requests();
-        });  
+        });
+        
+        var pg_button = document.getElementById('page-List/Material Request/List').getElementsByClassName("btn-paging")[2];
+        pg_button.click();
+    
     }
 };
 

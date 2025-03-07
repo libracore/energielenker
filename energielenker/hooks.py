@@ -78,7 +78,18 @@ doctype_list_js = {
     "Purchase Receipt": "energielenker/purchase_receipt/purchase_receipt_list.js",
     "Delivery Note": "energielenker/delivery_note/delivery_note_list.js",
     "Task": "energielenker/task/task_list.js",
-    "Material Request" : "energielenker/material_request/material_request_list.js"
+    "Material Request" : "energielenker/material_request/material_request_list.js",
+    "Address" : "energielenker/address/address_list.js",
+    "Contact" : "energielenker/contact/contact_list.js",
+    "Customer" : "energielenker/customer/customer_list.js",
+    "Issue" : "energielenker/Issue/issue_list.js",
+    "Item" : "energielenker/Item/item_list.js",
+    "Lead" : "energielenker/Lead/lead_list.js",
+    "Stock Entry" : "energielenker/Stock Entry/stock_entry_list.js",
+    "Supplier" : "energielenker/Supplier/supplier_list.js",
+    "Timesheet" : "energielenker/Timesheet/timesheet_list.js",
+    "ToDo" : "energielenker/ToDo/todo_list.js",
+    "Work Order" : "energielenker/Work Order/work_order_list.js"
 }
 
 jenv = {
