@@ -21,6 +21,7 @@ def add_mail_as_description_to_issue(self, event):
                     send_issue_creation_notification_to_customer(self.reference_name, self.content, self.sender, self.subject)
                     frappe.db.set_value("Issue", self.reference_name, 'description', self.content, update_modified=False)
                     frappe.db.set_value("Issue", self.reference_name, 'mark_for_reply', 0, update_modified=False)
+                    frappe.db.set_value("Issue", self.reference_name, 'themenfeld', 'Unbearbeitet', update_modified=False)
                     frappe.db.commit()
                 else:
                     update_timestamp(self.reference_name)
