@@ -377,12 +377,15 @@ class PowerProject():
     def get_summe_einkaufskosten_via_einkaufsrechnung(self):
         '''
         Anforderungen energielenker:
-        - alle Einkaufsrechnungspositionen OHNE LAGERARTIKEL (Lagerartikel werden über Lagerbuchung oder Lieferschein bewertet)
+        - alle Einkaufsrechnungspositionen OHNE LAGERARTIKEL (Lagerartikel werden über Lagerbuchung, Lieferschein oder summe_direktlieferungen bewertet)
           --> summe_einkaufsrechnungspositionen
         - Lagerbuchungspositionen (alle Buchungen ohne Eingangslager = Entnahme)
           --> summe_lagerbuchungspositionen
         - Lieferscheinpositionen (NUR LAGERARTIKEL)
           -> summe_Lieferscheinpositionen
+        Ergänzung 10.03.2025 (Herr Ruhkamp)
+        - alle Einkaufsrechnungspositionen MIT LAGERARTIKEL welcher über eine Direktlieferung(drop-ship) ausgeliefert werden
+          --> summe_direktlieferungen
         '''
         
         if not self.project.einkaufskosten_manuell_festsetzen == 1:
@@ -397,6 +400,24 @@ class PowerProject():
                                                                     AND `docstatus` = 1
                                                                 )
                                                                 AND `item_code` NOT IN (
+                                                                    SELECT
+                                                                        `name`
+                                                                    FROM `tabItem`
+                                                                    WHERE `is_stock_item` = 1
+                                                                )""".format(project=self.project.name), as_dict=True)[0].amount or 0
+            
+            summe_direktlieferungen = frappe.db.sql("""SELECT
+                                                                    SUM(`amount`) AS `amount`
+                                                                FROM `tabPurchase Invoice Item`
+                                                                WHERE `parent` IN (
+                                                                    SELECT
+                                                                        `name`
+                                                                    FROM `tabPurchase Invoice`
+                                                                    WHERE `project` = '{project}'
+                                                                    AND `update_stock` = 0
+                                                                    AND `docstatus` = 1
+                                                                )
+                                                                AND `item_code` IN (
                                                                     SELECT
                                                                         `name`
                                                                     FROM `tabItem`
@@ -459,7 +480,7 @@ class PowerProject():
                         valuation_rate = basic_rate[0].basic_rate
                 summe_Lieferscheinpositionen += (value.qty * valuation_rate)
             
-            return (summe_einkaufsrechnungspositionen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen - summe_lagerbuchungspositionen_negativ) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
+            return (summe_einkaufsrechnungspositionen + summe_direktlieferungen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen - summe_lagerbuchungspositionen_negativ) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
         else:
             return self.project.summe_einkaufskosten_via_einkaufsrechnung
     def get_auftragsummen_gesamt(self):
