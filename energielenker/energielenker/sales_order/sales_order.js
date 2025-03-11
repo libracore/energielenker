@@ -506,6 +506,9 @@ frappe.ui.form.on('Sales Order Item', {
     },
     close_position(frm, cdt, cdn) {
         close_so_position(frm, cdt, cdn);
+    },
+    overbill_item(frm, cdt, cdn) {
+        create_overbilling_invoice(frm, cdt, cdn);
     }
 });
 
@@ -1091,6 +1094,22 @@ function check_default_warehouses(frm) {
         'callback': function(response) {
             if (response.message) {
                 frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>" + response.message, "Achtung")
+            }
+        }
+    });
+}
+
+function create_overbilling_invoice(frm, cdt, cdn) {
+    frappe.call({
+        'method': 'energielenker.energielenker.sales_order.sales_order.create_overbilling_invoice',
+        'args': {
+            'doc': frm.doc,
+            'cdt': cdt,
+            'cdn': cdn
+        },
+        'callback': function(response) {
+            if (response.message) {
+                window.open(response.message, '_blank');
             }
         }
     });

@@ -61,6 +61,7 @@ DocType: Project,"To Deliver and Bill","Auszuliefern und Abzurechnen"
 DocType: Project,Sales Order Status,Status Kundenauftrag
 DocType: Project,Active Measuring Points (monitor),aktive Messpunkte (monitor)
 DocType: Sales Order,Open Depots,Offene Kommissionierungen
+DocType: Sales Order,Overbill Item,Artikel überverrechnen
 DocType: Depot,Depot Status,Status Kommissionierung
 DocType: Depot,Project Status,Projektstatus
 Report: Customer Overview,Customer Overview,Kundenübersicht

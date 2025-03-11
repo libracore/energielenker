@@ -8,6 +8,7 @@ from frappe.utils import flt
 import json
 from frappe.utils.data import getdate
 from erpnext.controllers.accounts_controller import update_child_qty_rate
+from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 
 @frappe.whitelist() 
 def overwrite_before_update_after_submit():
@@ -165,3 +166,44 @@ def check_default_warehouses(doc):
         return message
     else:
         return None
+
+@frappe.whitelist()
+def create_overbilling_invoice(doc, cdt, cdn):
+    doc = json.loads(doc)
+    
+    #Create Invoice from Sales Order, delete all Items and add specific Item
+    invoice = make_sales_invoice(doc.get('name'))
+    
+    invoice.items.clear()
+    
+    for item in doc.get('items'):
+        if item.get('name') == cdn:
+            invoice.append("items", {
+                                'reference_doctype': "Sales Invoice Item",
+                                'item_code': item.get('item_code'),
+                                'item_name': item.get('item_name'),
+                                'qty': item.get('qty'),
+                                'typ': item.get('typ'),
+                                'textposition': item.get('textposition'),
+                                'alternative_position': item.get('alternative_position'),
+                                'interne_position': item.get('interne_position'),
+                                'kalkulationssumme_interner_positionen': item.get('kalkulationssumme_interner_positionen'),
+                                'is_supplement': item.get('is_supplement'),
+                                'close_position': item.get('close_position'),
+                                'artikel_nach_aufwand': item.get('artikel_nach_aufwand'),
+                                'description': item.get('description'),
+                                'remarks': item.get('remarks'),
+                                'uom': item.get('uom'),
+                                'delivered_by_supplier': item.get('delivered_by_supplier'),
+                                'warehouse': item.get('warehouse'),
+                                'sales_order': doc.get('name'),
+                                'so_detail': item.get('name'),
+                            })
+    
+    invoice.save()
+    frappe.db.commit()
+    
+    #Create and remove Link to new Invoice
+    link = "/desk#Form/Sales Invoice/{0}".format(invoice.get('name'))
+    
+    return link
