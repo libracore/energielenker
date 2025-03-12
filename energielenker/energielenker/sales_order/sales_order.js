@@ -458,6 +458,9 @@ frappe.ui.form.on("Sales Order", {
         } else {
             frm.set_value('billing_contact_display', null);
         }
+    },
+    project_clone: function(frm) {
+        set_project_manager(frm.doc.project_clone);
     }
 });
 

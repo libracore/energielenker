@@ -1124,3 +1124,62 @@ def stock_uom_check(invoice):
             frappe.db.set_value('Sales Invoice Item', item.get('name'), 'qty', item.get('stock_qty'))
             frappe.db.commit()
     return
+
+def update_project_manager(self, event):
+    #get before save project manager
+    old_pm = frappe.db.get_value("Project", self.get('name'), "project_manager_name")
+    
+    #check project manager has changed
+    if old_pm != self.get('project_manager_name'):
+        #if it has changed, get all releated Documents and update them
+        documents_to_update = frappe.db.sql("""
+                                            SELECT
+                                                `name`,
+                                                'Sales Order' AS `doctype`
+                                            FROM
+                                                `tabSales Order`
+                                            WHERE
+                                                `project_clone` = '{project}'
+                                            AND
+                                                (`project_manager_name` != '{pm}'
+                                            OR
+                                                `project_manager_name` IS NULL)
+                                            AND
+                                                `docstatus` != 2
+                                                
+                                            UNION ALL
+                                            
+                                            SELECT
+                                                `name`,
+                                                'Sales Invoice' AS `doctype`
+                                            FROM
+                                                `tabSales Invoice`
+                                            WHERE
+                                                `project` = '{project}'
+                                            AND
+                                                (`project_manager_name` != '{pm}'
+                                            OR
+                                                `project_manager_name` IS NULL)
+                                            AND
+                                                `docstatus` != 2
+                                                
+                                            UNION ALL
+                                            
+                                            SELECT
+                                                `name`,
+                                                'Delivery Note' AS `doctype`
+                                            FROM
+                                                `tabDelivery Note`
+                                            WHERE
+                                                `project` = '{project}'
+                                            and
+                                                (`project_manager_name` != '{pm}'
+                                            OR
+                                                `project_manager_name` IS NULL)
+                                            AND
+                                                `docstatus` != 2""".format(pm=self.get('project_manager_name'), project=self.get('name')), as_dict=True)
+                                                
+        for doc in documents_to_update:
+            frappe.set_value(doc.get('doctype'), doc.get('name'), "project_manager_name", self.get('project_manager_name'))
+            
+        return

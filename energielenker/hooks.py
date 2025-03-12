@@ -160,7 +160,7 @@ doc_events = {
         "onload": "energielenker.energielenker.project.project.onload",
         "validate": "energielenker.energielenker.project.project.validate",
         "on_update": "energielenker.energielenker.zahlungsplan.zahlungsplan.update_projektbewertung_ignorieren_in_project_or_in_so",
-        "before_save": "energielenker.energielenker.project.project.check_open_depots"
+        "before_save": ["energielenker.energielenker.project.project.check_open_depots", "energielenker.energielenker.project.project.update_project_manager"]
     },
     "Task": {
         "on_update": "energielenker.energielenker.task.task.on_update"
