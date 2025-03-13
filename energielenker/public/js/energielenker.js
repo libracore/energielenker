@@ -722,7 +722,7 @@ function set_project_manager(project) {
         frappe.call({
             'method': 'frappe.client.get',
             'args': {
-                'doctype': "Project"
+                'doctype': "Project",
                 'doc': project
             },
             'callback': function(response) {
