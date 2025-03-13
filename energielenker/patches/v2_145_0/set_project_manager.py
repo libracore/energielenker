@@ -8,6 +8,7 @@ def execute():
     documents_to_update = frappe.db.sql("""
                                         SELECT
                                             `name`,
+                                            `project_clone` AS `project`,
                                             'Sales Order' AS `doctype`
                                         FROM
                                             `tabSales Order`
@@ -20,6 +21,7 @@ def execute():
                                         
                                         SELECT
                                             `name`,
+                                            `project`,
                                             'Sales Invoice' AS `doctype`
                                         FROM
                                             `tabSales Invoice`
@@ -32,13 +34,17 @@ def execute():
                                         
                                         SELECT
                                             `name`,
+                                            `project`,
                                             'Delivery Note' AS `doctype`
                                         FROM
                                             `tabDelivery Note`
                                         WHERE
                                             `project` IS NOT NULL
                                         AND
-                                            `docstatus` != 2""".format(pm=self.get('project_manager_name'), project=self.get('name')), as_dict=True)
+                                            `docstatus` != 2""", as_dict=True)
                                             
     for doc in documents_to_update:
-        frappe.set_value(doc.get('doctype'), doc.get('name'), "project_manager_name", self.get('project_manager_name'))
+        project_manager = frappe.get_value("Project", doc.get('project'), "project_manager_name")
+        frappe.db.set_value(doc.get('doctype'), doc.get('name'), "project_manager_name", project_manager)
+        
+    return
