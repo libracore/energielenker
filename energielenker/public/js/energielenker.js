@@ -718,12 +718,13 @@ function check_deactivated_items(frm) {
 }
 
 function set_project_manager(project) {
+    console.log(project)
     if (project) {
         frappe.call({
             'method': 'frappe.client.get',
             'args': {
                 'doctype': "Project",
-                'doc': project
+                'name': project
             },
             'callback': function(response) {
                 if (response.message) {
@@ -732,6 +733,6 @@ function set_project_manager(project) {
             }
         });
     } else {
-        cur_frm.set_value("project_manager_name", null);
+        cur_frm.db.set_value("project_manager_name", null);
     }
 }
