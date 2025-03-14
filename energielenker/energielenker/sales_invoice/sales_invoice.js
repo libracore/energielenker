@@ -156,11 +156,16 @@ frappe.ui.form.on("Sales Invoice", {
                 entry.pricing_rules = null;
             });
         }
+        
+        if (frm.doc.project && !frm.doc.project_manager_name) {
+            set_project_manager(frm.doc.project)
+        }
     },
     before_submit: function(frm) {
     },
     project: function(frm) {
        fetch_customer_an_cost_center(frm);
+       set_project_manager(frm.doc.project);
     },
     onload: function(frm) {
         fetch_customer_an_cost_center(frm);

@@ -716,3 +716,23 @@ function check_deactivated_items(frm) {
         }
     });
 }
+
+function set_project_manager(project) {
+    console.log(project)
+    if (project) {
+        frappe.call({
+            'method': 'frappe.client.get',
+            'args': {
+                'doctype': "Project",
+                'name': project
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    cur_frm.set_value("project_manager_name", response.message.project_manager_name);
+                }
+            }
+        });
+    } else {
+        cur_frm.db.set_value("project_manager_name", null);
+    }
+}

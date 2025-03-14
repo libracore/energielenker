@@ -165,6 +165,8 @@ frappe.ui.form.on("Delivery Note", {
         check_foreign_customers(frm.doc.customer);
     },
     project: function(frm) {
+        set_project_manager(frm.doc.project);
+        
        if (frm.doc.__islocal && cur_frm.doc.project) {
            frappe.call({
                 'method': "frappe.client.get",
@@ -208,6 +210,10 @@ frappe.ui.form.on("Delivery Note", {
         }
         validate_depot_warehouse(frm);
         check_deactivated_items(frm);
+        
+        if (frm.doc.project && !frm.doc.project_manager_name) {
+            set_project_manager(frm.doc.project)
+        }
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting

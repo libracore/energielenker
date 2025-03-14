@@ -206,6 +206,10 @@ frappe.ui.form.on("Sales Order", {
                 }
             }
         }
+        
+        if (frm.doc.project_clone && !frm.doc.project_manager_name) {
+            set_project_manager(frm.doc.project_clone)
+        }
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -458,6 +462,9 @@ frappe.ui.form.on("Sales Order", {
         } else {
             frm.set_value('billing_contact_display', null);
         }
+    },
+    project_clone: function(frm) {
+        set_project_manager(frm.doc.project_clone);
     }
 });
 
