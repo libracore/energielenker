@@ -65,7 +65,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, -1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
@@ -206,7 +206,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, -1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
                             amount="{:,.2f}".format(rounded(item.amount*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -285,7 +285,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty*-1).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, -1), \
                             cur_icon=cur_icon, \
                             rate=rate, \
                             amount="{:,.2f}".format(rounded(item.amount*-1, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -471,7 +471,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
@@ -612,7 +612,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
                             amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -691,7 +691,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate=rate, \
                             amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -954,7 +954,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.preis_alternative_position, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
                     
@@ -1073,7 +1073,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate="{:,.2f}".format(rounded(item.rate, 2)).replace(",", "'").replace(".", ",").replace("'", "."), \
                             amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -1141,7 +1141,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         
                     """.format(position=positions_nummer, \
                             item_name=item.item_name, \
-                            qty="{:,.2f}".format(item.qty).replace(",", "'").replace(".", ",").replace("'", "."), \
+                            qty=format_qty(item.qty, 1), \
                             cur_icon=cur_icon, \
                             rate=rate, \
                             amount="{:,.2f}".format(rounded(item.amount, 2)).replace(",", "'").replace(".", ",").replace("'", "."))
@@ -1459,3 +1459,10 @@ def get_lieferdata(lieferscheine):
             lieferdata = "{0} v. {1}".format(lieferscheine, lieferdatum)        
             return lieferdata
             
+def format_qty(qty, operator):
+    formatted_qty = "{:,.3f}".format(qty*operator).replace(",", "'").replace(".", ",").replace("'", ".")
+    
+    if formatted_qty[-1] == "0":
+        formatted_qty = formatted_qty[:-1]
+    
+    return formatted_qty
