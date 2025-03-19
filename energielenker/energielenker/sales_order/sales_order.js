@@ -210,6 +210,11 @@ frappe.ui.form.on("Sales Order", {
         if (frm.doc.project_clone && !frm.doc.project_manager_name) {
             set_project_manager(frm.doc.project_clone)
         }
+        
+        if (cur_frm.doc.__islocal) {
+            //check if default warehouse ist set in all items, otherwise give information.
+            check_default_warehouses(frm);
+        }
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -422,11 +427,6 @@ frappe.ui.form.on("Sales Order", {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
-        }
-        
-        if (cur_frm.doc.__islocal) {
-            //check if default warehouse ist set in all items, otherwise give information.
-            check_default_warehouses(frm);
         }
     },
     billing_address_name: function(frm) {
@@ -903,9 +903,11 @@ function check_for_part_list_items(frm) {
                         frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
                         frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
                         frappe.model.set_value(child.doctype, child.name, 'belongs_to', items[i].belongs_to);
+                        frappe.model.set_value(child.doctype, child.name, 'description', items[i].description);
                         setTimeout(function(child, rate) {
                             frappe.model.set_value(child.doctype, child.name, 'rate', rate);
-                        }, 3000, child, items[i].rate);
+                            frappe.model.set_value(child.doctype, child.name, 'description', items[i].description);
+                        }, 5000, child, items[i].rate);
                     }
                 }
             }
@@ -1100,7 +1102,11 @@ function check_default_warehouses(frm) {
         },
         'callback': function(response) {
             if (response.message) {
-                frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>" + response.message, "Achtung")
+				frappe.msgprint({
+					message: response.message,
+					indicator: 'orange',
+					title: __('Default Warehouse')
+				});
             }
         }
     });
