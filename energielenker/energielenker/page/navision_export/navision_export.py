@@ -191,10 +191,10 @@ def _get_salesheader_datas(suchparameter):
 def _get_salesline_datas(suchparameter):
     # SalesLine
     invoices = _get_salesheader_datas(suchparameter)
-    
     datas = []
     for _sinv in invoices:
         sinv = frappe.get_doc("Sales Invoice", _sinv["sinv"])
+        territory = get_customer_territory(sinv.get('customer'))
         if sinv.billing_type == 'Rechnung':
             loop = 0
             for lineitem in sinv.items:
@@ -211,7 +211,7 @@ def _get_salesline_datas(suchparameter):
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
                 data.append(_sinv["navision_shortcutdimensionscode_1"])
-                data.append("INL")
+                data.append(territory)
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
@@ -236,7 +236,7 @@ def _get_salesline_datas(suchparameter):
             data.append("1")
             data.append(sinv.grand_total)
             data.append(_sinv["navision_shortcutdimensionscode_1"])
-            data.append("INL")
+            data.append(territory)
             data.append("0")
             data.append("")
             datas.append(data)
@@ -256,7 +256,7 @@ def _get_salesline_datas(suchparameter):
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
                 data.append(_sinv["navision_shortcutdimensionscode_1"])
-                data.append("INL")
+                data.append(territory)
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
@@ -291,7 +291,7 @@ def _get_salesline_datas(suchparameter):
                     data.append("1")
                     data.append("-" + str(_teilrechnung.total))
                     data.append(_sinv["navision_shortcutdimensionscode_1"])
-                    data.append("INL")
+                    data.append(territory)
                     if len(sinv.taxes) > 0:
                         data.append(sinv.taxes[0].rate)
                     else:
@@ -302,3 +302,19 @@ def _get_salesline_datas(suchparameter):
         return datas
     else:
         return False
+
+def get_customer_territory(customer):
+    territory = "INL"
+    data = frappe.db.sql("""SELECT
+                                `tabTerritory`.`eu_territory` AS `eu_territory`
+                            FROM
+                                `tabTerritory`
+                            LEFT JOIN
+                                `tabCustomer` ON `tabCustomer`.`territory` = `tabTerritory`.`name`
+                            WHERE
+                                `tabCustomer`.`name` = '{cust}'""".format(cust=customer), as_dict=True)
+    if len(data) > 0:
+        if data[0].eu_territory:
+            territory = "EU"
+            
+    return territory
