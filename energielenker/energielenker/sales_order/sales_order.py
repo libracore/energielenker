@@ -163,6 +163,7 @@ def check_default_warehouses(doc):
             message += "{0} (Position {1})<br>".format(item.get('item_code'), item.get('idx'))
             
     if message:
+        # ~ frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>{0}".format(message), "Achtung")
         return message
     else:
         return None
