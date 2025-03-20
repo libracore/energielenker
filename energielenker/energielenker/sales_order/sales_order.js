@@ -23,6 +23,12 @@ cur_frm.dashboard.add_transactions([
 ]);
 
 frappe.ui.form.on("Sales Order", {
+    setup: function(frm) {
+		// formatter for material request item
+		frm.set_indicator_formatter('item_code',
+			function(doc) { return (doc.textposition) ? "green" : "red" })
+    },
+    
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
