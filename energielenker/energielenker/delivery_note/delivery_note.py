@@ -202,7 +202,8 @@ def check_for_overdelivery(doc, check_items=True):
                                             
                 sales_order = frappe.db.sql("""
                                         SELECT
-                                            SUM(`qty`) AS `so_qty`
+                                            SUM(`qty`) AS `so_qty`,
+                                            `delivered_position`
                                         FROM
                                             `tabSales Order Item`
                                         WHERE
@@ -219,6 +220,9 @@ def check_for_overdelivery(doc, check_items=True):
                         return False
                     elif delivery_note[0].dn_qty > sales_order[0].so_qty:
                         frappe.msgprint("Artikel {0} kann nicht überliefert werden!".format(item.get('item_code')))
+                        return False
+                    elif sales_order[0].delivered_position:
+                        frappe.msgprint("Artikel {0} wurde bereits über Streckengeschäft geliefert!".format(item.get('item_code')))
                         return False
     return True
 
