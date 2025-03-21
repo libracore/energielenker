@@ -147,3 +147,4 @@ Report: energielenker Stock Balance,energielenker Stock Balance,energielenker La
 Report: energielenker Stock Balance,Show disabled Items,Deaktivierte Artikel anzeigen
 DocType: Warehouse,Stock transfer,Umlagerung
 DocType: Warehouse,Relocate,Umlagern
+DocType: Territory,EU Territory,EU Region
