@@ -46,6 +46,7 @@ DocType: Item,Item Code,Artikel
 DocType: Item,Item Name,Artikelname
 DocType: Item,Quantity,Menge
 DocType: Item,Unit of Measure,Einheit
+DocType: Item,Disabled (Please add reason),Deaktiviert (bitte Grund eintragen)
 DocType: Quotation,Part List Items,Stücklistenartikel
 DocType: Quotation,Header,Kopfzeile
 DocType: Quotation,Print Header,Kopfzeile drucken
@@ -62,6 +63,10 @@ DocType: Project,Sales Order Status,Status Kundenauftrag
 DocType: Project,Active Measuring Points (monitor),aktive Messpunkte (monitor)
 DocType: Sales Order,Open Depots,Offene Kommissionierungen
 DocType: Sales Order,Overbill Item,Artikel überverrechnen
+DocType: Sales Order,Deliver Position,Artikel ausliefern
+DocType: Sales Order,Delivered Qty (by energielenker),Gelieferte Menge (durch energielenker)
+DocType: Sales Order,Delivered by Drop Ship,Geliefert durch Streckengeschäft
+DocType: Sales Order,Total Delivered Qty,Total gelieferte Menge
 DocType: Depot,Depot Status,Status Kommissionierung
 DocType: Depot,Project Status,Projektstatus
 Report: Customer Overview,Customer Overview,Kundenübersicht
@@ -142,3 +147,4 @@ Report: energielenker Stock Balance,energielenker Stock Balance,energielenker La
 Report: energielenker Stock Balance,Show disabled Items,Deaktivierte Artikel anzeigen
 DocType: Warehouse,Stock transfer,Umlagerung
 DocType: Warehouse,Relocate,Umlagern
+DocType: Territory,EU Territory,EU Region

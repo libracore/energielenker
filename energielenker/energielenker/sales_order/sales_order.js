@@ -1,4 +1,4 @@
-// Copyright (c) 2021, libracore AG and contributors
+// Copyright (c) 2025, libracore AG and contributors
 // For license information, please see license.txt
 
 cur_frm.dashboard.add_transactions([
@@ -23,6 +23,12 @@ cur_frm.dashboard.add_transactions([
 ]);
 
 frappe.ui.form.on("Sales Order", {
+    setup: function(frm) {
+		// formatter for material request item
+		frm.set_indicator_formatter('item_code',
+			function(doc) { return (doc.delivered_position || doc.delivered_position || doc.stock_qty<=doc.delivered_qty) ? "green" : "orange" })
+    },
+    
     refresh: function(frm) {
 	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
@@ -516,6 +522,9 @@ frappe.ui.form.on('Sales Order Item', {
     },
     overbill_item(frm, cdt, cdn) {
         create_overbilling_invoice(frm, cdt, cdn);
+    },
+    deliver_position(frm, cdt, cdn) {
+        deliver_so_position(frm, cdt, cdn);
     }
 });
 
@@ -1075,15 +1084,29 @@ function close_so_position(frm, cdt, cdn) {
 
 function display_closed_positions(frm) {
     let display = false
+    let delivered_display = false
     let closed_items = ""
+    let delivered_items = ""
     for (let i = 0; i < frm.doc.items.length; i++) {
         if (frm.doc.items[i].closed_position) {
             closed_items += "Artikel " + frm.doc.items[i].item_code + " (Zeile " + frm.doc.items[i].idx + ")<br>"
             display = true
         }
+        if (frm.doc.items[i].delivered_position) {
+            delivered_items += "Artikel " + frm.doc.items[i].item_code + " (Zeile " + frm.doc.items[i].idx + ")<br>"
+            delivered_display = true
+        }
     }
     if (display) {
-        cur_frm.dashboard.add_comment( "Achtung, folgende Positionen wurden manuell geschlossen: <br>" + closed_items, 'red', true);
+        cur_frm.dashboard.add_comment( "Folgende Positionen wurden manuell geschlossen: <br>" + closed_items, 'red', true);
+    }
+    
+    if (delivered_display) {
+        let line_break = ""
+        if (display) {
+            line_break = "<br>"
+        }
+        cur_frm.dashboard.add_comment(line_break + "Folgende Positionen wurden durch Steckengeschäft mitgeliefert: <br>" + delivered_items, 'red', true);
     }
 }
 
@@ -1126,4 +1149,22 @@ function create_overbilling_invoice(frm, cdt, cdn) {
             }
         }
     });
+}
+
+function deliver_so_position(frm, cdt, cdn) {
+    frappe.confirm(
+        'Die offene Liefermenge wird als "geliefert durch Streckengeschäft" markiert. Sind Sie sicher?',
+        function(){
+            let row = frappe.get_doc(cdt, cdn);
+            frappe.model.set_value(cdt, cdn, "delivered_by_drop_ship", row.qty - row.delivered_qty);
+            frappe.model.set_value(cdt, cdn, "total_delivered_qty", row.qty);
+            frappe.model.set_value(cdt, cdn, "delivered_position", 1);
+            frm.fields_dict.items.grid.refresh();
+            window.close();
+            frappe.show_alert('Artikel wurde aktualisiert', 5);
+        },
+        function(){
+            // on no, do nothing
+        }
+    )
 }
