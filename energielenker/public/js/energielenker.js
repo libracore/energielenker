@@ -736,3 +736,24 @@ function set_project_manager(project) {
         cur_frm.db.set_value("project_manager_name", null);
     }
 }
+
+function check_charging_points_item(item_code) {
+    frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+            doctype: "energielenker Settings",
+            filters: {
+                'name': "energielenker Settings"
+            },
+            fieldname: "charging_points_item"
+        },
+        callback: function(response) {
+            if (response.message) {
+                let charging_points_item = response.message.charging_points_item;
+                if (charging_points_item == item_code) {
+                    frappe.msgprint("Ladepunkt für Enbas? In dem Fall bitte Checkbox am Artikel setzen");
+                }
+            }
+        }
+    });
+}

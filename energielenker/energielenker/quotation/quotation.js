@@ -136,6 +136,10 @@ frappe.ui.form.on('Quotation Item', {
     item_code(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.item_code) {
+            //frappe.require(['assets/energielenker/js/energielenker.js'], () => {
+        
+
+            check_charging_points_item(row.item_code);
             check_for_family(row.item_code, row.qty);
             fetch_stock_items(row.item_code, cdt, cdn);
             check_deactivation(row.item_code);
@@ -146,6 +150,7 @@ frappe.ui.form.on('Quotation Item', {
                     frappe.model.set_value(cdt, cdn, 'with_bom', 0);
                 }
             });
+            //});
         } else {
             frappe.model.set_value(cdt, cdn, 'with_bom', 0);
         }
