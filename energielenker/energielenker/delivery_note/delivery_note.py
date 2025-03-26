@@ -268,7 +268,6 @@ def serial_no_by_pos_query(doctype, txt, searchfield, start, page_len, filters, 
                                 {batch_condition}
                                 AND
                                     `tabStock Entry Detail`.`docstatus` = 1""".format(so_detail=filters.get('so_detail'), warehouse=filters.get('warehouse'), batch_condition=batch_condition), as_dict=as_dict)
-    frappe.log_error(serial_nos, "serial_nos")
     return serial_nos
 
 @frappe.whitelist()
