@@ -2,6 +2,12 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Stock Entry', {
+    //Suppress auto Serial No Dialog
+    onload: function(frm) {
+        erpnext.stock.select_batch_and_serial_no = function() {
+            console.log("Seriennummern-Popup im Stock Entry unterdrückt.");
+        };
+    },
     refresh: function(frm) {
         //If Stock Entry Type is Manufacture -> Set Serial no to read only and display Button to set Serial no
         display_serial_no_button(frm);
