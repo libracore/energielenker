@@ -3,6 +3,8 @@
 
 frappe.ui.form.on('Stock Entry', {
     refresh: function(frm) {
+        //If Stock Entry Type is Manufacture -> Set Serial no to read only and display Button to set Serial no
+        display_serial_no_button(frm);
         set_timestamps(frm);
         setTimeout(function(){
         
@@ -140,5 +142,14 @@ function check_closed_depot(frm) {
                 }
             }
         });
+    }
+}
+
+function display_serial_no_button(frm) {
+    if (frm.doc.stock_entry_type == "Manufacture") {
+        console.log("hallo");
+        frm.get_field("items").grid.get_docfield("serial_no").read_only = 1;
+        frm.fields_dict["items"].grid.get_field("fetch_serial_no").hidden = 0;
+        frm.get_field("items").grid.refresh();
     }
 }
