@@ -739,7 +739,7 @@ function fetch_serial_no(frm, cdt, cdn) {
             by_pos_filters['batch_no'] = row.batch_no;
         }
         let serial_dialog = new frappe.ui.Dialog({
-            title: "Select Serial Numbers",
+            title: __("Select Serial Numbers"),
             fields: [
                 { fieldtype: 'Section Break', label: 'Allgemeine Informationen' },
 
@@ -761,11 +761,11 @@ function fetch_serial_no(frm, cdt, cdn) {
                     read_only: 1
                 },
 
-                { fieldtype: 'Section Break', label: 'Serial Numbers' },
+                { fieldtype: 'Section Break', label: __('Serial Numbers') },
         
                 {
                     fieldname: 'serial_no_by_pos',
-                    label: 'Add Serial Number by Line',
+                    label: __('Add Serial Number by Line'),
                     fieldtype: 'Link',
                     options: 'Serial No',
                     description: 'With reference to Batch and Warehouse',
@@ -775,7 +775,7 @@ function fetch_serial_no(frm, cdt, cdn) {
                 
                 {
                     fieldname: 'select_by_item',
-                    label: 'Select Serial Number by Item',
+                    label: __('Select Serial Number by Item'),
                     fieldtype: 'Check',
                     'onchange': function() {
                        serial_dialog.set_df_property('serial_no_by_item', 'hidden', 0);
@@ -784,11 +784,11 @@ function fetch_serial_no(frm, cdt, cdn) {
                 
                 {
                     fieldname: 'serial_no_by_item',
-                    label: 'Add Serial Number by Item',
+                    label: __('Add Serial Number by Item'),
                     fieldtype: 'Link',
                     options: 'Serial No',
                     hidden: 1,
-                    description: 'With reference to Batch and Warehouse',
+                    description: __('With reference to Batch and Warehouse'),
                     'onchange' : function() { set_new_serial_no(serial_dialog, "serial_no_by_item") },
                     'get_query': function() { return { filters: by_item_filters } }
                 },
@@ -797,7 +797,7 @@ function fetch_serial_no(frm, cdt, cdn) {
 
                 {
                     fieldname: 'selected_serial_no',
-                    label: 'Selected Serial Numbers',
+                    label: __('Selected Serial Numbers'),
                     fieldtype: 'Small Text',
                 }
             ],

@@ -29,6 +29,9 @@ frappe.ui.form.on('Stock Entry', {
             set_item_so_detail(frm);
         }
         check_closed_depot(frm);
+    },
+    stock_entry_type: function(frm) {
+        display_serial_no_button(frm);
     }
 })
 
@@ -68,6 +71,9 @@ frappe.ui.form.on('Stock Entry Detail', {
             frappe.model.set_value(cdt, cdn, "s_warehouse", "");
             frappe.model.set_value(cdt, cdn, "t_warehouse", "");
         }
+    },
+    fetch_serial_no: function(frm, cdt, cdn) {
+        fetch_serial_no(frm, cdt, cdn);
     }
 })
 
@@ -147,9 +153,91 @@ function check_closed_depot(frm) {
 
 function display_serial_no_button(frm) {
     if (frm.doc.stock_entry_type == "Manufacture") {
-        console.log("hallo");
         frm.get_field("items").grid.get_docfield("serial_no").read_only = 1;
-        frm.fields_dict["items"].grid.get_field("fetch_serial_no").hidden = 0;
+        frm.get_field("items").grid.get_docfield("fetch_serial_no").hidden = 0;
         frm.get_field("items").grid.refresh();
+    } else {
+        frm.get_field("items").grid.get_docfield("serial_no").read_only = 0;
+        frm.get_field("items").grid.get_docfield("fetch_serial_no").hidden = 1;
+        frm.get_field("items").grid.refresh();
+    }
+}
+
+function fetch_serial_no(frm, cdt, cdn) {
+    let row = frappe.get_doc(cdt, cdn);
+    let filters = {'item_code': row.item_code}
+    //~ if (row.batch_no) {
+        //~ by_item_filters['batch_no'] = row.batch_no;
+        //~ by_pos_filters['batch_no'] = row.batch_no;
+    //~ }
+    let serial_dialog = new frappe.ui.Dialog({
+        title: __("Select Serial Numbers"),
+        fields: [
+            { fieldtype: 'Section Break', label: 'Allgemeine Informationen' },
+
+            {
+                fieldname: 'item_code',
+                label: 'Item Code',
+                fieldtype: 'Data',
+                read_only: 1,
+                options: 'Customer'
+            },
+            
+            { fieldtype: 'Column Break' },
+            
+            {
+                fieldname: 'warehouse',
+                label: 'Warehouse',
+                fieldtype: 'Link',
+                options: 'Warehouse',
+                read_only: 1
+            },
+
+            { fieldtype: 'Section Break', label: __('Serial Numbers') },
+    
+            {
+                fieldname: 'add_serial_no',
+                label: __('Search Serial Number'),
+                fieldtype: 'Link',
+                options: 'Serial No',
+                'onchange' : function() { set_new_serial_no(serial_dialog, "add_serial_no") },
+                'get_query': function() { return { query: "energielenker.energielenker.stock_entry.stock_entry.serial_no_query", filters: filters } }
+            },
+
+            { fieldtype: 'Column Break' },
+
+            {
+                fieldname: 'selected_serial_no',
+                label: __('Selected Serial Numbers'),
+                fieldtype: 'Small Text',
+            }
+        ],
+        primary_action: function(){
+            serial_dialog.hide();
+            set_serial_values(serial_dialog, cdt, cdn);
+        },
+    primary_action_label: __('Insert')
+    });
+    serial_dialog.set_value("item_code", row.item_code);
+    serial_dialog.set_value("warehouse", row.t_warehouse);
+    serial_dialog.show();
+}
+
+function set_serial_values(serial_dialog, cdt, cdn) {
+    let selected_serial_no = serial_dialog.get_value('selected_serial_no');
+    frappe.model.set_value(cdt, cdn, "serial_no", selected_serial_no);
+}
+
+function set_new_serial_no(serial_dialog, trigger_field) {
+    let value = serial_dialog.get_value(trigger_field)
+    if (value) {
+        let actual_serial_nos = serial_dialog.get_value('selected_serial_no')
+        if (actual_serial_nos && !actual_serial_nos.includes(value)) {
+            actual_serial_nos += "\n" + value
+            serial_dialog.set_value("selected_serial_no", actual_serial_nos)
+        } else if (!actual_serial_nos && !actual_serial_nos.includes(value)) {
+            serial_dialog.set_value("selected_serial_no", value)
+        }
+    serial_dialog.set_value(trigger_field, null)
     }
 }

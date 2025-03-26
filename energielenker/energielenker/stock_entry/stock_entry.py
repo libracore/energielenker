@@ -23,3 +23,21 @@ def get_bom_items(bom_name):
                             `item`.`is_stock_item` = 0""".format(bom=bom_name), as_dict=True)
     
     return items
+
+def serial_no_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
+    # ~ if filters.get('batch_no'):
+        # ~ batch_condition = """AND `tabSerial No`.`batch_no` = '{batch}'""".format(batch=filters.get('batch_no'))
+    # ~ else:
+        # ~ batch_condition = """"""
+    serial_nos = frappe.db.sql("""
+                                SELECT
+                                    `tabSerial No`.`name`
+                                FROM
+                                    `tabSerial No`
+                                WHERE
+                                    `item_code` = '{item_code}'
+                                AND
+                                    `warehouse` IS NULL
+                                AND
+                                    `delivery_document_type` IS NULL""".format(item_code=filters.get('item_code')), as_dict=as_dict)
+    return serial_nos
