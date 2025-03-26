@@ -38,7 +38,9 @@
   "serial_numbers_section",
   "hidden_serial_numbers",
   "ibn_remote_section",
-  "ibn_remote_items"
+  "ibn_remote_items",
+  "charging_points_section",
+  "charging_points_item"
  ],
  "fields": [
   {
@@ -236,10 +238,21 @@
    "fieldtype": "Table",
    "label": "IBN remote Items",
    "options": "IBN remote Items"
+  },
+  {
+   "fieldname": "charging_points_section",
+   "fieldtype": "Section Break",
+   "label": "Charging Points"
+  },
+  {
+   "fieldname": "charging_points_item",
+   "fieldtype": "Link",
+   "label": "Charging Points Item",
+   "options": "Item"
   }
  ],
  "issingle": 1,
- "modified": "2025-01-29 12:25:29.019895",
+ "modified": "2025-03-26 11:43:44.657380",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
