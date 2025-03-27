@@ -481,6 +481,7 @@ frappe.ui.form.on('Sales Order Item', {
     item_code(frm, cdt, cdn) {
         var row = locals[cdt][cdn];
         if (row.item_code) {
+            check_charging_points_item(row.item_code);
             check_for_family(row.item_code, row.qty);
             fetch_stock_items(row.item_code, cdt, cdn);
             check_deactivation(row.item_code);
