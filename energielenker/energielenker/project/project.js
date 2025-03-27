@@ -91,6 +91,9 @@ frappe.ui.form.on("Project", {
         
         filter_address(frm);
         
+        //Set "Last valid day" mandatory if project is terminated
+        last_valid_day_property(frm);
+        
         if ((!frm.doc.__islocal) && (frm.doc.project_template)) {
             load_template(frm);
         }
@@ -202,6 +205,9 @@ frappe.ui.form.on("Project", {
     },
     no_end_date: function() {
         cur_frm.set_value("expected_end_date", null);
+    },
+    terminated: function(frm) {
+        last_valid_day_property(frm);
     }
 });
 
@@ -590,4 +596,13 @@ function set_main_project_title(frm) {
             },
         });
     });
+}
+
+function last_valid_day_property(frm) {
+    if (frm.doc.terminated) {
+        cur_frm.set_df_property("last_valid_day", "reqd", 1);
+    } else {
+        cur_frm.set_df_property("last_valid_day", "reqd", 0);
+        cur_frm.set_value("last_valid_day", null);
+    }
 }
