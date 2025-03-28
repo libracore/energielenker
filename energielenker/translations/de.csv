@@ -39,6 +39,10 @@ DocType: Delivery Note,Depot,Kommissionierung
 DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen
 DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
 DocType: Stock Entry,Source Depot,Kommissionierung
+DocType: Stock Entry,Select Serial Numbers,Seriennummern auswählen
+DocType: Stock Entry,Serial Numbers,Seriennummern
+DocType: Stock Entry,Search Serial Number,Seriennummer suchen
+DocType: Stock Entry,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Depot,Book back items,Artikel zurück buchen
 DocType: Depot,Write off items,Artikel ausbuchen
 DocType: Timesheet,Issue Name,Anfrage Name
