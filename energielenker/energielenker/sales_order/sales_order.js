@@ -911,7 +911,6 @@ function check_for_part_list_items(frm) {
                     for (let i = 0; i < items.length; i++) {
                         var child = cur_frm.add_child('part_list_items');
                         frappe.model.set_value(child.doctype, child.name, 'item_code', items[i].item_code);
-                        frappe.model.set_value(child.doctype, child.name, 'item_name', items[i].item_name);
                         frappe.model.set_value(child.doctype, child.name, 'qty', items[i].qty);
                         frappe.model.set_value(child.doctype, child.name, 'belongs_to', items[i].belongs_to);
                         frappe.model.set_value(child.doctype, child.name, 'description', items[i].description);
