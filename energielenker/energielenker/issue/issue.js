@@ -95,7 +95,6 @@ frappe.ui.form.on('Issue', {
         display_contact_information(frm);
     },
     address: function(frm) {
-        console.log("hallo");
         if (frm.doc.address) {
             frappe.call({
                 'method': "frappe.client.get",
@@ -104,23 +103,24 @@ frappe.ui.form.on('Issue', {
                     'name': frm.doc.address
                 },
                 'callback': function(response) {
-                    console.log(response.message.links);
                     let addrss_links = response.message.links;
-                    if (addrss_links.length < 0) {
-                        console.log("hmm");
+                    if (addrss_links.length > 0) {
                         let customers = []
                         for (let i = 0; i < addrss_links.length; i++) {
                             if (addrss_links[i].link_doctype == "Customer") {
                                 customers.push(addrss_links[i].link_name);
                             }
                         }
-                        console.log(customers);
                         if (customers.length == 1) {
                             cur_frm.set_value('customer', customers[0]);
+                        } else {
+                            cur_frm.set_value('customer', null);
                         }
                     }
                 }
             });
+        } else {
+            cur_frm.set_value('customer', null);
         }
     }
 })
