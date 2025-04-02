@@ -1162,8 +1162,8 @@ function deliver_so_position(frm, cdt, cdn) {
             frappe.model.set_value(cdt, cdn, "delivered_by_drop_ship", row.qty - row.delivered_qty);
             frappe.model.set_value(cdt, cdn, "total_delivered_qty", row.qty);
             frappe.model.set_value(cdt, cdn, "delivered_position", 1);
-            frm.fields_dict.items.grid.refresh();
             window.close();
+            frm.save("Update");
             frappe.show_alert('Artikel wurde aktualisiert', 5);
         },
         function(){
