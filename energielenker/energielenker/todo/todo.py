@@ -19,17 +19,24 @@ def reminder_email():
     #get all open To Dos
     open_todos = frappe.db.sql("""
                                 SELECT
-                                    `owner`,
-                                    `priority`,
-                                    `date`,
-                                    `description`,
-                                    `reference_name`
+                                    `tabToDo`.`owner` AS `owner`,
+                                    `tabIssue`.`priority` AS `priority`,
+                                    `tabToDo`.`date` AS `date`,
+                                    `tabToDo`.`description` AS `description`,
+                                    `tabToDo`.`reference_name` AS `reference_name`
                                 FROM
                                     `tabToDo`
+                                LEFT JOIN
+                                    `tabIssue` ON `tabToDo`.`reference_name` = `tabIssue`.`name`
                                 WHERE
-                                    `status` = 'Open'
+                                    `tabToDo`.`status` = 'Open'
+                                AND
+                                    `tabIssue`.`status` = 'Open'
+                                AND
+                                    `tabToDo`.`reference_type` = 'Issue'
                                 ORDER BY
-                                    `owner` ASC""", as_dict=True)
+                                    `tabToDo`.`owner` ASC""", as_dict=True)
+    
     if len(open_todos) > 0:
         #prepare E-Mail Data
         email_data = []
