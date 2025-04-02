@@ -75,7 +75,9 @@ frappe.ui.form.on('Purchase Order', {
         }
     },
     validate: function(frm) {
-        check_vielfaches(frm);
+        if (!frm.doc.drop_ship_check) {
+            check_vielfaches(frm);
+        }
         check_deactivated_items(frm);
         if (cur_frm.doc.project) {
             frappe.call({
