@@ -93,6 +93,35 @@ frappe.ui.form.on('Issue', {
     },
     contact_customer: function(frm) {
         display_contact_information(frm);
+    },
+    address: function(frm) {
+        if (frm.doc.address) {
+            frappe.call({
+                'method': "frappe.client.get",
+                'args': {
+                    'doctype': "Address",
+                    'name': frm.doc.address
+                },
+                'callback': function(response) {
+                    let addrss_links = response.message.links;
+                    if (addrss_links.length > 0) {
+                        let customers = []
+                        for (let i = 0; i < addrss_links.length; i++) {
+                            if (addrss_links[i].link_doctype == "Customer") {
+                                customers.push(addrss_links[i].link_name);
+                            }
+                        }
+                        if (customers.length == 1) {
+                            cur_frm.set_value('customer', customers[0]);
+                        } else {
+                            cur_frm.set_value('customer', null);
+                        }
+                    }
+                }
+            });
+        } else {
+            cur_frm.set_value('customer', null);
+        }
     }
 })
 

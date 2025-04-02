@@ -312,7 +312,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                                 <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
@@ -719,7 +719,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                                 <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty)
+                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
