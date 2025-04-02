@@ -1164,6 +1164,7 @@ function deliver_so_position(frm, cdt, cdn) {
             frappe.model.set_value(cdt, cdn, "delivered_position", 1);
             frm.fields_dict.items.grid.refresh();
             window.close();
+            frm.save('Update');
             frappe.show_alert('Artikel wurde aktualisiert', 5);
         },
         function(){
