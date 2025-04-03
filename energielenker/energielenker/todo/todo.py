@@ -46,21 +46,19 @@ def reminder_email():
             if todo.get('owner') != last_owner:
                 if message and last_owner:
                     email_data.append({'owner': last_owner, 'message': message})
-                message = "Guten Tag,<br><br>Sie haben folgende offene Aufgaben:<br><br><b>Referenz:</b> {0}, <b>Priorität:</b> {1}, <b>Deadline:</b> {2}, <b>Aufgabe:</b> {3}".format(todo.get('reference_name') or "-", todo.get('priority') or "-", todo.get('date') or "-", todo.get('description') or "-")
+                message = "Guten Tag,<br><br>Sie haben aktuell folgende zugewiesene Tickets im Status 'Offen':<br><br><b>Referenz:</b> {0}, <b>Priorität:</b> {1}, <b>Deadline:</b> {2}, <b>Betreff:</b> {3}".format(todo.get('reference_name') or "-", todo.get('priority') or "-", todo.get('date') or "-", todo.get('description') or "-")
             else:
-                message += "<br><br><b>Referenz:</b> {0}, <b>Priorität:</b> {1}, <b>Deadline:</b> {2}, <b>Aufgabe:</b> {3}".format(todo.get('reference_name') or "-", todo.get('priority') or "-", todo.get('date') or "-", todo.get('description') or "-")
+                message += "<br><br><b>Referenz:</b> {0}, <b>Priorität:</b> {1}, <b>Deadline:</b> {2}, <b>Betreff:</b> {3}".format(todo.get('reference_name') or "-", todo.get('priority') or "-", todo.get('date') or "-", todo.get('description') or "-")
             last_owner = todo.get('owner')
         
         #send E-Mails
         for email in email_data:
-            #For testing reason
-            if email.get('owner') == "ivan.lochbihler@libracore.com" or email.get('owner') == "anja.friedrich@libracore.com":
-                make(
-                     recipients = email.get('owner'),
-                     sender = "no-reply@energielenker.de",
-                     subject = "Offene Aufgaben",
-                     content = email.get('message'),
-                     send_email = True
-                )
+            make(
+                 recipients = email.get('owner'),
+                 sender = "no-reply@energielenker.de",
+                 subject = "Offene Tickets",
+                 content = email.get('message'),
+                 send_email = True
+            )
             
     return
