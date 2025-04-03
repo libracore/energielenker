@@ -119,6 +119,8 @@ frappe.ui.form.on("Sales Order", {
         if (cur_frm.doc.__islocal) {
             check_for_part_list_items(frm);
             check_foreign_customers(frm.doc.customer);
+            //Remove information for Manually Delivered or Closed Position
+            remove_delivered_and_closed(frm);
         }
         
         // hack to remove "+" in dashboard
@@ -1170,4 +1172,22 @@ function deliver_so_position(frm, cdt, cdn) {
             // on no, do nothing
         }
     )
+}
+
+function remove_delivered_and_closed(frm) {
+    let remove_comment = false
+    //Remove Checks
+    if (frm.doc.items && frm.doc.items.length > 0) {
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].closed_position || frm.doc.items[i].delivered_position) {
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "closed_position", 0);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "delivered_position", 0);
+                remove_comment = true
+            }
+        }
+    }
+    //Remove Comment
+    if (remove_comment) {
+        cur_frm.dashboard.clear_comment();
+    }
 }
