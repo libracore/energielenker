@@ -1182,6 +1182,8 @@ function remove_delivered_and_closed(frm) {
             if (frm.doc.items[i].closed_position || frm.doc.items[i].delivered_position) {
                 frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "closed_position", 0);
                 frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "delivered_position", 0);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "delivered_by_drop_ship", 0);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "total_delivered_qty", 0);
                 remove_comment = true
             }
         }
