@@ -1060,11 +1060,14 @@ def payment_forecast_rollback_invoice(so, sinv, project):
 @frappe.whitelist()
 def check_order_payment_forecast_errors(order):
     o = frappe.get_doc("Sales Order", order)
+    #Check if Customer is blocked
     if cint(frappe.db.get_value("Customer", o.get('customer'), "blocked_customer")) == 1:
         return {
             'errors': 1,
             'msg': "Die Rechnung konnte nicht erstellt werden, da Kunde der {0} gesperrt ist. <br> Entsperren Sie diesen Kunden und versuchen Sie es erneut.".format(o.get('customer'))
         }
+    
+    #Check if any Item is disabled or must be whole number
     disabled_items = 0
     whole_number_uom = 0
     disabled_msg = ''
@@ -1080,6 +1083,20 @@ def check_order_payment_forecast_errors(order):
             whole_number_msg += '''
                 <br>Zeile: {0} // Artikel: {1} // Einheit: <b>{2}</b>
             '''.format(item.idx, item.get('item_name'), item.get('uom'))
+            
+    #Part List Items
+    for pl_item in o.part_list_items:
+        if cint(frappe.db.get_value("Item", pl_item.item_code, "disabled")) == 1:
+            disabled_items += 1
+            disabled_msg += '''
+                <br>Zeile: {0}(Stücklistenartikel) // Artikel: {1}
+            '''.format(pl_item.idx, pl_item.get('item_name'))
+        elif cint(frappe.db.get_value("UOM", pl_item.get('uom'), "must_be_whole_number")) == 1:
+            whole_number_uom += 1
+            whole_number_msg += '''
+                <br>Zeile: {0}(Stücklistenartikel) // Artikel: {1} // Einheit: <b>{2}</b>
+            '''.format(pl_item.idx, pl_item.get('item_name'), pl_item.get('uom'))
+            
     if disabled_items > 0:
         return {
             'errors': disabled_items,
@@ -1091,6 +1108,7 @@ def check_order_payment_forecast_errors(order):
             'msg': "Die Rechnung konnte nicht erstellt werden.<br>Nachfolgende Einheiten müssen ganze Zahl sein:<br>{0}<br><br>Entfernen Sie dies und versuchen Sie es erneut.".format(whole_number_msg)
         }
     else:
+        #Check for Cancelled Payments
         cancelled_payments, cancelled_payments_msg = check_for_chancelled_payments(o)
         if cancelled_payments > 0:
             return {
