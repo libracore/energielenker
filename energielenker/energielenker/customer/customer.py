@@ -276,3 +276,20 @@ def check_supportrechnung_job(jobname):
             found_job = True
 
     return found_job
+    
+@frappe.whitelist()
+def check_navision_no(doc_name, navision_no):
+    other_docs = frappe.db.sql("""
+                                SELECT
+                                    `name`
+                                FROM
+                                    `tabCustomer`
+                                WHERE
+                                    `navision_nr` = '{nav_no}'
+                                AND
+                                    `name` != '{doc_name}'""".format(nav_no=navision_no, doc_name=doc_name), as_dict=True)
+    
+    if len(other_docs) > 0:
+        return other_docs[0].get('name')
+    else:
+        return None
