@@ -73,6 +73,8 @@ frappe.ui.form.on('Customer', {
                 cur_frm.set_value("hash", r.message);
             }
         });
+        //Validate Navision Customer No.
+        validate_navision_no(frm);
     },
     manual_billing_address: function(frm) {
         if (frm.doc.manual_billing_address) {
@@ -254,6 +256,22 @@ function erstelle_supportrechnung(frm) {
                 'Erstelle Supportrechnung',
                 'Erstellen'
             )
+        }
+    });
+}
+
+function validate_navision_no(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.customer.customer.check_navision_no',
+        'args': {
+            'doc_name': frm.doc.name,
+            'navision_no': frm.doc.navision_nr
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint("Diese Navision Kundennummer wird bereits in Kunde " + response.message + " verwendet")
+                frappe.validated = false
+            }
         }
     });
 }
