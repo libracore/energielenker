@@ -232,6 +232,9 @@ doc_events = {
     "Work Order": {
         "on_submit": "energielenker.energielenker.work_order.work_order.set_has_work_order_in_sales_order",
         "on_cancel": "energielenker.energielenker.work_order.work_order.unset_has_work_order_in_sales_order"
+    },
+    "Timesheet": {
+        "on_update_after_submit": "energielenker.energielenker.timesheet.timesheet.validate_manual_invoice"
     }
 }
 
