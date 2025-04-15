@@ -32,6 +32,8 @@ class PowerProject():
         self.project.estimated_costing = self.project.geschaetzte_kosten
         
         self.project.calculate_gross_margin()
+        #Update Sales Order Status in Payment Forecast
+        self.update_so_status()
 
     def update_custom_kpis(self):
         custom_kpis = [
@@ -550,6 +552,18 @@ class PowerProject():
     def check_completion(self):
         if self.project.percent_complete == 100:
             self.project.set('actual_end_date', today())
+    
+    def update_so_status(self):
+        frappe.log_error(self.project.name, "project")
+        if len(self.project.get('payment_schedule')) > 0:
+            for order in self.project.get('payment_schedule'):
+                status = frappe.get_value("Sales Order", order.get('order'), "status")
+                if status == "Closed" or status == "Completed":
+                    order.set("so_closed", 1)
+                else:
+                    order.set("so_closed", 0)
+        
+        frappe.db.commit()
         
 # /NEU -----------------------------------------------------------------------
 
