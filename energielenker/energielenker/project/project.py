@@ -554,7 +554,6 @@ class PowerProject():
             self.project.set('actual_end_date', today())
     
     def update_so_status(self):
-        frappe.log_error(self.project.name, "project")
         if len(self.project.get('payment_schedule')) > 0:
             for order in self.project.get('payment_schedule'):
                 status = frappe.get_value("Sales Order", order.get('order'), "status")
