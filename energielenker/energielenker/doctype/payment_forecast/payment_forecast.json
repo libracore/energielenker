@@ -18,7 +18,8 @@
   "so_ref",
   "rollback_invoice",
   "column_break_14",
-  "so_status"
+  "so_status",
+  "so_closed"
  ],
  "fields": [
   {
@@ -121,15 +122,24 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "fetch_from": "order.status",
    "fieldname": "so_status",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Sales Order Status",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "so_closed",
+   "fieldtype": "Check",
+   "label": "Sales Order Closed",
    "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2025-01-16 20:23:48.646383",
+ "modified": "2025-04-14 15:32:43.908620",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",
