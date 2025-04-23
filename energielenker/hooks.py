@@ -177,7 +177,8 @@ doc_events = {
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
         "on_submit": "energielenker.energielenker.issue.issue.set_booked_hours",
-        "on_cancel": "energielenker.energielenker.issue.issue.set_booked_hours"
+        "on_cancel": "energielenker.energielenker.issue.issue.set_booked_hours",
+        "on_update_after_submit": "energielenker.energielenker.timesheet.timesheet.validate_manual_invoice"
     },
     "Item": {
         "after_insert": "energielenker.energielenker.item.item.check_item_code"
@@ -232,9 +233,6 @@ doc_events = {
     "Work Order": {
         "on_submit": "energielenker.energielenker.work_order.work_order.set_has_work_order_in_sales_order",
         "on_cancel": "energielenker.energielenker.work_order.work_order.unset_has_work_order_in_sales_order"
-    },
-    "Timesheet": {
-        "on_update_after_submit": "energielenker.energielenker.timesheet.timesheet.validate_manual_invoice"
     }
 }
 
