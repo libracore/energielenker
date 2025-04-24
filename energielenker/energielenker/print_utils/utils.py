@@ -863,6 +863,33 @@ def get_print_items(dt, dn, total_value_needed=False):
                     tax_rate = doc.taxes[0].rate
                     total_taxes_and_charges = "{:,.2f}".format(rounded(doc.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
                     grand_total = "{:,.2f}".format(rounded(doc.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                    #prepare discount
+                    if sales_order.discount_amount:
+                        if sales_order.additional_discount_percentage:
+                            additional_discount_percentage = "(-" + sales_order.get_formatted('additional_discount_percentage') + ") "
+                        else:
+                            additional_discount_percentage = ''
+                        
+                        discount_amount = sales_order.get('discount_amount') / 100 * teilrechnung.get('billing_portion')
+                        discount = "{:,.2f}".format(rounded(discount_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                        
+                        discount_rows = """
+                            <tr class="blue-white">
+                                <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
+                                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>Zwischensumme</b></td>
+                                <td style="text-align: right;">{cur_icon} {net_total}</td>
+                            </tr>
+                            <tr class="blue-white">
+                                <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
+                                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>Rabatt</b></td>
+                                <td style="text-align: right;">{additional_discount_percentage}{cur_icon} -{discount_amount}</td>
+                            </tr>
+                            
+                        """.format(additional_discount_percentage=additional_discount_percentage, \
+                                cur_icon=cur_icon, \
+                                discount_amount=discount, \
+                                net_total=total)
+                        
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
                             <td style="border-right: 1px solid rgb(186, 210, 226) !important; text-align: center;"><b>1</b></td>
@@ -879,6 +906,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                             <td colspan='3' style="border-right: 1px solid rgb(186, 210, 226) !important;">
                         </tr>
                         <!-- Total Zeilen -->
+                        {discount_rows}
                         <tr class="blue-white">
                             <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
                             <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>Summe netto</b></td>
@@ -899,6 +927,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                                 idx=idx, \
                                 project=project, \
                                 billing_portion=billing_portion, \
+                                discount_rows=discount_rows, \
                                 net_total=net_total, \
                                 tax_rate=tax_rate, \
                                 total_taxes_and_charges=total_taxes_and_charges, \
