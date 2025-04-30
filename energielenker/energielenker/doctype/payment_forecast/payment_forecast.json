@@ -33,7 +33,7 @@
    "reqd": 1
   },
   {
-   "columns": 1,
+   "columns": 2,
    "fieldname": "date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -80,7 +80,6 @@
    "default": "0",
    "fieldname": "invoice_created",
    "fieldtype": "Check",
-   "in_list_view": 1,
    "label": "Invoice created",
    "permlevel": 2
   },
@@ -139,7 +138,7 @@
   }
  ],
  "istable": 1,
- "modified": "2025-04-14 15:32:43.908620",
+ "modified": "2025-04-30 15:18:38.041600",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Forecast",
