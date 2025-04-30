@@ -866,7 +866,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                     #prepare discount
                     if sales_order.discount_amount:
                         if sales_order.additional_discount_percentage:
-                            additional_discount_percentage = "(-" + sales_order.get_formatted('additional_discount_percentage') + ") "
+                            additional_discount_percentage = "(-" + sales_order.get_formatted('additional_discount_percentage') + "%) "
                         else:
                             additional_discount_percentage = ''
                         
