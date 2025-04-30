@@ -889,6 +889,8 @@ def get_print_items(dt, dn, total_value_needed=False):
                                 cur_icon=cur_icon, \
                                 discount_amount=discount, \
                                 net_total=total)
+                    else:
+                        discount_rows = ''
                         
                     tr = """
                         <tr style="background-color: rgb(186, 210, 226) !important;">
