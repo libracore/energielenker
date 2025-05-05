@@ -679,6 +679,10 @@ def make_sales_invoice(order, percent, amount, percent_billed, invoice_date, inv
 
         for item in si.items:
             item.qty = (item.qty / (100 - float(percent_billed))) * float(percent)
+            
+        #update Discount if only Amount is set
+        if order.discount_amount and not order.additional_discount_percentage:
+            si.discount_amount = order.discount_amount / 100 * cint(percent)
 
         si.save(ignore_permissions=True)
         
