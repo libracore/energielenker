@@ -32,88 +32,47 @@ def get_columns():
     ]
     
 def get_data(filters):
-    entries = get_invoiceable_entries(from_date=filters.from_date, to_date=filters.to_date, customer=filters.customer, company=filters.company)
+    entries = get_invoiceable_entries(from_date=filters.from_date, to_date=filters.to_date, customer=filters.customer)
     
-    # different aggregation types
-    if filters.get("group_by") == "Customer":
-        # find customers
-        customers = []
+    # group by project
+    # find projects
+    projects = []
+    for e in entries:
+        if e.project not in projects:
+            projects.append(e.project)
+    
+    # create grouped entries
+    output = []
+    for p in projects:
+        details = []
+        total_h = 0
+        total_amount = 0
+        customer_name = None
+        customer = None
         for e in entries:
-            if e.customer not in customers:
-                customers.append(e.customer)
-        
-        # create grouped entries
-        output = []
-        for c in customers:
-            details = []
-            total_h = 0
-            total_amount = 0
-            customer_name = None
-            for e in entries:
-                if e.customer == c:
-                    total_h += e.hours or 0
-                    total_amount += ((e.qty or 1) * (e.rate or 0))
-                    customer_name = e.customer_name
-                    details.append(e)
-                    
-            # insert customer row
-            prefix = ""
-            if "natascha" in frappe.session.user:
-                prefix = "&#129412; "
-            output.append({
-                'customer': c,
-                'customer_name': customer_name,
-                'hours': total_h,
-                'qty': 1,
-                'rate': total_amount,
-                'action': prefix + _('Create invoice'),
-                'indent': 0
-            })
-            for d in details:
-                output.append(d)
-    else:
-        # group by project
-        # find projects
-        projects = []
-        for e in entries:
-            if e.project not in projects:
-                projects.append(e.project)
-        
-        # create grouped entries
-        output = []
-        for p in projects:
-            details = []
-            total_h = 0
-            total_amount = 0
-            customer_name = None
-            customer = None
-            for e in entries:
-                if e.project == p:
-                    total_h += e.hours or 0
-                    total_amount += ((e.qty or 1) * (e.rate or 0))
-                    customer_name = e.customer_name
-                    customer = e.customer
-                    details.append(e)
-                    
-            # insert customer row
-            prefix = ""
-            if "natascha" in frappe.session.user:
-                prefix = "&#129412; "
-            output.append({
-                'customer': customer,
-                'customer_name': customer_name,
-                'project': p,
-                'hours': total_h,
-                'qty': 1,
-                'rate': total_amount,
-                'action': prefix + _('Create invoice'),
-                'indent': 0
-            })
-            for d in details:
-                output.append(d)
+            if e.project == p:
+                total_h += e.hours or 0
+                total_amount += ((e.qty or 1) * (e.rate or 0))
+                customer_name = e.customer_name
+                customer = e.customer
+                details.append(e)
+                
+        # insert customer row
+        output.append({
+            'customer': customer,
+            'customer_name': customer_name,
+            'project': p,
+            'hours': total_h,
+            'qty': 1,
+            'rate': total_amount,
+            'action': _('Create invoice'),
+            'indent': 0
+        })
+        for d in details:
+            output.append(d)
     return output
 
-def get_invoiceable_entries(from_date=None, to_date=None, customer=None, company=None):
+def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
     if not from_date:
         from_date = "2000-01-01"
     if not to_date:
@@ -121,14 +80,6 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, company
 
     if not customer:
         customer = "%"
-    
-    if not company:
-        company = frappe.defaults.get_global_default("company")
-
-    invoicing_item = frappe.get_value("ERPNextSwiss Settings", "ERPNextSwiss Settings", "service_item")
-    if not invoicing_item:
-        frappe.throw( _("Invoicing configuration is missing the invoice item. Please set under ERPNextSwiss Settings > Invoice Item."), _("Configuration missing") )
-    invoicing_method = frappe.get_value("ERPNextSwiss Settings", "ERPNextSwiss Settings", "invoice_method") or "hours"
     
     sql_query = """
         SELECT 
@@ -140,8 +91,6 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, company
             `tabTimesheet`.`employee_name` AS `employee_name`,
             `tabTimesheet Detail`.`name` AS `detail`,
             `tabProject`.`name` AS `project`,
-            "{invoicing_item}" AS `item`,
-            `tabTimesheet Detail`.`{method}` AS `hours`,
             1 AS `qty`,
             NULL AS `rate`,
             `tabTimesheet Detail`.`remarks` AS `remarks`,
@@ -160,45 +109,14 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, company
            AND ((DATE(`tabTimesheet Detail`.`from_time`) >= "{from_date}" AND DATE(`tabTimesheet Detail`.`from_time`) <= "{to_date}")
             OR (DATE(`tabTimesheet Detail`.`to_time`) >= "{from_date}" AND DATE(`tabTimesheet Detail`.`to_time`) <= "{to_date}"))
            AND `tabSales Invoice Item`.`name` IS NULL
-           AND `tabTimesheet Detail`.`{method}` > 0
-           AND `tabTimesheet`.`company` = "{company}"
-           
-        UNION SELECT
-            `tabDelivery Note`.`customer` AS `customer`,
-            `tabDelivery Note`.`customer_name` AS `customer_name`,
-            `tabDelivery Note`.`posting_date` AS `date`,
-            "Delivery Note" AS `dt`,
-            `tabDelivery Note`.`name` AS `reference`,
-            NULL AS `employee_name`,
-            `tabDelivery Note Item`.`name` AS `detail`,
-            `tabDelivery Note`.`project` AS `project`,
-            `tabDelivery Note Item`.`item_code` AS `item`,
-            NULL AS `hours`,
-            `tabDelivery Note Item`.`qty` AS `qty`,
-            `tabDelivery Note Item`.`net_rate` AS `rate`,
-            `tabDelivery Note`.`name` AS `remarks`,
-            1 AS `indent`
-        FROM `tabDelivery Note Item`
-        LEFT JOIN `tabDelivery Note` ON `tabDelivery Note`.`name` = `tabDelivery Note Item`.`parent`
-        LEFT JOIN `tabSales Invoice Item` ON (
-            `tabDelivery Note Item`.`name` = `tabSales Invoice Item`.`dn_detail`
-            AND `tabSales Invoice Item`.`docstatus` < 2
-        )
-        WHERE 
-            `tabDelivery Note`.`docstatus` = 1
-            AND `tabDelivery Note`.`customer` LIKE "{customer}"
-            AND (`tabDelivery Note`.`posting_date` >= "{from_date}" AND `tabDelivery Note`.`posting_date` <= "{to_date}")
-            AND `tabSales Invoice Item`.`name` IS NULL
-            AND `tabDelivery Note`.`company` = "{company}"
-            
+           AND `tabTimesheet Detail`.`no_bill` = 0
+           AND `tabTimesheet Detail`.`billed_with_service_project` = 0
+           AND `tabProject`.`is_service_project` = 1
         ORDER BY `customer_name` ASC, `date` ASC;
     """.format(
         from_date=from_date, 
-        to_date=to_date, 
-        invoicing_item=invoicing_item, 
-        customer=customer, 
-        method=invoicing_method, 
-        company=company
+        to_date=to_date,
+        customer=customer
     )
     entries = frappe.db.sql(sql_query, as_dict=True)
     return entries

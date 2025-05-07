@@ -19,22 +19,6 @@ frappe.query_reports["Service projects"] = {
             "label": __("Customer"),
             "fieldtype": "Link",
             "options": "Customer"
-        },
-        {
-            "fieldname":"group_by",
-            "label": __("Customer"),
-            "fieldtype": "Select",
-            "options": "Customer\nProject",
-            "default": "Customer",
-            "reqd": 1
-        },
-        {
-            "fieldname":"company",
-            "label": __("Company"),
-            "fieldtype": "Link",
-            "options": "Company",
-            "default": frappe.defaults.get_global_default("company"),
-            "reqd": 1
         }
     ],
     "initial_depth": 0

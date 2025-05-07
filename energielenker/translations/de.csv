@@ -46,6 +46,9 @@ DocType: Stock Entry,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Depot,Book back items,Artikel zurück buchen
 DocType: Depot,Write off items,Artikel ausbuchen
 DocType: Timesheet,Issue Name,Anfrage Name
+DocType: Timesheet,No Bill,Nicht verrechnen
+DocType: Timesheet,Billed with Service Project,Verrechnet mittels Dienstleistungsprojekt
+DocType: Timesheet,Billed with Service Invoice,Billed with Service Invoice
 DocType: Item,Item Code,Artikel
 DocType: Item,Item Name,Artikelname
 DocType: Item,Quantity,Menge
