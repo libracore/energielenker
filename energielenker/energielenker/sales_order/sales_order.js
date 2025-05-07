@@ -191,6 +191,8 @@ frappe.ui.form.on("Sales Order", {
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
         check_deactivated_items(frm);
+        //Check Issues for Service Projects
+        check_service_project_issues(frm);
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
         } else {
@@ -473,6 +475,8 @@ frappe.ui.form.on("Sales Order", {
     },
     project_clone: function(frm) {
         set_project_manager(frm.doc.project_clone);
+        //Check if Project is a Service Project
+        check_service_project(frm);
     },
     is_service_project: function(frm) {
         //Mark Sales Order Items
@@ -532,6 +536,11 @@ frappe.ui.form.on('Sales Order Item', {
     },
     deliver_position(frm, cdt, cdn) {
         deliver_so_position(frm, cdt, cdn);
+    },
+    items_add(frm, cdt, cdn) {
+        if (frm.doc.is_service_project) {
+            frappe.model.set_value(cdt, cdn, "is_service_project_item", 1);
+        }
     }
 });
 
@@ -1201,5 +1210,39 @@ function remove_delivered_and_closed(frm) {
 function set_service_project(frm) {
     for (let i = 0; i < frm.doc.items.length; i++) {
         frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "is_service_project_item", frm.doc.is_service_project);
+    }
+}
+
+function check_service_project(frm) {
+    if (frm.doc.project_clone) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Project",
+                'name': frm.doc.project_clone
+            },
+            'callback': function(response) {
+                cur_frm.set_value("is_service_project", response.message.is_service_project);
+            }
+        });
+    } else {
+        cur_frm.set_value("is_service_project", 0);
+    }
+}
+
+function check_service_project_issues(frm) {
+    if (frm.doc.is_service_project) {
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_order.sales_order.check_service_project_tasks',
+            'args': {
+                'doc': frm.doc
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    frappe.msgprint(response.message, "Fehlende Anfrage")
+                    frappe.validated=false;
+                }
+            }
+        });
     }
 }

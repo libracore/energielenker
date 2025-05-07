@@ -208,3 +208,31 @@ def create_overbilling_invoice(doc, cdt, cdn):
     link = "/desk#Form/Sales Invoice/{0}".format(invoice.get('name'))
     
     return link
+
+@frappe.whitelist()
+def check_service_project_tasks(doc):
+    doc = json.loads(doc)
+    
+    #Get all used Issues for this Project
+    project_tasks = frappe.db.sql("""
+                                    SELECT
+                                        `tabSales Order Item`.`name`,
+                                        `tabSales Order Item`.`task`
+                                    FROM
+                                        `tabSales Order Item`
+                                    LEFT JOIN 
+                                        `tabSales Order` ON `tabSales Order Item`.`parent` = `tabSales Order`.`name`
+                                    WHERE
+                                        `tabSales Order`.`project_clone` = '{project}'
+                                    AND
+                                        `tabSales Order`.`docstatus` != 2;""".format(project=doc.get('project_clone')), as_dict=True)
+    
+    for item in doc.get('items'):
+        if not item.get('task'):
+            return "Bitte Aufgabe in Zeile {0} angeben".format(item.get('idx'))
+        else:
+            for task in project_tasks:
+                if task.get('name') != item.get('name') and item.get('task') == task.get('task'):
+                    return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(task.get('task'), item.get('idx'))
+    
+    return False
