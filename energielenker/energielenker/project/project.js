@@ -114,6 +114,11 @@ frappe.ui.form.on("Project", {
             cur_frm.set_value("noch_nicht_abgerechnete_stunden", cur_frm.doc.zeit_gebucht_ueber_zeiterfassung);
             cur_frm.set_value("noch_nicht_abgerechnete_stunden_updated", 1);
         }
+        
+        if (cur_frm.doc.__islocal) {
+            //Handle is_service_project Check
+            handle_service_project_check(frm);
+        }
     },
     auftragsumme_manuell_festsetzen: function(frm) {
         if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
@@ -208,6 +213,10 @@ frappe.ui.form.on("Project", {
     },
     terminated: function(frm) {
         last_valid_day_property(frm);
+    },
+    contract_type: function(frm) {
+        //Handle is_service_project Check
+        handle_service_project_check(frm);
     }
 });
 
@@ -604,5 +613,13 @@ function last_valid_day_property(frm) {
     } else {
         cur_frm.set_df_property("last_valid_day", "reqd", 0);
         cur_frm.set_value("last_valid_day", null);
+    }
+}
+
+function handle_service_project_check(frm) {
+    if (frm.doc.contract_type && frm.doc.contract_type == "Dienstleistungsvertrag") {
+        cur_frm.set_value("is_service_project", 1);
+    } else {
+        cur_frm.set_value("is_service_project", 0);
     }
 }

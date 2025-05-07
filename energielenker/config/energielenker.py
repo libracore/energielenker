@@ -47,6 +47,13 @@ def get_data():
                     "label": _("IBN remote"),
                     "doctype": "Sales Order",
                     "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "Service projects",
+                    "label": _("Service projects"),
+                    "doctype": "Project",
+                    "is_query_report": True
                 }
             ]
         },

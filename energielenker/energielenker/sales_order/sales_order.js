@@ -473,6 +473,10 @@ frappe.ui.form.on("Sales Order", {
     },
     project_clone: function(frm) {
         set_project_manager(frm.doc.project_clone);
+    },
+    is_service_project: function(frm) {
+        //Mark Sales Order Items
+        set_service_project(frm);
     }
 });
 
@@ -1191,5 +1195,11 @@ function remove_delivered_and_closed(frm) {
     //Remove Comment
     if (remove_comment) {
         cur_frm.dashboard.clear_comment();
+    }
+}
+
+function set_service_project(frm) {
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "is_service_project_item", frm.doc.is_service_project);
     }
 }
