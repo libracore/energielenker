@@ -26,5 +26,9 @@ def check_service_projects(doc):
         if time_log.get('project'):
             is_service_project = frappe.get_value("Project", time_log.get('project'), "is_service_project")
             if is_service_project == 1:
-                if time_log.get('typisierung') == "time_log.get('project')":
-                    return "Projekt {0} ist ein Dienstleistungsprojekt und darf nicht die Typisierung 
+                if not time_log.get('task'):
+                    return "Projekt {0} ist ein Dienstleistungsprojekt und muss eine Aufgabe hinterlegt haben.".format(time_log.get('project'))
+                elif time_log.get('typisierung') == "Support gem. Rahmenvertrag":
+                    return "Projekt {0} ist ein Dienstleistungsprojekt und darf nicht die Typisierung 'Support gem. Rahmenvertrag' besitzen.".format(time_log.get('project'))
+                    
+    return False
