@@ -191,8 +191,8 @@ frappe.ui.form.on("Sales Order", {
         calculate_part_list_prices(frm);
         validate_customer(frm, "validate");
         check_deactivated_items(frm);
-        //Check Issues for Service Projects
-        check_service_project_issues(frm);
+        //Check Tasks for Service Projects
+        check_service_project_tasks(frm);
         if (cur_frm.doc.project_clone) {
             cur_frm.set_value('project', cur_frm.doc.project_clone);
         } else {
@@ -1230,7 +1230,7 @@ function check_service_project(frm) {
     }
 }
 
-function check_service_project_issues(frm) {
+function check_service_project_tasks(frm) {
     if (frm.doc.is_service_project) {
         frappe.call({
             'method': 'energielenker.energielenker.sales_order.sales_order.check_service_project_tasks',
