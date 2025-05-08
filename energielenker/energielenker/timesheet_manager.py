@@ -92,7 +92,7 @@ def start_timer(ts, details):
         row.from_time = get_datetime()
         row.to_time= get_datetime()
         row.hours = 0
-        row.tbd = int(details["tbd"])
+        # ~ row.tbd = int(details["tbd"])
         
         for key in details:
             if key == 'project':
@@ -110,12 +110,12 @@ def start_timer(ts, details):
             if key == "rufbereitschaft_bis":
                 row.rufbereitschaft_bis = details[key]
                 
-        if int(details["bill"]) == 1:
-            rates = get_employee_rate(ts.employee)
-            row.billable = 1
-            row.billing_hours = 0
-            row.billing_rate = rates["external_rate"]
-            row.costing_rate = rates["internal_rate"]
+        # ~ if int(details["bill"]) == 1:
+            # ~ rates = get_employee_rate(ts.employee)
+            # ~ row.billable = 1
+            # ~ row.billing_hours = 0
+            # ~ row.billing_rate = rates["external_rate"]
+            # ~ row.costing_rate = rates["internal_rate"]
                 
         ts.save()
         frappe.db.commit()
@@ -155,17 +155,17 @@ def start_timer(ts, details):
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
         
-        if int(details["bill"]) == 1:
-            rates = get_employee_rate(employee.name)
-            billable = 1
-            billing_hours = 0
-            billing_rate = rates["external_rate"]
-            costing_rate = rates["internal_rate"]
-        else:
-            billable = 0
-            billing_hours = 0
-            billing_rate = 0
-            costing_rate = 0
+        # ~ if int(details["bill"]) == 1:
+            # ~ rates = get_employee_rate(employee.name)
+            # ~ billable = 1
+            # ~ billing_hours = 0
+            # ~ billing_rate = rates["external_rate"]
+            # ~ costing_rate = rates["internal_rate"]
+        # ~ else:
+        billable = 0
+        billing_hours = 0
+        billing_rate = 0
+        costing_rate = 0
             
         
         new_ts = frappe.get_doc({
@@ -181,7 +181,7 @@ def start_timer(ts, details):
                     "issue": issue,
                     "project": project,
                     "task": task,
-                    "tbd": int(details["tbd"]),
+                    # ~ "tbd": int(details["tbd"]),
                     "billable": billable,
                     "billing_hours": billing_hours,
                     "billing_rate": billing_rate,
@@ -205,10 +205,10 @@ def stop_timer(ts):
         for time_log in ts.time_logs:
             if time_log.hours == 0:
                 time_log.to_time = get_datetime()
-                if time_log.billable == 1:
-                    time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
-                    time_log.billing_amount = float(time_log.billing_hours) * float(time_log.billing_rate)
-                    time_log.costing_amount = float(time_log.billing_hours) * float(time_log.costing_rate)
+                # ~ if time_log.billable == 1:
+                    # ~ time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
+                    # ~ time_log.billing_amount = float(time_log.billing_hours) * float(time_log.billing_rate)
+                    # ~ time_log.costing_amount = float(time_log.billing_hours) * float(time_log.costing_rate)
                 
         ts.save()
         frappe.db.commit()
@@ -236,8 +236,8 @@ def stop_timer_from_quick_start(ts, details):
                         time_log.task = details[key]
                     if key == "issue":
                         time_log.issue = details[key]
-                    if key == "tbd":
-                        time_log.tbd = details[key]
+                    # ~ if key == "tbd":
+                        # ~ time_log.tbd = details[key]
                     if key == "remarks":
                         time_log.remarks = details[key]
                     if key == "typisierung":
@@ -248,14 +248,14 @@ def stop_timer_from_quick_start(ts, details):
                         time_log.rufbereitschaft_bis = details[key]
                         
                 
-                if int(details["bill"]) == 1:
-                    rates = get_employee_rate(ts.employee)
-                    time_log.billable = 1
-                    time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
-                    time_log.billing_rate = rates["external_rate"]
-                    time_log.costing_rate = rates["internal_rate"]
-                    time_log.billing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["external_rate"])
-                    time_log.costing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["internal_rate"])
+                # ~ if int(details["bill"]) == 1:
+                    # ~ rates = get_employee_rate(ts.employee)
+                    # ~ time_log.billable = 1
+                    # ~ time_log.billing_hours = time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))
+                    # ~ time_log.billing_rate = rates["external_rate"]
+                    # ~ time_log.costing_rate = rates["internal_rate"]
+                    # ~ time_log.billing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["external_rate"])
+                    # ~ time_log.costing_amount = float(time_diff_in_hours(time_log.to_time.strftime("%Y-%m-%d %H:%M:%S"), time_log.from_time.strftime("%Y-%m-%d %H:%M:%S"))) * float(rates["internal_rate"])
                 
         ts.save()
         frappe.db.commit()
@@ -280,7 +280,7 @@ def add_timeblock(ts, details):
         row.from_time = next_start_time
         row.to_time= add_to_date(date=row.from_time, hours=details["hours"])
         row.hours = details["hours"]
-        row.tbd = int(details["tbd"])
+        # ~ row.tbd = int(details["tbd"])
         
         for key in details:
             if key == 'project':
@@ -298,14 +298,14 @@ def add_timeblock(ts, details):
             if key == "rufbereitschaft_bis":
                 row.rufbereitschaft_bis = details[key]
                 
-        if int(details["bill"]) == 1:
-            rates = get_employee_rate(ts.employee)
-            row.billable = 1
-            row.billing_hours = details["hours"]
-            row.billing_rate = rates["external_rate"]
-            row.costing_rate = rates["internal_rate"]
-            row.billing_amount = float(details["hours"]) * float(rates["external_rate"])
-            row.costing_amount = float(details["hours"]) * float(rates["internal_rate"])
+        # ~ if int(details["bill"]) == 1:
+            # ~ rates = get_employee_rate(ts.employee)
+            # ~ row.billable = 1
+            # ~ row.billing_hours = details["hours"]
+            # ~ row.billing_rate = rates["external_rate"]
+            # ~ row.costing_rate = rates["internal_rate"]
+            # ~ row.billing_amount = float(details["hours"]) * float(rates["external_rate"])
+            # ~ row.costing_amount = float(details["hours"]) * float(rates["internal_rate"])
                 
         ts.save()
         frappe.db.commit()
@@ -347,21 +347,21 @@ def add_timeblock(ts, details):
         user = frappe.session.user
         employee = frappe.db.sql("""SELECT `name`, `employee_name` FROM `tabEmployee` WHERE `user_id` = '{user}'""".format(user=user), as_dict=True)[0]
         
-        if int(details["bill"]) == 1:
-            rates = get_employee_rate(employee.name)
-            billable = 1
-            billing_hours = details["hours"]
-            billing_rate = rates["external_rate"]
-            costing_rate = rates["internal_rate"]
-            billing_amount = float(details["hours"]) * float(rates["external_rate"])
-            costing_amount = float(details["hours"]) * float(rates["internal_rate"])
-        else:
-            billable = 0
-            billing_hours = 0
-            billing_rate = 0
-            costing_rate = 0
-            billing_amount = 0
-            costing_amount = 0
+        # ~ if int(details["bill"]) == 1:
+            # ~ rates = get_employee_rate(employee.name)
+            # ~ billable = 1
+            # ~ billing_hours = details["hours"]
+            # ~ billing_rate = rates["external_rate"]
+            # ~ costing_rate = rates["internal_rate"]
+            # ~ billing_amount = float(details["hours"]) * float(rates["external_rate"])
+            # ~ costing_amount = float(details["hours"]) * float(rates["internal_rate"])
+        # ~ else:
+        billable = 0
+        billing_hours = 0
+        billing_rate = 0
+        costing_rate = 0
+        billing_amount = 0
+        costing_amount = 0
             
         
         new_ts = frappe.get_doc({
@@ -377,7 +377,7 @@ def add_timeblock(ts, details):
                     "issue": issue,
                     "project": project,
                     "task": task,
-                    "tbd": int(details["tbd"]),
+                    # ~ "tbd": int(details["tbd"]),
                     "billable": billable,
                     "billing_hours": billing_hours,
                     "billing_rate": billing_rate,

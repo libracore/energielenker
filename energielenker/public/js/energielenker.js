@@ -108,11 +108,9 @@ function timesheet_manager_start(ts) {
                 return { 'filters': { 'status': 'Open' } };
             }
         },
-        {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'typisierung', 'fieldtype': 'Select', 'label': 'Typisierung', 'reqd': 1, 'options': 'Projekt\nSupport gem. Rahmenvertrag\nRufbereitschaft\nsonstiger Support'},
         {'fieldname': 'rufbereitschaft_von', 'fieldtype': 'Time', 'label': 'Von', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
         {'fieldname': 'rufbereitschaft_bis', 'fieldtype': 'Time', 'label': 'Bis', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
-        {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 1}
     ],
     function(values){
@@ -194,11 +192,9 @@ function timesheet_manager_stop_from_quick_entry(ts) {
                 return { 'filters': { 'status': 'Open' } };
             }
         },
-        {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'typisierung', 'fieldtype': 'Select', 'label': 'Typisierung', 'reqd': 1, 'options': 'Projekt\nSupport gem. Rahmenvertrag\nRufbereitschaft\nsonstiger Support'},
         {'fieldname': 'rufbereitschaft_von', 'fieldtype': 'Time', 'label': 'Von', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
         {'fieldname': 'rufbereitschaft_bis', 'fieldtype': 'Time', 'label': 'Bis', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
-        {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 1}
     ],
     function(values){
@@ -260,11 +256,9 @@ function timesheet_manager_add_timeblock(ts) {
                 return { 'filters': { 'status': 'Open' } };
             }
         },
-        {'fieldname': 'tbd', 'fieldtype': 'Check', 'label': 'Noch zu klären', 'reqd': 0, 'default': 0},
         {'fieldname': 'typisierung', 'fieldtype': 'Select', 'label': 'Typisierung', 'reqd': 1, 'options': 'Projekt\nSupport gem. Rahmenvertrag\nRufbereitschaft\nsonstiger Support'},
         {'fieldname': 'rufbereitschaft_von', 'fieldtype': 'Time', 'label': 'Von', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
         {'fieldname': 'rufbereitschaft_bis', 'fieldtype': 'Time', 'label': 'Bis', 'reqd': 0, 'depends_on': "eval:doc.typisierung=='Rufbereitschaft'"},
-        {'fieldname': 'bill', 'fieldtype': 'Check', 'label': 'Bill', 'reqd': 0, 'default': 0},
         {'fieldname': 'remarks', 'fieldtype': 'Small Text', 'label': __('Remarks'), 'reqd': 1}
     ],
     function(values){

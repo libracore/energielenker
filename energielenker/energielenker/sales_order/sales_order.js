@@ -143,6 +143,15 @@ frappe.ui.form.on("Sales Order", {
                 }
             };
         });
+        
+        //Filter Tasks for Service Projects
+        if (frm.doc.is_service_project) {
+            cur_frm.fields_dict.items.grid.get_field('task').get_query = function(doc) {                                                                      
+                    return {
+                        filters: {'project': frm.doc.project}
+                    }
+            }
+        }
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
