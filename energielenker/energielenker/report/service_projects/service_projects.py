@@ -25,9 +25,9 @@ def get_columns():
         {'fieldname': 'project', 'label': _('Project'), 'fieldtype': 'Link', 'options': 'Project', 'width': 150},
         {'fieldname': 'item', 'label': _('Item'), 'fieldtype': 'Link', 'options': 'Item', 'width': 200},
         {'fieldname': 'hours', 'label': _('Billing Hours'), 'fieldtype': 'Float', 'width': 100},
-        {'fieldname': 'qty', 'label': _('Qty'), 'fieldtype': 'Float', 'width': 50},
         {'fieldname': 'rate', 'label': _('Rate'), 'fieldtype': 'Currency', 'width': 100},
-        {'fieldname': 'reference', 'label': _('Reference'), 'fieldtype': 'Dynamic Link', 'options': 'dt', 'width': 120},
+        {'fieldname': 'timesheet', 'label': _('Timesheet'), 'fieldtype': 'Link', 'options': 'Timesheet', 'width': 120},
+        {'fieldname': 'reference', 'label': _('Task'), 'fieldname': 'task', 'fieldtype': 'Link', 'options': 'Task', 'width': 120},
         {'fieldname': 'action', 'label': _('Action'), 'fieldtype': 'Data', 'width': 150}
     ]
     
@@ -63,8 +63,7 @@ def get_data(filters):
             'customer_name': customer_name,
             'project': p,
             'hours': total_h,
-            'qty': 1,
-            'rate': total_amount,
+            'rate': "",
             'action': _('Create invoice'),
             'indent': 0
         })
@@ -86,29 +85,27 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
             `tabProject`.`customer` AS `customer`,
             `tabCustomer`.`customer_name` AS `customer_name`,
             DATE(`tabTimesheet Detail`.`from_time`) AS `date`,
-            "Timesheet"  AS `dt`,
-            `tabTimesheet`.`name` AS `reference`,
+            "Timesheet"  AS `timesheet`,
+            `tabTimesheet`.`name` AS `timesheet`,
+            `tabTimesheet Detail`.`task` AS `task`,
             `tabTimesheet`.`employee_name` AS `employee_name`,
             `tabTimesheet Detail`.`name` AS `detail`,
             `tabProject`.`name` AS `project`,
-            1 AS `qty`,
-            NULL AS `rate`,
+            `tabTimesheet Detail`.`hours` AS `hours`,
+            `tabSales Order Item`.`item_code` AS `item`,
+            `tabSales Order Item`.`rate` AS `rate`,
             `tabTimesheet Detail`.`remarks` AS `remarks`,
             1 AS `indent`
         FROM `tabTimesheet Detail`
         LEFT JOIN `tabTimesheet` ON `tabTimesheet`.`name` = `tabTimesheet Detail`.`parent`
-        LEFT JOIN `tabSales Invoice Item` ON (
-            `tabTimesheet Detail`.`name` = `tabSales Invoice Item`.`ts_detail`
-            AND `tabSales Invoice Item`.`docstatus` < 2
-        )
         LEFT JOIN `tabProject` ON `tabProject`.name = `tabTimesheet Detail`.`project`
         LEFT JOIN `tabCustomer` ON `tabCustomer`.`name` = `tabProject`.`customer`
+        LEFT JOIN `tabSales Order Item` ON `tabSales Order Item`.`task` = `tabTimesheet Detail`.`task`
         WHERE 
            `tabTimesheet`.`docstatus` = 1
            AND `tabCustomer`.`name` LIKE "{customer}"
            AND ((DATE(`tabTimesheet Detail`.`from_time`) >= "{from_date}" AND DATE(`tabTimesheet Detail`.`from_time`) <= "{to_date}")
             OR (DATE(`tabTimesheet Detail`.`to_time`) >= "{from_date}" AND DATE(`tabTimesheet Detail`.`to_time`) <= "{to_date}"))
-           AND `tabSales Invoice Item`.`name` IS NULL
            AND `tabTimesheet Detail`.`no_bill` = 0
            AND `tabTimesheet Detail`.`billed_with_service_project` = 0
            AND `tabProject`.`is_service_project` = 1
@@ -212,3 +209,8 @@ def find_tax_template(customer, company=None):
         else:
             template = None
     return template
+
+        # ~ LEFT JOIN `tabSales Invoice Item` ON (
+            # ~ `tabTimesheet Detail`.`name` = `tabSales Invoice Item`.`ts_detail`
+            # ~ AND `tabSales Invoice Item`.`docstatus` < 2
+        # ~ )
