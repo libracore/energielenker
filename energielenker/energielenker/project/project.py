@@ -1229,3 +1229,35 @@ def update_project_manager(self, event):
             frappe.set_value(doc.get('doctype'), doc.get('name'), "project_manager_name", self.get('project_manager_name'))
             
         return
+
+@frappe.whitelist()
+def check_service_project_orders(project):
+    orders = frappe.db.sql("""
+                            SELECT
+                                `name`
+                            FROM
+                                `tabSales Order`
+                            WHERE
+                                `docstatus` = 1
+                            AND
+                                `project` = '{project}';""".format(project=project), as_dict=True)
+    
+    return orders
+
+@frappe.whitelist()
+def update_service_orders(project, service_check):
+    old_check = frappe.db.get_value("Project", project, "is_service_project")
+    if service_check != old_check:
+        orders = frappe.db.sql("""
+                                SELECT
+                                    `name`
+                                FROM
+                                    `tabSales Order`
+                                WHERE
+                                    `project` = '{project}';""".format(project=project), as_dict=True)
+                                    
+        if len(orders) > 0:
+            for order in orders:
+                frappe.db.set_value("Sales Order", order.get('name'), "is_service_project", service_check)
+                
+    return

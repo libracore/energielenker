@@ -118,6 +118,9 @@ frappe.ui.form.on("Project", {
         if (cur_frm.doc.__islocal) {
             //Handle is_service_project Check
             handle_service_project_check(frm);
+        } else {
+            //Handle Ready Only of is_service_project Check
+            handle_service_project_check_property(frm);
         }
     },
     auftragsumme_manuell_festsetzen: function(frm) {
@@ -217,6 +220,9 @@ frappe.ui.form.on("Project", {
     contract_type: function(frm) {
         //Handle is_service_project Check
         handle_service_project_check(frm);
+    },
+    is_service_project: function(frm) {
+        update_service_orders(frm);
     }
 });
 
@@ -622,4 +628,28 @@ function handle_service_project_check(frm) {
     } else {
         cur_frm.set_value("is_service_project", 0);
     }
+}
+
+function handle_service_project_check_property(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.project.project.check_service_project_orders',
+        'args': {
+            'project': frm.doc.name
+        },
+        'callback': function(response) {
+            if (response.message && response.message.length > 0) {
+                cur_frm.set_df_property('is_service_project', 'read_only', 1);
+            }
+        }
+    });
+}
+
+function update_service_orders(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.project.project.update_service_orders',
+        'args': {
+            'project': frm.doc.name,
+            'service_check': frm.doc.is_service_project
+        }
+    });
 }

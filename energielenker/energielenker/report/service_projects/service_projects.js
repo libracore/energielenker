@@ -27,22 +27,18 @@ frappe.query_reports["Service projects"] = {
 /* add event listener for double clicks to move up */
 cur_page.container.addEventListener("dblclick", function(event) {
     // restrict to this report to prevent this event on other reports once loaded
-    if (window.location.toString().includes("/Service%20Invoicing") ) {
+    if (window.location.toString().includes("/Service%20projects") ) {
         let row = event.delegatedTarget.getAttribute("data-row-index");
         let column = event.delegatedTarget.getAttribute("data-col-index");
         
-        if (column.toString() === "10") {                 // 10 is the column index of "Create invoice"
+        if (column.toString() === "11") {                 // 10 is the column index of "Create invoice"
             console.log("Create invoice for " + frappe.query_report.data[row]['customer']);
-            let project = null;
-            if (frappe.query_report.get_filter_value("group_by") === "Project") {
-                project = frappe.query_report.data[row]['project'];
-            }
+            let project = frappe.query_report.data[row]['project'];
             frappe.call({
-                'method': "erpnextswiss.erpnextswiss.report.service_invoicing.service_invoicing.create_invoice",
+                'method': "energielenker.energielenker.report.service_projects.service_projects.create_invoice",
                 'args': {
                     'from_date': (frappe.query_report.get_filter_value("from_date") || "2000-01-01"),
                     'to_date': (frappe.query_report.get_filter_value("to_date") || "2099-12-31"),
-                    'customer': frappe.query_report.data[row]['customer'],
                     'project': project
                 },
                 'callback': function(response) {

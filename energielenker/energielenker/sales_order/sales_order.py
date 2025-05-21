@@ -228,11 +228,12 @@ def check_service_project_tasks(doc):
                                         `tabSales Order`.`docstatus` != 2;""".format(project=doc.get('project_clone')), as_dict=True)
     
     for item in doc.get('items'):
-        if not item.get('task'):
-            return "Bitte Aufgabe in Zeile {0} angeben".format(item.get('idx'))
-        else:
-            for task in project_tasks:
-                if task.get('name') != item.get('name') and item.get('task') == task.get('task'):
-                    return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(task.get('task'), item.get('idx'))
+        if item.get('uom') == "Std":
+            if not item.get('task'):
+                return "Bitte Aufgabe in Zeile {0} angeben".format(item.get('idx'))
+            else:
+                for task in project_tasks:
+                    if task.get('name') != item.get('name') and item.get('task') == task.get('task'):
+                        return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(task.get('task'), item.get('idx'))
     
     return False

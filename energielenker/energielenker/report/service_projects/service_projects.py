@@ -7,6 +7,7 @@ from frappe import _
 import calendar
 import datetime
 from frappe.utils import cint
+from erpnext.selling.doctype.sales_order import make_sales_invoice
 
 def execute(filters=None):
     columns, data = [], []
@@ -27,7 +28,8 @@ def get_columns():
         {'fieldname': 'hours', 'label': _('Billing Hours'), 'fieldtype': 'Float', 'width': 100},
         {'fieldname': 'rate', 'label': _('Rate'), 'fieldtype': 'Currency', 'width': 100},
         {'fieldname': 'timesheet', 'label': _('Timesheet'), 'fieldtype': 'Link', 'options': 'Timesheet', 'width': 120},
-        {'fieldname': 'reference', 'label': _('Task'), 'fieldname': 'task', 'fieldtype': 'Link', 'options': 'Task', 'width': 120},
+        {'fieldname': 'sales_order', 'label': _('Sales Order'), 'fieldtype': 'Link', 'options': 'Sales Order', 'width': 120},
+        {'fieldname': 'task', 'label': _('Task'), 'fieldtype': 'Link', 'options': 'Task', 'width': 120},
         {'fieldname': 'action', 'label': _('Action'), 'fieldtype': 'Data', 'width': 150}
     ]
     
@@ -69,9 +71,10 @@ def get_data(filters):
         })
         for d in details:
             output.append(d)
+    
     return output
 
-def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
+def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project=None):
     if not from_date:
         from_date = "2000-01-01"
     if not to_date:
@@ -79,6 +82,11 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
 
     if not customer:
         customer = "%"
+        
+    if project:
+        project_condition = "AND `project` = '{0}'".format(project)
+    else:
+        project_condition = ""
     
     sql_query = """
         SELECT 
@@ -89,12 +97,14 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
             `tabTimesheet`.`name` AS `timesheet`,
             `tabTimesheet Detail`.`task` AS `task`,
             `tabTimesheet`.`employee_name` AS `employee_name`,
-            `tabTimesheet Detail`.`name` AS `detail`,
+            `tabTimesheet Detail`.`name` AS `ts_detail`,
             `tabProject`.`name` AS `project`,
             `tabTimesheet Detail`.`hours` AS `hours`,
             `tabSales Order Item`.`item_code` AS `item`,
             `tabSales Order Item`.`rate` AS `rate`,
             `tabTimesheet Detail`.`remarks` AS `remarks`,
+            `tabSales Order Item`.`parent` AS `sales_order`,
+            `tabSales Order Item`.`name` AS `so_detail`,
             1 AS `indent`
         FROM `tabTimesheet Detail`
         LEFT JOIN `tabTimesheet` ON `tabTimesheet`.`name` = `tabTimesheet Detail`.`parent`
@@ -109,108 +119,54 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None):
            AND `tabTimesheet Detail`.`no_bill` = 0
            AND `tabTimesheet Detail`.`billed_with_service_project` = 0
            AND `tabProject`.`is_service_project` = 1
+           AND (`tabSales Order Item`.`docstatus` != 2
+            OR `tabSales Order Item`.`docstatus` IS NULL)
+            {project_condition}
         ORDER BY `customer_name` ASC, `date` ASC;
     """.format(
         from_date=from_date, 
         to_date=to_date,
-        customer=customer
+        customer=customer,
+        project_condition=project_condition
     )
     entries = frappe.db.sql(sql_query, as_dict=True)
     return entries
 
 @frappe.whitelist()
-def create_invoice(from_date, to_date, customer, company=None, project=None):
+def create_invoice(from_date, to_date, project):
     # fetch entries
-    entries = get_invoiceable_entries(from_date=from_date, to_date=to_date, customer=customer, company=company)
+    entries = get_invoiceable_entries(from_date=from_date, to_date=to_date, project=project)
     
-    # create sales invoice
-    sinv = frappe.get_doc({
-        'doctype': "Sales Invoice",
-        'customer': customer,
-        'customer_group': frappe.get_value("Customer", customer, "customer_group")
-    })
+    #get needed Sales Orders to create Invoice from and prepare item data
+    sales_orders = []
+    filtered_entries = []
+    details = []
+    for entry in entries:
+        if entry.get('sales_order'):
+            filtered_entries.append({
+                                    'so_detail': entry.get('so_detail'),
+                                    'remarks': entry.get('remarks'),
+                                    'qty': entry.get('hours'),
+                                    'employee_name': entry.get('employee_name'),
+                                    'task': entry.get('task'),
+                                    'ts_date': entry.get('date'),
+                                    'sales_order': entry.get('sales_order'),
+                                    'item': entry.get('item')
+                                    })
+            if entry.get('sales_order') not in sales_orders:
+                sales_orders.append(entry)
     
-    for e in entries:
-        if project and e.project != project:
-            continue            # skip in case project invoicing is active and this is not from this project
-            
-        #Format Remarks 
-        if e.remarks:
-            remarkstring = "{0}: {1}<br>{2}".format(e.date.strftime("%d.%m.%Y"), e.employee_name, e.remarks)
-        else:
-            remarkstring = "{0}: {1}".format(e.date.strftime("%d.%m.%Y"), e.employee_name)
+    for sales_order in sales_orders:
+        #create invoice from sales order
+        invoice = make_sales_invoice(sales_order)
         
-        # project trace
-        sinv.project = e.project
+        #remove all items
+        invoice.items = []
         
-        item = {
-            'item_code': e.item,
-            'qty': e.qty,
-            'rate': e.rate,
-            'description': e.remarks,            # will be overwritten by frappe
-            'remarks': remarkstring
-
-        }
-        if e.dt == "Delivery Note":
-            item['delivery_note'] = e.reference
-            item['dn_detail'] = e.detail
-
-        elif e.dt == "Timesheet":
-            item['timesheet'] = e.reference
-            item['ts_detail'] = e.detail
-            item['qty'] = e.hours
-     
-        if item['qty'] > 0:                     # only append items with qty > 0 (otherwise this will cause an error)
-            sinv.append('items', item)
-    
-    # check currency and debtors account
-    customer_doc = frappe.get_doc("Customer", customer)
-    if customer_doc.default_currency:
-        sinv.currency = customer_doc.default_currency
-    
-    # assume debtors account from first row (#NOTE TO FUTURE SELF: INCLUDE MULTI-COMPANY)
-    if customer_doc.accounts and len(customer_doc.accounts) > 0:
-        if company:
-            for a in customer_doc.accounts:
-                if a.company == company:
-                    sinv.debit_to = a.account
-        else:
-            sinv.debit_to = customer_doc.accounts[0].account
-    
-    # add default taxes and charges
-    taxes = find_tax_template(customer, company)
-    if taxes:
-        sinv.taxes_and_charges = taxes
-        taxes_template = frappe.get_doc("Sales Taxes and Charges Template", taxes)
-        for t in taxes_template.taxes:
-            sinv.append("taxes", t)
-    
-    # insert new invoice
-    sinv.insert()
-    
-    frappe.db.commit()
-    
-    return sinv.name
-
-def find_tax_template(customer, company=None):
-    # check if the customer has a specific template
-    customer_doc = frappe.get_doc("Customer", customer)
-    if customer_doc.get("default_taxes_and_charges"):
-        template = customer_doc.get("default_taxes_and_charges")
-    else:
-        default_template = frappe.get_all("Sales Taxes and Charges Template", 
-            filters={
-                'is_default': 1,
-                'company': company or frappe.defaults.get_global_default("company")
-            }, 
-            fields=['name'])
-        if len(default_template) > 0:
-            template = default_template[0]['name']
-        else:
-            template = None
-    return template
-
-        # ~ LEFT JOIN `tabSales Invoice Item` ON (
-            # ~ `tabTimesheet Detail`.`name` = `tabSales Invoice Item`.`ts_detail`
-            # ~ AND `tabSales Invoice Item`.`docstatus` < 2
-        # ~ )
+        #Add Items to Invoice
+        
+        
+        #Insert Invoice
+        invoice.insert()
+        
+        #Update Timesheets
