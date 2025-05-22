@@ -8,6 +8,8 @@ import calendar
 import datetime
 from frappe.utils import cint
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
+from frappe.utils import formatdate
+import datetime
 
 def execute(filters=None):
     columns, data = [], []
@@ -177,6 +179,8 @@ def create_invoice(from_date, to_date, project):
         #Add Items to Invoice
         so_detail = None
         for filtered_entry in filtered_entries:
+            frappe.log_error(filtered_entry.get('ts_date'), "date")
+            frappe.log_error(type(filtered_entry.get('ts_date')), "type")
             #Check if actual Entry belongs to actual Invoice
             if filtered_entry.get('sales_order') == sales_order:
                 if filtered_entry.get('so_detail') != so_detail:
@@ -185,18 +189,24 @@ def create_invoice(from_date, to_date, project):
                         invoice.append('items', new_item)
                     #Create new Item
                     new_item = {
-                                'item_code': filtered_entries.get('item'),
-                                'qty': filtered_entries.get('qty'),
-                                'rate': filtered_entries.get('rate'),
-                                'description': "{0}, {1}, {2}h:<br>{3}".format(filtered_entries.get('employee_name'), filtered_entries.get('ts_date'), filtered_entries.get('qty'), filtered_entries.get('remarks'))
+                                'item_code': filtered_entry.get('item'),
+                                'qty': filtered_entry.get('qty'),
+                                'uom': "Std",
+                                'rate': filtered_entry.get('rate'),
+                                'description': "{0}, {1}, {2}h:<br>{3}".format(filtered_entry.get('employee_name'), formatdate(filtered_entry.get('ts_date'), "dd.mm.yyyy"), filtered_entry.get('qty'), filtered_entry.get('remarks')),
+                                'sales_order': filtered_entry.get('sales_order'),
+                                'so_detail': filtered_entry.get('so_detail')
                                 }
                 else:
                     #Update Item
-                    new_item['qty'] += filtered_entries.get('qty')
-                    new_item['description'] += "<br><br>{0}, {1}, {2}h:<br>{3}".format(filtered_entries.get('employee_name'), filtered_entries.get('ts_date'), filtered_entries.get('qty'), filtered_entries.get('remarks'))
+                    new_item['qty'] += filtered_entry.get('qty')
+                    new_item['description'] += "<br><br>{0}, {1}, {2}h:<br>{3}".format(filtered_entry.get('employee_name'), formatdate(filtered_entry.get('ts_date'), "dd.mm.yyyy"), filtered_entry.get('qty'), filtered_entry.get('remarks'))
                     
                 #Add Entry Invoiced TS Entry
                 invoiced_ts_entries.append(filtered_entry.get('ts_detail'))
+                
+                #Set new so_detail
+                so_detail = filtered_entry.get('so_detail')
                 
         #Add Last item to Invoice
         invoice.append('items', new_item)
@@ -214,3 +224,13 @@ def create_invoice(from_date, to_date, project):
         
     frappe.db.commit()
     return created_invoices
+
+def reset_testproject():
+    update = frappe.db.sql("""
+                            UPDATE
+                                `tabTimesheet Detail`
+                            SET
+                                `billed_with_service_project` = 0,
+                                `billed_with_service_sinv` = NULL
+                            WHERE
+                                `project` = 'P0000838';""")

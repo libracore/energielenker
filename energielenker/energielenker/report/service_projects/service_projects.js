@@ -49,7 +49,8 @@ cur_page.container.addEventListener("dblclick", function(event) {
                     } else if (response.message && response.message.length > 1) {
                         let msg = "Folgende Rechnungen wurden erstellt:<br>"
                         for (let i = 0; i < response.message.length; i++) {
-                            msg = msg + "<br>-" + response.message[i]
+                            msg = msg + "<br>-" + response.message[i];
+                        }
                     } else {
                         frappe.show_alert("Irgendetwas ist bei der Verrechnung schief gelaufen.")
                     }
