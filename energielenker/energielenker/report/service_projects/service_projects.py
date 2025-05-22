@@ -7,7 +7,7 @@ from frappe import _
 import calendar
 import datetime
 from frappe.utils import cint
-from erpnext.selling.doctype.sales_order import make_sales_invoice
+from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 
 def execute(filters=None):
     columns, data = [], []
@@ -105,6 +105,7 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
             `tabTimesheet Detail`.`remarks` AS `remarks`,
             `tabSales Order Item`.`parent` AS `sales_order`,
             `tabSales Order Item`.`name` AS `so_detail`,
+            `tabSales Order Item`.`docstatus` AS `so_docstatus`,
             1 AS `indent`
         FROM `tabTimesheet Detail`
         LEFT JOIN `tabTimesheet` ON `tabTimesheet`.`name` = `tabTimesheet Detail`.`parent`
@@ -122,7 +123,7 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
            AND (`tabSales Order Item`.`docstatus` != 2
             OR `tabSales Order Item`.`docstatus` IS NULL)
             {project_condition}
-        ORDER BY `customer_name` ASC, `date` ASC;
+        ORDER BY `sales_order` ASC, `so_detail` ASC, `date` ASC;
     """.format(
         from_date=from_date, 
         to_date=to_date,
@@ -136,12 +137,15 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
 def create_invoice(from_date, to_date, project):
     # fetch entries
     entries = get_invoiceable_entries(from_date=from_date, to_date=to_date, project=project)
-    
+    frappe.log_error(entries, "entries")
     #get needed Sales Orders to create Invoice from and prepare item data
     sales_orders = []
     filtered_entries = []
     details = []
     for entry in entries:
+        #Check if all Sales Orders are booked
+        if entry.get('sales_order') and entry.get('so_docstatus') != 1:
+            frappe.throw("Kundenauftrag {0} muss zuerst gebucht werden.".format(entry.get('sales_order')))
         if entry.get('sales_order'):
             filtered_entries.append({
                                     'so_detail': entry.get('so_detail'),
@@ -150,11 +154,15 @@ def create_invoice(from_date, to_date, project):
                                     'employee_name': entry.get('employee_name'),
                                     'task': entry.get('task'),
                                     'ts_date': entry.get('date'),
+                                    'ts_detail': entry.get('ts_detail'),
                                     'sales_order': entry.get('sales_order'),
-                                    'item': entry.get('item')
+                                    'item': entry.get('item'),
+                                    'rate': entry.get('rate')
                                     })
             if entry.get('sales_order') not in sales_orders:
-                sales_orders.append(entry)
+                sales_orders.append(entry.get('sales_order'))
+    
+    created_invoices = []
     
     for sales_order in sales_orders:
         #create invoice from sales order
@@ -163,10 +171,46 @@ def create_invoice(from_date, to_date, project):
         #remove all items
         invoice.items = []
         
-        #Add Items to Invoice
+        #Prepare List to mark Timesheets as paid
+        invoiced_ts_entries = []
         
+        #Add Items to Invoice
+        so_detail = None
+        for filtered_entry in filtered_entries:
+            #Check if actual Entry belongs to actual Invoice
+            if filtered_entry.get('sales_order') == sales_order:
+                if filtered_entry.get('so_detail') != so_detail:
+                    #Add item to Invoice
+                    if so_detail != None:
+                        invoice.append('items', new_item)
+                    #Create new Item
+                    new_item = {
+                                'item_code': filtered_entries.get('item'),
+                                'qty': filtered_entries.get('qty'),
+                                'rate': filtered_entries.get('rate'),
+                                'description': "{0}, {1}, {2}h:<br>{3}".format(filtered_entries.get('employee_name'), filtered_entries.get('ts_date'), filtered_entries.get('qty'), filtered_entries.get('remarks'))
+                                }
+                else:
+                    #Update Item
+                    new_item['qty'] += filtered_entries.get('qty')
+                    new_item['description'] += "<br><br>{0}, {1}, {2}h:<br>{3}".format(filtered_entries.get('employee_name'), filtered_entries.get('ts_date'), filtered_entries.get('qty'), filtered_entries.get('remarks'))
+                    
+                #Add Entry Invoiced TS Entry
+                invoiced_ts_entries.append(filtered_entry.get('ts_detail'))
+                
+        #Add Last item to Invoice
+        invoice.append('items', new_item)
         
         #Insert Invoice
         invoice.insert()
         
         #Update Timesheets
+        for ts_entry in invoiced_ts_entries:
+            frappe.db.set_value("Timesheet Detail", ts_entry, "billed_with_service_project", 1)
+            frappe.db.set_value("Timesheet Detail", ts_entry, "billed_with_service_sinv", invoice.get('name'))
+        
+        #Add new Invoice to Invoices List
+        created_invoices.append(invoice.get('name'))
+        
+    frappe.db.commit()
+    return created_invoices

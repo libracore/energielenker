@@ -42,9 +42,17 @@ cur_page.container.addEventListener("dblclick", function(event) {
                     'project': project
                 },
                 'callback': function(response) {
-                    frappe.show_alert( __("Created") + ": <a href='/desk#Form/Sales Invoice/" + response.message
-                        + "'>" + response.message + "</a>");
-                    frappe.query_report.refresh();
+                    if (response.message && response.message.length == 1) {
+                        frappe.show_alert( __("Created") + ": <a href='/desk#Form/Sales Invoice/" + response.message[0]
+                            + "'>" + response.message + "</a>");
+                        frappe.query_report.refresh();
+                    } else if (response.message && response.message.length > 1) {
+                        let msg = "Folgende Rechnungen wurden erstellt:<br>"
+                        for (let i = 0; i < response.message.length; i++) {
+                            msg = msg + "<br>-" + response.message[i]
+                    } else {
+                        frappe.show_alert("Irgendetwas ist bei der Verrechnung schief gelaufen.")
+                    }
                 }
             });
         }
