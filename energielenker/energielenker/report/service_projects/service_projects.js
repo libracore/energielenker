@@ -34,6 +34,7 @@ cur_page.container.addEventListener("dblclick", function(event) {
         if (column.toString() === "11") {                 // 10 is the column index of "Create invoice"
             console.log("Create invoice for " + frappe.query_report.data[row]['customer']);
             let project = frappe.query_report.data[row]['project'];
+            frappe.dom.freeze('Bitte warten, die Rechnungen werden erzeugt...');
             frappe.call({
                 'method': "energielenker.energielenker.report.service_projects.service_projects.create_invoice",
                 'args': {
@@ -51,9 +52,11 @@ cur_page.container.addEventListener("dblclick", function(event) {
                         for (let i = 0; i < response.message.length; i++) {
                             msg = msg + "<br>-" + response.message[i];
                         }
+                        frappe.msgprint(msg, "Rechnungen erstellt.");
                     } else {
                         frappe.show_alert("Irgendetwas ist bei der Verrechnung schief gelaufen.")
                     }
+                    frappe.dom.unfreeze();
                 }
             });
         }

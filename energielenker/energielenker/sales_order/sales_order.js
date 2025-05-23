@@ -486,6 +486,13 @@ frappe.ui.form.on("Sales Order", {
         set_project_manager(frm.doc.project_clone);
         //Check if Project is a Service Project
         check_service_project(frm);
+        
+        //Filter Tasks for Service Projects
+        cur_frm.fields_dict.items.grid.get_field('task').get_query = function(doc) {                                                                      
+                return {
+                    filters: {'project': frm.doc.project}
+                }
+        }
     },
     is_service_project: function(frm) {
         //Mark Sales Order Items
@@ -1248,7 +1255,7 @@ function check_service_project_tasks(frm) {
             },
             'callback': function(response) {
                 if (response.message) {
-                    frappe.msgprint(response.message, "Fehlende Anfrage")
+                    frappe.msgprint(response.message, "Aufgabe falsch!")
                     frappe.validated=false;
                 }
             }
