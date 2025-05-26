@@ -114,6 +114,14 @@ frappe.ui.form.on("Project", {
             cur_frm.set_value("noch_nicht_abgerechnete_stunden", cur_frm.doc.zeit_gebucht_ueber_zeiterfassung);
             cur_frm.set_value("noch_nicht_abgerechnete_stunden_updated", 1);
         }
+        
+        if (cur_frm.doc.__islocal) {
+            //Handle is_service_project Check
+            handle_service_project_check(frm);
+        } else {
+            //Handle Ready Only of is_service_project Check
+            handle_service_project_check_property(frm);
+        }
     },
     auftragsumme_manuell_festsetzen: function(frm) {
         if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
@@ -208,6 +216,13 @@ frappe.ui.form.on("Project", {
     },
     terminated: function(frm) {
         last_valid_day_property(frm);
+    },
+    contract_type: function(frm) {
+        //Handle is_service_project Check
+        handle_service_project_check(frm);
+    },
+    is_service_project: function(frm) {
+        update_service_orders(frm);
     }
 });
 
@@ -605,4 +620,36 @@ function last_valid_day_property(frm) {
         cur_frm.set_df_property("last_valid_day", "reqd", 0);
         cur_frm.set_value("last_valid_day", null);
     }
+}
+
+function handle_service_project_check(frm) {
+    if (frm.doc.contract_type && frm.doc.contract_type == "Dienstleistungsvertrag") {
+        cur_frm.set_value("is_service_project", 1);
+    } else {
+        cur_frm.set_value("is_service_project", 0);
+    }
+}
+
+function handle_service_project_check_property(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.project.project.check_service_project_orders',
+        'args': {
+            'project': frm.doc.name
+        },
+        'callback': function(response) {
+            if (response.message && response.message.length > 0) {
+                cur_frm.set_df_property('is_service_project', 'read_only', 1);
+            }
+        }
+    });
+}
+
+function update_service_orders(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.project.project.update_service_orders',
+        'args': {
+            'project': frm.doc.name,
+            'service_check': frm.doc.is_service_project
+        }
+    });
 }

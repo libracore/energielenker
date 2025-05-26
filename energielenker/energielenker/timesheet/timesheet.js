@@ -13,6 +13,9 @@ frappe.ui.form.on('Timesheet', {
     },
 
     validate: function(frm) {
+       //Check Service Project entries
+       check_service_projects(frm);
+       
        var time_logs = cur_frm.doc.time_logs;
        time_logs.forEach(function(entry) {
            if (!entry.issue) {
@@ -40,4 +43,19 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title;
         }
     }, 1000);
+}
+
+function check_service_projects(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.timesheet.timesheet.check_service_projects',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                frappe.msgprint(response.message, "Dienstleistungsprojekt")
+                frappe.validated=false;
+            }
+        }
+    });
 }

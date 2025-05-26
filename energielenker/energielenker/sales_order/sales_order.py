@@ -208,3 +208,40 @@ def create_overbilling_invoice(doc, cdt, cdn):
     link = "/desk#Form/Sales Invoice/{0}".format(invoice.get('name'))
     
     return link
+
+@frappe.whitelist()
+def check_service_project_tasks(doc):
+    doc = json.loads(doc)
+    
+    #Get all used Issues for this Project
+    project_tasks = frappe.db.sql("""
+                                    SELECT
+                                        `tabSales Order Item`.`name`,
+                                        `tabSales Order Item`.`task`
+                                    FROM
+                                        `tabSales Order Item`
+                                    LEFT JOIN 
+                                        `tabSales Order` ON `tabSales Order Item`.`parent` = `tabSales Order`.`name`
+                                    WHERE
+                                        `tabSales Order`.`project_clone` = '{project}'
+                                    AND
+                                        `tabSales Order`.`name` != '{sales_order}'
+                                    AND
+                                        `tabSales Order`.`docstatus` != 2;""".format(project=doc.get('project_clone'), sales_order=doc.get('name')), as_dict=True)
+    
+    for item in doc.get('items'):
+        #If UOM is "Std" - Check if Task is set an Unique
+        if item.get('uom') == "Std":
+            if not item.get('task'):
+                return "Bitte Aufgabe in Zeile {0} angeben".format(item.get('idx'))
+            else:
+                #Check if Task is set in another Sales Order
+                for task in project_tasks:
+                    if task.get('name') != item.get('name') and item.get('task') == task.get('task'):
+                        return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(task.get('task'), item.get('idx'))
+                #Check if Task is set in another Item of the Same Sales Order
+                for check_item in doc.get('items'):
+                    if check_item.get('name') != item.get('name') and item.get('task') == check_item.get('task'):
+                        return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(check_item.get('task'), item.get('idx'))
+    
+    return False

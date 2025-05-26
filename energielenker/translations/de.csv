@@ -46,6 +46,9 @@ DocType: Stock Entry,Selected Serial Numbers,Ausgewählte Seriennummern
 DocType: Depot,Book back items,Artikel zurück buchen
 DocType: Depot,Write off items,Artikel ausbuchen
 DocType: Timesheet,Issue Name,Anfrage Name
+DocType: Timesheet,No Bill,Nicht verrechnen
+DocType: Timesheet,Billed with Service Project,Verrechnet mittels Dienstleistungsprojekt
+DocType: Timesheet,Billed with Service Invoice,Billed with Service Invoice
 DocType: Item,Item Code,Artikel
 DocType: Item,Item Name,Artikelname
 DocType: Item,Quantity,Menge
@@ -67,6 +70,7 @@ DocType: Project,Sales Order Status,Status Kundenauftrag
 DocType: Project,Active Measuring Points (monitor),aktive Messpunkte (monitor)
 DocType: Project,Terminated,Gekündigt
 DocType: Project,Last valid day,Letzter Gültigkeitstag
+DocType: Project,Is Service Project,Ist Dienstleistungsprojekt
 DocType: Sales Order,Open Depots,Offene Kommissionierungen
 DocType: Sales Order,Overbill Item,Artikel überverrechnen
 DocType: Sales Order,Deliver Position,Artikel ausliefern
@@ -155,3 +159,4 @@ DocType: Warehouse,Stock transfer,Umlagerung
 DocType: Warehouse,Relocate,Umlagern
 DocType: Territory,EU Territory,EU Region
 DocType: Lead,Private request,Privat-Anfrage
+Report: Service projects,Service projects,Dienstleistungsprojekte
