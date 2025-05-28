@@ -1250,8 +1250,11 @@ def check_service_project_orders(project):
 
 @frappe.whitelist()
 def update_service_orders(project, service_check):
+    #Check if Service Project Check has been changed
     old_check = frappe.db.get_value("Project", project, "is_service_project")
+    
     if service_check != old_check:
+        #Get all orders for related Project
         orders = frappe.db.sql("""
                                 SELECT
                                     `name`
@@ -1259,9 +1262,17 @@ def update_service_orders(project, service_check):
                                     `tabSales Order`
                                 WHERE
                                     `project` = '{project}';""".format(project=project), as_dict=True)
-                                    
+        
+        #Update Orders and its Positions
         if len(orders) > 0:
             for order in orders:
                 frappe.db.set_value("Sales Order", order.get('name'), "is_service_project", service_check)
+                position_update = frappe.db.sql("""
+                                                UPDATE
+                                                    `tabSales Order Item`
+                                                SET
+                                                    `is_service_project_item` = {check}
+                                                WHERE
+                                                    `parent` = '{sales_order}';""".format(check=service_check, sales_order=order.get('name')), as_dict=True)
                 
     return
