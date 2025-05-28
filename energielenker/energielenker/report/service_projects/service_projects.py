@@ -103,6 +103,7 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
             `tabProject`.`name` AS `project`,
             `tabTimesheet Detail`.`hours` AS `hours`,
             `tabSales Order Item`.`item_code` AS `item`,
+            `tabSales Order Item`.`item_name` AS `item_name`,
             `tabSales Order Item`.`rate` AS `rate`,
             `tabTimesheet Detail`.`remarks` AS `remarks`,
             `tabSales Order Item`.`parent` AS `sales_order`,
@@ -139,7 +140,6 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
 def create_invoice(from_date, to_date, project):
     # fetch entries
     entries = get_invoiceable_entries(from_date=from_date, to_date=to_date, project=project)
-    frappe.log_error(entries, "entries")
     #get needed Sales Orders to create Invoice from and prepare item data
     sales_orders = []
     filtered_entries = []
@@ -159,6 +159,7 @@ def create_invoice(from_date, to_date, project):
                                     'ts_detail': entry.get('ts_detail'),
                                     'sales_order': entry.get('sales_order'),
                                     'item': entry.get('item'),
+                                    'item_name': entry.get('item_name'),
                                     'rate': entry.get('rate')
                                     })
             if entry.get('sales_order') not in sales_orders:
@@ -179,8 +180,6 @@ def create_invoice(from_date, to_date, project):
         #Add Items to Invoice
         so_detail = None
         for filtered_entry in filtered_entries:
-            frappe.log_error(filtered_entry.get('ts_date'), "date")
-            frappe.log_error(type(filtered_entry.get('ts_date')), "type")
             #Check if actual Entry belongs to actual Invoice
             if filtered_entry.get('sales_order') == sales_order:
                 if filtered_entry.get('so_detail') != so_detail:
@@ -190,6 +189,7 @@ def create_invoice(from_date, to_date, project):
                     #Create new Item
                     new_item = {
                                 'item_code': filtered_entry.get('item'),
+                                'item_name': filtered_entry.get('item_name'),
                                 'qty': filtered_entry.get('qty'),
                                 'uom': "Std",
                                 'rate': filtered_entry.get('rate'),
