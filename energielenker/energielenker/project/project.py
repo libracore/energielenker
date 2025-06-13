@@ -495,7 +495,7 @@ class PowerProject():
                     basic_rate = frappe.db.sql("""SELECT `basic_rate` FROM `tabStock Entry Detail` WHERE `serial_no` LIKE "%{0}%" """.format(serial_no), as_dict=True)
                     if len(basic_rate) > 0:
                         valuation_rate = basic_rate[0].basic_rate
-                summe_Lieferscheinpositionen += (value.qty * valuation_rate)
+                summe_Lieferscheinpositionen += (value.qty * (valuation_rate or 0))
             
             return (summe_einkaufsrechnungspositionen + summe_direktlieferungen + summe_lagerbuchungspositionen + summe_Lieferscheinpositionen - summe_lagerbuchungspositionen_negativ + summe_ausgaben) + (float(self.project.erfasste_externe_kosten_in_rhapsody) or 0)
         else:
