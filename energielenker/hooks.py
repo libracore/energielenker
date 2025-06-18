@@ -100,7 +100,8 @@ jenv = {
         "get_items_html:energielenker.energielenker.doctype.depot.depot.get_items_html",
         "get_bom_items:energielenker.energielenker.stock_entry.stock_entry.get_bom_items",
         "rounded:frappe.utils.data.rounded",
-        "format_qty:energielenker.energielenker.print_utils.utils.format_qty"
+        "format_qty:energielenker.energielenker.print_utils.utils.format_qty",
+        "get_billing_status:energielenker.energielenker.print_utils.utils.get_billing_status"
     ]
 }
 
