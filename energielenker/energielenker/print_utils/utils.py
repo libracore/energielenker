@@ -302,17 +302,26 @@ def get_print_items(dt, dn, total_value_needed=False):
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
-                        lizenz_qty = None
-                        if item.item_code == "A-0001701":
-                            lizenz_qty = get_lizenz_qty_so(item.uom)
 
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
+                        """.format(lieferdata=lieferdata)
+                    
+                    lizenz_qty = None
+                    if item.item_code == "A-0001701":
+                        lizenz_qty = get_lizenz_qty_so(item.uom)
+                        
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
@@ -709,17 +718,25 @@ def get_print_items(dt, dn, total_value_needed=False):
                     lieferdata = get_lieferdata(lieferscheine)
 
                     if lieferscheine:
-                        lizenz_qty = None
-                        if item.item_code == "A-0001701":
-                            lizenz_qty = get_lizenz_qty_so(item.uom)
-
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
+                        """.format(lieferdata=lieferdata)
+                    
+                    lizenz_qty = None
+                    if item.item_code == "A-0001701":
+                        lizenz_qty = get_lizenz_qty_so(item.uom)
+                        
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
