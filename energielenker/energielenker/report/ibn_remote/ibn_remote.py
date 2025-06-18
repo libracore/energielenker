@@ -73,6 +73,8 @@ def get_data(filters):
                             AND
                                 `tabIssue`.`nicht_abzurechnen` = 0
                             AND
+                                (`tabSales Order Item`.`rate` > 0 OR `tabSales Order Item`.`preis_alternative_position` > 0)
+                            AND
                                 `tabSales Order`.`docstatus` = 1""".format(items=condition, sub_selects=sub_selects), as_dict=True)
    
     return data
