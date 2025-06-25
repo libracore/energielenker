@@ -160,3 +160,5 @@ DocType: Warehouse,Relocate,Umlagern
 DocType: Territory,EU Territory,EU Region
 DocType: Lead,Private request,Privat-Anfrage
 Report: Service projects,Service projects,Dienstleistungsprojekte
+DocType: Sales Invoice,Billing Status,Aktueller Abrechnungsstand
+DocType: Sales Invoice,Show Billing Status,Aktueller Abrechnungsstand einblenden

@@ -302,17 +302,26 @@ def get_print_items(dt, dn, total_value_needed=False):
                     lieferscheine = get_lieferschein(doc.lieferschein_referenzen_ausblenden, item)
                     lieferdata = get_lieferdata(lieferscheine)
                     if lieferscheine:
-                        lizenz_qty = None
-                        if item.item_code == "A-0001701":
-                            lizenz_qty = get_lizenz_qty_so(item.uom)
 
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
+                        """.format(lieferdata=lieferdata)
+                    
+                    lizenz_qty = None
+                    if item.item_code == "A-0001701":
+                        lizenz_qty = get_lizenz_qty_so(item.uom)
+                        
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
@@ -709,17 +718,25 @@ def get_print_items(dt, dn, total_value_needed=False):
                     lieferdata = get_lieferdata(lieferscheine)
 
                     if lieferscheine:
-                        lizenz_qty = None
-                        if item.item_code == "A-0001701":
-                            lizenz_qty = get_lizenz_qty_so(item.uom)
-
                         tr += """
                             <tr style="background-color: transparent !important;">
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
-                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty} <br><br> Lieferscheine: {lieferdata} </td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">Lieferscheine: {lieferdata} </td>
                                 <td></td>
                             </tr>
-                        """.format(lieferdata=lieferdata, lizenz_qty=lizenz_qty or "")
+                        """.format(lieferdata=lieferdata)
+                    
+                    lizenz_qty = None
+                    if item.item_code == "A-0001701":
+                        lizenz_qty = get_lizenz_qty_so(item.uom)
+                        
+                        tr += """
+                            <tr style="background-color: transparent !important;">
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important;"></td>
+                                <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;font-size: 8pt;">{lizenz_qty}</td>
+                                <td></td>
+                            </tr>
+                        """.format(lizenz_qty=lizenz_qty or "")
                     
                     if item.serial_no:
                         tr += """
@@ -1497,3 +1514,85 @@ def format_qty(qty, operator):
         formatted_qty = formatted_qty[:-1]
     
     return formatted_qty
+
+def get_billing_status(sales_invoice_name):
+    billing_status = """"""
+    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    sales_order = frappe.get_doc("Sales Order", sales_invoice.items[0].sales_order)
+    total_anzahlung = 0
+    total_anzahlung_mwst = 0
+    cur_icon = '&euro;' if sales_invoice.currency == 'EUR' else sales_invoice.currency
+    
+    #Create Info-Line
+    if len(sales_order.billing_overview) > 1:
+        tr = """
+            <tr style="background-color: rgb(186, 210, 226) !important;">
+                <td colspan = '4' style="font-size: 7.5pt;">Folgende Teilrechnungen wurden Ihnen bereits zugesandt.</td>
+            </tr>
+        """
+        billing_status += tr
+    
+    #Add Invoices
+    for teilrechnung in sales_order.billing_overview:
+        if teilrechnung.sales_invoice != sales_invoice.name:
+            tr_sales_invoice = frappe.get_doc("Sales Invoice", teilrechnung.sales_invoice)
+            if teilrechnung.invoice_rhapsody:
+                tr_print_name = "RG-Nr. Rhapsody" + teilrechnung.invoice_rhapsody
+            else:
+                tr_print_name = "Rechnung-Nr." + tr_sales_invoice.name
+            tr_sales_invoice_posting_date = tr_sales_invoice.get_formatted('posting_date')
+            tr_sales_invoice_total = "{:,.2f}".format(rounded(tr_sales_invoice.net_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".") if tr_sales_invoice.net_total else "{:,.2f}".format(rounded(tr_sales_invoice.total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            tr_sales_invoice_total_taxes_and_charges = "{:,.2f}".format(rounded(tr_sales_invoice.total_taxes_and_charges, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            tr_sales_invoice_grand_total = "{:,.2f}".format(rounded(tr_sales_invoice.grand_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            tr_sales_invoice_taxes_rate = "{:,.0f}".format(tr_sales_invoice.taxes[0].rate)
+            if tr_sales_invoice.status == 'Paid':
+                tr_sales_invoice_paid_amount = cur_icon + "{:,.2f}".format(rounded(tr_sales_invoice.grand_total - tr_sales_invoice.outstanding_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+            else:
+                tr_sales_invoice_paid_amount = "-"
+            
+            tr = """
+                <tr style="font-size: 7.5pt;">
+                    <td colspan="3" style="border-right: 1px solid rgb(186, 210, 226) !important;">Teilrechnung {teilrechnung_idx}: {tr_print_name} vom {tr_sales_invoice_posting_date}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="3" style=" padding: 0px !important;">
+                        <table style="width: 100%; font-size: 7.5pt;">
+                            <tr>
+                                <td style="width: 30%;">
+                                    - Nettobetrag:<br>
+                                    - Mehrwertsteuer:<br>
+                                    - Bruttobetrag:
+                                </td>
+                                <td style="text-align: right;">
+                                    {cur_icon} {tr_sales_invoice_total}<br>
+                                    {cur_icon} {tr_sales_invoice_total_taxes_and_charges}<br>
+                                    {cur_icon} {tr_sales_invoice_grand_total}
+                                </td>
+                                <td style="border-right: 1px solid rgb(186, 210, 226) !important; width: 50%;">&nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td></td>
+                </tr>
+                
+            """.format(teilrechnung_idx=teilrechnung.idx, \
+                    tr_sales_invoice_taxes_rate=tr_sales_invoice_taxes_rate, \
+                    tr_print_name=tr_print_name, \
+                    tr_sales_invoice_posting_date=tr_sales_invoice_posting_date, \
+                    cur_icon=cur_icon, \
+                    tr_sales_invoice_total=tr_sales_invoice_total, \
+                    tr_sales_invoice_total_taxes_and_charges=tr_sales_invoice_total_taxes_and_charges, \
+                    tr_sales_invoice_grand_total=tr_sales_invoice_grand_total, \
+                    tr_sales_invoice_paid_amount=tr_sales_invoice_paid_amount)
+            
+            total_anzahlung += tr_sales_invoice.net_total if tr_sales_invoice.net_total else tr_sales_invoice.total
+            total_anzahlung_mwst += tr_sales_invoice.total_taxes_and_charges
+            billing_status += tr
+        else:
+            break
+    status_total = round(total_anzahlung + total_anzahlung_mwst + sales_invoice.rounded_total, 2)
+    #Add Total Status
+    total_tr = """<tr><td colspan="4">Aktueller Gesamtabrechnungsstand: {cur_icon} {status_total}""".format(cur_icon=cur_icon, status_total=status_total)
+    billing_status += total_tr
+    return billing_status
