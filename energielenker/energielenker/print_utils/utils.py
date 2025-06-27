@@ -906,6 +906,31 @@ def get_print_items(dt, dn, total_value_needed=False):
                                 cur_icon=cur_icon, \
                                 discount_amount=discount, \
                                 net_total=total)
+                    elif doc.discount_amount:
+                        if doc.additional_discount_percentage:
+                            additional_discount_percentage = "(-" + doc.get_formatted('additional_discount_percentage') + "%) "
+                        else:
+                            additional_discount_percentage = ''
+                        
+                        discount_amount = doc.get('discount_amount')
+                        discount = "{:,.2f}".format(rounded(discount_amount, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
+                        
+                        discount_rows = """
+                            <tr class="blue-white">
+                                <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
+                                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>Zwischensumme</b></td>
+                                <td style="text-align: right;">{cur_icon} {net_total}</td>
+                            </tr>
+                            <tr class="blue-white">
+                                <td colspan="2" style="width: 50% ; background-color: white !important;"></td>
+                                <td colspan="2" style="text-align: right; border-right: 1px solid rgb(186, 210, 226) !important;"><b>Rabatt</b></td>
+                                <td style="text-align: right;">{additional_discount_percentage}{cur_icon} -{discount_amount}</td>
+                            </tr>
+                            
+                        """.format(additional_discount_percentage=additional_discount_percentage, \
+                                cur_icon=cur_icon, \
+                                discount_amount=discount, \
+                                net_total=total)
                     else:
                         discount_rows = ''
                         
