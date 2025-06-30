@@ -4,16 +4,25 @@
 
 import frappe
 import json
+from frappe.utils.__init__ import validate_email_address
 
 '''
-    Call to action: https://[System-URL]/api/method/energielenker.api.get_license
+    Create Ticket, Call to action: https://[System-URL]/api/method/energielenker.zoho_api.create_ticket
+    Update Ticket, Call to action: https://[System-URL]/api/method/energielenker.zoho_api.update_ticket
     Beispiel JSON (LIVE):
         '{
             "issue":
                 {
-                    "zoho_id": "ANF0002627",
-                    "subject": [Ticket Subject],
-                    "customer": [Customer]
+                    "zoho_id": [ZOHO ID],
+                    "subject": [SUBJECT],
+                    "customer": [CUSTOMER],
+                    "contact_customer": [CONTACT],
+                    "address": [ADDRESS]",
+                    "raised_by": [RAISED BY E-MAIL],
+                    "priority": [PRIORITY],
+                    "issue_type": [ISSUE TYPE],
+                    "themenfeld": [THEMENFELD],
+                    "sales_order": [SALES ORDER]
                 }
         }'
     Beispiel JSON (TEST):
@@ -21,23 +30,37 @@ import json
             "test": 1,
             "issue":
                 {
-                    "zoho_id": "ANF0002627",
-                    "subject": [Ticket Subject],
-                    "customer": [Customer]
+                    "zoho_id": [ZOHO ID],
+                    "subject": [SUBJECT],
+                    "customer": [CUSTOMER],
+                    "contact_customer": [CONTACT],
+                    "address": [ADDRESS]",
+                    "raised_by": [RAISED BY E-MAIL],
+                    "priority": [PRIORITY],
+                    "issue_type": [ISSUE TYPE],
+                    "themenfeld": [THEMENFELD],
+                    "sales_order": [SALES ORDER]
                 }
         }'
     
     Beispiel CURL (LIVE):
-        curl --location --request POST 'http://[System-URL]/api/method/energielenker.zoho_api.create_or_update_ticket'
+        curl --location --request POST 'http://[System-URL]/api/method/energielenker.zoho_api.create_ticket'
         --header 'Authorization: token d7e94428c2e66f9:3c0262a2d008047'
         --header 'Content-Type: application/json'
         --header 'Cookie: full_name=Guest; sid=Guest; system_user=yes; user_id=Guest; user_image='
         --data-raw '{
             "issue":
                 {
-                    "zoho_id": "ANF0002627",
-                    "subject": [Ticket Subject],
-                    "customer": [Customer]
+                    "zoho_id": [ZOHO ID],
+                    "subject": [SUBJECT],
+                    "customer": [CUSTOMER],
+                    "contact_customer": [CONTACT],
+                    "address": [ADDRESS]",
+                    "raised_by": [RAISED BY E-MAIL],
+                    "priority": [PRIORITY],
+                    "issue_type": [ISSUE TYPE],
+                    "themenfeld": [THEMENFELD],
+                    "sales_order": [SALES ORDER]
                 }
         }'
     
@@ -50,13 +73,21 @@ import json
             "test": 1,
             "issue":
                 {
-                    "zoho_id": "ANF0002627",
-                    "subject": [Ticket Subject],
-                    "customer": [Customer]
+                    "zoho_id": [ZOHO ID],
+                    "subject": [SUBJECT],
+                    "customer": [CUSTOMER],
+                    "contact_customer": [CONTACT],
+                    "address": [ADDRESS]",
+                    "raised_by": [RAISED BY E-MAIL],
+                    "priority": [PRIORITY],
+                    "issue_type": [ISSUE TYPE],
+                    "themenfeld": [THEMENFELD],
+                    "sales_order": [SALES ORDER]
                 }
         }'
 
         --> INFO:
+            Überflüssige Parameter werden ignoriert
             Im TEST-Modus wird nur das übermittelte JSON geprüft.
             Es werden KEINE Tickets erstellt oder aktualisiert.
 
@@ -66,74 +97,146 @@ import json
         --> Errorcode 1
     2. Parameter zoho_id vorhanden?
         --> Errorcode 2
-    3. Sind andere parapeter als zoho_id vorhanden?
+    3. create_ticket: Wurden alle zwingenden Felder übermittelt?
         --> Errorcode 3
-    # ~ 4. Besitzt requested_licenses mind. 1 Eintrag?
-        # ~ --> Errorcode 4
-    # ~ 5. Besteht jedes Element in requested_licenses aus:
-    # ~ 5.1 item_energielenker
-    # ~ 5.2 item_customer
-    # ~ 5.3 qty
-    # ~ 5.4 reference
-        # ~ --> Errorcode 5
-    # ~ 6. Ist qty > 0?
-        # ~ --> Errorcode 6
-    # ~ 7. Existiert der Artikel gem. item_energielenker?
-        # ~ --> Errorcode 7
-    # ~ 8. Besitzt item_energielenker einen Kundenartikel gem. item_customer?
-        # ~ --> Errorcode 8
-    # ~ 9. Ist der User erstellt und in einem "Ladepunkt Key API" Dokument hinterlegt?
+        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, issue_type, themenfeld, sales_order
+    4. update_ticket: Sind andere parapeter als zoho_id vorhanden?
+        --> Errorcode 4
+    5. Sind übermittelte Kunde, Addresse, Konakt, Priorität und Tickettyp existierende Dokumente?
+    --> Errorcode 5
+    6. Ist die als "raised_by" übermittelte eine valide E-Mail Adresse?
+    --> Errorcode 6
+    7. create_ticket: Existiert bereits ein Ticket mit der angegebenen ZOHO ID?
+    --> Errorcode 7
+
     
-    # ~ Mögliche Responses:
-    # ~ 1. Passed (LIVE):
-        # ~ http_status_code: 200
-        # ~ message: [
-            # ~ {
-                # ~ "evse_count": 1,
-                # ~ "Aktivierungscode": "a4a8d7c8c6a72e7"
-            # ~ },
-            # ~ {
-                # ~ "evse_count": 10,
-                # ~ "Aktivierungscode": "sda8hdiec6a42tt"
-            # ~ }
-        # ~ ]
-    # ~ 2. Passed (TEST):
-        # ~ http_status_code: 200
-        # ~ message: "OK"
+    Mögliche Responses:
+    1. Passed:
+        http_status_code: 200
+        message: "OK"
     
-    # ~ 2. Failed:
-    # ~ 2.1 Validierungsfehler:
-        # ~ http_status_code: 400
-        # ~ message: ["BadRequest", [Errorcode, Detailinformationen]]
-    # ~ 2.2 Sonstige Fehler:
-        # ~ http_status_code: 500
-        # ~ message: "Internal Server Error: Detailinformationen"
+    2. Failed:
+    2.1 Validierungsfehler:
+        http_status_code: 400
+        message: ["BadRequest", [Errorcode, Detailinformationen]]
+    2.2 Sonstige Fehler:
+        http_status_code: 500
+        message: "Internal Server Error: Detailinformationen"
 '''
 
 @frappe.whitelist()
-def create_or_update_ticket(**kwargs):
+def create_ticket(**kwargs):
     request_failure = check_request(kwargs)
     
     if request_failure:
-            return raise_xxx(400, 'BadRequest', request_failure)
+        return raise_xxx(400, 'BadRequest', request_failure)
     
-    frappe.log_error(kwargs, "kwargs")
+    try:
+        if 'test' not in kwargs:
+            new_issue = create_issue(kwargs)
+            return raise_200("OK")
+        else:
+            return raise_200()
+    except Exception as err:
+        return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
     
+    
+@frappe.whitelist()
+def update_ticket(**kwargs):
+    request_failure = check_request(kwargs)
+    
+    if request_failure:
+        return raise_xxx(400, 'BadRequest', request_failure)
+    
+    try:
+        if 'test' not in kwargs:
+            issue = update_issue(kwargs)
+            return raise_200("OK")
+        else:
+            return raise_200()
+    except Exception as err:
+        return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
     
 def check_request(kwargs):
+    #Check if Parameter Issue is given
     if not kwargs.get('issue'):
         return [1, 'Missing Parameter Issue']
     
+    #Check if ZOHO ID is given
     if not kwargs["issue"].get('zoho_id'):
-        return [2, 'Missing Parameter ZOHO ID']
+        return [2, 'Missing Parameter zoho_id']
         
-    if len(kwargs["issue"]) < 2:
-        return [3, 'Missing updated Parameter']
+    if kwargs["cmd"] == "energielenker.zoho_api.create_ticket":
+        #Check Mandators fields
+        if "subject" not in kwargs["issue"]:
+            return [3, 'Subject is Missing']
+            
+        if "customer" not in kwargs["issue"]:
+            return [3, 'Customer is Missing']
+            
+        if "contact_customer" not in kwargs["issue"]:
+            return [3, 'Customer Contact is Missing']
         
-    #Gibt es den angegebenen Kunden?
-    #Gibt es den angegebenen Kontakt?
-    #Gibt es die angegebene Adresse?
-    #Gibt es die angegebene Sales Order?
+        if "address" not in kwargs["issue"]:
+            return [3, 'Customer address is Missing']
+        
+        if "raised_by" not in kwargs["issue"]:
+            return [3, 'Raised by is Missing']
+        
+        if "issue_type" not in kwargs["issue"]:
+            return [3, 'Issue type is Missing']
+        
+        if "themenfeld" not in kwargs["issue"]:
+            return [3, 'Themenfeld is Missing']
+        
+        if "sales_order" not in kwargs["issue"]:
+            return [3, 'Sales Order is Missing']
+        #Check if ZOHO ID is already existing
+        existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
+        if existing_issue:
+            return [7, 'ZOHO ID {0} already exists'.format(kwargs["issue"]["zoho_id"])]
+    else:
+        if len(kwargs['issue']) < 2:
+            return [4, 'Nothing to Update']
+        
+    if "customer" in kwargs["issue"]:
+        customer = frappe.db.exists("Customer", kwargs["issue"]["customer"])
+        if not customer:
+            return [5, 'Customer not existing']
+        
+    if "contact_customer" in kwargs["issue"]:
+        contact = frappe.db.exists("Contact", kwargs["issue"]["contact_customer"])
+        if not contact:
+            return [5, 'Contact not existing']
+    
+    if "address" in kwargs["issue"]:
+        address = frappe.db.exists("Address", kwargs["issue"]["address"])
+        if not address:
+            return [5, 'Adress not existing']
+        
+    if "priority" in kwargs["issue"]:
+        priority = frappe.db.exists("Issue Priority", kwargs["issue"]["priority"])
+        if not priority:
+            return [5, 'Priority not existing']
+    
+    if "issue_type" in kwargs["issue"]:
+        issue_type = frappe.db.exists("Issue Type", kwargs["issue"]["issue_type"])
+        if not issue_type:
+            return [5, 'Issue Type not existing']
+    
+    if "sales_order" in kwargs["issue"]:
+        sales_order = frappe.db.exists("Sales Order", kwargs["issue"]["sales_order"])
+        if not sales_order:
+            return [5, 'Sales Order not existing']
+    
+    if "raised_by" in kwargs["issue"]:
+        raised_by = validate_email_address(kwargs["issue"]["raised_by"])
+        if not raised_by:
+            return [6, 'Raised by is not a valid E-Mail address']
+    
+    #Themenfeld?
+    #Priorität?
+
     return False
 
 # Success Return
@@ -152,3 +255,15 @@ def raise_xxx(code, title, message, daten=None):
     else:
         frappe.local.response.message = "{0}: {1}".format(title, message)
     return
+
+def create_issue(kwargs):
+    new_issue = frappe.get_doc({'doctype': "Issue"})
+    new_issue.update(kwargs["issue"])
+    new_issue.insert()
+    return new_issue.name
+
+def update_issue(kwargs):
+    issue = frappe.get_doc("Issue", {'zoho_id': kwargs['issue'].get('zoho_id')})
+    issue.update(kwargs["issue"])
+    issue.save()
+    return issue.name
