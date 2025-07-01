@@ -95,14 +95,14 @@ from frappe.utils.__init__ import validate_email_address
     Fehler die Validiert werden:
     1. Parameter issue vorhanden?
         --> Errorcode 1
-    2. Parameter zoho_id vorhanden?
+    2. Parameter zoho_id in issue vorhanden?
         --> Errorcode 2
     3. create_ticket: Wurden alle zwingenden Felder übermittelt?
         --> Errorcode 3
-        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, issue_type, themenfeld, sales_order
+        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, status, issue_type, themenfeld, sales_order, assigned_to
     4. update_ticket: Sind andere parapeter als zoho_id vorhanden?
         --> Errorcode 4
-    5. Sind übermittelte Kunde, Addresse, Konakt, Priorität und Tickettyp existierende Dokumente?
+    5. Sind übermittelte Kunde, Addresse, Konakt, Priorität, Tickettyp, Sales Order, Themenfeld, Status und Assigned To existierende Dokumente oder Optionen?
     --> Errorcode 5
     6. Ist die als "raised_by" übermittelte eine valide E-Mail Adresse?
     --> Errorcode 6
@@ -183,6 +183,9 @@ def check_request(kwargs):
         if "raised_by" not in kwargs["issue"]:
             return [3, 'Raised by is Missing']
         
+        if "status" not in kwargs["issue"]:
+            return [3, 'Status is Missing']
+        
         if "issue_type" not in kwargs["issue"]:
             return [3, 'Issue type is Missing']
         
@@ -191,6 +194,10 @@ def check_request(kwargs):
         
         if "sales_order" not in kwargs["issue"]:
             return [3, 'Sales Order is Missing']
+        
+        if "assigned_to" not in kwargs["issue"]:
+            return [3, 'Assigned To is Missing'] 
+        
         #Check if ZOHO ID is already existing
         existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
         if existing_issue:
@@ -234,9 +241,21 @@ def check_request(kwargs):
         if not raised_by:
             return [6, 'Raised by is not a valid E-Mail address']
     
-    #Themenfeld?
-    #Priorität?
-
+    if "themenfeld" in kwargs["issue"]:
+        themenfeld = validate_options("themenfeld", kwargs["issue"]["themenfeld"])
+        if not themenfeld:
+            return [6, 'Themenfeld not existing']
+    
+    if "status" in kwargs["issue"]:
+        status = validate_options("status", kwargs["issue"]["status"])
+        if not status:
+            return [6, 'Status not existing']
+    
+    if "assigned_to" in kwargs["issue"]:
+        assigned_to = frappe.db.exists("User", {'email': kwargs["issue"]["assigned_to"]})
+        if not assigned_to:
+            return [6, 'Assigned to User not existing']
+    
     return False
 
 # Success Return
@@ -260,6 +279,11 @@ def create_issue(kwargs):
     new_issue = frappe.get_doc({'doctype': "Issue"})
     new_issue.update(kwargs["issue"])
     new_issue.insert()
+    
+    #Add assigned to
+    if kwargs["issue"]["assigned_to"]:
+        create_todo({'owner': kwargs["issue"]["assigned_to"], 'reference_type': "Issue", 'reference_name': new_issue.name, 'description': kwargs["issue"]["subject"]})
+    
     return new_issue.name
 
 def update_issue(kwargs):
@@ -267,3 +291,19 @@ def update_issue(kwargs):
     issue.update(kwargs["issue"])
     issue.save()
     return issue.name
+
+def validate_options(target_field, value):
+    meta = frappe.get_meta("Issue")
+    field = meta.get_field(target_field)
+    options = field.options.split("\n") if field and field.options else []
+    
+    if value in options:
+        return value
+    else:    
+        return None
+
+def create_todo(update_dict):
+    new_todo = frappe.get_doc({'doctype': "ToDo"})
+    new_todo.update(update_dict)
+    new_todo.insert(ignore_permissions=True)
+    return
