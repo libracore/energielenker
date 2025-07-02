@@ -105,7 +105,7 @@ from frappe.utils.__init__ import validate_email_address
     --> Errorcode 5
     6. Ist die als "raised_by" übermittelte eine valide E-Mail Adresse?
     --> Errorcode 6
-    7. create_ticket: Existiert bereits ein Ticket mit der angegebenen ZOHO ID?
+    7. Existiert bereits ein Ticket mit der angegebenen ZOHO ID?
     --> Errorcode 7
 
     
@@ -162,7 +162,11 @@ def check_request(kwargs):
     #Check if Parameter Issue is given
     if not kwargs.get('issue'):
         return [1, 'Missing Parameter Issue']
-        
+    
+    #Check if ZOHO ID is given
+    if not kwargs["issue"].get('zoho_id'):
+        return [2, 'Missing Parameter zoho_id']
+    
     if kwargs["cmd"] == "energielenker.zoho_api.create_ticket":
         #Check Mandatory fields and ZOHO ID
         api_mandatory_fields_missing = check_api_mandatory_fields(kwargs)
@@ -176,6 +180,11 @@ def check_request(kwargs):
     else:
         if len(kwargs['issue']) < 2:
             return [4, 'Nothing to Update']
+        
+        #Check if ZOHO ID is already existing
+        existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
+        if not existing_issue:
+            return [7, 'ZOHO ID {0} does not exist'.format(kwargs["issue"]["zoho_id"])]
         
     if "customer" in kwargs["issue"]:
         customer = frappe.db.exists("Customer", kwargs["issue"]["customer"])
@@ -281,10 +290,9 @@ def create_todo(update_dict):
 
 def check_api_mandatory_fields(kwargs):
     api_mandatory_fields = [
-        ["zoho_id", 2, 'Missing Parameter zoho_id'],
         ["subject", 3, 'Subject is Missing'],
         ["customer", 3, 'Customer is Missing'],
-        ["contact_customer", 3, 'Customer address is Missing'],
+        ["contact_customer", 3, 'Customer Contact is Missing'],
         ["address", 3, 'Customer address is Missing'],
         ["raised_by", 3, 'Raised by is Missing'],
         ["status", 3, 'Status is Missing'],
