@@ -1587,12 +1587,12 @@ def get_billing_status(sales_invoice_name):
                                 <td style="width: 30%;">
                                     - Nettobetrag:<br>
                                     - Mehrwertsteuer:<br>
-                                    - Bruttobetrag:
+                                    - Bruttobetrag:<br>
                                 </td>
                                 <td style="text-align: right;">
                                     {cur_icon} {tr_sales_invoice_total}<br>
                                     {cur_icon} {tr_sales_invoice_total_taxes_and_charges}<br>
-                                    {cur_icon} {tr_sales_invoice_grand_total}
+                                    {cur_icon} {tr_sales_invoice_grand_total}<br>
                                 </td>
                                 <td style="border-right: 1px solid rgb(186, 210, 226) !important; width: 50%;">&nbsp;</td>
                             </tr>
@@ -1616,8 +1616,8 @@ def get_billing_status(sales_invoice_name):
             billing_status += tr
         else:
             break
-    status_total = round(total_anzahlung + total_anzahlung_mwst + sales_invoice.rounded_total, 2)
+    status_total = "{:,.2f}".format(rounded(total_anzahlung + total_anzahlung_mwst + sales_invoice.rounded_total, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
     #Add Total Status
-    total_tr = """<tr><td colspan="4">Aktueller Gesamtabrechnungsstand: {cur_icon} {status_total}""".format(cur_icon=cur_icon, status_total=status_total)
+    total_tr = """<tr><td colspan="4" style="font-weight: bold;">Aktueller Gesamtabrechnungsstand: {cur_icon} {status_total}""".format(cur_icon=cur_icon, status_total=status_total)
     billing_status += total_tr
     return billing_status
