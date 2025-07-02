@@ -88,8 +88,7 @@ from frappe.utils.__init__ import validate_email_address
 
         --> INFO:
             Überflüssige Parameter werden ignoriert
-            Im TEST-Modus wird nur das übermittelte JSON geprüft.
-            Es werden KEINE Tickets erstellt oder aktualisiert.
+            Im TEST-Modus wird nur das übermittelte JSON geprüft dabei werden KEINE Tickets erstellt oder aktualisiert.
 
 
     Fehler die Validiert werden:
@@ -137,6 +136,8 @@ def create_ticket(**kwargs):
             return raise_200("OK")
         else:
             return raise_200()
+    # ~ except frappe.exception.DuplicateError as err:
+        # ~ return raise_xxx(10, 'Duplicate irgendwas', err, daten=kwargs)
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
     
@@ -161,42 +162,12 @@ def check_request(kwargs):
     #Check if Parameter Issue is given
     if not kwargs.get('issue'):
         return [1, 'Missing Parameter Issue']
-    
-    #Check if ZOHO ID is given
-    if not kwargs["issue"].get('zoho_id'):
-        return [2, 'Missing Parameter zoho_id']
         
     if kwargs["cmd"] == "energielenker.zoho_api.create_ticket":
-        #Check Mandators fields
-        if "subject" not in kwargs["issue"]:
-            return [3, 'Subject is Missing']
-            
-        if "customer" not in kwargs["issue"]:
-            return [3, 'Customer is Missing']
-            
-        if "contact_customer" not in kwargs["issue"]:
-            return [3, 'Customer Contact is Missing']
-        
-        if "address" not in kwargs["issue"]:
-            return [3, 'Customer address is Missing']
-        
-        if "raised_by" not in kwargs["issue"]:
-            return [3, 'Raised by is Missing']
-        
-        if "status" not in kwargs["issue"]:
-            return [3, 'Status is Missing']
-        
-        if "issue_type" not in kwargs["issue"]:
-            return [3, 'Issue type is Missing']
-        
-        if "themenfeld" not in kwargs["issue"]:
-            return [3, 'Themenfeld is Missing']
-        
-        if "sales_order" not in kwargs["issue"]:
-            return [3, 'Sales Order is Missing']
-        
-        if "assigned_to" not in kwargs["issue"]:
-            return [3, 'Assigned To is Missing'] 
+        #Check Mandatory fields and ZOHO ID
+        api_mandatory_fields_missing = check_api_mandatory_fields(kwargs)
+        if api_mandatory_fields_missing:
+            return api_mandatory_fields_missing
         
         #Check if ZOHO ID is already existing
         existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
@@ -307,3 +278,24 @@ def create_todo(update_dict):
     new_todo.update(update_dict)
     new_todo.insert(ignore_permissions=True)
     return
+
+def check_api_mandatory_fields(kwargs):
+    api_mandatory_fields = [
+        ["zoho_id", 2, 'Missing Parameter zoho_id'],
+        ["subject", 3, 'Subject is Missing'],
+        ["customer", 3, 'Customer is Missing'],
+        ["contact_customer", 3, 'Customer address is Missing'],
+        ["address", 3, 'Customer address is Missing'],
+        ["raised_by", 3, 'Raised by is Missing'],
+        ["status", 3, 'Status is Missing'],
+        ["issue_type", 3, 'Issue type is Missing'],
+        ["themenfeld", 3, 'Themenfeld is Missing'],
+        ["sales_order", 3, 'Sales Order is Missing'],
+        ["assigned_to", 3, 'Assigned To is Missing']
+    ]
+    
+    for api_mandatory_field in api_mandatory_fields:
+        if api_mandatory_field[0] not in kwargs["issue"]:
+            return [api_mandatory_field[1], api_mandatory_field[2]]
+    
+    return False
