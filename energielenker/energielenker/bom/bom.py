@@ -23,7 +23,7 @@ def autoname(self, event):
     else:
         idx = 1
 
-    self.name = 'BOM-' + self.item + ('-%.4i' % idx)
+    self.name = 'BOM-' + self.item + ('-%.5i' % idx)
 
 
 @frappe.whitelist()
