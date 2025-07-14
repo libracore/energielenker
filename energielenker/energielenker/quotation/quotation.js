@@ -418,7 +418,7 @@ function set_row_options(frm) {
 
 function calculate_part_list_prices(frm) {
     for (i=0; i < frm.doc.items.length; i++) {
-        if (frm.doc.items[i].with_bom) {
+        if (frm.doc.items[i].with_bom && !frm.doc.items[i].alternative_position) {
             var amount = 0
             for (j=0; j < frm.doc.part_list_items.length; j++) {
                 if (frm.doc.part_list_items[j].belongs_to == i + 1) {
