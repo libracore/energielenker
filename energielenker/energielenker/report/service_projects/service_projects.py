@@ -30,6 +30,8 @@ def get_columns():
         {'fieldname': 'hours', 'label': _('Billing Hours'), 'fieldtype': 'Float', 'width': 100},
         {'fieldname': 'rate', 'label': _('Rate'), 'fieldtype': 'Currency', 'width': 100},
         {'fieldname': 'timesheet', 'label': _('Timesheet'), 'fieldtype': 'Link', 'options': 'Timesheet', 'width': 120},
+        {'fieldname': 'employee_name', 'label': _('Employee'), 'fieldtype': 'Data', 'width': 120},
+        {'fieldname': 'remarks', 'label': _('Remark'), 'fieldtype': 'Data', 'width': 120},
         {'fieldname': 'sales_order', 'label': _('Sales Order'), 'fieldtype': 'Link', 'options': 'Sales Order', 'width': 120},
         {'fieldname': 'task', 'label': _('Task'), 'fieldtype': 'Link', 'options': 'Task', 'width': 120},
         {'fieldname': 'action', 'label': _('Action'), 'fieldtype': 'Data', 'width': 150}
