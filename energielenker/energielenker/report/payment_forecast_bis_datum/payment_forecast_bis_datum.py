@@ -37,7 +37,6 @@ def get_data(filters):
     from_date_condition = """"""
     if filters.from_date:
         from_date_condition = """AND `ps`.`due_date` >= '{0}'""".format(filters.from_date)
-        frappe.log_error(from_date_condition, "from_date_condition")
     
     orders = frappe.db.sql("""SELECT 
                                 `so`.`name` AS `sales_order`,
