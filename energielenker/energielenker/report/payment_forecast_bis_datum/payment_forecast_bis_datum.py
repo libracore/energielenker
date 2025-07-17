@@ -34,6 +34,10 @@ def get_data(filters):
     data = []
     cost_centers = {}
     #get total amount from Payment Schedule until filter date
+    from_date_condition = """"""
+    if filters.from_date:
+        from_date_condition = """AND `ps`.`due_date` >= '{0}'""".format(filters.from_date)
+    
     orders = frappe.db.sql("""SELECT 
                                 `so`.`name` AS `sales_order`,
                                 `so`.`project` AS `project`,
@@ -43,9 +47,10 @@ def get_data(filters):
                             FROM `tabPayment Schedule` AS `ps`
                             LEFT JOIN `tabSales Order` AS `so` ON `so`.`name` = `ps`.`parent`
                             WHERE `ps`.`due_date` <= '{date}'
+                            {from_date_condition}
                             AND `so`.`docstatus` = 1
                             AND `so`.`status` NOT IN ('Closed', 'Completed')                
-                            GROUP BY `sales_order`""".format(date=filters.date), as_dict=True)
+                            GROUP BY `sales_order`""".format(date=filters.date, from_date_condition=from_date_condition), as_dict=True)
     
     #loop through all orders
     for order in orders:

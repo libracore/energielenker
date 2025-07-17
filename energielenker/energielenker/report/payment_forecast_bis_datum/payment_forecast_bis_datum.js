@@ -5,6 +5,11 @@
 frappe.query_reports["Payment Forecast bis Datum"] = {
     "filters": [
         {
+            "fieldname":"from_date",
+            "label": __("Zahlungsdatum von einschl."),
+            "fieldtype": "Date"
+        },
+        {
             "fieldname":"date",
             "label": __("Zahlungsdatum bis einschl."),
             "fieldtype": "Date",
