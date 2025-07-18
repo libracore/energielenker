@@ -4,6 +4,7 @@
 
 import frappe
 import json
+import requests
 from frappe.utils.__init__ import validate_email_address
 
 '''
@@ -98,7 +99,7 @@ from frappe.utils.__init__ import validate_email_address
         --> Errorcode 2
     3. create_ticket: Wurden alle zwingenden Felder übermittelt?
         --> Errorcode 3
-        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, status, issue_type, themenfeld, sales_order, assigned_to
+        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, status, issue_type, themenfeld, assigned_to
     4. update_ticket: Sind andere parapeter als zoho_id vorhanden?
         --> Errorcode 4
     5. Sind übermittelte Kunde, Addresse, Konakt, Priorität, Tickettyp, Sales Order, Themenfeld, Status und Assigned To existierende Dokumente oder Optionen?
@@ -298,7 +299,6 @@ def check_api_mandatory_fields(kwargs):
         ["status", 3, 'Status is Missing'],
         ["issue_type", 3, 'Issue type is Missing'],
         ["themenfeld", 3, 'Themenfeld is Missing'],
-        ["sales_order", 3, 'Sales Order is Missing'],
         ["assigned_to", 3, 'Assigned To is Missing']
     ]
     
@@ -307,3 +307,19 @@ def check_api_mandatory_fields(kwargs):
             return [api_mandatory_field[1], api_mandatory_field[2]]
     
     return False
+
+def send_request(endpoint, json_object, is_update=False)
+    url = get_request_url(endpoint, is_update)
+    
+    token = get_new_token()
+    
+    if token:
+        headers = {"Authorization": "Zoho-oauthtoken {0}".format(token=token), "Content-Type": ""}
+        
+        if is_update:
+            sp_connection = requests.put(url, json = mvm, headers = headers)
+        else:
+            sp_connection = requests.post(url, json = mvm, headers = headers)
+        
+        if "errorCode" in sp_connection:
+            frappe.log_error("errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object)
