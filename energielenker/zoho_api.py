@@ -308,18 +308,83 @@ def check_api_mandatory_fields(kwargs):
     
     return False
 
-def send_request(endpoint, json_object, is_update=False)
+def send_request(endpoint, json_object, token, is_update=False, test=False):
     url = get_request_url(endpoint, is_update)
     
-    token = get_new_token()
+    headers = {"Authorization": "api-oauthtoken {0}".format(token), "Content-Type": "application/json"}
+    
+    if is_update:
+        api_connection = requests.put(url, json = json_object, headers = headers)
+    else:
+        api_connection = requests.post(url, json = json_object, headers = headers)
+    
+    if "errorCode" in api_connection:
+        frappe.log_error("errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
+    else:
+        frappe.log_error(api_connection, "api_connection")
+        print(api_connection)
+
+def get_request_url(endpoint, is_update, zoho_id=None):
+    url = "https://desk.zoho.eu/api/v1/"
+    
+    try:
+        mapper = {
+            'contact': 'contacts',
+            'address': 'cm_adressen',
+            'close_tickets': 'closeTickets',
+            'customer': '??'
+        }
+        url += mapper[endpoint]
+    except Exception as err:
+        frappe.log_error("ZOHO API ERROR", "Error occured while mapping the Endpoint: {0}".format(err))
+    
+    if is_update:
+        if not zoho_id:
+            frappe.log_error("ZOHO API ERROR", "ZOHO ID missing for {0} Update".format(endpoint))
+            return
+        url += "/{0}".format(zoho_id)
+        
+    return url
+
+def get_new_token(test=False):
+    url = "https://accounts.zoho.eu/oauth/v2/token?"
+    client_id = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_client_id")
+    client_secret = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_client_secret")
+    if test:
+        refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_sandbox_refresh_token")
+    else:
+        refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_refresh_token")
+    frappe.log_error(refresh_token, "refresh_token")
+    frappe.log_error(client_id, "client_id")
+    frappe.log_error(client_secret, "client_secret")
+    data = {
+            'grant_type': "refresh_token",
+            'refresh_token': refresh_token,
+            'client_id': client_id,
+            'client_secret': client_secret
+            }
+    
+    token = requests.post(url, data=data)
     
     if token:
-        headers = {"Authorization": "Zoho-oauthtoken {0}".format(token=token), "Content-Type": ""}
-        
-        if is_update:
-            sp_connection = requests.put(url, json = mvm, headers = headers)
-        else:
-            sp_connection = requests.post(url, json = mvm, headers = headers)
-        
-        if "errorCode" in sp_connection:
-            frappe.log_error("errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object)
+        return(token.json())
+        # ~ return token['access_token']
+    else:
+        frappe.log_error("ZOHO API ERROR", "Error in getting new authorization Token: {0}".format(token))
+
+def api_connection_test():
+    token = get_new_token(True)
+    print(token['access_token'])
+    if token:
+        endpoint = "contact"
+        json_object = {
+                            "firstName": "ERPNext Test",
+                            "lastName": "Customer",
+                            "cf" : {
+                                "cf_nutzertyp" : "Lobas Handelspartner"
+                            }
+                        }
+    
+        request_response = send_request(endpoint, json_object, token, is_update=False, test=True)
+        frappe.log_error(request_response, "request_response")
+        print(request_response)
