@@ -137,8 +137,6 @@ def create_ticket(**kwargs):
             return raise_200("OK")
         else:
             return raise_200()
-    # ~ except frappe.exception.DuplicateError as err:
-        # ~ return raise_xxx(10, 'Duplicate irgendwas', err, daten=kwargs)
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
     
@@ -311,7 +309,7 @@ def check_api_mandatory_fields(kwargs):
 def send_request(endpoint, json_object, token, is_update=False, test=False):
     url = get_request_url(endpoint, is_update)
     
-    headers = {"Authorization": "api-oauthtoken {0}".format(token), "Content-Type": "application/json"}
+    headers = {"Authorization": "Zoho-oauthtoken {0}".format(token), "Content-Type": "application/json"}
     
     if is_update:
         api_connection = requests.put(url, json = json_object, headers = headers)
@@ -321,8 +319,7 @@ def send_request(endpoint, json_object, token, is_update=False, test=False):
     if "errorCode" in api_connection:
         frappe.log_error("errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
     else:
-        frappe.log_error(api_connection, "api_connection")
-        print(api_connection)
+        return api_connection.json()
 
 def get_request_url(endpoint, is_update, zoho_id=None):
     url = "https://desk.zoho.eu/api/v1/"
@@ -354,9 +351,7 @@ def get_new_token(test=False):
         refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_sandbox_refresh_token")
     else:
         refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_refresh_token")
-    frappe.log_error(refresh_token, "refresh_token")
-    frappe.log_error(client_id, "client_id")
-    frappe.log_error(client_secret, "client_secret")
+    
     data = {
             'grant_type': "refresh_token",
             'refresh_token': refresh_token,
@@ -368,23 +363,22 @@ def get_new_token(test=False):
     
     if token:
         return(token.json())
-        # ~ return token['access_token']
     else:
         frappe.log_error("ZOHO API ERROR", "Error in getting new authorization Token: {0}".format(token))
 
-def api_connection_test():
-    token = get_new_token(True)
-    print(token['access_token'])
-    if token:
-        endpoint = "contact"
-        json_object = {
-                            "firstName": "ERPNext Test",
-                            "lastName": "Customer",
-                            "cf" : {
-                                "cf_nutzertyp" : "Lobas Handelspartner"
-                            }
-                        }
+# ~ def api_connection_test():
+    # ~ token = get_new_token(True)
+    # ~ token = {'access_token': "1000.e1893a97e446ebcd2f58e40d0bd23a6a.c79f681cc42c81e901e3a98cd76e37bd"}
+    # ~ if token:
+        # ~ endpoint = "contact"
+        # ~ json_object = {
+                            # ~ "firstName": "ERPNext Test",
+                            # ~ "lastName": "Customer",
+                            # ~ "cf" : {
+                                # ~ "cf_nutzertyp" : "Lobas Handelspartner"
+                            # ~ }
+                        # ~ }
     
-        request_response = send_request(endpoint, json_object, token, is_update=False, test=True)
-        frappe.log_error(request_response, "request_response")
-        print(request_response)
+        # ~ request_response = send_request(endpoint, json_object, token['access_token'], is_update=False, test=True)
+        # ~ frappe.log_error(request_response, "request_response")
+        # ~ print(request_response)
