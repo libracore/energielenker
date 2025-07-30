@@ -317,7 +317,7 @@ def send_request(endpoint, json_object, token, is_update=False, test=False):
         api_connection = requests.post(url, json = json_object, headers = headers)
     
     if "errorCode" in api_connection:
-        frappe.log_error("errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
+        frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
     else:
         return api_connection.json()
 
@@ -329,7 +329,7 @@ def get_request_url(endpoint, is_update, zoho_id=None):
             'contact': 'contacts',
             'address': 'cm_adressen',
             'close_tickets': 'closeTickets',
-            'customer': '??'
+            'customer': 'accounts'
         }
         url += mapper[endpoint]
     except Exception as err:
