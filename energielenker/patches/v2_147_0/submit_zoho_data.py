@@ -6,9 +6,9 @@ def execute():
     sync_customizations("energielenker")
     
     #Get Token
-    # ~ token = get_new_token()
-    token = "1000.00cdba87ee043f6c302e68c76d197ba2.60afc394dffd08545952fb2e6f329fc4" #to be removed after testing
-    frappe.log_error(token, "Token")
+    token = get_new_token()
+    # ~ token = "1000.00cdba87ee043f6c302e68c76d197ba2.60afc394dffd08545952fb2e6f329fc4" #to be removed after testing
+    
     #Submit Contacts
     contacts = frappe.db.sql("""
                                 SELECT
@@ -32,7 +32,6 @@ def execute():
         try:
             request = send_request("contact", json, token)#.get('access_token')) <- To be changed after Testing
             frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
-            frappe.log_error(request, "request")
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
         

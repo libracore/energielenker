@@ -306,9 +306,9 @@ def check_api_mandatory_fields(kwargs):
     
     return False
 
-def send_request(endpoint, json_object, token, is_update=False, test=False):
-    url = get_request_url(endpoint, is_update)
-    
+def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, test=False):
+    url = get_request_url(endpoint, is_update, zoho_id)
+    frappe.log_error(url, "url")
     headers = {"Authorization": "Zoho-oauthtoken {0}".format(token), "Content-Type": "application/json"}
     
     if is_update:
@@ -382,3 +382,73 @@ def get_new_token(test=False):
         # ~ request_response = send_request(endpoint, json_object, token['access_token'], is_update=False, test=True)
         # ~ frappe.log_error(request_response, "request_response")
         # ~ print(request_response)
+
+#Nightly ZOHO Update
+def update_zoho():
+    #get ne API Token
+    # ~ token = get_new_token()
+    token = "1000.d9199171bce24a0c77b5fdba0f69c3ba.21ccaa8ccd7b157ce2b46862a4897eca" #to be removed after testing
+    # ~ frappe.log_error(token.get('access_token'), "token.get('access_token')") #to be removed after testing
+    #get Last Sync Time
+    timestamp = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_timestamp")
+    
+    # ~ #Get updated or created Contacts
+    # ~ contact_data = get_data('tabContact', timestamp)
+    
+    # ~ for contact in contact_data:
+        # ~ #prepare JSON
+        # ~ contact_doc = frappe.get_doc("Contact", contact.get('name'))
+        
+        # ~ json = {
+                    # ~ "firstName": contact_doc.get('last_name'),
+                    # ~ "lastName": contact_doc.get('first_name'),
+                    # ~ "email": contact_doc.get('email_id'),
+                    # ~ "cf" : {
+                        # ~ "cf_nutzertyp" : "Lobas Handelspartner" #To be defined where "cf_nutzertyp" comes from
+                    # ~ }
+                # ~ }
+        # ~ #Send request
+        # ~ if contact.get('zoho_id'):
+            # ~ request = send_request("contact", json, token, is_update=True, zoho_id=contact.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
+        # ~ else:
+            # ~ request = send_request("contact", json, token) #.get('access_token') <- To be changed after Testing
+            # ~ #Update Contact
+            # ~ frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
+        
+    #Get updated or created Addresses
+    address_data = get_data('tabAddress', timestamp)
+    
+    for address in address_data:
+        #prepare JSON
+        address_doc = frappe.get_doc("Address", address.get('name'))
+        
+        json = {
+                    "name": address_doc.get('address_title'),
+                    "cf": {
+                        "cf_strasse": address_doc.get('address_line1'),
+                        "cf_hausnummer": address_doc.get('hausnummer'),
+                        "cf_ort": "{0} {1}".format(address_doc.get('plz'), address_doc.get('city'))
+                    }
+                }
+        #Send request
+        if address.get('zoho_id'):
+            request = send_request("address", json, token, is_update=True, zoho_id=address.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
+            frappe.log_error(request, "address_reqquest")
+        else:
+            request = send_request("address", json, token) #.get('access_token') <- To be changed after Testing
+            #Update Address
+            frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
+        
+        #UPDATE TIMESTAMP!!!
+
+def get_data(doctype, timestamp):
+    data = frappe.db.sql("""
+                        SELECT
+                            `name`,
+                            `zoho_id`
+                        FROM
+                            `{tab}`
+                        WHERE
+                            `modified` > '{ts}';""".format(tab=doctype, ts=timestamp), as_dict=True)
+    
+    return data

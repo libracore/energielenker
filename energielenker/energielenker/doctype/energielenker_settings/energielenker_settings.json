@@ -45,7 +45,8 @@
   "zoho_client_id",
   "zoho_client_secret",
   "zoho_refresh_token",
-  "zoho_sandbox_refresh_token"
+  "zoho_sandbox_refresh_token",
+  "zoho_timestamp"
  ],
  "fields": [
   {
@@ -283,10 +284,16 @@
    "fieldtype": "Data",
    "label": "Sandbox Refresh Token",
    "read_only": 1
+  },
+  {
+   "fieldname": "zoho_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Last Sync",
+   "read_only": 1
   }
  ],
  "issingle": 1,
- "modified": "2025-07-23 16:43:39.884834",
+ "modified": "2025-07-30 16:37:55.192987",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
