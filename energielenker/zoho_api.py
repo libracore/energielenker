@@ -316,11 +316,14 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
         api_connection = requests.put(url, json = json_object, headers = headers)
     else:
         api_connection = requests.post(url, json = json_object, headers = headers)
-    
+    frappe.log_error(api_connection, "api_connection")
     if "errorCode" in api_connection:
         frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
     else:
-        return api_connection.json()
+        if endpoint == "issue":
+            return api_connection
+        else:
+            return api_connection.json()
 
 def get_request_url(endpoint, is_update, zoho_id=None):
     url = "https://desk.zoho.eu/api/v1/"
@@ -387,16 +390,16 @@ def get_new_token(test=False):
 #Nightly ZOHO Update
 def update_zoho():
     #get ne API Token
-    # ~ token = get_new_token()
-    token = "1000.37a8d59286fc1bb8ec927ed35b8754fd.f3e4803867fb70d2c0ab1082bb16ddfb" #to be removed after testing
-    # ~ frappe.log_error(token.get('access_token'), "token.get('access_token')") #to be removed after testing
+    token = get_new_token()
+    # ~ token = "1000.c54237ec5d146c1c82cac8ffaa5921df.7aeabcf74b14fd27a07ad9870dfffb0f" #to be removed after testing
+    frappe.log_error(token.get('access_token'), "token.get('access_token')") #to be removed after testing
     #get Last Sync Time
     timestamp = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_timestamp")
     
     #Get updated or created Contacts
     contact_data = get_data('tabContact', timestamp)
     
-    if len(address_data) > 1:
+    if len(contact_data) > 1:
         for contact in contact_data:
             #prepare JSON
             contact_doc = frappe.get_doc("Contact", contact.get('name'))
@@ -411,9 +414,9 @@ def update_zoho():
                     }
             #Send request
             if contact.get('zoho_id'):
-                request = send_request("contact", json, token, is_update=True, zoho_id=contact.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
+                request = send_request("contact", json, token.get('access_token'), is_update=True, zoho_id=contact.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
             else:
-                request = send_request("contact", json, token) #.get('access_token') <- To be changed after Testing
+                request = send_request("contact", json, token.get('access_token')) #.get('access_token') <- To be changed after Testing
                 #Update Contact
                 frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         
@@ -435,10 +438,10 @@ def update_zoho():
                     }
             #Send request
             if address.get('zoho_id'):
-                request = send_request("address", json, token, is_update=True, zoho_id=address.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
+                request = send_request("address", json, token.get('access_token'), is_update=True, zoho_id=address.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
                 frappe.log_error(request, "address_reqquest")
             else:
-                request = send_request("address", json, token) #.get('access_token') <- To be changed after Testing
+                request = send_request("address", json, token.get('access_token')) #.get('access_token') <- To be changed after Testing
                 #Update Address
                 frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
         
@@ -458,9 +461,9 @@ def update_zoho():
                     }
             #Send request
             if customer.get('zoho_id'):
-                request = send_request("customer", json, token, is_update=True, zoho_id=customer.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
+                request = send_request("customer", json, token.get('access_token'), is_update=True, zoho_id=customer.get('zoho_id')) #.get('access_token')) <- To be changed after Testing
             else:
-                request = send_request("customer", json, token) #.get('access_token') <- To be changed after Testing
+                request = send_request("customer", json, token.get('access_token')) #.get('access_token') <- To be changed after Testing
                 #Update Customer
                 frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
         
@@ -486,7 +489,7 @@ def update_zoho():
                     "ids": closed_issues,
                 }
         #Send request
-        request = send_request("issue", json, token) #.get('access_token')) <- To be changed after Testing
+        request = send_request("issue", json, token.get('access_token')) #.get('access_token')) <- To be changed after Testing
         frappe.log_error(request, "request")
     
     #Update Timestamp
