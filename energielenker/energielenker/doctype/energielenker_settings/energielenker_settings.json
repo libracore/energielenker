@@ -288,12 +288,11 @@
   {
    "fieldname": "zoho_timestamp",
    "fieldtype": "Datetime",
-   "label": "Last Sync",
-   "read_only": 1
+   "label": "Last Sync"
   }
  ],
  "issingle": 1,
- "modified": "2025-07-30 16:37:55.192987",
+ "modified": "2025-08-04 13:43:05.465564",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
