@@ -75,7 +75,10 @@ login.login_handlers = (function() {
     var login_handlers = {
         200: function(data) {
             if(data.message == 'Logged In'){
-                window.location.href = 'retrieving_charging_points';
+                console.log(data);
+                //~ window.location.href = 'retrieving_charging_points';
+            } else {
+                console.log(data);
             }
         },
         401: get_error_handler('{{ _("Invalid Login. Try again.") }}')
