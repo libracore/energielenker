@@ -46,9 +46,6 @@ def execute():
             frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
-        
-        break #to be removed after testing
-    
     
     #Submit Addresses
     addresses = frappe.db.sql("""
@@ -77,9 +74,7 @@ def execute():
             frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
-        
-        break #to be removed after testing
-        
+    
     #Submit Customers
     customers = frappe.db.sql("""
                                 SELECT
@@ -103,5 +98,3 @@ def execute():
             frappe.log_error(request, "request")
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
-        
-        break #to be removed after testing
