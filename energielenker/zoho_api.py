@@ -319,7 +319,7 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
             api_connection = requests.put(url, json = json_object, headers = headers)
     else:
         api_connection = requests.post(url, json = json_object, headers = headers)
-    frappe.log_error(api_connection, "api_connection")
+    
     if "errorCode" in api_connection:
         frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
     else:
@@ -392,10 +392,21 @@ def update_zoho():
             #prepare JSON
             contact_doc = frappe.get_doc("Contact", contact.get('name'))
             
+            mobile = None
+            phone= None
+            if len(contact_doc.phone_nos) > 0:
+                for phone_no in contact_doc.phone_nos:
+                    if phone_no.is_primary_phone:
+                        phone = phone_no.phone
+                    elif phone_no.is_primary_mobile_no:
+                        mobile = phone_no.phone
+            
             json = {
                         "firstName": contact_doc.get('last_name'),
                         "lastName": contact_doc.get('first_name'),
                         "email": contact_doc.get('email_id'),
+                        "phone": phone,
+                        "mobile": mobile,
                         "cf" : {
                             "cf_nutzertyp" : "Lobas Handelspartner"
                         }
@@ -427,7 +438,6 @@ def update_zoho():
             #Send request
             if address.get('zoho_id'):
                 request = send_request("address", json, token.get('access_token'), is_update=True, zoho_id=address.get('zoho_id'))
-                frappe.log_error(request, "address_reqquest")
             else:
                 request = send_request("address", json, token.get('access_token'))
                 #Update Address
@@ -479,7 +489,6 @@ def update_zoho():
                 }
         #Send request
         request = send_request("issue", json, token.get('access_token'))
-        frappe.log_error(request, "request")
     
     #Update Timestamp
     timestamp = frappe.set_value("energielenker Settings", "energielenker Settings", "zoho_timestamp", now_datetime())

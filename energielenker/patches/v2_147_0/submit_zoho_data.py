@@ -7,7 +7,6 @@ def execute():
     
     #Get Token
     token = get_new_token()
-    # ~ token = "1000.00cdba87ee043f6c302e68c76d197ba2.60afc394dffd08545952fb2e6f329fc4" #to be removed after testing
     
     #Submit Contacts
     contacts = frappe.db.sql("""
@@ -20,17 +19,30 @@ def execute():
                                     `tabContact`;""", as_dict=True)
     
     for contact in contacts:
+        contact_doc = frappe.get_doc("Contact", contact.get('name'))
+        
+        mobile = None
+        phone= None
+        if len(contact_doc.phone_nos) > 0:
+            for phone_no in contact_doc.phone_nos:
+                if phone_no.is_primary_phone:
+                    phone = phone_no.phone
+                elif phone_no.is_primary_mobile_no:
+                    mobile = phone_no.phone
+        
         json = {
                     "firstName": contact.get('last_name'),
                     "lastName": contact.get('first_name'),
                     "email": contact.get('email_id'),
+                    "phone": phone,
+                    "mobile": mobile,
                     "cf" : {
-                        "cf_nutzertyp" : "Lobas Handelspartner" #To be defined where "cf_nutzertyp" comes from
+                        "cf_nutzertyp" : "Lobas Handelspartner"
                     }
                 }
         
         try:
-            request = send_request("contact", json, token)#.get('access_token')) <- To be changed after Testing
+            request = send_request("contact", json, token.get('access_token'))
             frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
@@ -61,9 +73,8 @@ def execute():
                 }
         
         try:
-            request = send_request("address", json, token)#.get('access_token')) <- To be changed after Testing
+            request = send_request("address", json, token.get('access_token'))
             frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
-            frappe.log_error(request, "request")
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
         
@@ -87,7 +98,7 @@ def execute():
                 }
         
         try:
-            request = send_request("customer", json, token)#.get('access_token')) <- To be changed after Testing
+            request = send_request("customer", json, token.get('access_token'))
             frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
             frappe.log_error(request, "request")
         except Error as Err:
