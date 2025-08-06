@@ -46,7 +46,8 @@
   "zoho_client_secret",
   "zoho_refresh_token",
   "zoho_sandbox_refresh_token",
-  "zoho_timestamp"
+  "zoho_timestamp",
+  "submit_zoho_data"
  ],
  "fields": [
   {
@@ -288,11 +289,17 @@
   {
    "fieldname": "zoho_timestamp",
    "fieldtype": "Datetime",
-   "label": "Last Sync"
+   "label": "Last Sync",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submit_zoho_data",
+   "fieldtype": "Button",
+   "label": "Submit Data"
   }
  ],
  "issingle": 1,
- "modified": "2025-08-04 13:43:05.465564",
+ "modified": "2025-08-06 11:54:03.639628",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

@@ -376,6 +376,7 @@ def get_new_token(test=False):
         frappe.log_error("ZOHO API ERROR", "Error in getting new authorization Token: {0}".format(token))
 
 #Nightly ZOHO Update
+@frappe.whitelist()
 def update_zoho():
     #get ne API Token
     token = get_new_token()
@@ -483,6 +484,8 @@ def update_zoho():
     #Update Timestamp
     timestamp = frappe.set_value("energielenker Settings", "energielenker Settings", "zoho_timestamp", now_datetime())
     frappe.db.commit()
+    
+    return
 
 def get_data(doctype, timestamp):
     data = frappe.db.sql("""
