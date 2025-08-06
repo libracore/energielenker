@@ -396,7 +396,7 @@ def update_zoho():
                         "lastName": contact_doc.get('first_name'),
                         "email": contact_doc.get('email_id'),
                         "cf" : {
-                            "cf_nutzertyp" : "Lobas Handelspartner" #To be defined where "cf_nutzertyp" comes from
+                            "cf_nutzertyp" : "Lobas Handelspartner"
                         }
                     }
             #Send request
