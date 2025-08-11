@@ -65,12 +65,8 @@ def check_for_webshop_account(doc, event="submit"):
     #get points item
     points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
     
-    #check if there are webshop points in items
-    qty = 0
-    
     for item in delivery_note_doc['items']:
         if item.get('item_code') == points_item:
-            qty += item.get('qty')
             validation = False
             
     
