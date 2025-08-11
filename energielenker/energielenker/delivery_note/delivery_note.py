@@ -59,7 +59,7 @@ def validate_depot(items_string):
     return
 
 @frappe.whitelist()
-def check_for_webshop_points(doc, event="submit"):
+def check_for_webshop_account(doc, event="submit"):
     delivery_note_doc = json.loads(doc)
     validation = True
     #get points item
@@ -86,8 +86,25 @@ def check_for_webshop_points(doc, event="submit"):
         if event == "cancel":
             frappe.throw("Konto für diesen Kunden fehlt!")
         return validation
+    
+    return validation
 
-    #if there are points and an account, add/remove points to account
+@frappe.whitelist()
+def check_for_webshop_points(doc, event="submit"):
+    delivery_note_doc = json.loads(doc)
+    points = False
+    #get points item
+    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    
+    #check if there are webshop points in items
+    qty = 0
+    
+    for item in delivery_note_doc['items']:
+        if item.get('item_code') == points_item:
+            qty += item.get('qty')
+            points = True
+
+    #if there are points add/remove points to account
     account_doc.avaliable_points += qty if event == "submit" else qty * -1
     #create log entry
     log_entry = {
@@ -101,7 +118,7 @@ def check_for_webshop_points(doc, event="submit"):
     account_doc.save()
     frappe.db.commit()
     
-    return validation
+    return points
     
 @frappe.whitelist()
 def check_depot_delivery(self, event):
