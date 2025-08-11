@@ -632,7 +632,6 @@ function check_for_webshop_account(frm) {
         },
         'async': false,
         'callback': function(response) {
-            console.log(response.message);
             var validation = response.message;
             if (!validation) {
                 frappe.validated=false;
@@ -643,36 +642,36 @@ function check_for_webshop_account(frm) {
 }
 
 function check_for_webshop_points(frm) {
-    //~ frappe.call({
-        //~ 'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
-        //~ 'args': {
-            //~ 'doc': cur_frm.doc
-        //~ },
-        //~ 'async': false,
-        //~ 'callback': function(response) {
-            //~ var points = response.message;
-            //~ if (validation) {
-                //~ frappe.show_alert("Punkte wurden dem Konto gutgeschrieben!", 3);
-            //~ }
-        //~ }
-    //~ });
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            var points = response.message;
+            if (validation) {
+                frappe.show_alert("Punkte wurden dem Konto gutgeschrieben!", 3);
+            }
+        }
+    });
 }
 
 function remove_webshop_points(frm) {
-    //~ frappe.call({
-        //~ 'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
-        //~ 'args': {
-            //~ 'doc': cur_frm.doc,
-            //~ 'event': "cancel"
-        //~ },
-        //~ 'async': false,
-        //~ 'callback': function(response) {
-            //~ var validation = response.message;
-            //~ if (!validation) {
-                //~ frappe.validated=false;
-            //~ }
-        //~ }
-    //~ });
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc,
+            'event': "cancel"
+        },
+        'async': false,
+        'callback': function(response) {
+            var validation = response.message;
+            if (!validation) {
+                frappe.validated=false;
+            }
+        }
+    });
 }
 
 function check_for_overdelivery(frm) {

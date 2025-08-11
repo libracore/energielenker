@@ -89,8 +89,9 @@ def check_for_webshop_account(doc, event="submit"):
 def check_for_webshop_points(doc, event="submit"):
     delivery_note_doc = json.loads(doc)
     points = False
-    #get points item
+    #get points item and Account Document
     points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    account_doc = frappe.get_doc("Charging Point Key Account", delivery_note_doc.get('customer'))
     
     #check if there are webshop points in items
     qty = 0
@@ -99,20 +100,21 @@ def check_for_webshop_points(doc, event="submit"):
         if item.get('item_code') == points_item:
             qty += item.get('qty')
             points = True
-
+    
     #if there are points add/remove points to account
-    account_doc.avaliable_points += qty if event == "submit" else qty * -1
-    #create log entry
-    log_entry = {
-        'date': getdate(),
-        'activity': delivery_note_doc['name'],
-        'amount': qty if event == "submit" else qty * -1,
-        'user': delivery_note_doc['owner']
-    }
-    account_doc.append('past_activities', log_entry)
-    #save document
-    account_doc.save()
-    frappe.db.commit()
+    if points:
+        account_doc.avaliable_points += qty if event == "submit" else qty * -1
+        #create log entry
+        log_entry = {
+            'date': getdate(),
+            'activity': delivery_note_doc['name'],
+            'amount': qty if event == "submit" else qty * -1,
+            'user': delivery_note_doc['owner']
+        }
+        account_doc.append('past_activities', log_entry)
+        #save document
+        account_doc.save()
+        frappe.db.commit()
     
     return points
     
