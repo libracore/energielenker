@@ -159,6 +159,8 @@ frappe.ui.form.on("Delivery Note", {
         if (cur_frm.doc.so_return){
             update_so_status(frm);
         }
+        //Add Webshop Points to their Account
+        check_for_webshop_points(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -293,7 +295,8 @@ frappe.ui.form.on("Delivery Note", {
         }
     },
     before_submit: function(frm) {
-        check_for_webshop_points(frm);
+        //If Webshop Points are delivered, check for valid Webshop Account
+        check_for_webshop_account(frm);
         check_for_overdelivery(frm);
         //~ check_for_depot(frm);
     },
@@ -621,9 +624,9 @@ async function check_product_bundle(frm) {
     }
 }
 
-function check_for_webshop_points(frm) {
+function check_for_webshop_account(frm) {
     frappe.call({
-        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_account',
         'args': {
             'doc': cur_frm.doc
         },
@@ -633,6 +636,22 @@ function check_for_webshop_points(frm) {
             if (!validation) {
                 frappe.validated=false;
                 //~ frappe.msgprint( __("Dieser Kunde hat kein Konto!"), __("Validation") );
+            }
+        }
+    });
+}
+
+function check_for_webshop_points(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_for_webshop_points',
+        'args': {
+            'doc': cur_frm.doc
+        },
+        'async': false,
+        'callback': function(response) {
+            var points = response.message;
+            if (validation) {
+                frappe.show_alert("Punkte wurden dem Konto gutgeschrieben!", 3);
             }
         }
     });
