@@ -312,3 +312,6 @@ def get_item_lines(item, dn_qty, uom, sales_order):
     
     #return Delivery Note lines and unspreaded qty
     return dn_lines, open_qty
+
+def update_project_and_so(self, event):
+    set_open_depots(self.sales_order, self.project)
