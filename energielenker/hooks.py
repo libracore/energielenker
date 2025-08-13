@@ -234,6 +234,9 @@ doc_events = {
     "Work Order": {
         "on_submit": "energielenker.energielenker.work_order.work_order.set_has_work_order_in_sales_order",
         "on_cancel": "energielenker.energielenker.work_order.work_order.unset_has_work_order_in_sales_order"
+    },
+    "Depot": {
+        "after_delete": "energielenker.energielenker.doctype.depot.depot.update_project_and_so",
     }
 }
 
