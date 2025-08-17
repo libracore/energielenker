@@ -227,6 +227,9 @@ def check_request(kwargs):
             return [6, 'Themenfeld not existing']
     
     if "status" in kwargs["issue"]:
+        frappe.log_error(kwargs["issue"], "kwargs['issue']")
+        kwargs["issue"]["status"] = translate_status(kwargs["issue"]["status"])
+        frappe.log_error(kwargs["issue"], "kwargs['issue']")
         status = validate_options("status", kwargs["issue"]["status"])
         if not status:
             return [6, 'Status not existing']
@@ -256,6 +259,7 @@ def raise_xxx(code, title, message, daten=None):
     return
 
 def create_issue(kwargs):
+    #map status
     new_issue = frappe.get_doc({'doctype': "Issue"})
     new_issue.update(kwargs["issue"])
     new_issue.insert()
@@ -367,8 +371,6 @@ def get_new_token(test=False):
             }
     
     token = requests.post(url, data=data)
-    # ~ token = {'access_token': "1000.2ba3a937e253a8a46728a4cda4ecb60a.c7fe73946518438686b175320f05b3fa"}
-    # ~ return token
     
     if token:
         return(token.json())
@@ -391,7 +393,6 @@ def update_zoho():
         for contact in contact_data:
             #prepare JSON
             contact_doc = frappe.get_doc("Contact", contact.get('name'))
-            
             mobile = None
             phone= None
             if len(contact_doc.phone_nos) > 0:
@@ -402,6 +403,7 @@ def update_zoho():
                         mobile = phone_no.phone
             
             json = {
+                        "cf_erp_next_kontakt_id": contact_doc.get('name'),
                         "firstName": contact_doc.get('last_name'),
                         "lastName": contact_doc.get('first_name'),
                         "email": contact_doc.get('email_id'),
@@ -428,7 +430,7 @@ def update_zoho():
             address_doc = frappe.get_doc("Address", address.get('name'))
             
             json = {
-                        "name": address_doc.get('address_title'),
+                        "name": address_doc.get('name'),
                         "cf": {
                             "cf_strasse": address_doc.get('address_line1'),
                             "cf_hausnummer": address_doc.get('hausnummer'),
@@ -507,3 +509,13 @@ def get_data(doctype, timestamp):
                             `modified` > '{ts}';""".format(tab=doctype, ts=timestamp), as_dict=True)
     
     return data
+
+def translate_status(status):
+    try:
+        mapper = {
+            'Offen': "Open",
+            'Wartend': "Hold"
+        }
+        return mapper[status]
+    except Exception as err:
+        frappe.log_error("Status nicht gefunden", str(err))

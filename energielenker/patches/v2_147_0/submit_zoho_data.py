@@ -31,6 +31,7 @@ def execute():
                     mobile = phone_no.phone
         
         json = {
+                    "cf_erp_next_kontakt_id": contact_doc.get('name'),
                     "firstName": contact.get('last_name'),
                     "lastName": contact.get('first_name'),
                     "email": contact.get('email_id'),
@@ -61,7 +62,7 @@ def execute():
     
     for address in addresses:
         json = {
-                    "name": address.get('address_title'),
+                    "name": address.get('name'),
                     "cf": {
                         "cf_strasse": address.get('address_line1'),
                         "cf_hausnummer": address.get('hausnummer'),
@@ -98,3 +99,5 @@ def execute():
             frappe.log_error(request, "request")
         except Error as Err:
             frappe.log_error("ZOHO API PATCH ERROR", "ZOHO API patch Error: {0}".format(Err))
+    
+    timestamp = frappe.set_value("energielenker Settings", "energielenker Settings", "zoho_timestamp", now_datetime())
