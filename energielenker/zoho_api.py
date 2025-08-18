@@ -323,9 +323,9 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
             api_connection = requests.put(url, json = json_object, headers = headers)
     else:
         api_connection = requests.post(url, json = json_object, headers = headers)
-    
+    frappe.log_error(api_connection, "api_connection")
     if "errorCode" in api_connection:
-        frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(sp_connection.get('errorCode'), sp_connection.get('message'), json_object))
+        frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(api_connection.get('errorCode'), api_connection.get('message'), json_object))
     else:
         if endpoint == "issue":
             return api_connection
@@ -371,7 +371,7 @@ def get_new_token(test=False):
             }
     
     token = requests.post(url, data=data)
-    
+    frappe.log_error(token.json(), "token")
     if token:
         return(token.json())
     else:
@@ -393,6 +393,7 @@ def update_zoho():
         for contact in contact_data:
             #prepare JSON
             contact_doc = frappe.get_doc("Contact", contact.get('name'))
+            frappe.log_error(contact_doc.get('name'), "contact_doc.get('name')")
             mobile = None
             phone= None
             if len(contact_doc.phone_nos) > 0:
@@ -514,7 +515,12 @@ def translate_status(status):
     try:
         mapper = {
             'Offen': "Open",
-            'Wartend': "Hold"
+            'Anhalten': "Hold",
+            # ~ 'Eskaliert': "Hold",
+            'Geschlossen': "Closed",
+            'In Bearbeitung': "In Bearbeitung",
+            'Warten auf Rückmeldung': "Warte auf Rückantwort",
+            # ~ 'Nutzertyp offen': "Hold"
         }
         return mapper[status]
     except Exception as err:

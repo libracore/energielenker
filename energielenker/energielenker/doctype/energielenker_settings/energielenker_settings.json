@@ -265,26 +265,22 @@
   {
    "fieldname": "zoho_client_id",
    "fieldtype": "Data",
-   "label": "Client ID",
-   "read_only": 1
+   "label": "Client ID"
   },
   {
    "fieldname": "zoho_client_secret",
    "fieldtype": "Data",
-   "label": "Client Secret",
-   "read_only": 1
+   "label": "Client Secret"
   },
   {
    "fieldname": "zoho_refresh_token",
    "fieldtype": "Data",
-   "label": "Refresh Token",
-   "read_only": 1
+   "label": "Refresh Token"
   },
   {
    "fieldname": "zoho_sandbox_refresh_token",
    "fieldtype": "Data",
-   "label": "Sandbox Refresh Token",
-   "read_only": 1
+   "label": "Sandbox Refresh Token"
   },
   {
    "fieldname": "zoho_timestamp",
@@ -298,7 +294,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2025-08-17 10:34:19.558846",
+ "modified": "2025-08-18 12:02:50.273926",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
