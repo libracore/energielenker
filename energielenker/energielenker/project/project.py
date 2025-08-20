@@ -219,12 +219,12 @@ class PowerProject():
                 "project": self.project.name,
                 "status": ["not in", ["Completed", "Cancelled"]]
             },
-            fields=["expected_time", "actual_time"]
+            fields=["expected_time", "forecast_additional_hours", "actual_time"]
         )
         
         for task in open_tasks:
             noch_zu_erwarten += (
-                max(task.expected_time - task.actual_time, 0)
+                max(task.expected_time + task.forecast_additional_hours - task.actual_time, 0)
             )
         
         return noch_zu_erwarten
@@ -237,15 +237,15 @@ class PowerProject():
                 "project": self.project.name,
                 "status": ["not in", ["Cancelled"]]
             },
-            fields=["expected_time", "actual_time", "status"]
+            fields=["expected_time", "forecast_additional_hours", "actual_time", "status"]
         )
         
         for task in open_tasks:
             if task.status == 'Completed':
-                voraussichtliche_abweichung += task.expected_time - task.actual_time
+                voraussichtliche_abweichung += task.expected_time + task.forecast_additional_hours - task.actual_time
             else:
-                if task.actual_time > task.expected_time:
-                    voraussichtliche_abweichung += task.expected_time - task.actual_time
+                if task.actual_time > task.expected_time + task.forecast_additional_hours:
+                    voraussichtliche_abweichung += task.expected_time + task.forecast_additional_hours - task.actual_time
         
         return voraussichtliche_abweichung - self.project.gebuchte_stunden_in_rhapsody
     
@@ -256,7 +256,7 @@ class PowerProject():
                 "project": self.project.name,
                 "status": ["not in", ["Cancelled"]]
             },
-            fields=["sum(expected_time) as sum"]
+            fields=["sum(expected_time) + sum(forecast_additional_hours) as sum"]
         )[0].sum or 0
     
     def get_zeit_gebucht_ueber_zeiterfassung(self):
@@ -274,12 +274,12 @@ class PowerProject():
                 "project": self.project.name,
                 "status": ["not in", ["Cancelled"]]
             },
-            fields=["expected_time", "completed_by"]
+            fields=["expected_time", "forecast_additional_hours", "completed_by"]
         )
         
         for task in tasks:
             eur += (
-                float(self.get_employee_rate(task.completed_by, internal=True)) * float(task.expected_time)
+                float(self.get_employee_rate(task.completed_by, internal=True)) * float(task.expected_time + task.forecast_additional_hours)
             )
         
         return eur
@@ -334,12 +334,12 @@ class PowerProject():
                 "project": self.project.name,
                 "status": ["not in", ["Completed", "Cancelled"]]
             },
-            fields=["expected_time", "actual_time", "completed_by"]
+            fields=["expected_time", "forecast_additional_hours", "actual_time", "completed_by"]
         )
         
         for task in open_tasks:
             eur += (
-                float(max(task.expected_time - task.actual_time, 0)) * float(self.get_employee_rate(task.completed_by, internal=True))
+                float(max(task.expected_time + task.forecast_additional_hours - task.actual_time, 0)) * float(self.get_employee_rate(task.completed_by, internal=True))
             )
         
         return eur

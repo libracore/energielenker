@@ -162,3 +162,4 @@ DocType: Lead,Private request,Privat-Anfrage
 Report: Service projects,Service projects,Dienstleistungsprojekte
 DocType: Sales Invoice,Billing Status,Aktueller Abrechnungsstand
 DocType: Sales Invoice,Show Billing Status,Aktueller Abrechnungsstand einblenden
+DocType: Task,Forecast additional hours,Forecast zusätzliche Stunden
