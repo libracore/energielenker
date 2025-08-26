@@ -7,6 +7,7 @@ import json
 import requests
 from frappe.utils.__init__ import validate_email_address
 from frappe.utils import now_datetime
+from frappe.utils.data import cint
 
 '''
     Create Ticket, Call to action: https://[System-URL]/api/method/energielenker.zoho_api.create_ticket
@@ -317,6 +318,7 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
     #to be removed after final test
     frappe.log_error(json_object, "json")
     frappe.log_error(url, "url")
+    frappe.log_error(headers, "headers")
     
     if is_update:
         if endpoint == "address":
@@ -475,20 +477,22 @@ def update_zoho():
     issue_data = frappe.db.sql("""
                                     SELECT
                                         `name`,
-                                        `zoho_id`
+                                        `zoho_id`,
+                                        `zoho_data_id`
                                     FROM
                                         `tabIssue`
                                     WHERE
                                         `modified` >= '{ts}'
                                     AND
                                         `status` = 'Closed';""".format(ts=timestamp), as_dict=True)
-    
+    frappe.log_error(issue_data, "issue_data")
     if len(issue_data) > 0:
         #prepare JSON
         closed_issues = []
         for issue in issue_data:
-            if issue.get('zoho_id'):
-                closed_issues.append(issue.get('zoho_id'))
+            if issue.get('zoho_data_id'):
+                frappe.log_error(cint(issue.get('zoho_data_id')), "cint(issue.get('zoho_data_id'))")
+                closed_issues.append(cint(issue.get('zoho_data_id')))
         frappe
         json = {
                     "ids": closed_issues,
