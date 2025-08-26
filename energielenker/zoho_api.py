@@ -227,9 +227,7 @@ def check_request(kwargs):
             return [6, 'Themenfeld not existing']
     
     if "status" in kwargs["issue"]:
-        frappe.log_error(kwargs["issue"], "kwargs['issue']")
         kwargs["issue"]["status"] = translate_status(kwargs["issue"]["status"])
-        frappe.log_error(kwargs["issue"], "kwargs['issue']")
         status = validate_options("status", kwargs["issue"]["status"])
         if not status:
             return [6, 'Status not existing']
@@ -316,6 +314,10 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
     
     headers = {"Authorization": "Zoho-oauthtoken {0}".format(token), "Content-Type": "application/json"}
     
+    #to be removed after final test
+    frappe.log_error(json_object, "json")
+    frappe.log_error(url, "url")
+    
     if is_update:
         if endpoint == "address":
             api_connection = requests.patch(url, json = json_object, headers = headers)
@@ -323,7 +325,10 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
             api_connection = requests.put(url, json = json_object, headers = headers)
     else:
         api_connection = requests.post(url, json = json_object, headers = headers)
-    frappe.log_error(api_connection, "api_connection")
+    
+    #To be removed after finals test
+    frappe.log_error(api_connection.json(), "api_connection")
+    
     if "errorCode" in api_connection:
         frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(api_connection.get('errorCode'), api_connection.get('message'), json_object))
     else:
@@ -371,7 +376,6 @@ def get_new_token(test=False):
             }
     
     token = requests.post(url, data=data)
-    frappe.log_error(token.json(), "token")
     if token:
         return(token.json())
     else:
@@ -393,7 +397,6 @@ def update_zoho():
         for contact in contact_data:
             #prepare JSON
             contact_doc = frappe.get_doc("Contact", contact.get('name'))
-            frappe.log_error(contact_doc.get('name'), "contact_doc.get('name')")
             mobile = None
             phone= None
             if len(contact_doc.phone_nos) > 0:
@@ -404,14 +407,14 @@ def update_zoho():
                         mobile = phone_no.phone
             
             json = {
-                        "cf_erp_next_kontakt_id": contact_doc.get('name'),
                         "firstName": contact_doc.get('last_name'),
                         "lastName": contact_doc.get('first_name'),
                         "email": contact_doc.get('email_id'),
                         "phone": phone,
                         "mobile": mobile,
                         "cf" : {
-                            "cf_nutzertyp" : "Lobas Handelspartner"
+                            "cf_nutzertyp" : "Lobas Handelspartner",
+                            "cf_erp_next_kontakt_id": contact_doc.get('name')
                         }
                     }
             #Send request
