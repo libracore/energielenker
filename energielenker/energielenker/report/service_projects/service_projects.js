@@ -31,7 +31,7 @@ cur_page.container.addEventListener("dblclick", function(event) {
         let row = event.delegatedTarget.getAttribute("data-row-index");
         let column = event.delegatedTarget.getAttribute("data-col-index");
         
-        if (column.toString() === "11") {                 // 10 is the column index of "Create invoice"
+        if (column.toString() === "13") {                 // 13 is the column index of "Create invoice"
             console.log("Create invoice for " + frappe.query_report.data[row]['customer']);
             let project = frappe.query_report.data[row]['project'];
             frappe.dom.freeze('Bitte warten, die Rechnungen werden erzeugt...');
