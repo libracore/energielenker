@@ -168,6 +168,9 @@ def check_request(kwargs):
     if not kwargs["issue"].get('zoho_id'):
         return [2, 'Missing Parameter zoho_id']
     
+    if not kwargs["issue"].get('zoho_data_id'):
+        return [2, 'Missing Parameter zoho_data_id']
+    
     if kwargs["cmd"] == "energielenker.zoho_api.create_ticket":
         #Check Mandatory fields and ZOHO ID
         api_mandatory_fields_missing = check_api_mandatory_fields(kwargs)
@@ -175,9 +178,9 @@ def check_request(kwargs):
             return api_mandatory_fields_missing
         
         #Check if ZOHO ID is already existing
-        existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
+        existing_issue = frappe.db.exists("Issue", {'zoho_data_id': kwargs["issue"]["zoho_data_id"]})
         if existing_issue:
-            return [7, 'ZOHO ID {0} already exists'.format(kwargs["issue"]["zoho_id"])]
+            return [7, 'ZOHO DATA ID {0} already exists'.format(kwargs["issue"]["zoho_data_id"])]
     else:
         if len(kwargs['issue']) < 2:
             return [4, 'Nothing to Update']
