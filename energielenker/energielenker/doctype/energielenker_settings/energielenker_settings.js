@@ -4,6 +4,9 @@
 frappe.ui.form.on('energielenker Settings', {
     refresh: function(frm) {
         set_timestamps(frm);
+    },
+    submit_zoho_data: function(frm) {
+        submit_data_to_zoho();
     }
 });
 
@@ -16,4 +19,10 @@ function set_timestamps(frm){
             timestamps[i].innerHTML = timestamps[i].title
         }
     }, 1000);
+}
+
+function submit_data_to_zoho() {
+    frappe.call({
+        'method': 'energielenker.zoho_api.update_zoho'
+    });
 }

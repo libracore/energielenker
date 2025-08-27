@@ -4,7 +4,10 @@
 
 import frappe
 import json
+import requests
 from frappe.utils.__init__ import validate_email_address
+from frappe.utils import now_datetime
+from frappe.utils.data import cint
 
 '''
     Create Ticket, Call to action: https://[System-URL]/api/method/energielenker.zoho_api.create_ticket
@@ -98,7 +101,7 @@ from frappe.utils.__init__ import validate_email_address
         --> Errorcode 2
     3. create_ticket: Wurden alle zwingenden Felder übermittelt?
         --> Errorcode 3
-        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, status, issue_type, themenfeld, sales_order, assigned_to
+        --> Zwingende Felder: subject, customer, contact_customer, address, raised_by, status, issue_type, themenfeld, assigned_to
     4. update_ticket: Sind andere parapeter als zoho_id vorhanden?
         --> Errorcode 4
     5. Sind übermittelte Kunde, Addresse, Konakt, Priorität, Tickettyp, Sales Order, Themenfeld, Status und Assigned To existierende Dokumente oder Optionen?
@@ -136,8 +139,6 @@ def create_ticket(**kwargs):
             return raise_200("OK")
         else:
             return raise_200()
-    # ~ except frappe.exception.DuplicateError as err:
-        # ~ return raise_xxx(10, 'Duplicate irgendwas', err, daten=kwargs)
     except Exception as err:
         return raise_xxx(500, 'Internal Server Error', err, daten=kwargs)
     
@@ -167,6 +168,9 @@ def check_request(kwargs):
     if not kwargs["issue"].get('zoho_id'):
         return [2, 'Missing Parameter zoho_id']
     
+    if not kwargs["issue"].get('zoho_data_id'):
+        return [2, 'Missing Parameter zoho_data_id']
+    
     if kwargs["cmd"] == "energielenker.zoho_api.create_ticket":
         #Check Mandatory fields and ZOHO ID
         api_mandatory_fields_missing = check_api_mandatory_fields(kwargs)
@@ -174,9 +178,9 @@ def check_request(kwargs):
             return api_mandatory_fields_missing
         
         #Check if ZOHO ID is already existing
-        existing_issue = frappe.db.exists("Issue", {'zoho_id': kwargs["issue"]["zoho_id"]})
+        existing_issue = frappe.db.exists("Issue", {'zoho_data_id': kwargs["issue"]["zoho_data_id"]})
         if existing_issue:
-            return [7, 'ZOHO ID {0} already exists'.format(kwargs["issue"]["zoho_id"])]
+            return [7, 'ZOHO DATA ID {0} already exists'.format(kwargs["issue"]["zoho_data_id"])]
     else:
         if len(kwargs['issue']) < 2:
             return [4, 'Nothing to Update']
@@ -227,6 +231,7 @@ def check_request(kwargs):
             return [6, 'Themenfeld not existing']
     
     if "status" in kwargs["issue"]:
+        kwargs["issue"]["status"] = translate_status(kwargs["issue"]["status"])
         status = validate_options("status", kwargs["issue"]["status"])
         if not status:
             return [6, 'Status not existing']
@@ -298,7 +303,6 @@ def check_api_mandatory_fields(kwargs):
         ["status", 3, 'Status is Missing'],
         ["issue_type", 3, 'Issue type is Missing'],
         ["themenfeld", 3, 'Themenfeld is Missing'],
-        ["sales_order", 3, 'Sales Order is Missing'],
         ["assigned_to", 3, 'Assigned To is Missing']
     ]
     
@@ -307,3 +311,217 @@ def check_api_mandatory_fields(kwargs):
             return [api_mandatory_field[1], api_mandatory_field[2]]
     
     return False
+
+def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, test=False):
+    url = get_request_url(endpoint, is_update, zoho_id)
+    
+    headers = {"Authorization": "Zoho-oauthtoken {0}".format(token), "Content-Type": "application/json"}
+    
+    if is_update:
+        if endpoint == "address":
+            api_connection = requests.patch(url, json = json_object, headers = headers)
+        else:
+            api_connection = requests.put(url, json = json_object, headers = headers)
+    else:
+        api_connection = requests.post(url, json = json_object, headers = headers)
+    
+    if "errorCode" in api_connection:
+        frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(api_connection.get('errorCode'), api_connection.get('message'), json_object))
+    else:
+        if endpoint == "issue":
+            return api_connection
+        else:
+            return api_connection.json()
+
+def get_request_url(endpoint, is_update, zoho_id=None):
+    url = "https://desk.zoho.eu/api/v1/"
+    
+    try:
+        mapper = {
+            'contact': 'contacts',
+            'address': 'cm_adressen',
+            'issue': 'closeTickets',
+            'customer': 'accounts'
+        }
+        url += mapper[endpoint]
+    except Exception as err:
+        frappe.log_error("ZOHO API ERROR", "Error occured while mapping the Endpoint: {0}".format(err))
+    
+    if is_update:
+        if not zoho_id:
+            frappe.log_error("ZOHO API ERROR", "ZOHO ID missing for {0} Update".format(endpoint))
+            return
+        url += "/{0}".format(zoho_id)
+        
+    return url
+
+def get_new_token(test=False):
+    url = "https://accounts.zoho.eu/oauth/v2/token?"
+    client_id = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_client_id")
+    client_secret = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_client_secret")
+    if test:
+        refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_sandbox_refresh_token")
+    else:
+        refresh_token = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_refresh_token")
+    
+    data = {
+            'grant_type': "refresh_token",
+            'refresh_token': refresh_token,
+            'client_id': client_id,
+            'client_secret': client_secret
+            }
+    
+    token = requests.post(url, data=data)
+    if token:
+        return(token.json())
+    else:
+        frappe.log_error("ZOHO API ERROR", "Error in getting new authorization Token: {0}".format(token))
+
+#Nightly ZOHO Update
+@frappe.whitelist()
+def update_zoho():
+    try:
+        #get ne API Token
+        token = get_new_token()
+        
+        #get Last Sync Time
+        timestamp = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_timestamp")
+        
+        #Get updated or created Contacts
+        contact_data = get_data('tabContact', timestamp)
+        if len(contact_data) > 0:
+            for contact in contact_data:
+                #prepare JSON
+                contact_doc = frappe.get_doc("Contact", contact.get('name'))
+                mobile = None
+                phone= None
+                if len(contact_doc.phone_nos) > 0:
+                    for phone_no in contact_doc.phone_nos:
+                        if phone_no.is_primary_phone:
+                            phone = phone_no.phone
+                        elif phone_no.is_primary_mobile_no:
+                            mobile = phone_no.phone
+                
+                json = {
+                            "firstName": contact_doc.get('last_name'),
+                            "lastName": contact_doc.get('first_name'),
+                            "email": contact_doc.get('email_id'),
+                            "phone": phone,
+                            "mobile": mobile,
+                            "cf" : {
+                                "cf_nutzertyp" : "Lobas Handelspartner",
+                                "cf_erp_next_kontakt_id": contact_doc.get('name')
+                            }
+                        }
+                #Send request
+                if contact.get('zoho_id'):
+                    request = send_request("contact", json, token.get('access_token'), is_update=True, zoho_id=contact.get('zoho_id'))
+                else:
+                    request = send_request("contact", json, token.get('access_token'))
+                    #Update Contact
+                    frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
+        
+        #Get updated or created Addresses
+        address_data = get_data('tabAddress', timestamp)
+        if len(address_data) > 0:
+            for address in address_data:
+                #prepare JSON
+                address_doc = frappe.get_doc("Address", address.get('name'))
+                
+                json = {
+                            "name": address_doc.get('name'),
+                            "cf": {
+                                "cf_strasse": address_doc.get('address_line1'),
+                                "cf_hausnummer": address_doc.get('hausnummer'),
+                                "cf_ort": "{0} {1}".format(address_doc.get('plz'), address_doc.get('city'))
+                            }
+                        }
+                #Send request
+                if address.get('zoho_id'):
+                    request = send_request("address", json, token.get('access_token'), is_update=True, zoho_id=address.get('zoho_id'))
+                else:
+                    request = send_request("address", json, token.get('access_token'))
+                    #Update Address
+                    frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
+            
+        #Get updated or created Customers
+        customer_data = get_data('tabCustomer', timestamp)
+        if len(customer_data) > 0:
+            for customer in customer_data:
+                #prepare JSON
+                customer_doc = frappe.get_doc("Customer", customer.get('name'))
+                
+                json = {
+                            "accountName": customer_doc.get('customer_name'),
+                            "cf": {
+                                "cf_kundennummer": customer_doc.get('navision_nr')
+                            }
+                        }
+                #Send request
+                if customer.get('zoho_id'):
+                    request = send_request("customer", json, token.get('access_token'), is_update=True, zoho_id=customer.get('zoho_id'))
+                else:
+                    request = send_request("customer", json, token.get('access_token'))
+                    #Update Customer
+                    frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
+        
+        #Get closed Tickets
+        issue_data = frappe.db.sql("""
+                                        SELECT
+                                            `name`,
+                                            `zoho_id`,
+                                            `zoho_data_id`
+                                        FROM
+                                            `tabIssue`
+                                        WHERE
+                                            `modified` >= '{ts}'
+                                        AND
+                                            `status` = 'Closed';""".format(ts=timestamp), as_dict=True)
+        
+        if len(issue_data) > 0:
+            #prepare JSON
+            closed_issues = []
+            for issue in issue_data:
+                if issue.get('zoho_data_id'):
+                    closed_issues.append(issue.get('zoho_data_id'))
+            frappe
+            json = {
+                        "ids": closed_issues,
+                    }
+            #Send request
+            request = send_request("issue", json, token.get('access_token'))
+        
+        #Update Timestamp
+        timestamp = frappe.set_value("energielenker Settings", "energielenker Settings", "zoho_timestamp", now_datetime())
+        frappe.db.commit()
+        
+        return
+    except Exception as Err:
+        frappe.log_error(str(Err), "ZOHO API ERROR")
+
+def get_data(doctype, timestamp):
+    data = frappe.db.sql("""
+                        SELECT
+                            `name`,
+                            `zoho_id`
+                        FROM
+                            `{tab}`
+                        WHERE
+                            `modified` > '{ts}';""".format(tab=doctype, ts=timestamp), as_dict=True)
+    
+    return data
+
+def translate_status(status):
+    try:
+        mapper = {
+            'Offen': "Open",
+            'Anhalten': "Hold",
+            # ~ 'Eskaliert': "Hold",
+            'Geschlossen': "Closed",
+            'In Bearbeitung': "In Bearbeitung",
+            'Warten auf Rückmeldung': "Warte auf Rückantwort",
+            # ~ 'Nutzertyp offen': "Hold"
+        }
+        return mapper[status]
+    except Exception as err:
+        frappe.log_error("Status nicht gefunden", str(err))

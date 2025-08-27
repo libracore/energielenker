@@ -40,7 +40,14 @@
   "ibn_remote_section",
   "ibn_remote_items",
   "charging_points_section",
-  "charging_points_item"
+  "charging_points_item",
+  "zoho_api_section",
+  "zoho_client_id",
+  "zoho_client_secret",
+  "zoho_refresh_token",
+  "zoho_sandbox_refresh_token",
+  "zoho_timestamp",
+  "submit_zoho_data"
  ],
  "fields": [
   {
@@ -249,10 +256,50 @@
    "fieldtype": "Link",
    "label": "Charging Points Item",
    "options": "Item"
+  },
+  {
+   "fieldname": "zoho_api_section",
+   "fieldtype": "Section Break",
+   "label": "ZOHO API"
+  },
+  {
+   "fieldname": "zoho_client_id",
+   "fieldtype": "Data",
+   "label": "Client ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zoho_client_secret",
+   "fieldtype": "Data",
+   "label": "Client Secret",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zoho_refresh_token",
+   "fieldtype": "Data",
+   "label": "Refresh Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zoho_sandbox_refresh_token",
+   "fieldtype": "Data",
+   "label": "Sandbox Refresh Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zoho_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Last Sync",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submit_zoho_data",
+   "fieldtype": "Button",
+   "label": "Submit Data"
   }
  ],
  "issingle": 1,
- "modified": "2025-03-26 11:43:44.657380",
+ "modified": "2025-08-25 13:46:27.280785",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
