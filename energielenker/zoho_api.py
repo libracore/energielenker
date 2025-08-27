@@ -315,11 +315,6 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
     
     headers = {"Authorization": "Zoho-oauthtoken {0}".format(token), "Content-Type": "application/json"}
     
-    #to be removed after final test
-    frappe.log_error(json_object, "json")
-    frappe.log_error(url, "url")
-    frappe.log_error(headers, "headers")
-    
     if is_update:
         if endpoint == "address":
             api_connection = requests.patch(url, json = json_object, headers = headers)
@@ -328,15 +323,14 @@ def send_request(endpoint, json_object, token, is_update=False, zoho_id=None, te
     else:
         api_connection = requests.post(url, json = json_object, headers = headers)
     
-    #To be removed after finals test
-    frappe.log_error(api_connection.json(), "api_connection")
-    
     if "errorCode" in api_connection:
         frappe.log_error("ZOHO API ERROR", "errorCode: {0}<br>message: {1}<br>endpoint: {2}<br>sent_object: {3}".format(api_connection.get('errorCode'), api_connection.get('message'), json_object))
     else:
         if endpoint == "issue":
+            frappe.log_error(api_connection, "api_connection")
             return api_connection
         else:
+            frappe.log_error(api_connection.json(), "api_connection")
             return api_connection.json()
 
 def get_request_url(endpoint, is_update, zoho_id=None):
@@ -485,14 +479,13 @@ def update_zoho():
                                         `modified` >= '{ts}'
                                     AND
                                         `status` = 'Closed';""".format(ts=timestamp), as_dict=True)
-    frappe.log_error(issue_data, "issue_data")
+    
     if len(issue_data) > 0:
         #prepare JSON
         closed_issues = []
         for issue in issue_data:
             if issue.get('zoho_data_id'):
-                frappe.log_error(cint(issue.get('zoho_data_id')), "cint(issue.get('zoho_data_id'))")
-                closed_issues.append(cint(issue.get('zoho_data_id')))
+                closed_issues.append(issue.get('zoho_data_id'))
         frappe
         json = {
                     "ids": closed_issues,
