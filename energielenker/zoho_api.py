@@ -258,7 +258,6 @@ def raise_xxx(code, title, message, daten=None):
     return
 
 def create_issue(kwargs):
-    #map status
     new_issue = frappe.get_doc({'doctype': "Issue"})
     new_issue.update(kwargs["issue"])
     new_issue.insert()

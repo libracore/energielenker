@@ -31,14 +31,14 @@ def execute():
                     mobile = phone_no.phone
         
         json = {
-                    "cf_erp_next_kontakt_id": contact_doc.get('name'),
                     "firstName": contact.get('last_name'),
                     "lastName": contact.get('first_name'),
                     "email": contact.get('email_id'),
                     "phone": phone,
                     "mobile": mobile,
                     "cf" : {
-                        "cf_nutzertyp" : "Lobas Handelspartner"
+                        "cf_nutzertyp" : "Lobas Handelspartner",
+                        "cf_erp_next_kontakt_id": contact_doc.get('name')
                     }
                 }
         
