@@ -115,9 +115,16 @@ jenv = {
 # home_page = "login"
 
 # website user home page (by Role)
-# role_home_page = {
-#   "Role": "home_page"
-# }
+role_home_page = {
+    "Nutzer Ladepunkteabruf": "retrieving_charging_points",
+    "Customer": "retrieving_charging_points"
+}
+
+website_redirects = [
+    # absolute location
+    {"source": "/me", "target": "/retrieving_charging_points"}
+]
+
 
 # Website user home page (by function)
 # get_website_user_home_page = "energielenker.utils.get_home_page"
