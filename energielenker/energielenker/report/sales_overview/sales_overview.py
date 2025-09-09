@@ -134,8 +134,16 @@ def get_data(filters):
                                     `status` != 'Cancelled'
                                 GROUP BY
                                     `project_type`""".format(from_date=filters.from_date, to_date=filters.to_date), as_dict=True)
-                                    
-        data.append(projects[0])
+        
+        if len(projects) > 0:
+            data.append(projects[0])
+        else:
+            data.append({
+                        'description': "EZA-Regler (ehem. Netzregelung)",
+                        'quantity': 0,
+                        'net_amount': 0,
+                        'average': 0
+                        })
         #get Data for Cost Center
     else:
         if filters.type == "Sales Invoice per Cost Center":
