@@ -128,6 +128,7 @@ from frappe.utils.data import cint
 
 @frappe.whitelist()
 def create_ticket(**kwargs):
+    frappe.log_error(kwargs, "kwargs")
     request_failure = check_request(kwargs)
     
     if request_failure:
@@ -393,33 +394,44 @@ def update_zoho():
             for contact in contact_data:
                 #prepare JSON
                 contact_doc = frappe.get_doc("Contact", contact.get('name'))
-                mobile = None
-                phone= None
-                if len(contact_doc.phone_nos) > 0:
-                    for phone_no in contact_doc.phone_nos:
-                        if phone_no.is_primary_phone:
-                            phone = phone_no.phone
-                        elif phone_no.is_primary_mobile_no:
-                            mobile = phone_no.phone
-                
-                json = {
-                            "firstName": contact_doc.get('last_name'),
-                            "lastName": contact_doc.get('first_name'),
-                            "email": contact_doc.get('email_id'),
-                            "phone": phone,
-                            "mobile": mobile,
-                            "cf" : {
-                                "cf_nutzertyp" : "Lobas Handelspartner",
-                                "cf_erp_next_kontakt_id": contact_doc.get('name')
+                #Check if Contact belongs to Customer
+                customer_name = None
+                if len(contact_doc.links) > 0:
+                    for link in contact_doc.links:
+                        if link.get('link_name') and link.get('link_doctype') == "Customer":
+                            customer_name = link.get('link_name')
+                            break
+                if customer_name:
+                    frappe.log_error(customer_name, "customer_name")
+                    mobile = None
+                    phone= None
+                    if len(contact_doc.phone_nos) > 0:
+                        for phone_no in contact_doc.phone_nos:
+                            if phone_no.is_primary_phone:
+                                phone = phone_no.phone
+                            elif phone_no.is_primary_mobile_no:
+                                mobile = phone_no.phone
+                    
+                    json = {
+                                "firstName": contact_doc.get('last_name'),
+                                "lastName": contact_doc.get('first_name'),
+                                "email": contact_doc.get('email_id'),
+                                "phone": phone,
+                                "mobile": mobile,
+                                "cf" : {
+                                    "cf_nutzertyp" : "Lobas Handelspartner",
+                                    "cf_konto_name": customer_name,
+                                    "cf_erp_next_kontakt_id": contact_doc.get('name')
+                                }
                             }
-                        }
-                #Send request
-                if contact.get('zoho_id'):
-                    request = send_request("contact", json, token.get('access_token'), is_update=True, zoho_id=contact.get('zoho_id'))
-                else:
-                    request = send_request("contact", json, token.get('access_token'))
-                    #Update Contact
-                    frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
+                    #Send request
+                    if contact.get('zoho_id'):
+                        request = send_request("contact", json, token.get('access_token'), is_update=True, zoho_id=contact.get('zoho_id'))
+                    else:
+                        request = send_request("contact", json, token.get('access_token'))
+                        frappe.log_error(request, "request")
+                        #Update Contact
+                        frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         
         #Get updated or created Addresses
         address_data = get_data('tabAddress', timestamp)
