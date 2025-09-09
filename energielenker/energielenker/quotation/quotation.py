@@ -114,3 +114,15 @@ def get_payment_terms_template(customer):
     if not template:
         template = frappe.db.get_value("Company", "energielenker solutions GmbH", "payment_terms")
     return template
+
+@frappe.whitelist()
+def get_price_list_rate(item_code, uom, customer):
+    #Check if customer has specific price
+    price_list_rate = frappe.get_value("Item Price", {'item_code': item_code, 'uom': uom, 'customer': customer, 'selling': 1}, "price_list_rate")
+    frappe.log_error(price_list_rate, "price_list_rate")
+    if price_list_rate:
+        return price_list_rate
+    else:
+        price_list_rate = frappe.get_value("Item Price", {'item_code': item_code, 'uom': uom, 'customer': None, 'selling': 1}, "price_list_rate")
+        frappe.log_error(price_list_rate, "price_list_rate")
+        return price_list_rate
