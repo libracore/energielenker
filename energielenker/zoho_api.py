@@ -388,6 +388,27 @@ def update_zoho():
         #get Last Sync Time
         timestamp = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_timestamp")
         
+        #Get updated or created Customers
+        customer_data = get_data('tabCustomer', timestamp)
+        if len(customer_data) > 0:
+            for customer in customer_data:
+                #prepare JSON
+                customer_doc = frappe.get_doc("Customer", customer.get('name'))
+                
+                json = {
+                            "accountName": customer_doc.get('customer_name'),
+                            "cf": {
+                                "cf_kundennummer": customer_doc.get('navision_nr')
+                            }
+                        }
+                #Send request
+                if customer.get('zoho_id'):
+                    request = send_request("customer", json, token.get('access_token'), is_update=True, zoho_id=customer.get('zoho_id'))
+                else:
+                    request = send_request("customer", json, token.get('access_token'))
+                    #Update Customer
+                    frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
+        
         #Get updated or created Contacts
         contact_data = get_data('tabContact', timestamp)
         if len(contact_data) > 0:
@@ -402,7 +423,7 @@ def update_zoho():
                             customer_name = link.get('link_name')
                             break
                 if customer_name:
-                    frappe.log_error(customer_name, "customer_name")
+                    customer_zoho_id = frappe.get_value("Customer", customer_name, "zoho_id")
                     mobile = None
                     phone= None
                     if len(contact_doc.phone_nos) > 0:
@@ -418,9 +439,9 @@ def update_zoho():
                                 "email": contact_doc.get('email_id'),
                                 "phone": phone,
                                 "mobile": mobile,
+                                "accountId": customer_zoho_id,
                                 "cf" : {
                                     "cf_nutzertyp" : "Lobas Handelspartner",
-                                    "cf_konto_name": customer_name,
                                     "cf_erp_next_kontakt_id": contact_doc.get('name')
                                 }
                             }
@@ -429,7 +450,6 @@ def update_zoho():
                         request = send_request("contact", json, token.get('access_token'), is_update=True, zoho_id=contact.get('zoho_id'))
                     else:
                         request = send_request("contact", json, token.get('access_token'))
-                        frappe.log_error(request, "request")
                         #Update Contact
                         frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         
@@ -455,27 +475,6 @@ def update_zoho():
                     request = send_request("address", json, token.get('access_token'))
                     #Update Address
                     frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
-            
-        #Get updated or created Customers
-        customer_data = get_data('tabCustomer', timestamp)
-        if len(customer_data) > 0:
-            for customer in customer_data:
-                #prepare JSON
-                customer_doc = frappe.get_doc("Customer", customer.get('name'))
-                
-                json = {
-                            "accountName": customer_doc.get('customer_name'),
-                            "cf": {
-                                "cf_kundennummer": customer_doc.get('navision_nr')
-                            }
-                        }
-                #Send request
-                if customer.get('zoho_id'):
-                    request = send_request("customer", json, token.get('access_token'), is_update=True, zoho_id=customer.get('zoho_id'))
-                else:
-                    request = send_request("customer", json, token.get('access_token'))
-                    #Update Customer
-                    frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
         
         #Get closed Tickets
         issue_data = frappe.db.sql("""
