@@ -2,6 +2,7 @@ import frappe
 from frappe.modules.utils import sync_customizations
 from energielenker.zoho_api import send_request, get_new_token
 
+#POINTS TO BE AMENDED: LINK CONTACTS WITH CUSTOMERS, CONTACTS AND ADDRESS ONLY TO BE SUBMITTED IF THEY BELONG TO A CUSTOMER
 def execute():
     sync_customizations("energielenker")
     
