@@ -16,18 +16,15 @@ frappe.ui.form.on('Quotation', {
 						for (var i = 0; i < cur_frm.doc.items.length; i++) {
 							(function(index) {
 								frappe.call({
-									method: 'frappe.client.get_value',
-									args: {
-										doctype: 'Item Price',
-										filters: {
-											"item_code": cur_frm.doc.items[index].item_code,
-											"selling": 1
-										},
-										fieldname: ['price_list_rate']
+									'method': 'energielenker.energielenker.quotation.quotation.get_price_list_rate',
+									'args': {
+										'item_code': cur_frm.doc.items[index].item_code,
+										'uom': cur_frm.doc.items[index].uom,
+										'customer': cur_frm.doc.party_name
 									},
-									callback: function(response) {
+									'callback': function(response) {
 										if (response.message) {
-											var currentSellingRate = response.message.price_list_rate;
+											var currentSellingRate = response.message;
 											console.log('Current Selling Rate:', currentSellingRate);
 											frappe.model.set_value(cur_frm.doc.items[index].doctype, cur_frm.doc.items[index].name, 'rate', currentSellingRate);
 										} else {
