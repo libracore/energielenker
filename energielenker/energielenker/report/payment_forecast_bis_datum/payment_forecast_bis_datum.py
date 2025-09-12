@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _
+from datetime import datetime
 
 def execute(filters=None):
     columns = get_columns(filters)
@@ -54,7 +55,6 @@ def get_data(filters):
     
     #loop through all orders
     for order in orders:
-
         gestellte_rechnungen = frappe.db.sql("""
                                         SELECT SUM(`si`.`rounded_total`) AS `amount`
                                         FROM `tabSales Invoice` AS `si`
@@ -68,7 +68,11 @@ def get_data(filters):
         order_payment_amount = order.payment_amount if order.payment_amount > 0 else 0
         if len(gestellte_rechnungen) > 0:
             if gestellte_rechnungen[0].amount:
-                outstanding_amount = order_payment_amount - gestellte_rechnungen[0].amount
+                if filters.from_date:
+                    #if start date is filtered, calculate outstanding amount
+                    outstanding_amount = get_filtered_payment_amount(order.get('sales_order'), gestellte_rechnungen[0].amount, datetime.strptime(filters.from_date, "%Y-%m-%d").date(), datetime.strptime(filters.date, "%Y-%m-%d").date())
+                else:
+                    outstanding_amount = order_payment_amount - gestellte_rechnungen[0].amount
             else:
                 outstanding_amount = order_payment_amount
         else:
@@ -114,3 +118,24 @@ def get_data(filters):
         data.append(_data)
 
     return data
+
+def get_filtered_payment_amount(so_name, gestellte_rechnungen, filter_date, end_date):
+    #get all all scheduled payments before filter date and during filter date
+    previous_payment_amount = 0
+    period_amount = 0
+    order = frappe.get_doc("Sales Order", so_name)
+    
+    for scheduled_payment in order.get('payment_schedule'):
+        if scheduled_payment.get('due_date') < filter_date:
+            previous_payment_amount += scheduled_payment.get('payment_amount')
+        elif scheduled_payment.get('due_date') >= filter_date and scheduled_payment.get('due_date') <= end_date:
+            period_amount += scheduled_payment.get('payment_amount')
+    
+    #get filtered payment amount
+    filtered_payment_amount = 0
+    if gestellte_rechnungen - previous_payment_amount > 0:
+        filtered_payment_amount = period_amount - (gestellte_rechnungen - previous_payment_amount)
+    else:
+        filtered_payment_amount = period_amount
+    
+    return filtered_payment_amount
