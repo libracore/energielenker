@@ -1517,14 +1517,14 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2025-05-16 09:21:50.069570",
+   "creation": "2025-09-15 12:07:13.335945",
    "default_value": null,
    "doc_type": "Issue",
    "docstatus": 0,
    "doctype_or_field": "DocField",
    "field_name": "status",
    "idx": 0,
-   "modified": "2025-05-16 09:21:50.069570",
+   "modified": "2025-09-15 12:07:13.335945",
    "modified_by": "Administrator",
    "name": "Issue-status-options",
    "owner": "Administrator",
@@ -1533,7 +1533,7 @@
    "parenttype": null,
    "property": "options",
    "property_type": "Text",
-   "value": "Open\nReplied\nIn Bearbeitung\nWarte auf R\u00fcckantwort\nHold\nClosed"
+   "value": "Open\nReplied\nIn Bearbeitung\nWarte auf R\u00fcckantwort\nHold\nClosed\nEscalated"
   },
   {
    "_assign": null,

@@ -527,11 +527,11 @@ def translate_status(status):
         mapper = {
             'Offen': "Open",
             'Anhalten': "Hold",
-            # ~ 'Eskaliert': "Hold",
+            'Eskaliert': "Escalated",
             'Geschlossen': "Closed",
             'In Bearbeitung': "In Bearbeitung",
             'Warten auf Rückmeldung': "Warte auf Rückantwort",
-            # ~ 'Nutzertyp offen': "Hold"
+            'Jira Ticket Anhalten': "Hold"
         }
         return mapper[status]
     except Exception as err:
