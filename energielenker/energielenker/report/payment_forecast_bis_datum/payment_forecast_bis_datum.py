@@ -15,7 +15,9 @@ def get_columns(filters):
     if filters.ausfuehrung == 'Auftrag':
         columns = [
             {"label": _("Kundenauftrag"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
+            {"label": _("HTML Anker"), "fieldname": "html_anchor", "fieldtype": "Data", "width": 1},
             {"label": _("Projektnummer"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
+            {"label": _("Projektstatus"), "fieldname": "project_status", "fieldtype": "Data", "width": 100},
             {"label": _("Projektname"), "fieldname": "project_name", "fieldtype": "Data", "width": 100},
             {"label": _("Projektleiter"), "fieldname": "project_manager", "fieldtype": "Data", "width": 100},
             {"label": _("Kostenstelle"), "fieldname": "cost_center", "fieldtype": "Link", "options": "Cost Center", "width": 100},
@@ -84,12 +86,15 @@ def get_data(filters):
                 _data = {
                     'sales_order': order.get('sales_order'),
                     'project': order.get('project'),
+                    'project_status': frappe.db.get_value("Project", order.get('project'), "status") if order.get('project') else None,
                     'project_name': frappe.db.get_value('Project', order.get('project'), 'project_name') or None if order.get('project') else None,
                     'project_manager': frappe.db.get_value('Project', order.get('project'), 'project_manager_name') or None if order.get('project') else None,
                     'cost_center': order.get('cost_center'),
                     'due_date': order.get('due_date'),
                     'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
-                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1)
+                    'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1),
+                    'html_anchor': '=HYPERLINK("http://localhost:8000/desk#Form/Sales%20Order/{0}?scroll_to=payment_schedule"; "Zahlungsplan")'.format(order.get('sales_order'))
+
                 }
                 data.append(_data)
         #If Filter is "Kostenstelle" create cost center or add amount to existing cost center
