@@ -34,6 +34,7 @@ frappe.ui.form.on("Sales Order", {
        set_timestamps(frm);
        set_row_options(frm);
        display_closed_positions(frm);
+       scroll_to_url_parameter(frm);
        
        frm.page.add_inner_button('Reklamation', (frm) => make_reklamation(), 'Make')
        
@@ -1261,4 +1262,18 @@ function check_service_project_tasks(frm) {
             }
         });
     }
+}
+
+function scroll_to_url_parameter(frm) {
+    // 1. Erst die "normalen" URL-Parameter prüfen (vor dem #)
+    let hash = window.location.hash;
+    if (hash.includes("?")) {
+        let queryString = hash.split("?")[1];
+        let hashParams = new URLSearchParams(queryString);
+        if (hashParams.has("scroll_to")) {
+            console.log(hashParams.get("scroll_to"));
+            frm.scroll_to_field('billing_overview');
+        }
+    }
+    //~ console.log(url);
 }
