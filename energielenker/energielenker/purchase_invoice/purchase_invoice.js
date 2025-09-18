@@ -84,7 +84,7 @@ function validate_vielfaches(frm) {
     var items = cur_frm.doc.items;
     // validate vielfaches
     items.forEach(function(entry) {
-        if (entry.vielfaches != 0) {
+        if (entry.vielfaches != 0 && !entry.ignore_multiple_quantities) {
             var rest = entry.qty % entry.vielfaches;
             if (rest != 0) {
                 frappe.msgprint( "Die Menge (" + entry.qty + ") der Postition " + entry.idx + " ist kein Vielfaches von " + entry.vielfaches, __("Validation") );
