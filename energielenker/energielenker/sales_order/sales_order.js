@@ -759,8 +759,7 @@ function shipping_address_query(frm) {
             query: 'frappe.contacts.doctype.address.address.address_query',
             filters: {
                 'link_doctype': 'Customer',
-                'link_name': cur_frm.doc.customer,
-                'produktionsstandort': 1
+                'link_name': cur_frm.doc.customer
             }
         }
     };
