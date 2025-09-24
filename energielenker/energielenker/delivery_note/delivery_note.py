@@ -328,3 +328,18 @@ def get_hidden_serial_nos():
         item_list.append(item.get('item_code'))
     
     return item_list
+
+@frappe.whitelist()
+def check_assigne(delivery_note):
+    assigned_todos = frappe.db.sql("""
+                                    SELECT
+                                        `name`
+                                    FROM
+                                        `tabToDo`
+                                    WHERE
+                                        `status` = 'Open'
+                                    AND
+                                        `reference_name` = %(dn)s;""", {'dn': delivery_note}, as_dict=True)
+    
+    if len(assigned_todos) > 0:
+        frappe.db.set_value("Delivery Note", delivery_note, "delivery_note_assigned", 1)

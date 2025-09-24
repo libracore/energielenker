@@ -54,6 +54,13 @@ def get_data():
                     "label": _("Service projects"),
                     "doctype": "Project",
                     "is_query_report": True
+                },
+                {
+                    "type": "report",
+                    "name": "Unassigned Delivery Notes",
+                    "label": _("Unassigned Delivery Notes"),
+                    "doctype": "Delivery Note",
+                    "is_query_report": True
                 }
             ]
         },
