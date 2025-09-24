@@ -161,6 +161,8 @@ frappe.ui.form.on("Delivery Note", {
         }
         //Add Webshop Points to their Account
         check_for_webshop_points(frm);
+        //Check if Delivery Note is assigne
+        check_assigne(frm);
     },
     customer: function(frm) {
         shipping_address_query(frm);
@@ -930,6 +932,15 @@ function get_customer_delivery_note_note(frm) {
                     message: __(` &nbsp;  &nbsp; ${ customer.delivery_note_note_box }`)
                 });
             }
+        }
+    });
+}
+
+function check_assigne(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.delivery_note.delivery_note.check_assigne',
+        'args': {
+            'delivery_note': frm.doc.name
         }
     });
 }

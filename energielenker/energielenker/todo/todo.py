@@ -62,3 +62,9 @@ def reminder_email():
             )
             
     return
+
+def update_delivery_note(self, event):
+    if self.reference_name and self.reference_type == "Delivery Note" and self.status == "Open":
+        dn_status = frappe.get_value("Delivery Note", self.reference_name, "docstatus")
+        if dn_status == 1:
+            frappe.db.set_value("Delivery Note", self.reference_name, "delivery_note_assigned", 1)

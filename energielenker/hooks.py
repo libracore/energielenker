@@ -214,7 +214,10 @@ doc_events = {
         "after_insert": "energielenker.energielenker.issue.issue.add_mail_as_description_to_issue"
     },
     "ToDo": {
-        "after_insert": "energielenker.energielenker.todo.todo.check_for_assigment",
+        "after_insert": [
+            "energielenker.energielenker.todo.todo.check_for_assigment",
+            "energielenker.energielenker.todo.todo.update_delivery_note"
+        ],
         "on_update": "energielenker.energielenker.todo.todo.check_for_assigment"
     },
     "Email Queue": {
