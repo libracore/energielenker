@@ -128,7 +128,6 @@ from frappe.utils.data import cint
 
 @frappe.whitelist()
 def create_ticket(**kwargs):
-    frappe.log_error(kwargs, "kwargs")
     request_failure = check_request(kwargs)
     
     if request_failure:
@@ -460,21 +459,29 @@ def update_zoho():
                 #prepare JSON
                 address_doc = frappe.get_doc("Address", address.get('name'))
                 
-                json = {
-                            "name": address_doc.get('name'),
-                            "cf": {
-                                "cf_strasse": address_doc.get('address_line1'),
-                                "cf_hausnummer": address_doc.get('hausnummer'),
-                                "cf_ort": "{0} {1}".format(address_doc.get('plz'), address_doc.get('city'))
+                #Check if Contact belongs to Customer
+                customer_name = None
+                if len(address_doc.links) > 0:
+                    for link in address_doc.links:
+                        if link.get('link_name') and link.get('link_doctype') == "Customer":
+                            customer_name = link.get('link_name')
+                            break
+                if customer_name:
+                    json = {
+                                "name": address_doc.get('name'),
+                                "cf": {
+                                    "cf_strasse": address_doc.get('address_line1'),
+                                    "cf_hausnummer": address_doc.get('hausnummer'),
+                                    "cf_ort": "{0} {1}".format(address_doc.get('plz'), address_doc.get('city'))
+                                }
                             }
-                        }
-                #Send request
-                if address.get('zoho_id'):
-                    request = send_request("address", json, token.get('access_token'), is_update=True, zoho_id=address.get('zoho_id'))
-                else:
-                    request = send_request("address", json, token.get('access_token'))
-                    #Update Address
-                    frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
+                    #Send request
+                    if address.get('zoho_id'):
+                        request = send_request("address", json, token.get('access_token'), is_update=True, zoho_id=address.get('zoho_id'))
+                    else:
+                        request = send_request("address", json, token.get('access_token'))
+                        #Update Address
+                        frappe.db.set_value("Address", address.get('name'), "zoho_id", request.get('id'))
         
         #Get closed Tickets
         issue_data = frappe.db.sql("""
