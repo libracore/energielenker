@@ -388,7 +388,19 @@ def update_zoho():
         timestamp = frappe.get_value("energielenker Settings", "energielenker Settings", "zoho_timestamp")
         
         #Get updated or created Customers
-        customer_data = get_data('tabCustomer', timestamp)
+        customer_data = frappe.db.sql("""
+                                        SELECT
+                                            `name`,
+                                            `zoho_id`
+                                        FROM
+                                            `tabCustomer`
+                                        WHERE
+                                            `modified` > '{ts}'
+                                        AND
+                                            `disabled` = 0
+                                        AND
+                                            `blocked_customer` = 0;""".format(ts=timestamp), as_dict=True)
+        
         if len(customer_data) > 0:
             for customer in customer_data:
                 #prepare JSON
@@ -409,7 +421,15 @@ def update_zoho():
                     frappe.db.set_value("Customer", customer.get('name'), "zoho_id", request.get('id'))
         
         #Get updated or created Contacts
-        contact_data = get_data('tabContact', timestamp)
+        contact_data = frappe.db.sql("""
+                        SELECT
+                            `name`,
+                            `zoho_id`
+                        FROM
+                            `tabContact`
+                        WHERE
+                            `modified` > '{ts}';""".format(ts=timestamp), as_dict=True)
+        
         if len(contact_data) > 0:
             for contact in contact_data:
                 #prepare JSON
@@ -453,7 +473,17 @@ def update_zoho():
                         frappe.db.set_value("Contact", contact.get('name'), "zoho_id", request.get('id'))
         
         #Get updated or created Addresses
-        address_data = get_data('tabAddress', timestamp)
+        address_data = frappe.db.sql("""
+                                        SELECT
+                                            `name`,
+                                            `zoho_id`
+                                        FROM
+                                            `tabAddress`
+                                        WHERE
+                                            `modified` > '{ts}'
+                                        AND
+                                            `disabled` = 0;""".format(ts=timestamp), as_dict=True)
+        
         if len(address_data) > 0:
             for address in address_data:
                 #prepare JSON
@@ -516,18 +546,6 @@ def update_zoho():
         return
     except Exception as Err:
         frappe.log_error(str(Err), "ZOHO API ERROR")
-
-def get_data(doctype, timestamp):
-    data = frappe.db.sql("""
-                        SELECT
-                            `name`,
-                            `zoho_id`
-                        FROM
-                            `{tab}`
-                        WHERE
-                            `modified` > '{ts}';""".format(tab=doctype, ts=timestamp), as_dict=True)
-    
-    return data
 
 def translate_status(status):
     try:

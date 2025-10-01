@@ -261,8 +261,8 @@ scheduler_events = {
         "energielenker.energielenker.quotation.quotation.update_quotation_status",
         "energielenker.energielenker.doctype.depot.depot.daily_depot_check",
         "energielenker.energielenker.purchase_order.purchase_order.autoclose_purchase_order",
-        "energielenker.energielenker.todo.todo.reminder_email"
-        # ~ "energielenker.zoho_api.update_zoho" to be activated after final test
+        "energielenker.energielenker.todo.todo.reminder_email",
+        "energielenker.zoho_api.update_zoho"
     ],
     "all": [
         "energielenker.energielenker.issue.issue.delete_based_on_mark"
