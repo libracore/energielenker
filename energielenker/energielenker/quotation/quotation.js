@@ -481,6 +481,8 @@ function validate_customer(frm, event) {
                 } else {
                     frappe.validated=false;
                 }
+            } else {
+                validate_project(frm);
             }
         }
     });
@@ -503,6 +505,27 @@ function set_payment_terms(frm) {
             'callback': function(response) {
                 if (response.message) {
                     cur_frm.set_value('payment_terms_template', response.message);
+                }
+            }
+        });
+    }
+}
+
+function validate_project(frm) {
+    if (frm.doc.project) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Project",
+                'name': cur_frm.doc.project
+            },
+            'callback': function(response) {
+                if (response.message.customer) {
+                    let customer = response.message.customer;
+                    if (customer != frm.doc.party_name) {
+                        frappe.validated=false;
+                        frappe.msgprint("Der Kunde stimmt nicht mit dem Kunden aus dem Projekt überein!", "Achtung");
+                    }
                 }
             }
         });
