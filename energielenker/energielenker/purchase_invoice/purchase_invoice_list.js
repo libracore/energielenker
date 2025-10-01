@@ -19,9 +19,5 @@ frappe.listview_settings['Purchase Invoice'] = {
 		} else if(flt(doc.outstanding_amount)==0 && doc.docstatus==1) {
 			return [__("Paid"), "green", "outstanding_amount,=,0"];
 		}
-	},
-    onload: function(listview) {
-        var pg_button = document.getElementById('page-List/Purchase Invoice/List').getElementsByClassName("btn-paging")[2];
-        pg_button.click();
-    },
+	}
 };

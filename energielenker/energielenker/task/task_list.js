@@ -3,9 +3,6 @@ frappe.listview_settings['Task'] = {
 		"exp_end_date", "subject", "progress", "depends_on_tasks"],
 	filters: [["status", "=", "Open"]],
 	onload: function(listview) {
-		var pg_button = document.getElementById('page-List/Task/List').getElementsByClassName("btn-paging")[2];
-        pg_button.click();
-        
 		var method = "erpnext.projects.doctype.task.task.set_multiple_status";
 
 		listview.page.add_menu_item(__("Set as Open"), function() {

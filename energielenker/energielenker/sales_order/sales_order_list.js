@@ -64,9 +64,5 @@ frappe.listview_settings['Sales Order'] = {
 		listview.page.add_menu_item(__("Re-open"), function() {
 			listview.call_for_selected_items(method, {"status": "Submitted"});
 		});
-		
-		var pg_button = document.getElementById('page-List/Sales Order/List').getElementsByClassName("btn-paging")[2];
-		pg_button.click();
-
 	}
 };
