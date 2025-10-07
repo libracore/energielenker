@@ -83,6 +83,7 @@ def get_data(filters):
         #If Filter is "Auftrag" and outstanding_amount is not 0, create line for Order
         if filters.ausfuehrung == 'Auftrag':
             if outstanding_amount != 0:
+                base_url = frappe.utils.get_url()
                 _data = {
                     'sales_order': order.get('sales_order'),
                     'project': order.get('project'),
@@ -93,7 +94,7 @@ def get_data(filters):
                     'due_date': order.get('due_date'),
                     'outstanding_amount': outstanding_amount if outstanding_amount > 0 else 0,
                     'over_amount': 0 if outstanding_amount > 0 else (outstanding_amount * -1),
-                    'html_anchor': '=HYPERLINK("http://localhost:8000/desk#Form/Sales%20Order/{0}?scroll_to=payment_schedule"; "Zahlungsplan")'.format(order.get('sales_order'))
+                    'html_anchor': "{0}/desk#Form/Sales%20Order/{1}?scroll_to=payment_schedule".format(base_url, order.get('sales_order'))
 
                 }
                 data.append(_data)
