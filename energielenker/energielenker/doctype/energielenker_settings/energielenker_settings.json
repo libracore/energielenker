@@ -309,17 +309,17 @@
    "fieldname": "dn_assignment_users",
    "fieldtype": "Table",
    "label": "Users",
-   "options": "Delivery Note Assignment Users"
+   "options": "Delivery Note Assignment User"
   },
   {
    "fieldname": "dn_assignment_items",
    "fieldtype": "Table",
    "label": "Excluded Items",
-   "options": "Delivery Note Assignment Items"
+   "options": "Delivery Note Assignment Item"
   }
  ],
  "issingle": 1,
- "modified": "2025-10-01 11:42:50.598004",
+ "modified": "2025-10-08 10:34:32.175890",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

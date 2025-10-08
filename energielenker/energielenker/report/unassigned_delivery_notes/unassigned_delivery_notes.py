@@ -29,17 +29,17 @@ def get_data():
                                     LEFT JOIN
                                         `tabDelivery Note Item` ON `tabDelivery Note Item`.`parent` = `tabDelivery Note`.`name`
                                     LEFT JOIN
-                                        `tabDelivery Note Assignment Users` ON `tabDelivery Note Assignment Users`.`user` = `tabDelivery Note`.`owner`
+                                        `tabDelivery Note Assignment User` ON `tabDelivery Note Assignment User`.`user` = `tabDelivery Note`.`owner`
                                     LEFT JOIN
-                                        `tabDelivery Note Assignment Items` ON `tabDelivery Note Assignment Items`.`item_code` = `tabDelivery Note Item`.`item_code`
+                                        `tabDelivery Note Assignment Item` ON `tabDelivery Note Assignment Item`.`item_code` = `tabDelivery Note Item`.`item_code`
                                     WHERE
                                         `tabDelivery Note`.`docstatus` = 1
                                     AND
                                         `tabDelivery Note`.`delivery_note_assigned` = 0
                                     AND
-                                        `tabDelivery Note Assignment Users`.`user` IS NOT NULL
+                                        `tabDelivery Note Assignment User`.`user` IS NOT NULL
                                     AND
-                                        `tabDelivery Note Assignment Items`.`item_code` IS NULL
+                                        `tabDelivery Note Assignment Item`.`item_code` IS NULL
                                     GROUP BY
                                         `delivery_note`;""", as_dict=True)
     
