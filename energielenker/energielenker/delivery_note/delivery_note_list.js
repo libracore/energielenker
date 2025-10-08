@@ -53,8 +53,5 @@ frappe.listview_settings['Delivery Note'] = {
         };
 
         doclist.page.add_actions_menu_item(__('Create Delivery Trip'), action, false);
-        
-        var pg_button = document.getElementById('page-List/Delivery Note/List').getElementsByClassName("btn-paging")[2];
-        pg_button.click();
     }
 };

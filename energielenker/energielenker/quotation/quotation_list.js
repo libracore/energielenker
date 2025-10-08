@@ -12,9 +12,6 @@ frappe.listview_settings['Quotation'] = {
                 };
             };
         }
-        
-        var pg_button = document.getElementById('page-List/Quotation/List').getElementsByClassName("btn-paging")[2];
-        pg_button.click();
     },
 
     get_indicator: function(doc) {
