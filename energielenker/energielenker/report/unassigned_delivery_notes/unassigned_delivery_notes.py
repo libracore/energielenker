@@ -13,20 +13,34 @@ def execute(filters=None):
 def get_columns():
     columns = [
         {"label": _("Delivery Note"), "fieldname": "delivery_note", "fieldtype": "Link", "options": "Delivery Note", "width": 150},
-        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 150}
+        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 150},
+        {"label": _("User"), "fieldname": "owner", "fieldtype": "Data", "width": 150}
     ]
     return columns
 
 def get_data():
     delivery_notes = frappe.db.sql("""
                                     SELECT
-                                        `name` AS `delivery_note`,
-                                        `customer`
+                                        `tabDelivery Note`.`name` AS `delivery_note`,
+                                        `tabDelivery Note`.`customer` AS `customer`,
+                                        `tabDelivery Note`.`owner` AS `owner`
                                     FROM
                                         `tabDelivery Note`
+                                    LEFT JOIN
+                                        `tabDelivery Note Item` ON `tabDelivery Note Item`.`parent` = `tabDelivery Note`.`name`
+                                    LEFT JOIN
+                                        `tabDelivery Note Assignment User` ON `tabDelivery Note Assignment User`.`user` = `tabDelivery Note`.`owner`
+                                    LEFT JOIN
+                                        `tabDelivery Note Assignment Item` ON `tabDelivery Note Assignment Item`.`item_code` = `tabDelivery Note Item`.`item_code`
                                     WHERE
-                                        `docstatus` = 1
+                                        `tabDelivery Note`.`docstatus` = 1
                                     AND
-                                        `delivery_note_assigned` = 0;""", as_dict=True)
+                                        `tabDelivery Note`.`delivery_note_assigned` = 0
+                                    AND
+                                        `tabDelivery Note Assignment User`.`user` IS NOT NULL
+                                    AND
+                                        `tabDelivery Note Assignment Item`.`item_code` IS NULL
+                                    GROUP BY
+                                        `delivery_note`;""", as_dict=True)
     
     return delivery_notes

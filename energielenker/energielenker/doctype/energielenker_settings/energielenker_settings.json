@@ -41,6 +41,9 @@
   "ibn_remote_items",
   "charging_points_section",
   "charging_points_item",
+  "dn_assignment_section",
+  "dn_assignment_users",
+  "dn_assignment_items",
   "zoho_api_section",
   "zoho_client_id",
   "zoho_client_secret",
@@ -296,10 +299,27 @@
    "fieldname": "submit_zoho_data",
    "fieldtype": "Button",
    "label": "Submit Data"
+  },
+  {
+   "fieldname": "dn_assignment_section",
+   "fieldtype": "Section Break",
+   "label": "Delivery Note Assignment"
+  },
+  {
+   "fieldname": "dn_assignment_users",
+   "fieldtype": "Table",
+   "label": "Users",
+   "options": "Delivery Note Assignment User"
+  },
+  {
+   "fieldname": "dn_assignment_items",
+   "fieldtype": "Table",
+   "label": "Excluded Items",
+   "options": "Delivery Note Assignment Item"
   }
  ],
  "issingle": 1,
- "modified": "2025-08-25 13:46:27.280785",
+ "modified": "2025-10-08 10:34:32.175890",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

@@ -40,6 +40,8 @@ DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel
 DocType: Delivery Note,Depot,Kommissionierung
 DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen
 DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
+DocType: energielenker Settings,Excluded Items,Exkludierte Artikel
+DocType: energielenker Settings,Delivery Note Assignment,Lieferschein Zuweisung
 DocType: Stock Entry,Source Depot,Kommissionierung
 DocType: Stock Entry,Select Serial Numbers,Seriennummern auswählen
 DocType: Stock Entry,Serial Numbers,Seriennummern
