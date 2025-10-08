@@ -58,6 +58,8 @@ def get_data(filters):
                                             AND
                                                 `transaction_date` BETWEEN '{from_date}' AND '{to_date}'
                                             AND
+                                                `typ` != 'Alt.'
+                                            AND
                                                 `docstatus` = 1""".format(item=required_item.get('item_code'), from_date=filters.from_date, to_date=filters.to_date), as_dict=True)
                     
                     #loop through items and calculate quantity
@@ -102,10 +104,12 @@ def get_data(filters):
                                             AND
                                                 `transaction_date` BETWEEN '{from_date}' AND '{to_date}'
                                             AND
+                                                `typ` != 'Alt.'
+                                            AND
                                                 `docstatus` = 1
                                             GROUP BY
                                                 `item_code`""".format(item=required_item.get('item_code'), from_date=filters.from_date, to_date=filters.to_date), as_dict=True)
-                                                
+                    frappe.log_error("item: {0} / {1}".format(required_item.get('item_code'), details), "{0}".format(required_item.get('item_code')))
                     #if there is an entry, append it to data. Else apennd it with qty and amount 0
                     if len(details) > 0:
                         data.append(details[0])
@@ -120,7 +124,7 @@ def get_data(filters):
         #get amount of project with EZA-Regler
         projects = frappe.db.sql("""
                                 SELECT
-                                    `project_type` AS `description`,
+                                    'Projekte EZA-Regler (ehem. Netzregelung)' AS `description`,
                                     COUNT(`name`) AS `quantity`,
                                     SUM(`total_amount`) AS `net_amount`,
                                     SUM(`total_amount`) / COUNT(`name`) AS `average`
@@ -129,7 +133,7 @@ def get_data(filters):
                                 WHERE
                                     `project_type` = 'EZA-Regler (ehem. Netzregelung)'
                                 AND
-                                    `creation` BETWEEN '{from_date}' AND '{to_date}'
+                                    DATE(`creation`) BETWEEN '{from_date}' AND '{to_date}'
                                 AND
                                     `status` != 'Cancelled'
                                 GROUP BY
