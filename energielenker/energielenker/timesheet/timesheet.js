@@ -36,8 +36,11 @@ frappe.ui.form.on('Timesheet', {
 
 frappe.ui.form.on('Timesheet Detail', {
     task(frm, cdt, cdn) {
-        //Autoset Expected Time from Task
-        set_task_time(frm, cdt, cdn);
+        //Remove Expected Time if it was fetched
+        let row = frappe.get_doc(cdt, cdn);
+        if (!row.task) {
+            frappe.model.set_value(cdt, cdn, "expected_hours", 0);
+        }
     }
 });
 
@@ -65,24 +68,4 @@ function check_service_projects(frm) {
             }
         }
     });
-}
-
-function set_task_time(frm, cdt, cdn) {
-    let row = frappe.get_doc(cdt, cdn);
-    if (row.task) {
-        frappe.call({
-            'method': "frappe.client.get",
-            'args': {
-                'doctype': "Task",
-                'name': row.task
-            },
-            'callback': function(response) {
-                if (response.message) {
-                    frappe.model.set_value(cdt, cdn, "expected_hours", response.message.expected_time);
-                }
-            }
-        });
-    } else {
-        frappe.model.set_value(cdt, cdn, "expected_hours", 0);
-    }
 }
