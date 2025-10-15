@@ -91,6 +91,10 @@ frappe.ui.form.on('Quotation', {
         
         cost_center_query(frm);
         set_row_options(frm);
+        
+        frm.add_custom_button(__("Extend validity"),  function(){
+          extend_validity(frm);
+        });
     },
     validate: function(frm) {
         check_vielfaches(frm);
@@ -516,4 +520,40 @@ function validate_project(frm) {
             }
         });
     }
+}
+
+function extend_validity(frm) {
+    var d = new frappe.ui.Dialog({
+        'title': 'Gültigkeit verlängern',
+        'fields': [
+            {'fieldname': 'date', 'fieldtype': 'Date', 'label': "Gültigkeit verlängern auf", 'reqd': 1},
+            {'fieldname': 'today', 'label': "Heute setzten", 'fieldtype': 'Check',
+            'onchange': function() {
+                if (d.get_value('today')) {
+                    d.set_value('date', frappe.datetime.get_today());
+                }
+            }
+        }
+        ],
+        primary_action: function(){
+            d.hide();
+            set_new_valid_till(frm.doc.name, d.get_values().date, frm.doc.valid_till);
+        },
+        primary_action_label: __('Confirm')
+    });
+    d.show();
+}
+
+function set_new_valid_till(quotation, new_date, old_date) {
+    frappe.call({
+        'method': 'energielenker.energielenker.quotation.quotation.set_new_valid_till',
+        'args': {
+            'quotation': quotation,
+            'new_date': new_date,
+            'old_date': old_date
+        },
+        'callback': function(response) {
+           cur_frm.reload_doc();
+        }
+    });
 }

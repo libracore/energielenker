@@ -136,3 +136,10 @@ def get_price_list_rate(item_code, uom, customer):
             return price_list_rate[0].get('price_list_rate')
         else:
             return None
+
+@frappe.whitelist()
+def set_new_valid_till(quotation, new_date, old_date):
+    frappe.db.set_value("Quotation", quotation, "valid_till", new_date)
+    if not frappe.get_value("Quotation", quotation, "original_valid_till"):
+        frappe.db.set_value("Quotation", quotation, "original_valid_till", old_date)
+    return
