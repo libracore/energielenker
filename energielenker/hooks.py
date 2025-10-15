@@ -83,7 +83,6 @@ doctype_list_js = {
     "Contact" : "energielenker/contact/contact_list.js",
     "Customer" : "energielenker/customer/customer_list.js",
     "Issue" : "energielenker/Issue/issue_list.js",
-    "Item" : "energielenker/Item/item_list.js",
     "Lead" : "energielenker/Lead/lead_list.js",
     "Stock Entry" : "energielenker/Stock Entry/stock_entry_list.js",
     "Supplier" : "energielenker/Supplier/supplier_list.js",
