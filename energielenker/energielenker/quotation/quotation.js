@@ -91,6 +91,10 @@ frappe.ui.form.on('Quotation', {
         
         cost_center_query(frm);
         set_row_options(frm);
+        
+        frm.add_custom_button(__("Extend validity"),  function(){
+          extend_validity(frm);
+        });
     },
     validate: function(frm) {
         check_vielfaches(frm);
@@ -116,7 +120,6 @@ frappe.ui.form.on('Quotation', {
     },
     party_name: function(frm) {        
         if (cur_frm.doc.quotation_to == 'Customer') {
-            setTimeout(function(){ shipping_address_query(frm); }, 500);
             check_foreign_customers(frm.doc.party_name);
         }
         
@@ -281,19 +284,6 @@ function set_item_typ(item) {
         }
     }
     cur_frm.refresh_field('items');
-}
-
-function shipping_address_query(frm) {
-    cur_frm.fields_dict['shipping_address_name'].get_query = function(doc) {
-        return {
-            query: 'frappe.contacts.doctype.address.address.address_query',
-            filters: {
-                'link_doctype': cur_frm.doc.quotation_to,
-                'link_name': cur_frm.doc.party_name,
-                'produktionsstandort': 1
-            }
-        }
-    };
 }
 
 function cost_center_query(frm) {
@@ -530,4 +520,40 @@ function validate_project(frm) {
             }
         });
     }
+}
+
+function extend_validity(frm) {
+    var d = new frappe.ui.Dialog({
+        'title': 'Gültigkeit verlängern',
+        'fields': [
+            {'fieldname': 'date', 'fieldtype': 'Date', 'label': "Gültigkeit verlängern auf", 'reqd': 1},
+            {'fieldname': 'today', 'label': "Heute setzten", 'fieldtype': 'Check',
+            'onchange': function() {
+                if (d.get_value('today')) {
+                    d.set_value('date', frappe.datetime.get_today());
+                }
+            }
+        }
+        ],
+        primary_action: function(){
+            d.hide();
+            set_new_valid_till(frm.doc.name, d.get_values().date, frm.doc.valid_till);
+        },
+        primary_action_label: __('Confirm')
+    });
+    d.show();
+}
+
+function set_new_valid_till(quotation, new_date, old_date) {
+    frappe.call({
+        'method': 'energielenker.energielenker.quotation.quotation.set_new_valid_till',
+        'args': {
+            'quotation': quotation,
+            'new_date': new_date,
+            'old_date': old_date
+        },
+        'callback': function(response) {
+           cur_frm.reload_doc();
+        }
+    });
 }

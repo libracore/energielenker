@@ -1,4 +1,4 @@
-// Copyright (c) 2021, libracore AG and contributors
+// Copyright (c) 2025, libracore AG and contributors
 // For license information, please see license.txt
 frappe.ui.form.on('Sales Invoice Item', {
     items_add(frm, cdt, cdn) {
@@ -137,7 +137,6 @@ frappe.ui.form.on("Sales Invoice", {
 	    get_customer_inovice_note(frm);
 	},
     customer: function(frm) {
-        shipping_address_query(frm);
         check_foreign_customers(frm.doc.customer);
         remove_billing_address(frm);
     },
@@ -395,19 +394,6 @@ function set_item_typ(item) {
         }
     }
     cur_frm.refresh_field('items');
-}
-
-function shipping_address_query(frm) {
-    cur_frm.fields_dict['shipping_address_name'].get_query = function(doc) {
-        return {
-            query: 'frappe.contacts.doctype.address.address.address_query',
-            filters: {
-                'link_doctype': 'Customer',
-                'link_name': cur_frm.doc.customer,
-                'produktionsstandort': 1
-            }
-        }
-    };
 }
 
 function check_navision(frm) {
