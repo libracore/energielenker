@@ -42,6 +42,12 @@ DocType: Delivery Note,Get Depot Items,Artikel aus KOM holen
 DocType: energielenker Settings,Standard Depot Warehouse,Standartlager
 DocType: energielenker Settings,Excluded Items,Exkludierte Artikel
 DocType: energielenker Settings,Delivery Note Assignment,Lieferschein Zuweisung
+DocType: energielenker Settings,Charging Points,Ladepunkte
+DocType: energielenker Settings,Charging Points Item,Ladepunkte Artikel
+DocType: energielenker Settings,Last Sync,Letze Synchronisation
+DocType: energielenker Settings,Submit Data,Daten übermitteln
+DocType: energielenker Settings,Warehouse for Alt. Items,Lager für alternative Positionen
+DocType: energielenker Settings,Charging Points,Ladepunkte
 DocType: Stock Entry,Source Depot,Kommissionierung
 DocType: Stock Entry,Select Serial Numbers,Seriennummern auswählen
 DocType: Stock Entry,Serial Numbers,Seriennummern
@@ -63,6 +69,8 @@ DocType: Quotation,Header,Kopfzeile
 DocType: Quotation,Print Header,Kopfzeile drucken
 DocType: Sales Order,Part List Items,Stücklistenartikel
 DocType: Sales Order,Has Work Order,Hat Arbeitsauftrag
+DocType: Sales Order,for alternative Positions,für alternative Positionen
+DocType: Sales Order,Original Warehouse,Originallager
 DocType: Quotation,With BOM,Mit Stückliste
 DocType: BOM,Select Item Row of in Sales Order,Bitte Artikelzeile aus dem Kundenauftrag angeben
 DocType: BOM,Item Row,Bitte Artikelzeile
