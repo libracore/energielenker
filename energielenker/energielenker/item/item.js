@@ -65,6 +65,13 @@ frappe.ui.form.on("Item", {
     },
     temporarily_deactivated: function(frm) {
         set_disabled_reason_property(frm);
+    },
+    revenue_type: function(frm) {
+        if (!frm.doc.revenue_type) {
+            cur_frm.set_value("revenue_number", null);
+            cur_frm.set_value("revenue_description", null);
+            cur_frm.set_value("revenue_group", null);
+        }
     }
 });
 
