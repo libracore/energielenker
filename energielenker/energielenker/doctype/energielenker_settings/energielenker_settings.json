@@ -50,7 +50,9 @@
   "zoho_refresh_token",
   "zoho_sandbox_refresh_token",
   "zoho_timestamp",
-  "submit_zoho_data"
+  "submit_zoho_data",
+  "alternative_section",
+  "alternative_warehouse"
  ],
  "fields": [
   {
@@ -316,10 +318,22 @@
    "fieldtype": "Table",
    "label": "Excluded Items",
    "options": "Delivery Note Assignment Item"
+  },
+  {
+   "fieldname": "alternative_section",
+   "fieldtype": "Section Break",
+   "label": "Alternative Position"
+  },
+  {
+   "fieldname": "alternative_warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse for Alt. Items",
+   "options": "Warehouse",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2025-10-08 10:34:32.175890",
+ "modified": "2025-10-22 09:46:19.718515",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

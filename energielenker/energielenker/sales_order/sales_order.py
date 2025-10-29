@@ -159,11 +159,11 @@ def check_default_warehouses(doc):
     message = ""
     for item in doc['items']:
         default_warehouse = frappe.get_value("Item", item.get('item_code'), "default_warehouse_readonly")
-        if default_warehouse and item.get('warehouse') != default_warehouse:
+        if default_warehouse and not item.get('alternative_position') and item.get('warehouse') != default_warehouse:
             message += "{0} (Position {1})<br>".format(item.get('item_code'), item.get('idx'))
             
     if message:
-        # ~ frappe.msgprint("Folgende Artikel haben aktuell nicht das Standardlager:<br><br>{0}".format(message), "Achtung")
+        message = "Folgende Artikel haben aktuell nicht das Standardlager:<br><br>{0}".format(message)
         return message
     else:
         return None

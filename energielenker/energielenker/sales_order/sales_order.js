@@ -153,6 +153,8 @@ frappe.ui.form.on("Sales Order", {
                     }
             }
         }
+        //Save alternative Warehouse in locals and toggle warehouse if frm is local
+        save_alternative_warehouse(frm)
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
@@ -697,6 +699,8 @@ frappe.ui.form.on("Sales Order Item", "alternative_position", function(frm, cdt,
     var item = locals[cdt][cdn];
     check_text_and_or_alternativ(item);
     set_item_typ(item);
+    //set alternative Warehouse for alternative Positions
+    toggle_warehouse(item);
 });
 
 frappe.ui.form.on("Sales Order Item", "interne_position", function(frm, cdt, cdn) {
@@ -1275,4 +1279,50 @@ function scroll_to_url_parameter(frm) {
         }
     }
     //~ console.log(url);
+}
+
+function toggle_warehouse(item) {
+    if (item.alternative_position) {
+        if (locals.alternative_warehouse) {
+            frappe.model.set_value(item.doctype, item.name, "original_warehouse", item.warehouse);
+            frappe.model.set_value(item.doctype, item.name, "warehouse", locals.alternative_warehouse);
+        } else {
+            frappe.msgprint("Alternatives Lager nicht verfügbar, Position wird zurückgesetzt", "Achtung");
+            frappe.model.set_value(item.doctype, item.name, "alternative_position", 0);
+        }
+    } else {
+        frappe.model.set_value(item.doctype, item.name, "warehouse", item.original_warehouse);
+        frappe.model.set_value(item.doctype, item.name, "original_warehouse", null);
+    }
+    cur_frm.refresh_field('items');
+}
+
+function save_alternative_warehouse(frm) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "energielenker Settings",
+            'name': "energielenker Settings"
+        },
+        'callback': function(response) {
+            var alternative_warehouse = response.message.alternative_warehouse;
+            if (alternative_warehouse) {
+                locals.alternative_warehouse = alternative_warehouse;
+                if (frm.doc.__islocal) {
+                    toggle_position_warehouse(frm);
+                }
+            } else {
+                frappe.msgprint("Fehler beim abrufen des alternativen Lagers", "Achtung");
+            }
+        }
+    });
+}
+
+function toggle_position_warehouse(frm) {
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].alternative_position) {
+            let item = frappe.get_doc(frm.doc.items[i].doctype, frm.doc.items[i].name);
+            toggle_warehouse(item);
+        }
+    }
 }
