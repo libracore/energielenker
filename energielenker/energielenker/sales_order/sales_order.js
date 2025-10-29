@@ -1284,7 +1284,6 @@ function scroll_to_url_parameter(frm) {
 function toggle_warehouse(item) {
     if (item.alternative_position) {
         if (locals.alternative_warehouse) {
-            console.log(item.name);
             frappe.model.set_value(item.doctype, item.name, "original_warehouse", item.warehouse);
             frappe.model.set_value(item.doctype, item.name, "warehouse", locals.alternative_warehouse);
         } else {
