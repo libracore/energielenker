@@ -246,6 +246,9 @@ doc_events = {
     },
     "Depot": {
         "after_delete": "energielenker.energielenker.doctype.depot.depot.update_project_and_so",
+    },
+    "Revenue Type": {
+        "autoname": "energielenker.energielenker.doctype.revenue_type.revenue_type.autoname"
     }
 }
 

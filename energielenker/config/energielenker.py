@@ -135,5 +135,17 @@ def get_data():
                     "description": _("Webshop Settings")
                 }
             ]
+        },
+        {
+            "label": _("Data"),
+            "icon": "fa fa-money-bill",
+            "items": [
+                {
+                    "type": "doctype",
+                    "name": "Revenue Type",
+                    "label": _("Revenue Type"),
+                    "description": _("Revenue Type")
+                }
+            ]
         }
     ]

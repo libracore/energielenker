@@ -176,3 +176,10 @@ DocType: Sales Invoice,Billing Status,Aktueller Abrechnungsstand
 DocType: Sales Invoice,Show Billing Status,Aktueller Abrechnungsstand einblenden
 DocType: Task,Forecast additional hours,Forecast zusätzliche Stunden
 DocType: Purchase Invoice,Ignore multiple quantities,Vielfachmenge ignorieren
+DocType: Revenue Type,Revenue Type,Erlösart
+DocType: Revenue Type,Revenue Number,Erlösartennummer
+DocType: Revenue Type,Revenue Group,Erlösartengruppe
+DocType: Revenue Type,Revenue Description,Erlösart
+DocType: Revenue Type,For Hardware,Für Waren
+DocType: Revenue Type,For Support,Für Dienstleistungen
+DocType: Revenue Type,For fixed Items,Für fixe Artikel

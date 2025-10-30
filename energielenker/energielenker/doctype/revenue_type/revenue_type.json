@@ -1,0 +1,108 @@
+{
+ "creation": "2025-10-29 16:54:19.004750",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "number",
+  "description",
+  "column_break_3",
+  "group",
+  "for_hardware",
+  "for_support",
+  "for_fixed_items"
+ ],
+ "fields": [
+  {
+   "fieldname": "number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Revenue Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "group",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Revenue Group",
+   "options": "\nEnbas\nLobas\nEZA Regler",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "for_hardware",
+   "fieldtype": "Check",
+   "label": "For Hardware"
+  },
+  {
+   "default": "0",
+   "fieldname": "for_support",
+   "fieldtype": "Check",
+   "label": "For Support"
+  },
+  {
+   "default": "1",
+   "fieldname": "for_fixed_items",
+   "fieldtype": "Check",
+   "label": "For fixed Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Revenue Description",
+   "reqd": 1
+  }
+ ],
+ "modified": "2025-10-29 17:13:02.964788",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Revenue Type",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
