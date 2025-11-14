@@ -660,6 +660,7 @@ def get_contact_details(doc):
 @frappe.whitelist()
 def clear_payment_schedule(project, sales_order):
     frappe.db.sql("""DELETE FROM `tabPayment Forecast` WHERE `parent` = '{project}' AND `order` = '{sales_order}'""".format(project=project, sales_order=sales_order), as_list=True)
+    #update Project KPIs for Sales Overview
     project_doc = frappe.get_doc("Project", project)
     project_doc.save()
     return
