@@ -9,6 +9,7 @@ from sshtunnel import SSHTunnelForwarder
 import requests
 from frappe.utils import get_site_name
 import json
+from frappe.utils.password import get_decrypted_password
 
 @frappe.whitelist()
 def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False, position_id=None, geraete_id=None):
@@ -54,50 +55,52 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         frappe.throw("Ein Lieferantenauftrag ist zwingend erforderlich.")
     
     # get credentials
-    site_name = get_site_name(frappe.local.request.host)
-    if site_name not in ('erp.energielenker.de', 'erp-test.energielenker.de'):
-        site_name = 'site1.local'
+    # ~ site_name = get_site_name(frappe.local.request.host)
+    # ~ if site_name not in ('erp.energielenker.de', 'erp-test.energielenker.de'):
+        # ~ site_name = 'site1.local'
 
-    credentials = {
-        'cfos_ssh_username': frappe.db.get_single_value('energielenker Settings', 'cfos_ssh_username'),
-        'cfos_ssh_pkey': '/home/frappe/frappe-bench/sites/' + site_name + frappe.db.get_single_value('energielenker Settings', 'cfos_ssh_pkey'),
-        'cfso_ssh_gateway_ip': frappe.db.get_single_value('energielenker Settings', 'cfso_ssh_gateway_ip'),
-        'cfos_api_username': frappe.db.get_single_value('energielenker Settings', 'cfos_api_username'),
-        'cfos_api_secret': frappe.db.get_single_value('energielenker Settings', 'cfos_api_secret'),
-        'cfos_license_keyphrase': frappe.db.get_single_value('energielenker Settings', 'cfos_license_keyphrase')
-    }
+    # ~ credentials = {
+        # ~ 'cfos_ssh_username': frappe.db.get_single_value('energielenker Settings', 'cfos_ssh_username'),
+        # ~ 'cfos_ssh_pkey': '/home/frappe/frappe-bench/sites/' + site_name + frappe.db.get_single_value('energielenker Settings', 'cfos_ssh_pkey'),
+        # ~ 'cfso_ssh_gateway_ip': frappe.db.get_single_value('energielenker Settings', 'cfso_ssh_gateway_ip'),
+        # ~ 'cfos_api_username': frappe.db.get_single_value('energielenker Settings', 'cfos_api_username'),
+        # ~ 'cfos_api_secret': frappe.db.get_single_value('energielenker Settings', 'cfos_api_secret'),
+        # ~ 'cfos_license_keyphrase': frappe.db.get_single_value('energielenker Settings', 'cfos_license_keyphrase')
+    # ~ }
 
-    # define ssh tunnel
-    server = SSHTunnelForwarder(
-        (credentials['cfso_ssh_gateway_ip'], 22),
-        ssh_username=credentials['cfos_ssh_username'],
-        ssh_pkey=credentials['cfos_ssh_pkey'],
-        remote_bind_address=('127.0.0.1', 80)
-    )
+    # ~ # define ssh tunnel
+    # ~ server = SSHTunnelForwarder(
+        # ~ (credentials['cfso_ssh_gateway_ip'], 22),
+        # ~ ssh_username=credentials['cfos_ssh_username'],
+        # ~ ssh_pkey=credentials['cfos_ssh_pkey'],
+        # ~ remote_bind_address=('127.0.0.1', 80)
+    # ~ )
 
-    # open ssh tunnel
-    server.start()
+    # ~ # open ssh tunnel
+    # ~ server.start()
 
-    # define API URL
-    local_port = str(server.local_bind_port)
-    url = 'http://127.0.0.1:{local_port}/myapi/license/order.json'.format(local_port=local_port)
-
+    # ~ # define API URL
+    # ~ local_port = str(server.local_bind_port)
+    # ~ url = 'http://127.0.0.1:{local_port}/myapi/license/order.json'.format(local_port=local_port)
+    url = frappe.db.get_single_value('energielenker Settings', 'cfos_new_url')
+    user = frappe.db.get_single_value('energielenker Settings', 'cfos_new_user')
+    password = get_decrypted_password('energielenker Settings', 'energielenker Settings', 'cfos_new_password', False)
+    
     # define API request data
     data = { 
-        "test": test,
-        "keyphrase": credentials['cfos_license_keyphrase'],
-        "entity": 1,
+        # ~ "entity": 1,
         "order_id": "{order}:{position}:{position_id}".format(order=order, position=position or 'no_pos', position_id=position_id or 'no_id'),
-        "activation": True if activation == 1 else False,
+        # ~ "activation": True if activation == 1 else False,
         "evse_count": int(evse_count),
-        "hardware_id": geraete_id or None
+        "hardware_id": geraete_id or None,
+        "contract_order_id": "AB0002062"
     }
 
     # post API request
-    r = requests.post(url, json=data, auth=(credentials['cfos_api_username'], credentials['cfos_api_secret']))
+    r = requests.post(url, json=data, auth=(user, password))
 
-    # close ssh tunnel
-    server.stop()
+    # ~ # close ssh tunnel
+    # ~ server.stop()
     
     # check request
     if r.status_code == 200:
