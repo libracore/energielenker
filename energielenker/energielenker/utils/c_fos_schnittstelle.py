@@ -82,9 +82,15 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
     # ~ # define API URL
     # ~ local_port = str(server.local_bind_port)
     # ~ url = 'http://127.0.0.1:{local_port}/myapi/license/order.json'.format(local_port=local_port)
+    #Get Credentials
     url = frappe.db.get_single_value('energielenker Settings', 'cfos_new_url')
     user = frappe.db.get_single_value('energielenker Settings', 'cfos_new_user')
     password = get_decrypted_password('energielenker Settings', 'energielenker Settings', 'cfos_new_password', False)
+    
+    #Get Sales Order
+    sales_order = None
+    if voucher:
+        sales_order = frappe.get_value("Lizenzgutschein", voucher, "kundenauftrag")
     
     # define API request data
     data = { 
@@ -93,7 +99,7 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         # ~ "activation": True if activation == 1 else False,
         "evse_count": int(evse_count),
         "hardware_id": geraete_id or None,
-        "contract_order_id": "AB0002062"
+        "contract_order_id": sales_order
     }
 
     # post API request
