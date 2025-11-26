@@ -9,7 +9,7 @@ frappe.ui.form.on('Lizenzgutschein', {
                 beziehe_lizenz_manuell(frm);
             });
         }
-        if (cur_frm.doc.purchase_order){              
+        if (cur_frm.doc.purchase_order && !cur_frm.doc.kundenauftrag){              
 			frappe.call({
 				method: 'frappe.client.get_value',
                 args: {
@@ -21,6 +21,7 @@ frappe.ui.form.on('Lizenzgutschein', {
 					var sales_order = response.message.sales_order;
                     if (sales_order) {
 						cur_frm.set_value("kundenauftrag", sales_order);
+                        cur_frm.save()
 					}
 				}
 			})
