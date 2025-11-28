@@ -108,6 +108,7 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
             voucher = frappe.get_doc("Lizenzgutschein", voucher)
             row = voucher.append('lizenzen', {})
             row.lizenz = license_file_data
+            voucher.status = "Bezogen"
             voucher.save()
         
     else:

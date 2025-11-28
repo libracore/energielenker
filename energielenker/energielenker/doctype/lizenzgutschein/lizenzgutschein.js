@@ -50,7 +50,7 @@ function beziehe_lizenz_manuell(frm) {
             'activation': cur_frm.doc.aktivierung,
             'evse_count': cur_frm.doc.evse_count,
             'voucher': cur_frm.doc.name,
-            'position_id': cur_frm.doc.positions_nummer
+            'position_id': cur_frm.doc.position_id
         },
         'async': true,
         freeze: true,
