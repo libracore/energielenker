@@ -29,6 +29,11 @@
   "cfso_ssh_gateway_ip",
   "cfos_ssh_public_key",
   "cfos_api_secret",
+  "section_cfos_new",
+  "cfos_new_user",
+  "cfos_new_url",
+  "column_break_28",
+  "cfos_new_password",
   "sales_overview",
   "items",
   "approval_for_invoice_section",
@@ -330,10 +335,34 @@
    "label": "Warehouse for Alt. Items",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_cfos_new",
+   "fieldtype": "Section Break",
+   "label": "New cfos API"
+  },
+  {
+   "fieldname": "cfos_new_user",
+   "fieldtype": "Data",
+   "label": "User"
+  },
+  {
+   "fieldname": "cfos_new_url",
+   "fieldtype": "Data",
+   "label": "Server URL"
+  },
+  {
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cfos_new_password",
+   "fieldtype": "Password",
+   "label": "Password"
   }
  ],
  "issingle": 1,
- "modified": "2025-10-22 09:46:19.718515",
+ "modified": "2025-11-17 10:56:42.477361",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
