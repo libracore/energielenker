@@ -88,8 +88,10 @@ def charged_at_cost(self, event):
 def set_navision_export_check(self, event):
     if not self.is_return:
         self.rechnung_nach_navision_exportiert = 0
+        self.rechnung_nach_d365_exportiert = 0
     else:
         self.rechnung_nach_navision_exportiert = 1
+        self.rechnung_nach_d365_exportiert = 1
     return
 
 def set_billing_information(self, event):

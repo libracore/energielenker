@@ -1,0 +1,63 @@
+<style>
+    table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f5f7fa;
+        padding-right: 5px;
+        padding-left: 5px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    td {
+        padding-right: 5px;
+        padding-left: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+    tr {
+        border-bottom: 1px solid silver;
+    }
+</style>
+<table style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Belegart</th>
+            <th>Nr.</th>
+            <th>Verk. an Deb.-Nr.</th>
+            <th>Rech. an Deb.-Nr.</th>
+            <th>Buchungsdatum</th>
+            <th>Buchungsbeschreibung</th>
+            <th>Zlg.-Bedingungscode</th>
+            <th>Fälligkeitsdatum</th>
+            <th>Shortcutdimensionscode 1</th>
+            <th>Belegdatum</th>
+            <th>Externe Belegnummer</th>
+            <th>Datum der Leistung von</th>
+            <th>Datum der Leistung bis</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+            <tr>
+                <td>Rechnung</td>
+                <td>{{ invoice.sinv }}</td>
+                <td>{{ invoice.navision_kundennummer }}</td>
+                <td>{{ invoice.navision_kundennummer }}</td>
+                <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
+                <td>{{ invoice.buchungsbeschreibung }}</td>
+                <td>{{ invoice.zlg_bedingungscode }}</td>
+                <td>{{ frappe.utils.get_datetime(invoice.due_date).strftime('%d.%m.%Y') }}</td>
+                <td>{{ invoice.navision_shortcutdimensionscode_1 }}</td>
+                <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
+                <td>{{ invoice.sinv }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
