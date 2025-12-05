@@ -36,6 +36,7 @@
             <th>Zahlungsmethode</th>
             <th>Skontobedingung</th>
             <th>Rechnungsnummer</th>
+            <th>Beschreibung</th>
             <th>Kontotyp</th>
             <th>Währung</th>
             <th>Betrag brutto</th>
@@ -57,6 +58,7 @@
                 <td>UEW</td>
                 <td>{{ invoice.cash_discount }}</td>
                 <td>{{ invoice.sinv }}</td>
+                <td>{{ invoice.buchungsbeschreibung }}</td>
                 <td>Debitor</td>
                 <td>EUR</td>
                 <td>{{ invoice.rounded_total }}</td>

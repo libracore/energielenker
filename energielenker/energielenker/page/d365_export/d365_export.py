@@ -177,7 +177,7 @@ def _get_salesheader_datas(suchparameter):
             'sinv': sinv.name,
             'navision_kundennummer': navision_kundennummer,
             'rechnungsdatum': sinv.posting_date,
-            # ~ 'buchungsbeschreibung': buchungsbeschreibung,
+            'buchungsbeschreibung': buchungsbeschreibung,
             'due_date': sinv.due_date,
             'rounded_total': sinv.get('rounded_total'),
             'net_total': sinv.get('net_total'),
@@ -205,24 +205,36 @@ def _get_salesline_datas(suchparameter):
             loop = 0
             for lineitem in sinv.items:
                 data = []
-                data.append("Rechnung")
-                data.append(sinv.name)
-                data.append("1000" + str(loop))
-                loop += 1
-                data.append("Sachkonto")
-                data.append(sinv.navision_kontonummer)
-                data.append("")
-                data.append(lineitem.item_name[:50])
-                data.append("")
-                data.append(lineitem.qty)
-                data.append(lineitem.rate)
-                data.append(_sinv["navision_shortcutdimensionscode_1"])
-                data.append(territory)
+                data.append(_sinv.get('sinv'))
+                data.append(lineitem.get('idx'))
+                #Calculate Line Prices
+                net_amount = lineitem.get('amount') * (1-(sinv.additional_discount_percentage/100))
+                if len(sinv.taxes) > 0:
+                    gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
+                else:
+                    gross_amount = net_amount
+                data.append(gross_amount)
+                data.append(net_amount)
+                vat = gross_amount - net_amount
+                data.append(vat)
+                # ~ loop += 1
+                data.append(lineitem.get('qty'))
+                data.append(lineitem.get('item_name')[:50])
+                data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
                     data.append("")
                 data.append("")
+                data.append("TBD")
+                data.append(lineitem.get('revenue_number'))
+                data.append(lineitem.get('revenue_description'))
+                data.append(sinv.get('project') or "212_9999")
+                # ~ if len(sinv.taxes) > 0:
+                    # ~ data.append(sinv.taxes[0].rate)
+                # ~ else:
+                    # ~ data.append("")
+                # ~ data.append("")
                 datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
             xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
@@ -231,7 +243,7 @@ def _get_salesline_datas(suchparameter):
             else:
                 xte_rechnung = ''
             data = []
-            data.append("Rechnung")
+            data.append(_sinv.get('sinv'))
             data.append(sinv.name)
             data.append("10000")
             data.append("Sachkonto")
@@ -241,7 +253,7 @@ def _get_salesline_datas(suchparameter):
             data.append("")
             data.append("1")
             data.append(sinv.grand_total)
-            data.append(_sinv["navision_shortcutdimensionscode_1"])
+            # ~ data.append(_sinv["navision_shortcutdimensionscode_1"])
             data.append(territory)
             data.append("0")
             data.append("")
@@ -250,7 +262,7 @@ def _get_salesline_datas(suchparameter):
             loop = 0
             for lineitem in sinv.items:
                 data = []
-                data.append("Rechnung")
+                data.append(_sinv.get('sinv'))
                 data.append(sinv.name)
                 data.append("1000" + str(loop))
                 loop += 1
@@ -261,7 +273,7 @@ def _get_salesline_datas(suchparameter):
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
-                data.append(_sinv["navision_shortcutdimensionscode_1"])
+                # ~ data.append(_sinv["navision_shortcutdimensionscode_1"])
                 data.append(territory)
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
@@ -304,6 +316,7 @@ def _get_salesline_datas(suchparameter):
                         data.append("")
                     data.append("")
                     datas.append(data)
+    frappe.log_error(datas, "datas")
     if len(datas) > 0:
         return datas
     else:

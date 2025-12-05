@@ -26,20 +26,19 @@
 <table style="width: 100%;">
     <thead>
         <tr>
-            <th>Belegart</th>
-            <th>Belegnr.</th>
-            <th>Zeilennr.</th>
-            <th>Art</th>
-            <th>Nr.</th>
-            <th>Lagerortcode</th>
-            <th>Beschreibung</th>
-            <th>Einheit</th>
+            <th>Rechnungsnummer</th>
+            <th>Positionsnummer.</th>
+            <th>Gesamtbetrag brutto</th>
+            <th>Gesamtbetrag netto</th>
+            <th>Steuerbetrag</th>
             <th>Menge</th>
-            <th>VK-Preis</th>
-            <th>Shortcutdimensionscode 1</th>
-            <th>MwSt.-Geschäftsbuchungsgruppe</th>
-            <th>MwSt.-Produktbuchungsgruppe</th>
-            <th>Einheitencode</th>
+            <th>Beschreibung</th>
+            <th>Sachkonto</th>
+            <th>Mehrwertsteuerschlüssel</th>
+            <th>Steuerart</th>
+            <th>Kostenstelle</th>
+            <th>Erlösart</th>
+            <th>Kostenträger</th>
         </tr>
     </thead>
     <tbody>
@@ -58,7 +57,6 @@
                 <td>{{ invoice[10] }}</td>
                 <td>{{ invoice[11] }}</td>
                 <td>{{ invoice[12] }}</td>
-                <td>{{ invoice[13] }}</td>
             </tr>
         {% endfor %}
     </tbody>
