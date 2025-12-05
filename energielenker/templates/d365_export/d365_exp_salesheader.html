@@ -26,8 +26,8 @@
 <table style="width: 100%;">
     <thead>
         <tr>
-            <th>Belegart</th>
-            <th>Nr.</th>
+            <th>Quellsystem</th>
+            <th>Mandant</th>
             <th>Verk. an Deb.-Nr.</th>
             <th>Rech. an Deb.-Nr.</th>
             <th>Buchungsdatum</th>
@@ -44,7 +44,7 @@
     <tbody>
         {% for invoice in invoices %}
             <tr>
-                <td>Rechnung</td>
+                <td>ERPNext</td>
                 <td>{{ invoice.sinv }}</td>
                 <td>{{ invoice.navision_kundennummer }}</td>
                 <td>{{ invoice.navision_kundennummer }}</td>

@@ -14,7 +14,7 @@ from openpyxl.styles import Font
 def get_data(suchparameter, exportieren=False):
     if isinstance(suchparameter, six.string_types):
         suchparameter = json.loads(suchparameter)
-    
+    frappe.log_error(suchparameter, "suchparameter")
     if not exportieren:
         # show data
         data = get_datas(suchparameter)
