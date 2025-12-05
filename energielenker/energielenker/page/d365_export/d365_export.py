@@ -14,7 +14,7 @@ from openpyxl.styles import Font
 def get_data(suchparameter, exportieren=False):
     if isinstance(suchparameter, six.string_types):
         suchparameter = json.loads(suchparameter)
-    frappe.log_error(suchparameter, "suchparameter")
+    
     if not exportieren:
         # show data
         data = get_datas(suchparameter)
@@ -127,7 +127,7 @@ def get_datas(suchparameter):
 
 def _get_salesheader_datas(suchparameter):
     # SalesHeader
-    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_d365_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template`, `rounded_total`, `net_total`, `total_taxes_and_charges`, `leistungsdatum` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_d365_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
         cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
@@ -165,20 +165,26 @@ def _get_salesheader_datas(suchparameter):
                 if projektnummer_rhapsody:
                     buchungsbeschreibung += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
         
-        zlg_bedingungscode = ''
+        payment_term = None
+        cash_discount = None
         if sinv.payment_terms_template:
-            payment_terms_template = frappe.get_doc("Payment Terms Template", sinv.payment_terms_template)
-            if len(payment_terms_template.terms) > 0:
-                zlg_bedingungscode = str(payment_terms_template.terms[0].credit_days) + "T"
+            payment_terms_mapping = frappe.db.sql("""SELECT `d365_payment_term`, `d365_cash_discount` FROM `tabenergielenker Settings D365 Mapping` WHERE `payment_terms_template` = %(payment_terms)s;""", {'payment_terms': sinv.payment_terms_template}, as_dict=True)
+            if len(payment_terms_mapping) > 0:
+                payment_term = payment_terms_mapping[0].get('d365_payment_term')
+                cash_discount = payment_terms_mapping[0].get('d365_cash_discount')
         
         data = {
             'sinv': sinv.name,
             'navision_kundennummer': navision_kundennummer,
             'rechnungsdatum': sinv.posting_date,
-            'buchungsbeschreibung': buchungsbeschreibung,
-            'zlg_bedingungscode': zlg_bedingungscode,
+            # ~ 'buchungsbeschreibung': buchungsbeschreibung,
             'due_date': sinv.due_date,
-            'navision_shortcutdimensionscode_1': cost_center.navision_shortcutdimensionscode_1 if cost_center.navision_shortcutdimensionscode_1 else '1000800'
+            'rounded_total': sinv.get('rounded_total'),
+            'net_total': sinv.get('net_total'),
+            'total_taxes_and_charges': sinv.get('total_taxes_and_charges'),
+            'leistungsdatum': sinv.get('leistungsdatum'),
+            'payment_term': payment_term,
+            'cash_discount': cash_discount
         }
         
         datas.append(data)
