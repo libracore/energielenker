@@ -34,5 +34,17 @@ frappe.ui.form.on("Stock Reconciliation", {
             });
             
         });
+    },
+    validate: function(frm) {
+        var items = cur_frm.doc.items;
+        items.forEach(function(entry) {
+            if (!entry.qty) {
+                entry.qty = 0;
+            }
+            if (entry.qty == entry.current_qty) {
+                entry.quantity_difference = 0;
+                entry.amount_difference = 0;
+            }
+        });
     }
 });
