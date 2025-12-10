@@ -225,7 +225,7 @@ def _get_salesline_datas(suchparameter):
             else:
                 xte_rechnung = ''
             data = []
-            data.append("Rechnung")
+            data.append("TeilRechnung")
             data.append(sinv.name)
             data.append("10000")
             data.append("Sachkonto")
@@ -244,7 +244,7 @@ def _get_salesline_datas(suchparameter):
             loop = 0
             for lineitem in sinv.items:
                 data = []
-                data.append("Rechnung")
+                data.append("SchlussRechnung")
                 data.append(sinv.name)
                 data.append("1000" + str(loop))
                 loop += 1
@@ -276,7 +276,7 @@ def _get_salesline_datas(suchparameter):
                         if projektnummer_rhapsody:
                             projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
-                    data.append("Rechnung")
+                    data.append("STRechnung")
                     data.append(sinv.name)
                     data.append("1000" + str(loop))
                     loop += 1
