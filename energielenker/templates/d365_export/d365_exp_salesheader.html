@@ -36,7 +36,6 @@
             <th>Zahlungsmethode</th>
             <th>Skontobedingung</th>
             <th>Rechnungsnummer</th>
-            <th>Beschreibung</th>
             <th>Kontotyp</th>
             <th>Währung</th>
             <th>Betrag brutto</th>
@@ -58,13 +57,12 @@
                 <td>UEW</td>
                 <td>{{ invoice.cash_discount }}</td>
                 <td>{{ invoice.sinv }}</td>
-                <td>{{ invoice.buchungsbeschreibung }}</td>
                 <td>Debitor</td>
                 <td>EUR</td>
                 <td>{{ invoice.rounded_total }}</td>
                 <td>{{ invoice.net_total }}</td>
                 <td>{{ invoice.total_taxes_and_charges }}</td>
-                <td>{{ frappe.utils.get_datetime(invoice.leistungsdatum).strftime('%d.%m.%Y') }}</td>
+                <td>{% if invoice.leistungsdatum %}{{ frappe.utils.get_datetime(invoice.leistungsdatum).strftime('%d.%m.%Y') }}{% endif %}</td>
             </tr>
         {% endfor %}
     </tbody>

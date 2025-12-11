@@ -30,27 +30,32 @@ def get_data(suchparameter, exportieren=False):
             # SalesHeader
             suchparameter["ansicht_auswahl"] = 'SalesHeader'
             salesheader_raw_data = get_datas(suchparameter)
-            salesheader_data = [["Belegart","Nr.","Verk. an Deb.-Nr.","Rech. an Deb.-Nr.","Buchungsdatum","Buchungsbeschreibung","Zlg.-Bedingungscode","Fälligkeitsdatum","Shortcutdimensionscode 1","Belegdatum","Externe Belegnummer","Datum der Leistung von","Datum der Leistung bis"]]
+            salesheader_data = [["Quellsystem","Mandant","Dokumentennummer","Dokumentendatum","Kundennummer","Fälligkeitsdatum","Zahlungsbedingung","Zahlungsmethode","Skontobedingung","Rechnungsnummer","Kontotyp","Währung","Betrag brutto", "Betrag netto", "Steuerbetrag", "Buchungsdatum"]]
             
             for sinv in salesheader_raw_data:
                 data = []
-                data.append("Rechnung")
-                data.append(sinv["sinv"])
-                data.append(sinv["navision_kundennummer"])
-                data.append(sinv["navision_kundennummer"])
+                data.append("ERPNext")
+                data.append("212")
+                data.append("")
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
-                data.append(sinv["buchungsbeschreibung"])
-                data.append(sinv["zlg_bedingungscode"])
+                data.append(sinv["navision_kundennummer"])
                 data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
-                data.append(sinv["navision_shortcutdimensionscode_1"])
-                data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
+                data.append(sinv["payment_term"])
+                data.append("UEW")
+                data.append(sinv["cash_discount"])
                 data.append(sinv["sinv"])
+                data.append("Debitor")
+                data.append("EUR")
+                data.append(sinv["rounded_total"])
+                data.append(sinv["net_total"])
+                data.append(sinv["total_taxes_and_charges"])
+                data.append(frappe.utils.get_datetime(sinv["leistungsdatum"]).strftime('%d.%m.%Y') if sinv["leistungsdatum"] else "")
                 salesheader_data.append(data)
             
             # SalesLine
             suchparameter["ansicht_auswahl"] = 'SalesLine'
             salesline_raw_data = get_datas(suchparameter)
-            salesline_data = [["Belegart","Belegnr.","Zeilennr.","Art","Nr.","Lagerortcode","Beschreibung","Einheit","Menge","VK-Preis","Shortcutdimensionscode 1","MwSt.-Geschäftsbuchungsgruppe","MwSt.-Produktbuchungsgruppe","Einheitencode"]]
+            salesline_data = [["Rechnungsnummer","Positionsnummer","Gesamtbetrag brutto","Gesamtbetrag netto","Steuerbetrag","Menge","Beschreibung","Sachkonto","Mehrwertsteuerschlüssel","Steuerart","Kostenstelle","Erlösart","Kostenträger"]]
             for _salesline_data in salesline_raw_data:
                 salesline_data.append(_salesline_data)
             
@@ -59,7 +64,7 @@ def get_data(suchparameter, exportieren=False):
             
             _file = frappe.get_doc({
             "doctype": "File",
-            "file_name": "{title}_{date_von}_{date_bis}.xlsx".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"], title='SalesHeader'),
+            "file_name": "{title}_{date_von}_{date_bis}.xlsx".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"], title='SalesHeader_d365_'),
             "folder": "Home/D365Export",
             "is_private": 1,
             "content": file_data})
@@ -177,14 +182,14 @@ def _get_salesheader_datas(suchparameter):
             'sinv': sinv.name,
             'navision_kundennummer': navision_kundennummer,
             'rechnungsdatum': sinv.posting_date,
-            'buchungsbeschreibung': buchungsbeschreibung,
             'due_date': sinv.due_date,
             'rounded_total': sinv.get('rounded_total'),
             'net_total': sinv.get('net_total'),
             'total_taxes_and_charges': sinv.get('total_taxes_and_charges'),
             'leistungsdatum': sinv.get('leistungsdatum'),
             'payment_term': payment_term,
-            'cash_discount': cash_discount
+            'cash_discount': cash_discount,
+            'buchungsbeschreibung': buchungsbeschreibung
         }
         
         datas.append(data)
@@ -200,12 +205,13 @@ def _get_salesline_datas(suchparameter):
     datas = []
     for _sinv in invoices:
         sinv = frappe.get_doc("Sales Invoice", _sinv["sinv"])
-        territory = get_customer_territory(sinv.get('customer'))
         if sinv.billing_type == 'Rechnung':
             loop = 0
             for lineitem in sinv.items:
                 data = []
+                #Rechnungsnummer
                 data.append(_sinv.get('sinv'))
+                #Positionsnummer
                 data.append(lineitem.get('idx'))
                 #Calculate Line Prices
                 net_amount = lineitem.get('amount') * (1-(sinv.additional_discount_percentage/100))
@@ -213,104 +219,106 @@ def _get_salesline_datas(suchparameter):
                     gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
                 else:
                     gross_amount = net_amount
+                #Gesamtbetrag brutto
                 data.append(gross_amount)
+                #Gesamtbetrag netto
                 data.append(net_amount)
+                #Steuerbetrag
                 vat = gross_amount - net_amount
                 data.append(vat)
-                # ~ loop += 1
+                #Menge
                 data.append(lineitem.get('qty'))
+                #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
+                #Sachkonto
                 data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+                #Mehrwertsteuerschlüssel
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
                     data.append("")
-                data.append("")
+                #Steuerart
                 data.append("TBD")
-                data.append(lineitem.get('revenue_number'))
-                data.append(lineitem.get('revenue_description'))
+                #Kostenstelle
+                data.append(lineitem.get('revenue_number') or "")
+                #Erlösart
+                data.append(lineitem.get('revenue_description') or "")
+                #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
-                # ~ if len(sinv.taxes) > 0:
-                    # ~ data.append(sinv.taxes[0].rate)
-                # ~ else:
-                    # ~ data.append("")
-                # ~ data.append("")
                 datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
-            # ~ xte_rechnung = frappe.db.sql("""SELECT `idx` FROM `tabSales Order Anzahlung` WHERE `sales_invoice` = '{sinv}'""".format(sinv=sinv.name), as_dict=True)
-            # ~ if len(xte_rechnung) > 0:
-                # ~ xte_rechnung = str(xte_rechnung[0].idx) + ". "
-            # ~ else:
-                # ~ xte_rechnung = ''
             data = []
-            data.append(_sinv.get('sinv'))
-            data.append(sinv.name)
-            data.append("10000")
-            data.append("Sachkonto")
-            data.append("17200")
-            data.append("")
-            data.append(_sinv["buchungsbeschreibung"])
-            data.append("")
+            #Rechnungsnummer
+            data.append(sinv.get('name'))
+            #Positionsnummer
             data.append("1")
-            data.append(sinv.grand_total)
-            # ~ data.append(_sinv["navision_shortcutdimensionscode_1"])
-            data.append(territory)
-            data.append("0")
+            #Gesamtbetrag brutto
+            data.append(sinv.get('grand_total'))
+            #Gesamtbetrag netto
+            data.append(sinv.get('total'))
+            #Steuerbetrag
+            data.append(sinv.get('total_taxes_and_charges'))
+            #Menge
+            data.append("1")
+            #Beschreibung
+            data.append(_sinv["buchungsbeschreibung"])
+            #Sachkonto
+            data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+            #Mehrwertsteuerschlüssel
+            if len(sinv.taxes) > 0:
+                data.append(sinv.taxes[0].rate)
+            else:
+                data.append("")
+            #Steuerart
+            data.append("TBD")
+            #Kostenstelle -> tbd
             data.append("")
+            #Erlösart -> tbd
+            data.append("")
+            #Kostenträger
+            data.append(sinv.get('project') or "212_9999")
             datas.append(data)
         if sinv.billing_type == 'Schlussrechnung':
             loop = 0
             for lineitem in sinv.items:
                 data = []
+                #Rechnungsnummer
                 data.append(_sinv.get('sinv'))
-                data.append(lineitem.get('idx'))
+                #Positionsnummer
+                # ~ data.append(lineitem.get('idx'))
+                data.append("SR")
                 #Calculate Line Prices
                 net_amount = lineitem.get('amount') * (1-(sinv.additional_discount_percentage/100))
                 if len(sinv.taxes) > 0:
                     gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
                 else:
                     gross_amount = net_amount
+                #Gesamtbetrag brutto
                 data.append(gross_amount)
+                #Gesamtbetrag netto
                 data.append(net_amount)
+                #Steuerbetrag
                 vat = gross_amount - net_amount
                 data.append(vat)
-                # ~ loop += 1
+                #Menge
                 data.append(lineitem.get('qty'))
+                #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
+                #Sachkonto
                 data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+                #Mehrwertsteuerschlüssel
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
                     data.append("")
-                data.append("")
+                #Steuerart
                 data.append("TBD")
-                data.append(lineitem.get('revenue_number'))
-                data.append(lineitem.get('revenue_description'))
+                #Kostenstelle
+                data.append(lineitem.get('revenue_number') or "")
+                #Erlösart
+                data.append(lineitem.get('revenue_description') or "")
+                #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
-                # ~ if len(sinv.taxes) > 0:
-                    # ~ data.append(sinv.taxes[0].rate)
-                # ~ else:
-                    # ~ data.append("")
-                # ~ data.append("")
-                datas.append(data)
-                # ~ data.append(_sinv.get('sinv'))
-                # ~ data.append(sinv.name)
-                # ~ data.append("1000" + str(loop))
-                # ~ loop += 1
-                # ~ data.append("Sachkonto")
-                # ~ data.append(sinv.navision_kontonummer)
-                # ~ data.append("")
-                # ~ data.append(_sinv["buchungsbeschreibung"])
-                # ~ data.append("")
-                # ~ data.append(lineitem.qty)
-                # ~ data.append(lineitem.rate)
-                # ~ data.append(_sinv["navision_shortcutdimensionscode_1"])
-                # ~ data.append(territory)
-                # ~ if len(sinv.taxes) > 0:
-                    # ~ data.append(sinv.taxes[0].rate)
-                # ~ else:
-                    # ~ data.append("")
-                # ~ data.append("")
                 datas.append(data)
             sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
             for teilrechnung in sales_order.billing_overview:
@@ -325,26 +333,39 @@ def _get_salesline_datas(suchparameter):
                         if projektnummer_rhapsody:
                             projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
-                    data.append("STRechnung")
-                    data.append(sinv.name)
-                    data.append("1000" + str(loop))
-                    loop += 1
-                    data.append("Sachkonto")
-                    data.append("17100")
-                    data.append("")
+                    #Rechnungsnummer
+                    data.append(sinv.get('name'))
+                    #Positionsnummer
+                    # ~ data.append("1")
+                    data.append("STR")
+                    #Gesamtbetrag brutto
+                    data.append(_teilrechnung.get('grand_total'))
+                    #Gesamtbetrag netto
+                    data.append(_teilrechnung.get('total'))
+                    #Steuerbetrag
+                    data.append(_teilrechnung.get('total_taxes_and_charges'))
+                    #Menge
+                    data.append("1")
+                    #Beschreibung
                     if not teilrechnung.invoice_rhapsody:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.sales_invoice + projekt_zusatz)
                     else:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
-                    data.append("")
-                    data.append("1")
-                    data.append("-" + str(_teilrechnung.total))
-                    data.append(_sinv["navision_shortcutdimensionscode_1"])
-                    data.append(territory)
+                    #Sachkonto
+                    data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+                    #Mehrwertsteuerschlüssel
                     if len(sinv.taxes) > 0:
                         data.append(sinv.taxes[0].rate)
                     else:
                         data.append("")
+                    #Steuerart
+                    data.append("TBD")
+                    #Kostenstelle -> tbd
+                    data.append("")
+                    #Erlösart -> tbd
+                    data.append("")
+                    #Kostenträger
+                    data.append(sinv.get('project') or "212_9999")
                     data.append("")
                     datas.append(data)
     
