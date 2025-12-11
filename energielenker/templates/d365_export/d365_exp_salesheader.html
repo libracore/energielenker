@@ -1,0 +1,69 @@
+<style>
+    table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f5f7fa;
+        padding-right: 5px;
+        padding-left: 5px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    td {
+        padding-right: 5px;
+        padding-left: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+    tr {
+        border-bottom: 1px solid silver;
+    }
+</style>
+<table style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Quellsystem</th>
+            <th>Mandant</th>
+            <th>Dokumentennummer</th>
+            <th>Dokumentendatum</th>
+            <th>Kundennummer</th>
+            <th>Fälligkeitsdatum</th>
+            <th>Zahlungsbedingung</th>
+            <th>Zahlungsmethode</th>
+            <th>Skontobedingung</th>
+            <th>Rechnungsnummer</th>
+            <th>Kontotyp</th>
+            <th>Währung</th>
+            <th>Betrag brutto</th>
+            <th>Betrag netto</th>
+            <th>Steuerbetrag</th>
+            <th>Buchungsdatum</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+            <tr>
+                <td>ERPNext</td>
+                <td>212</td>
+                <td></td>
+                <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
+                <td>{{ invoice.navision_kundennummer }}</td>
+                <td>{{ frappe.utils.get_datetime(invoice.due_date).strftime('%d.%m.%Y') }}</td>
+                <td>{{ invoice.payment_term }}</td>
+                <td>UEW</td>
+                <td>{{ invoice.cash_discount }}</td>
+                <td>{{ invoice.sinv }}</td>
+                <td>Debitor</td>
+                <td>EUR</td>
+                <td>{{ invoice.rounded_total }}</td>
+                <td>{{ invoice.net_total }}</td>
+                <td>{{ invoice.total_taxes_and_charges }}</td>
+                <td>{% if invoice.leistungsdatum %}{{ frappe.utils.get_datetime(invoice.leistungsdatum).strftime('%d.%m.%Y') }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

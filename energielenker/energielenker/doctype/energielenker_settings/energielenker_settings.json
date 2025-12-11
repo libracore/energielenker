@@ -57,7 +57,9 @@
   "zoho_timestamp",
   "submit_zoho_data",
   "alternative_section",
-  "alternative_warehouse"
+  "alternative_warehouse",
+  "section_break_54",
+  "d365_export"
  ],
  "fields": [
   {
@@ -359,10 +361,20 @@
    "fieldname": "cfos_new_password",
    "fieldtype": "Password",
    "label": "Password"
+  },
+  {
+   "fieldname": "section_break_54",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "d365_export",
+   "fieldtype": "Table",
+   "label": "D365 Export",
+   "options": "energielenker Settings D365 Mapping"
   }
  ],
  "issingle": 1,
- "modified": "2025-11-17 10:56:42.477361",
+ "modified": "2025-12-05 09:57:01.450640",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",

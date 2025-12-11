@@ -1,0 +1,55 @@
+{
+ "creation": "2025-12-05 09:56:16.616539",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payment_terms_template",
+  "column_break_2",
+  "d365_payment_term",
+  "column_break_4",
+  "d365_cash_discount"
+ ],
+ "fields": [
+  {
+   "fieldname": "payment_terms_template",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Terms Template",
+   "options": "Payment Terms Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "d365_payment_term",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "D365 Payment Term",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "d365_cash_discount",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "D365 Cash Discount",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2025-12-05 10:19:28.093207",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "energielenker Settings D365 Mapping",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

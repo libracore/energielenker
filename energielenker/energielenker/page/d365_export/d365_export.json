@@ -1,0 +1,18 @@
+{
+ "content": null,
+ "creation": "2025-12-03 09:01:37.525587",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2025-12-03 09:01:37.525587",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "d365-export",
+ "owner": "Administrator",
+ "page_name": "D365 Export",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}

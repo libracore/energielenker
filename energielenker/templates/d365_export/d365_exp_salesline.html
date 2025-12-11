@@ -1,0 +1,63 @@
+<style>
+    table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f5f7fa;
+        padding-right: 5px;
+        padding-left: 5px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    td {
+        padding-right: 5px;
+        padding-left: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+    tr {
+        border-bottom: 1px solid silver;
+    }
+</style>
+<table style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Rechnungsnummer</th>
+            <th>Positionsnummer.</th>
+            <th>Gesamtbetrag brutto</th>
+            <th>Gesamtbetrag netto</th>
+            <th>Steuerbetrag</th>
+            <th>Menge</th>
+            <th>Beschreibung</th>
+            <th>Sachkonto</th>
+            <th>Mehrwertsteuerschlüssel</th>
+            <th>Steuerart</th>
+            <th>Kostenstelle</th>
+            <th>Erlösart</th>
+            <th>Kostenträger</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice[0] }}</td>
+                <td>{{ invoice[1] }}</td>
+                <td>{{ invoice[2] }}</td>
+                <td>{{ invoice[3] }}</td>
+                <td>{{ invoice[4] }}</td>
+                <td>{{ invoice[5] }}</td>
+                <td>{{ invoice[6] }}</td>
+                <td>{{ invoice[7] }}</td>
+                <td>{{ invoice[8] }}</td>
+                <td>{{ invoice[9] }}</td>
+                <td>{{ invoice[10] }}</td>
+                <td>{{ invoice[11] }}</td>
+                <td>{{ invoice[12] }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

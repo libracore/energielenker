@@ -145,6 +145,18 @@ def get_data():
                     "name": "Revenue Type",
                     "label": _("Revenue Type"),
                     "description": _("Revenue Type")
+                },
+                {
+                    "type": "page",
+                    "name": "navision-export",
+                    "label": _("Navision Export"),
+                    "description": _("Navision Export")
+                },
+                {
+                    "type": "page",
+                    "name": "d365-export",
+                    "label": _("D365 Export"),
+                    "description": _("D365 Export")
                 }
             ]
         }
