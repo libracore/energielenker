@@ -95,6 +95,7 @@ def set_booked_hours(self, event):
             affected_issues.append(time_log.issue)
     
     for issue in affected_issues:
+        #Set all booked hours
         sql_query = """
             SELECT SUM(`hours`) AS `total_hours`
             FROM `tabTimesheet Detail`
@@ -112,6 +113,26 @@ def set_booked_hours(self, event):
             booked_hours = 0
         
         frappe.db.set_value("Issue", issue, "booked_hours", booked_hours)
+        
+        #Set no bill hours
+        no_bill_query = """
+            SELECT SUM(`hours`) AS `total_hours`
+            FROM `tabTimesheet Detail`
+            WHERE `issue` = '{issue}'
+            AND `docstatus` = 1
+            AND `no_bill` = 1;""".format(issue=issue)
+    
+        no_bill_hours = frappe.db.sql(no_bill_query, as_dict=True)
+
+        if len(no_bill_hours) > 0:
+            booked_no_bill = no_bill_hours[0].total_hours
+        else:
+            booked_no_bill = 0
+        
+        if not booked_no_bill:
+            booked_no_bill = 0
+        
+        frappe.db.set_value("Issue", issue, "booked_no_bill", booked_no_bill)
     
     frappe.db.commit()
 
