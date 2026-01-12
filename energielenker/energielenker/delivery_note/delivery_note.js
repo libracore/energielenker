@@ -218,6 +218,11 @@ frappe.ui.form.on("Delivery Note", {
         if (frm.doc.project && !frm.doc.project_manager_name) {
             set_project_manager(frm.doc.project)
         }
+        
+        if (frm.doc.is_return) {
+            //Check if there are Positions with Qty 0
+            check_zero_pos(frm);
+        }
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -961,5 +966,14 @@ function check_manual_posting_date(frm) {
                 // on no
             }
         )
+    }
+}
+
+function check_zero_pos(frm) {
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].qty == 0) {
+            frappe.validated=false;
+            frappe.msgprint("Position " + frm.doc.items[i].idx + " hat Menge 0. Bitte prüfen Sie die Menge bzw. löschen Sie die Position.");
+        }
     }
 }
