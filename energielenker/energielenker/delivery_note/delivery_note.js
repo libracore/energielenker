@@ -301,6 +301,7 @@ frappe.ui.form.on("Delivery Note", {
         check_for_webshop_account(frm);
         check_for_overdelivery(frm);
         //~ check_for_depot(frm);
+        check_manual_posting_date(frm);
     },
     after_cancel: function(frm) {
         remove_webshop_points(frm);
@@ -943,4 +944,22 @@ function check_assigne(frm) {
             'delivery_note': frm.doc.name
         }
     });
+}
+
+function check_manual_posting_date(frm) {
+    if (frm.doc.set_posting_time) {
+        frappe.validated=false;
+        frappe.confirm(
+            "ACHTUNG!  Dieses Datum ändert  das Buchungsdatum der Warenentnahme! Wollen Sie wirklich buchen?",
+            function(){
+                // on yes
+                frappe.validated=true;
+                frm.save('Submit');
+                window.close();
+            },
+            function(){
+                // on no
+            }
+        )
+    }
 }
