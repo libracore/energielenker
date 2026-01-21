@@ -22,6 +22,9 @@ frappe.ui.form.on("Item", {
     validate: function(frm) {
         if (frm.doc.__islocal) {
            cur_frm.set_value("naming_series", 'A-.#######');
+           if (!frm.doc.is_support) {
+              frappe.msgprint("Wenn Artikel = Dienstleistung, dann Checkbox „ist Dienstleistung“ markieren");
+            }
         }
         if (cur_frm.doc.supplier_items) {
             var supplier_items = cur_frm.doc.supplier_items;
