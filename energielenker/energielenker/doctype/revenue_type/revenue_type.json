@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "number",
+  "nav_number",
   "description",
   "column_break_3",
   "group",
@@ -17,7 +18,7 @@
    "fieldname": "number",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Revenue Number",
+   "label": "Revenue Number D365",
    "reqd": 1
   },
   {
@@ -29,7 +30,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Revenue Group",
-   "options": "\nEnbas\nLobas\nEZA Regler",
+   "options": "\nEnbas\nLobas\nEZA Regler\nenergy monitor\nSonstiges (z.B. Automatisierung)",
    "reqd": 1
   },
   {
@@ -57,9 +58,15 @@
    "in_list_view": 1,
    "label": "Revenue Description",
    "reqd": 1
+  },
+  {
+   "fieldname": "nav_number",
+   "fieldtype": "Int",
+   "label": "Revenue Number Navision",
+   "reqd": 1
   }
  ],
- "modified": "2025-10-29 17:13:02.964788",
+ "modified": "2026-01-21 12:57:21.310760",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Revenue Type",

@@ -183,3 +183,6 @@ DocType: Revenue Type,Revenue Description,Erlösart
 DocType: Revenue Type,For Hardware,Für Waren
 DocType: Revenue Type,For Support,Für Dienstleistungen
 DocType: Revenue Type,For fixed Items,Für fixe Artikel
+DocType: Revenue Type,Revenue Number D365,Erlösartennummer D365
+DocType: Revenue Type,Revenue Number Navision,Erlösartennummer Navision
+DocType: Item,Is Support,Ist Dienstleistung
