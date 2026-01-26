@@ -14,3 +14,4 @@ energielenker.patches.v2_143_0.items_evse_count
 energielenker.patches.v2_145_0.set_project_manager
 energielenker.patches.v2_146_0.update_issue_hours
 energielenker.patches.v2_148_0.set_dn_assigned
+energielenker.patches.v2_150_0.customer_reference

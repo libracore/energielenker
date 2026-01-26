@@ -299,8 +299,7 @@ def check_navision_no(doc_name, navision_no):
 @frappe.whitelist()
 def update_reference_in_so(doc):
     doc = json.loads(doc)
-    frappe.log_error(doc)
-    old_doc = frappe.get_doc("Customer", doc.name)
+    old_doc = frappe.get_doc("Customer", doc.get('name'))
     
     if doc.get('referenz') != old_doc.get('referenz'):
         sales_orders = frappe.db.sql("""
@@ -309,7 +308,7 @@ def update_reference_in_so(doc):
                                     FROM
                                         `tabSales Order`
                                     WHERE
-                                        `customer` = %(customer)s;""", {'customer': doc.name}, as_dict=True)
+                                        `customer` = %(customer)s;""", {'customer': doc.get('name')}, as_dict=True)
     
         if len(sales_orders) > 0:
             for sales_order in sales_orders:
