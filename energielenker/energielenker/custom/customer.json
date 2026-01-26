@@ -1594,7 +1594,7 @@
    "modified_by": "Administrator",
    "name": "Customer-referenz",
    "no_copy": 0,
-   "options": "Referenz angefragt\nReferenzkunde\nReferenz abgelehnt\nReferenz noch nicht angefragt",
+   "options": "\nReferenz angefragt\nReferenzkunde\nReferenz abgelehnt\nReferenz noch nicht angefragt",
    "owner": "Administrator",
    "parent": null,
    "parentfield": null,
