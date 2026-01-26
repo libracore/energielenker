@@ -4,6 +4,7 @@
 
 import frappe
 from frappe.utils.background_jobs import enqueue
+import json
 
 @frappe.whitelist()
 def adresse_verknupfen(address, customer):
@@ -293,3 +294,22 @@ def check_navision_no(doc_name, navision_no):
         return other_docs[0].get('name')
     else:
         return None
+
+#Update Sales Orders if Customer Reference has changed
+@frappe.whitelist()
+def update_reference_in_so(doc):
+    doc = json.loads(doc)
+    old_doc = frappe.get_doc("Customer", doc.get('name'))
+    
+    if doc.get('referenz') != old_doc.get('referenz'):
+        sales_orders = frappe.db.sql("""
+                                    SELECT
+                                        `name`
+                                    FROM
+                                        `tabSales Order`
+                                    WHERE
+                                        `customer` = %(customer)s;""", {'customer': doc.get('name')}, as_dict=True)
+    
+        if len(sales_orders) > 0:
+            for sales_order in sales_orders:
+                update = frappe.db.set_value("Sales Order", sales_order.get('name'), "customer_reference", doc.get('referenz'))

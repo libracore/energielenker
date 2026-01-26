@@ -75,6 +75,9 @@ frappe.ui.form.on('Customer', {
         });
         //Validate Navision Customer No.
         validate_navision_no(frm);
+        
+        //Update Sales Orders if Customer Reference has changed
+        update_reference_in_so(frm);
     },
     manual_billing_address: function(frm) {
         if (frm.doc.manual_billing_address) {
@@ -274,4 +277,15 @@ function validate_navision_no(frm) {
             }
         }
     });
+}
+
+function update_reference_in_so(frm) {
+    if (!frm.doc.__islocal) {
+        frappe.call({
+            'method': 'energielenker.energielenker.customer.customer.update_reference_in_so',
+            'args': {
+                'doc': frm.doc
+            }
+        });
+    }
 }
