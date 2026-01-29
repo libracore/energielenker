@@ -245,3 +245,32 @@ def check_service_project_tasks(doc):
                         return "Aufgabe {0} (Zeile: {1}) wird in diesem Projekt bereits verwendet".format(check_item.get('task'), item.get('idx'))
     
     return False
+
+@frappe.whitelist()
+def get_revenue_type(item_code, revenue_group=None):
+    item_doc = frappe.get_doc("Item", item_code)
+    
+    #Return Revenue Type from Item, if avalaiable
+    if item_doc.get('revenue_type'):
+        return item_doc.get('revenue_type')
+    
+    #Return nothing, if no revenue_group is given
+    if not revenue_group:
+        return None
+    
+    #Else get right Revenue Type
+    for_hardware = 0
+    for_support = 0
+    if item_doc.get('is_support'):
+        for_support = 1
+    else:
+        for_hardware = 1
+    
+    revenue_groups = frappe.get_all("Revenue Type", filters={'group': revenue_group, 'for_hardware': for_hardware, 'for_support': for_support}, fields=["name"])
+    
+    if len(revenue_groups) > 0:
+        return revenue_groups[0].get('name')
+    else:
+        return None
+    
+    
