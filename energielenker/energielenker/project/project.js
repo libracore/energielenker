@@ -36,6 +36,11 @@ frappe.ui.form.on("Project", {
             });
         }
         frm.set_value("total_amount", cur_frm.doc.auftragsummen_gesamt);
+        
+        if (frm.doc.__islocal) {
+            //If Project is marked as Service Project
+            confirm_service_project(frm);
+        }
     },
     onload: function (frm) {
         if (cur_frm.doc.__islocal) {
@@ -652,4 +657,10 @@ function update_service_orders(frm) {
             'service_check': frm.doc.is_service_project
         }
     });
+}
+
+function confirm_service_project(frm) {
+    if (frm.doc.is_service_project) {
+        
+    }
 }
