@@ -36,6 +36,10 @@ frappe.ui.form.on("Project", {
             });
         }
         frm.set_value("total_amount", cur_frm.doc.auftragsummen_gesamt);
+        
+        if (frm.doc.__islocal) {
+            locals.first_validate = true;
+        }
     },
     onload: function (frm) {
         if (cur_frm.doc.__islocal) {
@@ -121,6 +125,11 @@ frappe.ui.form.on("Project", {
         } else {
             //Handle Ready Only of is_service_project Check
             handle_service_project_check_property(frm);
+        }
+        
+        if (locals.first_validate) {
+            //If Project is marked as Service Project
+            confirm_service_project(frm);
         }
     },
     auftragsumme_manuell_festsetzen: function(frm) {
@@ -652,4 +661,22 @@ function update_service_orders(frm) {
             'service_check': frm.doc.is_service_project
         }
     });
+}
+
+function confirm_service_project(frm) {
+    locals.first_validate = false;
+    if (frm.doc.is_service_project) {
+        frappe.confirm(
+            'Bitte prüfen, ob der Haken "Ist Dienstleistungsprojekt" gesetzt sein muss (Funktion automatisierte Stundenabrechnung"). Soll der Haken entfernt werden?',
+            function(){
+                // on yes
+                cur_frm.set_value("is_service_project", 0).then(() => {
+                    cur_frm.save()
+                });
+            },
+            function(){
+                // on no
+            }
+        )
+    }
 }
