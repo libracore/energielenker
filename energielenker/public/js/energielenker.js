@@ -750,3 +750,52 @@ function check_charging_points_item(item_code) {
         }
     });
 }
+
+function set_revenue_type(frm, row) {
+    if (row.item_code) {
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_order.sales_order.get_revenue_type',
+            'args': {
+                'item_code': row.item_code,
+                'revenue_group': frm.doc.revenue_group
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    frappe.model.set_value(row.doctype, row.name, "revenue_type", response.message);
+                } else {
+                    if (frm.doc.revenue_group) {
+                        frappe.msgprint("Beim abrufen der Erlösart ist ein Fehler aufgetreten oder diese ist nicht definiert, bitte selber setzten.");
+                    } else {
+                        frappe.msgprint("Bitte Erlösartengruppe definieren.");
+                        frappe.model.set_value(row.doctype, row.name, "item_code", null);
+                    }
+                }
+            }
+        });
+    } else {
+        frappe.model.set_value(row.doctype, row.name, "revenue_type", null);
+    }
+}
+
+function update_revenue_types(frm) {
+    if (frm.doc.revenue_group) {
+        if (frm.doc.items && frm.doc.items.length > 0) {
+            for (let i = 0; i < frm.doc.items.length; i++) {
+                if (frm.doc.items[i].item_code) {
+                    var row = locals[frm.doc.items[i].doctype][frm.doc.items[i].name];
+                    set_revenue_type(frm, row);
+                }
+            }
+        }
+    } else {
+        if (frm.doc.items && frm.doc.items.length > 0) {
+            for (let i = 0; i < frm.doc.items.length; i++) {
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "revenue_type", null);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "revenue_number", null);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "revenue_number_navision", null);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "revenue_description", null);
+                frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "revenue_group", null);
+            }
+        }
+    }
+}

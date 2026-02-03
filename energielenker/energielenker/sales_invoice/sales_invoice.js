@@ -244,6 +244,10 @@ frappe.ui.form.on("Sales Invoice", {
     },
     leistungsdatum: function(frm) {
         frm.set_value("delivery_date", frm.doc.leistungsdatum);
+    },
+    revenue_group: function(frm) {
+        //Update Revenue Type in Items, according new group
+        update_revenue_types(frm);
     }
 });
 
@@ -286,6 +290,8 @@ frappe.ui.form.on('Sales Invoice Item', {
         if (row.item_code) {
             fetch_stock_items(row.item_code, cdt, cdn);
         }
+        //Autoset Revenue Information
+        set_revenue_type(frm, row);
     }
 });
 
