@@ -2426,7 +2426,7 @@
    "modified_by": "Administrator",
    "name": "Sales Invoice-revenue_group",
    "no_copy": 0,
-   "options": "\nEnbas\nLobas\nEZA Regler\nenergy monitor\nSonstiges (z.B. Automatisierung)",
+   "options": "\nEnbas\nLobas\nEZA Regler\nenergy monitor\nAutomatisierung\nSonstiges",
    "owner": "Administrator",
    "parent": null,
    "parentfield": null,

@@ -30,7 +30,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Revenue Group",
-   "options": "\nEnbas\nLobas\nEZA Regler\nenergy monitor\nSonstiges (z.B. Automatisierung)",
+   "options": "\nEnbas\nLobas\nEZA Regler\nenergy monitor\nAutomatisierung\nSonstiges",
    "reqd": 1
   },
   {
@@ -66,7 +66,7 @@
    "reqd": 1
   }
  ],
- "modified": "2026-01-21 12:57:21.310760",
+ "modified": "2026-02-05 12:55:11.438897",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Revenue Type",
