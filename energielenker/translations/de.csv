@@ -10,6 +10,7 @@ DocType: Delivery Note,Hide Serial No in Print Format,Seriennummer in Druckforma
 DocType: Delivery Note,Delivery Note assigned,Lieferschein zugewiesen
 DocType: Issue,Booked Hours,Gebuchte Stunden
 DocType: Issue,Contact Customer,Kontakt Kunde
+DocType: Issue,No Bill Hours,Stunden nicht zu verrechnen
 DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
 DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
 DocType: Charging Point Key Account,Disabled,Deaktiviert
