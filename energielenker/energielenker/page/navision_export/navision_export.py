@@ -204,13 +204,13 @@ def _get_salesline_datas(suchparameter):
                 data.append("1000" + str(loop))
                 loop += 1
                 data.append("Sachkonto")
-                data.append(sinv.navision_kontonummer)
+                data.append(lineitem.get('revenue_number_navision'))
                 data.append("")
                 data.append(lineitem.item_name[:50])
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
-                data.append(_sinv["navision_shortcutdimensionscode_1"])
+                data.append(lineitem.get('navision_shortcutdimensionscode_1'))
                 data.append(territory)
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
@@ -249,13 +249,13 @@ def _get_salesline_datas(suchparameter):
                 data.append("1000" + str(loop))
                 loop += 1
                 data.append("Sachkonto")
-                data.append(sinv.navision_kontonummer)
+                data.append(lineitem.get('revenue_number_navision'))
                 data.append("")
                 data.append(_sinv["buchungsbeschreibung"])
                 data.append("")
                 data.append(lineitem.qty)
                 data.append(lineitem.rate)
-                data.append(_sinv["navision_shortcutdimensionscode_1"])
+                data.append(lineitem.get('navision_shortcutdimensionscode_1'))
                 data.append(territory)
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
