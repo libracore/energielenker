@@ -33,6 +33,30 @@ frappe.ui.form.on('Quotation', {
 									}
 								});
 							})(i);
+                        }
+                        //Get new Selling Rates for Part List Items
+                        if (frm.doc.part_list_items && frm.doc.part_list_items.length > 0) {
+                            for (var i = 0; i < cur_frm.doc.part_list_items.length; i++) {
+                                (function(index) {
+                                    frappe.call({
+                                        'method': 'energielenker.energielenker.quotation.quotation.get_price_list_rate',
+                                        'args': {
+                                            'item_code': cur_frm.doc.part_list_items[index].item_code,
+                                            'uom': cur_frm.doc.part_list_items[index].uom,
+                                            'customer': cur_frm.doc.party_name
+                                        },
+                                        'callback': function(response) {
+                                            if (response.message) {
+                                                var currentSellingRate = response.message;
+                                                console.log('Current Selling Rate:', currentSellingRate);
+                                                frappe.model.set_value(cur_frm.doc.part_list_items[index].doctype, cur_frm.doc.part_list_items[index].name, 'rate', currentSellingRate);
+                                            } else {
+                                                console.log('Item price not found.');
+                                            }
+                                        }
+                                    });
+                                })(i);
+                            }
 						}
 						
 						//For future duplications
