@@ -148,6 +148,35 @@ def get_data(filters):
                         'net_amount': 0,
                         'average': 0
                         })
+        
+        #get amount of project with EZA-Regler
+        biogas_projects = frappe.db.sql("""
+                                SELECT
+                                    'Projekte CEMS/Automatisierung (auch Biogas)' AS `description`,
+                                    COUNT(`name`) AS `quantity`,
+                                    SUM(`total_amount`) AS `net_amount`,
+                                    SUM(`total_amount`) / COUNT(`name`) AS `average`
+                                FROM
+                                    `tabProject`
+                                WHERE
+                                    `project_type` = 'CEMS/Automatisierung (auch Biogas)'
+                                AND
+                                    DATE(`creation`) BETWEEN '{from_date}' AND '{to_date}'
+                                AND
+                                    `status` != 'Cancelled'
+                                GROUP BY
+                                    `project_type`""".format(from_date=filters.from_date, to_date=filters.to_date), as_dict=True)
+        
+        if len(biogas_projects) > 0:
+            data.append(biogas_projects[0])
+        else:
+            data.append({
+                        'description': "Projekte CEMS/Automatisierung (auch Biogas)",
+                        'quantity': 0,
+                        'net_amount': 0,
+                        'average': 0
+                        })
+        
         #get Data for Cost Center
     else:
         if filters.type == "Sales Invoice per Cost Center":
