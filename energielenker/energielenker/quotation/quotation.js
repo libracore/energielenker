@@ -150,6 +150,10 @@ frappe.ui.form.on('Quotation', {
         if (cur_frm.doc.party_name && cur_frm.doc.quotation_to == "Customer") {
             validate_customer(frm, "customer");
         }
+    },
+    revenue_group: function(frm) {
+        //Update Revenue Type in Items, according new group
+        update_revenue_types(frm);
     }
 })
 
@@ -174,6 +178,8 @@ frappe.ui.form.on('Quotation Item', {
         } else {
             frappe.model.set_value(cdt, cdn, 'with_bom', 0);
         }
+        //Autoset Revenue Information
+        set_revenue_type(frm, row);
     },
     before_items_remove(frm, cdt, cdn) {
         var row = locals[cdt][cdn]
