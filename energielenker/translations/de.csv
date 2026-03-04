@@ -32,6 +32,7 @@ DocType: Customer,Blocking Reason,Grund der Sperrung
 DocType: Customer,Delivery Note Note,Notiz Lieferschein
 DocType: Customer,Leave Delivery Note Note,Notiz für Lieferschein hinterlassen
 DocType: Customer,Consent to remote device maintenance given,Einwilligung zur Geräte-Fernwartung abgegeben
+DocType: Customer,Framework agreement,Rahmenvertrag
 DocType: Depot,Depot,Kommissionierung
 DocType: Depot,To Warehouse,Ziellager
 DocType: Depot,Project,Projekt
