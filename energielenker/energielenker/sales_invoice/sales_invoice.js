@@ -63,7 +63,6 @@ frappe.ui.form.on("Sales Invoice", {
                     cur_frm.fields_dict['navision_konto'].get_query = function(doc) {
                          return {
                              filters: {
-                                 "ic": customer.navision_internal_ic,
                                  "deaktiviert": 0
                              }
                          }
