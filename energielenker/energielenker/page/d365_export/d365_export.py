@@ -18,6 +18,7 @@ def get_data(suchparameter, exportieren=False):
     if not exportieren:
         # show data
         data = get_datas(suchparameter)
+        frappe.log_error(data, "data")
         if data:
             if suchparameter["ansicht_auswahl"] == 'SalesHeader':
                 return frappe.render_template('templates/d365_export/d365_exp_salesheader.html', {'invoices': data})
@@ -30,7 +31,7 @@ def get_data(suchparameter, exportieren=False):
             # SalesHeader
             suchparameter["ansicht_auswahl"] = 'SalesHeader'
             salesheader_raw_data = get_datas(suchparameter)
-            salesheader_data = [["Quellsystem","Mandant","Dokumentennummer","Dokumentendatum","Kundennummer","Fälligkeitsdatum","Zahlungsbedingung","Zahlungsmethode","Skontobedingung","Rechnungsnummer","Kontotyp","Währung","Betrag brutto", "Betrag netto", "Steuerbetrag", "Buchungsdatum"]]
+            salesheader_data = [["Quellsystem","Mandant","Dokumentennummer","Dokumentendatum","Kundennummer","Fälligkeitsdatum","Zahlungsbedingung","Zahlungsmethode","Skontobedingung","Rechnungsnummer","Rechnungstyp", "Beschreibung", "Kontotyp", "Währung","Betrag brutto", "Betrag netto", "Steuerbetrag", "Buchungsdatum"]]
             
             for sinv in salesheader_raw_data:
                 data = []
@@ -38,12 +39,14 @@ def get_data(suchparameter, exportieren=False):
                 data.append("212")
                 data.append("")
                 data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
-                data.append(sinv["navision_kundennummer"])
+                data.append(sinv["d365_cust_no"])
                 data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
                 data.append(sinv["payment_term"])
                 data.append("UEW")
                 data.append(sinv["cash_discount"])
                 data.append(sinv["sinv"])
+                data.append(sinv["billing_type"])
+                data.append("")
                 data.append("Debitor")
                 data.append("EUR")
                 data.append(sinv["rounded_total"])
@@ -51,7 +54,6 @@ def get_data(suchparameter, exportieren=False):
                 data.append(sinv["total_taxes_and_charges"])
                 data.append(frappe.utils.get_datetime(sinv["leistungsdatum"]).strftime('%d.%m.%Y') if sinv["leistungsdatum"] else "")
                 salesheader_data.append(data)
-            
             # SalesLine
             suchparameter["ansicht_auswahl"] = 'SalesLine'
             salesline_raw_data = get_datas(suchparameter)
@@ -152,7 +154,7 @@ def _get_salesheader_datas(suchparameter):
             contract_type = 'DV'
             projektnummer = False
         
-        navision_kundennummer = frappe.get_doc("Customer", sinv.customer).navision_nr
+        d365_cust_no = frappe.get_doc("Customer", sinv.customer).fo_d365_nr
         
         buchungsbeschreibung = ''
         if sinv.billing_type == 'Rechnung':
@@ -180,16 +182,17 @@ def _get_salesheader_datas(suchparameter):
         
         data = {
             'sinv': sinv.name,
-            'navision_kundennummer': navision_kundennummer,
+            'd365_cust_no': d365_cust_no,
             'rechnungsdatum': sinv.posting_date,
             'due_date': sinv.due_date,
             'rounded_total': sinv.get('rounded_total'),
             'net_total': sinv.get('net_total'),
             'total_taxes_and_charges': sinv.get('total_taxes_and_charges'),
-            'leistungsdatum': sinv.get('leistungsdatum'),
+            'leistungsdatum': sinv.get('leistungsdatum') or sinv.get('posting_date'),
             'payment_term': payment_term,
             'cash_discount': cash_discount,
-            'buchungsbeschreibung': buchungsbeschreibung
+            'buchungsbeschreibung': buchungsbeschreibung,
+            'type': sinv.get('billing_type')
         }
         
         datas.append(data)
