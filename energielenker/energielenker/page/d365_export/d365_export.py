@@ -268,9 +268,9 @@ def _get_salesline_datas(suchparameter):
             #Positionsnummer
             data.append("1")
             #Gesamtbetrag brutto
-            data.append(sinv.get('grand_total'))
+            data.append(sinv.get('rounded_total'))
             #Gesamtbetrag netto
-            data.append(sinv.get('total'))
+            data.append(sinv.get('net_total'))
             #Steuerbetrag
             data.append(sinv.get('total_taxes_and_charges'))
             #Menge
@@ -279,17 +279,18 @@ def _get_salesline_datas(suchparameter):
             data.append(_sinv["buchungsbeschreibung"])
             #Sachkonto
             data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+            # ~ data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
             #Mehrwertsteuerschlüssel
             if len(sinv.taxes) > 0:
                 data.append(sinv.taxes[0].rate)
             else:
                 data.append("")
             #Steuerart
-            data.append("TBD")
+            data.append("Anzahlung")
             #Kostenstelle -> tbd
-            data.append("")
+            data.append("TBD")
             #Erlösart -> tbd
-            data.append("")
+            data.append("TBD")
             #Kostenträger
             data.append(sinv.get('project') or "212_9999")
             datas.append(data)
