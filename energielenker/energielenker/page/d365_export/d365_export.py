@@ -18,7 +18,6 @@ def get_data(suchparameter, exportieren=False):
     if not exportieren:
         # show data
         data = get_datas(suchparameter)
-        frappe.log_error(data, "data")
         if data:
             if suchparameter["ansicht_auswahl"] == 'SalesHeader':
                 return frappe.render_template('templates/d365_export/d365_exp_salesheader.html', {'invoices': data})
@@ -301,10 +300,16 @@ def _get_salesline_datas(suchparameter):
                 #Rechnungsnummer
                 data.append(_sinv.get('sinv'))
                 #Positionsnummer
-                # ~ data.append(lineitem.get('idx'))
-                data.append("SR")
+                data.append(lineitem.get('idx'))
+                #Get Discount percentage
+                if sinv.additional_discount_percentage > 0:
+                    discount_percentage = sinv.additional_discount_percentage
+                elif sinv.discount_amount > 0:
+                    discount_percentage = sinv.discount_amount / sinv.total * 100
+                else:
+                    discount_percentage = 0
                 #Calculate Line Prices
-                net_amount = lineitem.get('amount') * (1-(sinv.additional_discount_percentage/100))
+                net_amount = lineitem.get('amount') * (1-(discount_percentage/100))
                 if len(sinv.taxes) > 0:
                     gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
                 else:
@@ -321,18 +326,23 @@ def _get_salesline_datas(suchparameter):
                 #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
                 #Sachkonto
-                data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+                data.append(lineitem.get('revenue_number') or "")
                 #Mehrwertsteuerschlüssel
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
                 else:
                     data.append("")
                 #Steuerart
-                data.append("TBD")
+                is_support = frappe.get_value("Item", lineitem.get('item_code'), "is_support")
+                if is_support:
+                    steuerart = "Dienstleistung"
+                else:
+                    steuerart = "Ware"
+                data.append(steuerart)
                 #Kostenstelle
-                data.append(lineitem.get('revenue_number') or "")
+                data.append(lineitem.get('navision_shortcutdimensionscode_1') or "")
                 #Erlösart
-                data.append(lineitem.get('revenue_description') or "")
+                data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
                 datas.append(data)
@@ -350,14 +360,13 @@ def _get_salesline_datas(suchparameter):
                             projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
                     #Rechnungsnummer
-                    data.append(sinv.get('name'))
+                    data.append(_teilrechnung.get('name'))
                     #Positionsnummer
-                    # ~ data.append("1")
-                    data.append("STR")
+                    data.append("1")
                     #Gesamtbetrag brutto
-                    data.append(_teilrechnung.get('grand_total'))
+                    data.append(_teilrechnung.get('rounded_total'))
                     #Gesamtbetrag netto
-                    data.append(_teilrechnung.get('total'))
+                    data.append(_teilrechnung.get('net_total'))
                     #Steuerbetrag
                     data.append(_teilrechnung.get('total_taxes_and_charges'))
                     #Menge
@@ -368,20 +377,20 @@ def _get_salesline_datas(suchparameter):
                     else:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     #Sachkonto
-                    data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+                    data.append("{0} {1}".format(_teilrechnung.get('navision_kontonummer'), _teilrechnung.get('navision_konto')))
                     #Mehrwertsteuerschlüssel
                     if len(sinv.taxes) > 0:
                         data.append(sinv.taxes[0].rate)
                     else:
                         data.append("")
                     #Steuerart
-                    data.append("TBD")
+                    data.append("Anzahlung")
                     #Kostenstelle -> tbd
-                    data.append("")
+                    data.append("TBD")
                     #Erlösart -> tbd
-                    data.append("")
+                    data.append("TBD")
                     #Kostenträger
-                    data.append(sinv.get('project') or "212_9999")
+                    data.append(_teilrechnung.get('project') or "212_9999")
                     data.append("")
                     datas.append(data)
     
