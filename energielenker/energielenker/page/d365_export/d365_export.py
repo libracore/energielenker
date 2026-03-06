@@ -278,7 +278,6 @@ def _get_salesline_datas(suchparameter):
             data.append(_sinv["buchungsbeschreibung"])
             #Sachkonto
             data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
-            # ~ data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
             #Mehrwertsteuerschlüssel
             if len(sinv.taxes) > 0:
                 data.append(sinv.taxes[0].rate)
