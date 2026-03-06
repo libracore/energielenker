@@ -36,6 +36,8 @@
             <th>Zahlungsmethode</th>
             <th>Skontobedingung</th>
             <th>Rechnungsnummer</th>
+            <th>Rechnungstyp</th>
+            <th>Beschreibung</th>
             <th>Kontotyp</th>
             <th>Währung</th>
             <th>Betrag brutto</th>
@@ -51,12 +53,14 @@
                 <td>212</td>
                 <td></td>
                 <td>{{ frappe.utils.get_datetime(invoice.rechnungsdatum).strftime('%d.%m.%Y') }}</td>
-                <td>{{ invoice.navision_kundennummer }}</td>
+                <td>{{ invoice.d365_cust_no }}</td>
                 <td>{{ frappe.utils.get_datetime(invoice.due_date).strftime('%d.%m.%Y') }}</td>
                 <td>{{ invoice.payment_term }}</td>
                 <td>UEW</td>
                 <td>{{ invoice.cash_discount }}</td>
                 <td>{{ invoice.sinv }}</td>
+                <td>{{ invoice.type }}</td>
+                <td></td>
                 <td>Debitor</td>
                 <td>EUR</td>
                 <td>{{ invoice.rounded_total }}</td>
