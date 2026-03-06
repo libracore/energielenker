@@ -45,7 +45,7 @@ def get_data(suchparameter, exportieren=False):
                 data.append("UEW")
                 data.append(sinv["cash_discount"])
                 data.append(sinv["sinv"])
-                data.append(sinv["billing_type"])
+                data.append(sinv["type"])
                 data.append("")
                 data.append("Debitor")
                 data.append("EUR")

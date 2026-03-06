@@ -36,6 +36,8 @@
             <th>Zahlungsmethode</th>
             <th>Skontobedingung</th>
             <th>Rechnungsnummer</th>
+            <th>Rechnungstyp</th>
+            <th>Beschreibung</th>
             <th>Kontotyp</th>
             <th>Währung</th>
             <th>Betrag brutto</th>
@@ -57,6 +59,8 @@
                 <td>UEW</td>
                 <td>{{ invoice.cash_discount }}</td>
                 <td>{{ invoice.sinv }}</td>
+                <td>{{ invoice.type }}</td>
+                <td></td>
                 <td>Debitor</td>
                 <td>EUR</td>
                 <td>{{ invoice.rounded_total }}</td>
@@ -67,25 +71,3 @@
         {% endfor %}
     </tbody>
 </table>
-
-
-<!--
-                data = []
-                data.append("ERPNext")
-                data.append("212")
-                data.append("")
-                data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
-                data.append(sinv["d365_cust_no"])
-                data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
-                data.append(sinv["payment_term"])
-                data.append("UEW")
-                data.append(sinv["cash_discount"])
-                data.append(sinv["sinv"])
-                data.append(sinv["billing_type"])
-                data.append("")
-                data.append("Debitor")
-                data.append("EUR")
-                data.append(sinv["rounded_total"])
-                data.append(sinv["net_total"])
-                data.append(sinv["total_taxes_and_charges"])
-                data.append(frappe.utils.get_datetime(sinv["leistungsdatum"]).strftime('%d.%m.%Y') if sinv["leistungsdatum"] else "")-->
