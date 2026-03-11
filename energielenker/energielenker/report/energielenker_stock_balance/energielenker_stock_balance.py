@@ -90,6 +90,7 @@ def get_columns(filters):
         {"label": _("Item Name"), "fieldname": "item_name", "width": 150},
         {"label": _("Item Group"), "fieldname": "item_group", "fieldtype": "Link", "options": "Item Group", "width": 100},
         {"label": _("Brand"), "fieldname": "brand", "fieldtype": "Link", "options": "Brand", "width": 90},
+        {"label": _("Tags"), "fieldname": "_user_tags", "fieldtype": "Data", "width": 200},
         {"label": _("Description"), "fieldname": "description", "width": 140},
         {"label": _("Warehouse"), "fieldname": "warehouse", "fieldtype": "Link", "options": "Warehouse", "width": 100},
         {"label": _("Stock UOM"), "fieldname": "stock_uom", "fieldtype": "Link", "options": "UOM", "width": 90},
@@ -156,9 +157,11 @@ def get_stock_ledger_entries(filters, items):
         select
             sle.item_code, warehouse, sle.posting_date, sle.actual_qty, sle.valuation_rate,
             sle.company, sle.voucher_type, sle.qty_after_transaction, sle.stock_value_difference,
-            sle.item_code as name, sle.voucher_no
+            sle.item_code as name, sle.voucher_no, `tabItem`.`_user_tags`
         from
             `tabStock Ledger Entry` sle force index (posting_sort_index)
+        left join
+            `tabItem` ON `tabItem`.`name` = sle.item_code
         where sle.docstatus < 2 %s %s
         order by sle.posting_date, sle.posting_time, sle.creation, sle.actual_qty""" % #nosec
         (item_conditions_sql, conditions), as_dict=1)
@@ -262,7 +265,7 @@ def get_item_details(items, sle, filters):
 
     res = frappe.db.sql("""
         select
-            item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom, item.manufacturing_by_energielenker, temporarily_deactivated, disabled %s
+            item.name, item.item_name, item.description, item._user_tags, item.item_group, item.brand, item.stock_uom, item.manufacturing_by_energielenker, temporarily_deactivated, disabled %s
         from
             `tabItem` item
             %s
@@ -271,6 +274,8 @@ def get_item_details(items, sle, filters):
     """.format(disabled_condition=disabled_condition) % (cf_field, cf_join, ','.join(['%s'] *len(items))), items, as_dict=1)
 
     for item in res:
+        if item['_user_tags']:
+            item['_user_tags'] = item['_user_tags'][1:]
         item_details.setdefault(item.name, item)
 
     if filters.get('show_variant_attributes', 0) == 1:
