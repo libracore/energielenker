@@ -157,11 +157,9 @@ def get_stock_ledger_entries(filters, items):
         select
             sle.item_code, warehouse, sle.posting_date, sle.actual_qty, sle.valuation_rate,
             sle.company, sle.voucher_type, sle.qty_after_transaction, sle.stock_value_difference,
-            sle.item_code as name, sle.voucher_no, `tabItem`.`_user_tags`
+            sle.item_code as name, sle.voucher_no
         from
             `tabStock Ledger Entry` sle force index (posting_sort_index)
-        left join
-            `tabItem` ON `tabItem`.`name` = sle.item_code
         where sle.docstatus < 2 %s %s
         order by sle.posting_date, sle.posting_time, sle.creation, sle.actual_qty""" % #nosec
         (item_conditions_sql, conditions), as_dict=1)
