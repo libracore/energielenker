@@ -153,7 +153,7 @@ def _get_salesheader_datas(suchparameter):
             contract_type = 'DV'
             projektnummer = False
         
-        d365_cust_no = frappe.get_doc("Customer", sinv.customer).fo_d365_nr
+        d365_cust_no = frappe.get_doc("Customer", sinv.customer).navision_nr
         
         buchungsbeschreibung = ''
         if sinv.billing_type == 'Rechnung':
