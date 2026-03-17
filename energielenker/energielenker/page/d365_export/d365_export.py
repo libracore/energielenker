@@ -285,10 +285,10 @@ def _get_salesline_datas(suchparameter):
                 data.append("")
             #Steuerart
             data.append("Anzahlung")
-            #Kostenstelle -> tbd
-            data.append("TBD")
-            #Erlösart -> tbd
-            data.append("TBD")
+            #Kostenstelle
+            data.append("9999")
+            #Erlösart
+            data.append("5005")
             #Kostenträger
             data.append(sinv.get('project') or "212_9999")
             datas.append(data)
@@ -384,10 +384,10 @@ def _get_salesline_datas(suchparameter):
                         data.append("")
                     #Steuerart
                     data.append("Anzahlung")
-                    #Kostenstelle -> tbd
-                    data.append("TBD")
-                    #Erlösart -> tbd
-                    data.append("TBD")
+                    #Kostenstelle
+                    data.append("9999")
+                    #Erlösart
+                    data.append("5005")
                     #Kostenträger
                     data.append(_teilrechnung.get('project') or "212_9999")
                     data.append("")
