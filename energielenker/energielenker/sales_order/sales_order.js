@@ -424,11 +424,17 @@ frappe.ui.form.on("Sales Order", {
         //~ deliver_int_positions(frm);
         check_for_charged_at_cost(frm);
         cur_frm.set_value("original_total", cur_frm.doc.total);
+        //Show information if there is a Blanket Order for any item
+        show_blanket_order(frm);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
+        }
+        //Show information if there is a Blanket Order for any item
+        if (frm.doc.__islocal) {
+            show_blanket_order(frm);
         }
     },
     billing_address_name: function(frm) {
@@ -1309,6 +1315,24 @@ function toggle_position_warehouse(frm) {
         if (frm.doc.items[i].alternative_position) {
             let item = frappe.get_doc(frm.doc.items[i].doctype, frm.doc.items[i].name);
             toggle_warehouse(item);
+        }
+    }
+}
+
+function show_blanket_order(frm) {
+    if (frm.doc.items && frm.doc.items.length > 0) {
+        let message = "Folgende Artikel gehören in einen Rahmenvertrag:<br>";
+        let hit = false;
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].blanket_order) {
+                message = message + "<br>-" + frm.doc.items[i].item_code + "(Pos. " + frm.doc.items[i].idx + ")"
+                hit = true;
+            }
+        }
+        
+        if (hit) {
+            cur_frm.set_value("ignore_pricing_rule", 1);
+            frappe.msgprint(message, "Rahmenvertrag");
         }
     }
 }
