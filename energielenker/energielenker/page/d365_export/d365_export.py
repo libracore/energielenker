@@ -277,7 +277,8 @@ def _get_salesline_datas(suchparameter):
             #Beschreibung
             data.append(_sinv["buchungsbeschreibung"])
             #Sachkonto
-            data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
+            data.append("5005")
+            # ~ data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
             #Mehrwertsteuerschlüssel
             if len(sinv.taxes) > 0:
                 data.append(sinv.taxes[0].rate)
@@ -376,7 +377,8 @@ def _get_salesline_datas(suchparameter):
                     else:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     #Sachkonto
-                    data.append("{0} {1}".format(_teilrechnung.get('navision_kontonummer'), _teilrechnung.get('navision_konto')))
+                    data.append("5005")
+                    # ~ data.append("{0} {1}".format(_teilrechnung.get('navision_kontonummer'), _teilrechnung.get('navision_konto')))
                     #Mehrwertsteuerschlüssel
                     if len(sinv.taxes) > 0:
                         data.append(sinv.taxes[0].rate)
