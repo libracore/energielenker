@@ -519,6 +519,9 @@ frappe.ui.form.on('Sales Order Item', {
         }
         //Autoset Revenue Information
         set_revenue_type(frm, row);
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
     },
     before_items_remove(frm, cdt, cdn) {
         var row = locals[cdt][cdn]
@@ -555,7 +558,19 @@ frappe.ui.form.on('Sales Order Item', {
         if (frm.doc.is_service_project) {
             frappe.model.set_value(cdt, cdn, "is_service_project_item", 1);
         }
-    }
+    },
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
+    },
+    uom(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
+    },
 });
 
 frappe.ui.form.on('Sales Order Part List Item', {
@@ -1358,4 +1373,10 @@ function set_blanket_order_discount(frm) {
             }
         }
     });
+}
+
+function remove_blanket_order_info(row) {
+    frappe.model.set_value(row.doctype, row.name, "discount_percentage", 0);
+    frappe.model.set_value(row.doctype, row.name, "set_with_blanket_order", 0);
+    frappe.model.set_value(row.doctype, row.name, "blanket_order_discount", null);
 }

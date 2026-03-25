@@ -39,6 +39,7 @@ def get_blanket_order_discount(doc):
         
         #If one or more Blanket Orders are Avalaible, get highes Discount with reached min. qty
         actual_discount = 0
+        blanket_order_link = None
         if len(blanket_orders) > 0:
             for bo in blanket_orders:
                 blanket_order_doc = frappe.get_doc("Blanket Order", bo.get('name'))
@@ -46,11 +47,13 @@ def get_blanket_order_discount(doc):
                     if discount.get('item_code') == item.get('item_code') and actual_discount < discount.get('discount') and item.get('qty') >= discount.get('qty'):
                         if item.get('item_code') != "A-0001701":
                             actual_discount = discount.get('discount')
+                            blanket_order_link = bo.get('name')
                         else:
                             if item.get('uom') == discount.get('uom'):
                                 actual_discount = discount.get('discount')
+                                blanket_order_link = bo.get('name')
             if actual_discount > 0:
-                discounts.append({'name': item.get('name'), 'discount': actual_discount, 'blanket_order': bo.get('name')})
+                discounts.append({'name': item.get('name'), 'discount': actual_discount, 'blanket_order': blanket_order_link})
     
     #Return all found discounts
     if len(discounts) > 0:
