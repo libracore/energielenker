@@ -65,7 +65,8 @@ doctype_js = {
     "Stock Reconciliation": "energielenker/stock_reconciliation/stock_reconciliation.js",
     "Work Order": "energielenker/work_order/work_order.js",
     "Product Bundle": "energielenker/product_bundle/product_bundle.js",
-    "Warehouse": "energielenker/warehouse/warehouse.js"
+    "Warehouse": "energielenker/warehouse/warehouse.js",
+    "Blanket Order": "energielenker/blanket_order/blanket_order.js"
 }
 
 doctype_list_js = {

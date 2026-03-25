@@ -217,6 +217,9 @@ frappe.ui.form.on("Sales Order", {
             //check if default warehouse ist set in all items, otherwise give information.
             check_default_warehouses(frm);
         }
+        
+        //Set Discounts from Blanket Order
+        set_blanket_order_discount(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -1335,4 +1338,24 @@ function show_blanket_order(frm) {
             frappe.msgprint(message, "Rahmenvertrag");
         }
     }
+}
+
+function set_blanket_order_discount(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.blanket_order.blanket_order.get_blanket_order_discount',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                let discounts = response.message;
+                console.log(discounts);
+                for (let i = 0; i < discounts.length; i++) {
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "discount_percentage", discounts[i].discount);
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "set_with_blanket_order", 1);
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "blanket_order_discount", discounts[i].blanket_order);
+                }
+            }
+        }
+    });
 }
