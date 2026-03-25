@@ -1364,12 +1364,12 @@ function set_blanket_order_discount(frm) {
         'callback': function(response) {
             if (response.message) {
                 let discounts = response.message;
-                console.log(discounts);
                 for (let i = 0; i < discounts.length; i++) {
                     frappe.model.set_value("Sales Order Item", discounts[i].name, "discount_percentage", discounts[i].discount);
                     frappe.model.set_value("Sales Order Item", discounts[i].name, "set_with_blanket_order", 1);
                     frappe.model.set_value("Sales Order Item", discounts[i].name, "blanket_order_discount", discounts[i].blanket_order);
                 }
+                frappe.show_alert("Rabatt aus Rahmenauftrag wurde gesetzt");
             }
         }
     });
