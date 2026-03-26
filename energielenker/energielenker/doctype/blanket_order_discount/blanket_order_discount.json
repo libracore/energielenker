@@ -1,0 +1,67 @@
+{
+ "creation": "2026-03-25 09:33:34.682554",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "uom",
+  "column_break_3",
+  "qty",
+  "discount"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name"
+  },
+  {
+   "depends_on": "eval: doc.item_code == \"A-0001701\"",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "From Quantity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "discount",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Discount (%)",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2026-03-26 14:29:20.846839",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Blanket Order Discount",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
