@@ -217,6 +217,9 @@ frappe.ui.form.on("Sales Order", {
             //check if default warehouse ist set in all items, otherwise give information.
             check_default_warehouses(frm);
         }
+        
+        //Set Discounts from Blanket Order
+        set_blanket_order_discount(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -424,11 +427,17 @@ frappe.ui.form.on("Sales Order", {
         //~ deliver_int_positions(frm);
         check_for_charged_at_cost(frm);
         cur_frm.set_value("original_total", cur_frm.doc.total);
+        //Show information if there is a Blanket Order for any item
+        show_blanket_order(frm);
     },
     before_save(frm) {
         get_customer_sales_order_note(frm);
         if (cur_frm.doc.__islocal && !frm.doc.source) {
             set_lead_source(frm.doc.customer);
+        }
+        //Show information if there is a Blanket Order for any item
+        if (frm.doc.__islocal) {
+            show_blanket_order(frm);
         }
     },
     billing_address_name: function(frm) {
@@ -510,6 +519,9 @@ frappe.ui.form.on('Sales Order Item', {
         }
         //Autoset Revenue Information
         set_revenue_type(frm, row);
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
     },
     before_items_remove(frm, cdt, cdn) {
         var row = locals[cdt][cdn]
@@ -546,7 +558,19 @@ frappe.ui.form.on('Sales Order Item', {
         if (frm.doc.is_service_project) {
             frappe.model.set_value(cdt, cdn, "is_service_project_item", 1);
         }
-    }
+    },
+    qty(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
+    },
+    uom(frm, cdt, cdn) {
+        var row = locals[cdt][cdn];
+        if (row.set_with_blanket_order) {
+            remove_blanket_order_info(row);
+        }
+    },
 });
 
 frappe.ui.form.on('Sales Order Part List Item', {
@@ -1311,4 +1335,48 @@ function toggle_position_warehouse(frm) {
             toggle_warehouse(item);
         }
     }
+}
+
+function show_blanket_order(frm) {
+    if (frm.doc.items && frm.doc.items.length > 0) {
+        let message = "Folgende Artikel gehören in einen Rahmenvertrag:<br>";
+        let hit = false;
+        for (let i = 0; i < frm.doc.items.length; i++) {
+            if (frm.doc.items[i].blanket_order) {
+                message = message + "<br>-" + frm.doc.items[i].item_code + "(Pos. " + frm.doc.items[i].idx + ")"
+                hit = true;
+            }
+        }
+        
+        if (hit) {
+            cur_frm.set_value("ignore_pricing_rule", 1);
+            frappe.msgprint(message, "Rahmenvertrag");
+        }
+    }
+}
+
+function set_blanket_order_discount(frm) {
+    frappe.call({
+        'method': 'energielenker.energielenker.blanket_order.blanket_order.get_blanket_order_discount',
+        'args': {
+            'doc': frm.doc
+        },
+        'callback': function(response) {
+            if (response.message) {
+                let discounts = response.message;
+                for (let i = 0; i < discounts.length; i++) {
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "discount_percentage", discounts[i].discount);
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "set_with_blanket_order", 1);
+                    frappe.model.set_value("Sales Order Item", discounts[i].name, "blanket_order_discount", discounts[i].blanket_order);
+                }
+                frappe.show_alert("Rabatt aus Rahmenauftrag wurde gesetzt");
+            }
+        }
+    });
+}
+
+function remove_blanket_order_info(row) {
+    frappe.model.set_value(row.doctype, row.name, "discount_percentage", 0);
+    frappe.model.set_value(row.doctype, row.name, "set_with_blanket_order", 0);
+    frappe.model.set_value(row.doctype, row.name, "blanket_order_discount", null);
 }

@@ -73,6 +73,8 @@ DocType: Sales Order,Part List Items,Stücklistenartikel
 DocType: Sales Order,Has Work Order,Hat Arbeitsauftrag
 DocType: Sales Order,for alternative Positions,für alternative Positionen
 DocType: Sales Order,Original Warehouse,Originallager
+DocType: Sales Order,Set with Blanket Order,Durch Rahmenauftrag gesetzt
+DocType: Sales Order,Blanket Order Discount,Rabatt Rahmenauftrag
 DocType: Quotation,With BOM,Mit Stückliste
 DocType: BOM,Select Item Row of in Sales Order,Bitte Artikelzeile aus dem Kundenauftrag angeben
 DocType: BOM,Item Row,Bitte Artikelzeile
@@ -188,3 +190,6 @@ DocType: Revenue Type,For fixed Items,Für fixe Artikel
 DocType: Revenue Type,Revenue Number D365,Erlösartennummer D365
 DocType: Revenue Type,Revenue Number Navision,Erlösartennummer Navision
 DocType: Item,Is Support,Ist Dienstleistung
+DocType: Blanket Order,Contract quantity,Vertragsmenge
+DocType: Blanket Order,From Quantity,Mindestmenge
+DocType: Blanket Order,Discount (%),Rabatt (%)
