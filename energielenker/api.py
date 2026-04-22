@@ -254,13 +254,15 @@ def create_sales_order(requested_licenses):
     for license_entry in requested_licenses:
         #create Sales Order Items
         lot_size = frappe.db.get_value('Item Customer Detail', {'ref_code': license_entry['item_customer']}, 'size')
+        revenue_type = frappe.db.get_value('Item', license_entry['item_energielenker'], 'revenue_type')
         entry = {
             'reference_doctype': 'Sales Order Item',
             'item_code': license_entry['item_energielenker'],
             'delivery_date': today,
             'qty': license_entry['qty'],
             'uom': lot_size,
-            'supplier': supplier
+            'supplier': supplier,
+            'revenue_type': revenue_type
         }
         new_doc.append('items', entry)
     
