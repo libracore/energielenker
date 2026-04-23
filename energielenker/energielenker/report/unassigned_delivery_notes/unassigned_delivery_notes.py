@@ -40,6 +40,8 @@ def get_data():
                                         `tabDelivery Note Assignment User`.`user` IS NOT NULL
                                     AND
                                         `tabDelivery Note Assignment Item`.`item_code` IS NULL
+                                    AND
+                                        `tabDelivery Note`.`is_return` = 0
                                     GROUP BY
                                         `delivery_note`;""", as_dict=True)
     
