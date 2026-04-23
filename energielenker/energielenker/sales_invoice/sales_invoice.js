@@ -134,7 +134,7 @@ frappe.ui.form.on("Sales Invoice", {
     before_save(frm) {
 		set_zusatzgeschaft(frm);
 	    get_customer_inovice_note(frm);
-        //Check if Payment Template is deposited in energielenker Settings for D365 Export
+        //Check if Payment Template is set in energielenker Settings for D365 Export
         if (frm.doc.payment_terms_template) {
             check_payment_template(frm.doc.payment_terms_template);
         }
