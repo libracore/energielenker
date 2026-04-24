@@ -193,3 +193,4 @@ DocType: Item,Is Support,Ist Dienstleistung
 DocType: Blanket Order,Contract quantity,Vertragsmenge
 DocType: Blanket Order,From Quantity,Mindestmenge
 DocType: Blanket Order,Discount (%),Rabatt (%)
+Report: Unassigned Delivery Notes,Unassigned Delivery Notes,Nicht zugewiesene Lieferscheine
