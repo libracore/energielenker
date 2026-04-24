@@ -134,6 +134,10 @@ frappe.ui.form.on("Sales Invoice", {
     before_save(frm) {
 		set_zusatzgeschaft(frm);
 	    get_customer_inovice_note(frm);
+        //Check if Payment Template is set in energielenker Settings for D365 Export
+        if (frm.doc.payment_terms_template) {
+            check_payment_template(frm.doc.payment_terms_template);
+        }
 	},
     customer: function(frm) {
         check_foreign_customers(frm.doc.customer);
@@ -537,3 +541,29 @@ function remove_billing_address(frm) {
     cur_frm.set_value("billing_contact_display", null);
 }
 
+function check_payment_template(template) {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "energielenker Settings",
+            'name': "energielenker Settings"
+        },
+        'callback': function(response) {
+            if (response.message) {
+                const settings = response.message;
+                let match = false;
+                for (let i = 0; i < settings.d365_export.length; i++) {
+                    if (settings.d365_export[i].payment_terms_template == template) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) {
+                    frappe.msgprint("Zahlungsvorlage ist noch nicht für den D365 Export in den Einstellungen hinterlegt!");
+                }
+            } else {
+                frappe.msgprint("Fehler beim abrufen der energielenker Einstellungen, Zahlungsvorlage konnte nicht für den D365 Export geprüft werden");
+            }
+        }
+    });
+}
