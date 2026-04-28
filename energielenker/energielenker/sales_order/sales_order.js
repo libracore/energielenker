@@ -102,6 +102,8 @@ frappe.ui.form.on("Sales Order", {
             check_foreign_customers(frm.doc.customer);
             //Remove information for Manually Delivered or Closed Position
             remove_delivered_and_closed(frm);
+            //Remove Discount set with Blanket Order
+            remove_blanket_order_discount(frm);
         }
         
         // hack to remove "+" in dashboard
@@ -1362,6 +1364,7 @@ function set_blanket_order_discount(frm) {
             'doc': frm.doc
         },
         'callback': function(response) {
+            console.log(response.message);
             if (response.message) {
                 let discounts = response.message;
                 for (let i = 0; i < discounts.length; i++) {
@@ -1379,4 +1382,14 @@ function remove_blanket_order_info(row) {
     frappe.model.set_value(row.doctype, row.name, "discount_percentage", 0);
     frappe.model.set_value(row.doctype, row.name, "set_with_blanket_order", 0);
     frappe.model.set_value(row.doctype, row.name, "blanket_order_discount", null);
+}
+
+function remove_blanket_order_discount(frm) {
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].set_with_blanket_order) {
+            frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "set_with_blanket_order", 0);
+            frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "discount_percentage", 0);
+            frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "blanket_order_discount", 0);
+        }
+    }
 }
