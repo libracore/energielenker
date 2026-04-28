@@ -1364,15 +1364,27 @@ function set_blanket_order_discount(frm) {
             'doc': frm.doc
         },
         'callback': function(response) {
-            console.log(response.message);
             if (response.message) {
-                let discounts = response.message;
-                for (let i = 0; i < discounts.length; i++) {
-                    frappe.model.set_value("Sales Order Item", discounts[i].name, "discount_percentage", discounts[i].discount);
-                    frappe.model.set_value("Sales Order Item", discounts[i].name, "set_with_blanket_order", 1);
-                    frappe.model.set_value("Sales Order Item", discounts[i].name, "blanket_order_discount", discounts[i].blanket_order);
+                let removes = response.message[1];
+                if (removes.length > 0) {
+                    for (let i = 0; i < removes.length; i++) {
+                        frappe.model.set_value("Sales Order Item", removes[i].name, "discount_percentage", 0);
+                        frappe.model.set_value("Sales Order Item", removes[i].name, "set_with_blanket_order", 0);
+                        frappe.model.set_value("Sales Order Item", removes[i].name, "blanket_order_discount", null);
+                    }
+                    frappe.show_alert("Rabatt aus ausgelaufenem Rahmenauftrag wurde entfernt");
                 }
-                frappe.show_alert("Rabatt aus Rahmenauftrag wurde gesetzt");
+                
+                
+                let discounts = response.message[0];
+                if (discounts.length > 0) {
+                    for (let i = 0; i < discounts.length; i++) {
+                        frappe.model.set_value("Sales Order Item", discounts[i].name, "discount_percentage", discounts[i].discount);
+                        frappe.model.set_value("Sales Order Item", discounts[i].name, "set_with_blanket_order", 1);
+                        frappe.model.set_value("Sales Order Item", discounts[i].name, "blanket_order_discount", discounts[i].blanket_order);
+                    }
+                    frappe.show_alert("Rabatt aus Rahmenauftrag wurde gesetzt");
+                }
             }
         }
     });
