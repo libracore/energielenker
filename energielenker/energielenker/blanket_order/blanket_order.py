@@ -3,6 +3,7 @@
 
 import frappe
 import json
+from frappe.utils.data import getdate
 
 @frappe.whitelist()
 def update_to_date(blanket_order, new_date):
@@ -14,10 +15,16 @@ def update_to_date(blanket_order, new_date):
 def get_blanket_order_discount(doc):
     doc = json.loads(doc)
     discounts = []
-    
-    
+    to_remove = []
+    today = getdate()
     
     for item in doc["items"]:
+        #Remove Blanked order which are expired
+        if item.get('blanket_order_discount'):
+            end_date = frappe.get_value("Blanket Order", item.get('blanket_order_discount'), "to_date")
+            if end_date < today:
+                to_remove.append({'name': item.get('name')})
+        
         #Check for existing Blanket Order Discount with Customer and Item
         blanket_orders = frappe.db.sql("""
                                         SELECT
@@ -56,7 +63,7 @@ def get_blanket_order_discount(doc):
                 discounts.append({'name': item.get('name'), 'discount': actual_discount, 'blanket_order': blanket_order_link})
     
     #Return all found discounts
-    if len(discounts) > 0:
-        return discounts
+    if len(discounts) > 0 or len(to_remove) > 0:
+        return discounts, to_remove
     
     return None
