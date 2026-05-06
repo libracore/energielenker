@@ -32,7 +32,7 @@ def validity_check(**data):
                 try:
                     lg_1 = frappe.get_doc("Lizenzgutschein", lizenzgutschein[0].name)
                     if len(lg_1.lizenzen) < 1:
-                        get_license(order=lg_1.purchase_order, position=lg_1.positions_nummer, test=0, activation=lg_1.aktivierung, evse_count=lg_1.evse_count, voucher=lg_1.name, position_id=lg_1.position_id, geraete_id=data['geraete_id'])
+                        get_license(order=lg_1.purchase_order, position=lg_1.positions_nummer, test=0, activation=lg_1.aktivierung, evse_count=lg_1.evse_count, voucher=lg_1.name, position_id=lg_1.position_id, geraete_id=data['geraete_id'], license_type=lg_1.get('type'))
                 except:
                     # Lizenzbezug fehlgeschlagen
                     frappe.local.response.http_status_code = 503

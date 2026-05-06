@@ -12,7 +12,7 @@ import json
 from frappe.utils.password import get_decrypted_password
 
 @frappe.whitelist()
-def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False, position_id=None, geraete_id=None):
+def get_license(order=None, position=None, test=0, activation=1, evse_count=1, voucher=False, position_id=None, geraete_id=None, license_type=None):
     '''
         Beschreibung
         ----------------
@@ -69,7 +69,8 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         "order_id": "{order}:{position}:{position_id}".format(order=order, position=position or 'no_pos', position_id=position_id or 'no_id'),
         "evse_count": int(evse_count),
         "hardware_id": geraete_id or None,
-        "contract_order_id": sales_order
+        "contract_order_id": sales_order,
+        "type": license_type
     }
 
     # post API request
@@ -115,10 +116,14 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         frappe.throw("<b>Es ist etwas schief gelaufen.</b><br><br><br>Die Antwort der Schnittstelle lautet:<br>Status: {status}<br>Error: {error}".format(status=r.status_code, error=r.text))
 
 @frappe.whitelist()
-def create_lizenzgutschein(purchase_order=None, positions_nummer=None, position_id=None, test=0, aktivierung=1, evse_count=1):
+def create_lizenzgutschein(purchase_order=None, positions_nummer=None, position_id=None, item_code=None, test=0, aktivierung=1, evse_count=1):
     sales_order = None
     if purchase_order:
         sales_order = frappe.get_value("Purchase Order", purchase_order, "sales_order")
+    
+    lizenz_type = None
+    if item_code:
+        lizenz_type = map_type(item_code)
     
     lizenzgutschein = frappe.get_doc({
         "doctype": "Lizenzgutschein",
@@ -128,7 +133,20 @@ def create_lizenzgutschein(purchase_order=None, positions_nummer=None, position_
         "test": test,
         "aktivierung": aktivierung,
         "evse_count": evse_count,
-        "kundenauftrag": sales_order
+        "kundenauftrag": sales_order,
+        "type": lizenz_type
     })
     lizenzgutschein.save()
     frappe.db.commit()
+
+def map_type(item_code):
+    energielenker_settings = frappe.get_doc("energielenker Settings", "energielenker Settings")
+    lizenz_type = None
+    
+    if item_code == energielenker_settings.get('charging_points_ac'):
+        lizenz_type = "EvseAc"
+    
+    if item_code == energielenker_settings.get('charging_points_dc'):
+        lizenz_type = "EvseDc"
+    
+    return lizenz_type
