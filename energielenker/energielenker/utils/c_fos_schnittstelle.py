@@ -69,10 +69,11 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
         "order_id": "{order}:{position}:{position_id}".format(order=order, position=position or 'no_pos', position_id=position_id or 'no_id'),
         "evse_count": int(evse_count),
         "hardware_id": geraete_id or None,
-        "contract_order_id": sales_order,
-        "type": license_type
+        "contract_order_id": sales_order
     }
-
+    if license_type:
+        data["type"] = license_type
+    frappe.log_error(data, "data")
     # post API request
     r = requests.post(url, json=data, auth=(user, password))
     
