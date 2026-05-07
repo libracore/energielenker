@@ -25,6 +25,9 @@ def get_print_items(dt, dn, total_value_needed=False):
     else:
         ztn = False
     
+    #get charging point items to display "Ladepunkte"
+    lizenz_items = get_charging_point_items()
+    
     # Gutschrift
     # --------------------------------------------------------------------------------------------------------------------------------------------
     if int(doc.is_return) == 1:
@@ -312,7 +315,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         """.format(lieferdata=lieferdata)
                     
                     lizenz_qty = None
-                    if item.item_code == "A-0001701":
+                    if item.item_code in lizenz_items:
                         lizenz_qty = get_lizenz_qty_so(item.uom)
                         
                         tr += """
@@ -727,7 +730,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         """.format(lieferdata=lieferdata)
                     
                     lizenz_qty = None
-                    if item.item_code == "A-0001701":
+                    if item.item_code in lizenz_items:
                         lizenz_qty = get_lizenz_qty_so(item.uom)
                         
                         tr += """
@@ -1621,3 +1624,17 @@ def get_billing_status(sales_invoice_name):
     total_tr = """<tr><td colspan="4" style="font-weight: bold;">Aktueller Gesamtabrechnungsstand: {cur_icon} {status_total}""".format(cur_icon=cur_icon, status_total=status_total)
     billing_status += total_tr
     return billing_status
+
+def get_charging_point_items():
+    energielenker_settings = frappe.get_doc("energielenker Settings", "energielenker Settings")
+    items = []
+    if energielenker_settings.get('charging_points_item'):
+        items.append(energielenker_settings.get('charging_points_item'))
+    
+    if energielenker_settings.get('charging_points_ac'):
+        items.append(energielenker_settings.get('charging_points_ac'))
+    
+    if energielenker_settings.get('charging_points_dc'):
+        items.append(energielenker_settings.get('charging_points_dc'))
+    
+    return items

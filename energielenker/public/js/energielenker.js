@@ -743,7 +743,9 @@ function check_charging_points_item(item_code) {
         callback: function(response) {
             if (response.message) {
                 let charging_points_item = response.message.charging_points_item;
-                if (charging_points_item == item_code) {
+                let charging_points_ac = response.message.charging_points_ac;
+                let charging_points_dc = response.message.charging_points_dc;
+                if (charging_points_item == item_code || charging_points_ac == item_code || charging_points_dc == item_code) {
                     frappe.msgprint("Ladepunkt für Enbas? In dem Fall bitte Checkbox am Artikel setzen");
                 }
             }

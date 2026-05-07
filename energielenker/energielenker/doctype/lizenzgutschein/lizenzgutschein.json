@@ -18,6 +18,7 @@
   "revoke_activation_code",
   "section_lizenzdaten",
   "evse_count",
+  "type",
   "cb_3",
   "aktivierung",
   "test",
@@ -131,9 +132,15 @@
    "fieldname": "revoke_activation_code",
    "fieldtype": "Check",
    "label": "Revoke activation code"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nEvseAc\nEvseDc"
   }
  ],
- "modified": "2024-07-10 16:08:41.830487",
+ "modified": "2026-05-06 11:09:55.593433",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Lizenzgutschein",

@@ -296,7 +296,8 @@ function erzeuge_lizenzgutschein(frm) {
                                 'test': values.test,
                                 'aktivierung': lizenz_item.activation,
                                 'evse_count': lizenz_item.evse_count,
-                                'position_id': lizenz_item.positions_id
+                                'position_id': lizenz_item.positions_id,
+                                'item_code': lizenz_item.item_code
                             },
                             'async': true,
                             freeze: true,
