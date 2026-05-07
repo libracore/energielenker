@@ -73,7 +73,7 @@ def get_license(order=None, position=None, test=0, activation=1, evse_count=1, v
     }
     if license_type:
         data["type"] = license_type
-    frappe.log_error(data, "data")
+    
     # post API request
     r = requests.post(url, json=data, auth=(user, password))
     
