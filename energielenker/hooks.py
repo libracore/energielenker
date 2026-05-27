@@ -181,7 +181,8 @@ doc_events = {
             "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
         ],
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet",
-        "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information"
+        "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information",
+        "before_update_after_submit": "energielenker.energielenker.sales_order.sales_order.so_before_update_after_submit"
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",

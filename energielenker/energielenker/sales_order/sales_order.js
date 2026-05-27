@@ -1,4 +1,4 @@
-// Copyright (c) 2025, libracore AG and contributors
+// Copyright (c) 2025-2026, libracore AG and contributors
 // For license information, please see license.txt
 
 cur_frm.dashboard.add_transactions([
@@ -30,7 +30,6 @@ frappe.ui.form.on("Sales Order", {
     },
     
     refresh: function(frm) {
-	   overwrite_before_update_after_submit(frm);
        set_timestamps(frm);
        set_row_options(frm);
        display_closed_positions(frm);
@@ -600,12 +599,6 @@ frappe.ui.form.on('Sales Order Part List Item', {
     }
 });
 
-// overwrite_before_update_after_submit to update projektbewertung_ignorieren in project
-function overwrite_before_update_after_submit(frm){
-	frappe.call({
-	      "method": "energielenker.energielenker.sales_order.sales_order.overwrite_before_update_after_submit",
-	   });
-}
 
 
 // Change the timeline specification, from "X days ago" to the exact date and time

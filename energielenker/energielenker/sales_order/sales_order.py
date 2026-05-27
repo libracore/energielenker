@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2024, libracore AG and contributors
+# Copyright (c) 2024-2026, libracore AG and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -9,14 +9,6 @@ import json
 from frappe.utils.data import getdate
 from erpnext.controllers.accounts_controller import update_child_qty_rate
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
-
-@frappe.whitelist() 
-def overwrite_before_update_after_submit():
-    #************************************************************************************
-    #overwrite before_update_after_submit to also update_projektbewertung_ignorieren_in_project_in_project
-    from erpnext.selling.doctype.sales_order.sales_order import SalesOrder
-    SalesOrder.before_update_after_submit = so_before_update_after_submit
-    #************************************************************************************
 
 def so_before_update_after_submit(self):
     #original method but adding update_projektbewertung_ignorieren_in_project_or_in_so
