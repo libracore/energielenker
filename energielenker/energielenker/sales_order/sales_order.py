@@ -10,7 +10,7 @@ from frappe.utils.data import getdate
 from erpnext.controllers.accounts_controller import update_child_qty_rate
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 
-def so_before_update_after_submit(self):
+def so_before_update_after_submit(self, event=None):
     #original method but adding update_projektbewertung_ignorieren_in_project_or_in_so
     from energielenker.energielenker.zahlungsplan.zahlungsplan import update_projektbewertung_ignorieren_in_project_or_in_so
     update_projektbewertung_ignorieren_in_project_or_in_so(self=self, event="so_update", pb_ignorieren=self.projektbewertung_ignorieren)
