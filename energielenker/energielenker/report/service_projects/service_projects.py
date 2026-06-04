@@ -137,7 +137,6 @@ def get_invoiceable_entries(from_date=None, to_date=None, customer=None, project
         project_condition=project_condition
     )
     entries = frappe.db.sql(sql_query, as_dict=True)
-    frappe.log_error(entries, "entries")
     return entries
 
 @frappe.whitelist()
@@ -153,7 +152,6 @@ def create_invoice(from_date, to_date, project):
         if entry.get('sales_order') and entry.get('so_docstatus') != 1:
             frappe.throw("Kundenauftrag {0} muss zuerst gebucht werden.".format(entry.get('sales_order')))
         if entry.get('sales_order'):
-            frappe.log_error(entry, "entry")
             filtered_entries.append({
                                     'so_detail': entry.get('so_detail'),
                                     'remarks': entry.get('remarks'),
@@ -215,7 +213,6 @@ def create_invoice(from_date, to_date, project):
                 
         #Add Last item to Invoice
         invoice.append('items', new_item)
-        frappe.log_error(invoice, "invoice")
         #Insert Invoice
         invoice.insert()
         
