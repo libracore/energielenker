@@ -195,3 +195,4 @@ DocType: Blanket Order,From Quantity,Mindestmenge
 DocType: Blanket Order,Discount (%),Rabatt (%)
 DocType: Blanket Order,Change To Date,Bis-Datum anpassen
 Report: Unassigned Delivery Notes,Unassigned Delivery Notes,Nicht zugewiesene Lieferscheine
+DocType: Quotation Template,Quotation Template,Vorlage Angebot
