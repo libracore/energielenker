@@ -1,4 +1,4 @@
-// Copyright (c) 2021, libracore AG and contributors
+// Copyright (c) 2026, libracore AG and contributors
 // For license information, please see license.txt
 
 var so_return;
@@ -955,7 +955,7 @@ function check_manual_posting_date(frm) {
     if (frm.doc.set_posting_time) {
         frappe.validated=false;
         frappe.confirm(
-            "ACHTUNG!  Dieses Datum ändert  das Buchungsdatum der Warenentnahme! Wollen Sie wirklich buchen?",
+            'ACHTUNG!  Sie wollen ein manuelles Buchungsdatum setzten ("Buchungsdatum und -uhrzeit bearbeiten"). Dieses Datum ändert das Buchungsdatum der Warenentnahme auf das angegebene Datum. Wollen Sie wirklich buchen?',
             function(){
                 // on yes
                 frappe.validated=true;
