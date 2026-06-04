@@ -195,3 +195,8 @@ DocType: Blanket Order,From Quantity,Mindestmenge
 DocType: Blanket Order,Discount (%),Rabatt (%)
 DocType: Blanket Order,Change To Date,Bis-Datum anpassen
 Report: Unassigned Delivery Notes,Unassigned Delivery Notes,Nicht zugewiesene Lieferscheine
+DocType: Quotation Reference Text,Quotation Reference Text,Angebot Referenztext
+DocType: Quotation Reference Text,Reference Text,Referenztext
+DocType: Quotation,Set Alternative Reference Text,Alternativen Referenztext setzten
+DocType: Quotation,Fetch Reference Text,Referenztext holen
+
