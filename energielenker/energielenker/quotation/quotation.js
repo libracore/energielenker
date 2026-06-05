@@ -154,7 +154,12 @@ frappe.ui.form.on('Quotation', {
     revenue_group: function(frm) {
         //Update Revenue Type in Items, according new group
         update_revenue_types(frm);
+    },
+    fetch_reference_text: function(frm) {
+        //fetch description to Original description Field
+        fetch_reference_text(frm);
     }
+
 })
 
 frappe.ui.form.on('Quotation Item', {
@@ -587,3 +592,25 @@ function set_new_valid_till(quotation, new_date, old_date) {
         }
     });
 }
+
+function fetch_reference_text(frm) {
+    if (frm.doc.fetch_reference_text) {
+        frappe.call({
+            'method': "frappe.client.get",
+            'args': {
+                'doctype': "Quotation Reference Text",
+                'name': frm.doc.fetch_reference_text
+            },
+            'callback': function(response) {
+                var reference_text = response.message.reference_text;
+                if (reference_text) {
+                    cur_frm.set_value("reference_text", reference_text);
+                } else {
+                    frappe.msgprint("Fehler beim abrufen des Referenztext.", "Fehler")
+                }
+            }
+        });
+        cur_frm.set_value("fetch_reference_text", null);
+    }
+}
+
