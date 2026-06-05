@@ -199,4 +199,5 @@ DocType: Quotation Reference Text,Quotation Reference Text,Angebot Referenztext
 DocType: Quotation Reference Text,Reference Text,Referenztext
 DocType: Quotation,Set Alternative Reference Text,Alternativen Referenztext setzten
 DocType: Quotation,Fetch Reference Text,Referenztext holen
+DocType: Quotation Template,Quotation Template,Vorlage Angebot
 
