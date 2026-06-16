@@ -62,7 +62,6 @@ def get_data(suchparameter, exportieren=False):
             salesline_data = [["Rechnungsnummer","Positionsnummer","Gesamtbetrag brutto","Gesamtbetrag netto","Steuerbetrag","Menge","Beschreibung","Sachkonto","Mehrwertsteuerschlüssel","Steuerart","Kostenstelle","Erlösart","Kostenträger"]]
             for _salesline_data in salesline_raw_data:
                 salesline_data.append(_salesline_data)
-            frappe.log_error(data, "data")
             xlsx_file = make_d365_xlsx(salesheader_data, salesline_data)
             file_data = xlsx_file.getvalue()
             
@@ -200,7 +199,6 @@ def _get_salesheader_datas(suchparameter):
             payment_terms_mapping = frappe.db.sql("""SELECT `d365_payment_term`, `d365_cash_discount` FROM `tabenergielenker Settings D365 Mapping` WHERE `payment_terms_template` = %(payment_terms)s;""", {'payment_terms': sinv.payment_terms_template}, as_dict=True)
             if len(payment_terms_mapping) > 0:
                 payment_term = payment_terms_mapping[0].get('d365_payment_term')
-                frappe.log_error(payment_terms_mapping[0].get('d365_cash_discount'), "payment_terms_mapping[0].get('d365_cash_discount')")
                 cash_discount = payment_terms_mapping[0].get('d365_cash_discount')
         
         data = {
@@ -217,7 +215,7 @@ def _get_salesheader_datas(suchparameter):
             'buchungsbeschreibung': buchungsbeschreibung,
             'type': sinv.get('billing_type')
         }
-        frappe.log_error(data, "data")
+        
         datas.append(data)
         
     if len(datas) > 0:
