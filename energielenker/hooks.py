@@ -252,6 +252,9 @@ doc_events = {
     },
     "Revenue Type": {
         "autoname": "energielenker.energielenker.doctype.revenue_type.revenue_type.autoname"
+    },
+    "Cost Center": {
+        "before_save": "energielenker.energielenker.cost_center.cost_center.update_kst_code"
     }
 }
 
