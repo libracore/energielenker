@@ -276,7 +276,7 @@ def _get_salesline_datas(suchparameter):
                     steuerart = "Ware"
                 data.append(steuerart)
                 #Kostenstelle
-                data.append(lineitem.get('navision_shortcutdimensionscode_1') or "")
+                data.append(lineitem.get('revenue_kst_code') or "")
                 #Erlösart
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
@@ -362,7 +362,7 @@ def _get_salesline_datas(suchparameter):
                     steuerart = "Ware"
                 data.append(steuerart)
                 #Kostenstelle
-                data.append(lineitem.get('navision_shortcutdimensionscode_1') or "")
+                data.append(lineitem.get('revenue_kst_code') or "")
                 #Erlösart
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
