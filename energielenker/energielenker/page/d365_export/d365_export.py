@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021, libracore and contributors
+# Copyright (c) 2026, libracore and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -9,6 +9,9 @@ import json
 from six import BytesIO
 import openpyxl
 from openpyxl.styles import Font
+from openpyxl.cell import WriteOnlyCell
+from io import BytesIO
+from datetime import datetime
 
 @frappe.whitelist()
 def get_data(suchparameter, exportieren=False):
@@ -37,12 +40,12 @@ def get_data(suchparameter, exportieren=False):
                 data.append("ERPNext")
                 data.append("212")
                 data.append("")
-                data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]).strftime('%d.%m.%Y'))
+                data.append(frappe.utils.get_datetime(sinv["rechnungsdatum"]))
                 data.append(sinv["d365_cust_no"])
-                data.append(frappe.utils.get_datetime(sinv["due_date"]).strftime('%d.%m.%Y'))
+                data.append(frappe.utils.get_datetime(sinv["due_date"]))
                 data.append(sinv["payment_term"])
                 data.append("UEW")
-                data.append(sinv["cash_discount"])
+                data.append(sinv["cash_discount"] if frappe.utils.cint(sinv["cash_discount"]) != 0 else "")
                 data.append(sinv["sinv"])
                 data.append(sinv["type"])
                 data.append("")
@@ -51,7 +54,7 @@ def get_data(suchparameter, exportieren=False):
                 data.append(sinv["rounded_total"])
                 data.append(sinv["net_total"])
                 data.append(sinv["total_taxes_and_charges"])
-                data.append(frappe.utils.get_datetime(sinv["leistungsdatum"]).strftime('%d.%m.%Y') if sinv["leistungsdatum"] else "")
+                data.append(frappe.utils.get_datetime(sinv["leistungsdatum"]) if sinv["leistungsdatum"] else "")
                 salesheader_data.append(data)
             # SalesLine
             suchparameter["ansicht_auswahl"] = 'SalesLine'
@@ -59,7 +62,6 @@ def get_data(suchparameter, exportieren=False):
             salesline_data = [["Rechnungsnummer","Positionsnummer","Gesamtbetrag brutto","Gesamtbetrag netto","Steuerbetrag","Menge","Beschreibung","Sachkonto","Mehrwertsteuerschlüssel","Steuerart","Kostenstelle","Erlösart","Kostenträger"]]
             for _salesline_data in salesline_raw_data:
                 salesline_data.append(_salesline_data)
-            
             xlsx_file = make_d365_xlsx(salesheader_data, salesline_data)
             file_data = xlsx_file.getvalue()
             
@@ -101,14 +103,34 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     
     # SalesHeader
     ws = wb.create_sheet('SalesHeader', 0)
-    row1 = ws.row_dimensions[1]
-    row1.font = Font(name='Calibri',bold=False)
+
     for row in salesheader_data:
         clean_row = []
         for item in row:
-            clean_row.append(item)
-
+            cell = WriteOnlyCell(ws, value=item)
+            cell.font = Font(name='Calibri', bold=False)
+            
+            # Feldtyp / Zahlenformat setzen
+            if isinstance(item, datetime):
+                cell.number_format = 'DD.MM.YYYY'      # Datum
+            elif isinstance(item, (int, float)):
+                cell.number_format = '0.00'             # Standard / Zahl
+            else:
+                cell.number_format = '@'                # Text
+            
+            clean_row.append(cell)
         ws.append(clean_row)
+    
+    #Old Sales Header, to be saved
+    # ~ ws = wb.create_sheet('SalesHeader', 0)
+    # ~ row1 = ws.row_dimensions[1]
+    # ~ row1.font = Font(name='Calibri',bold=False)
+    # ~ for row in salesheader_data:
+        # ~ clean_row = []
+        # ~ for item in row:
+            # ~ clean_row.append(item)
+
+        # ~ ws.append(clean_row)
         
     # SalesLine
     ws = wb.create_sheet('SalesLine', 1)
@@ -133,7 +155,7 @@ def get_datas(suchparameter):
 
 def _get_salesheader_datas(suchparameter):
     # SalesHeader
-    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template`, `rounded_total`, `net_total`, `total_taxes_and_charges`, `leistungsdatum` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `is_return` != 1 AND `rechnung_nach_d365_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
+    sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template`, `rounded_total`, `net_total`, `total_taxes_and_charges`, `leistungsdatum` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `rechnung_nach_d365_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
     for sinv in sinvs:
         cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
@@ -254,7 +276,7 @@ def _get_salesline_datas(suchparameter):
                     steuerart = "Ware"
                 data.append(steuerart)
                 #Kostenstelle
-                data.append(lineitem.get('navision_shortcutdimensionscode_1') or "")
+                data.append(lineitem.get('revenue_kst_code') or "")
                 #Erlösart
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
@@ -340,7 +362,7 @@ def _get_salesline_datas(suchparameter):
                     steuerart = "Ware"
                 data.append(steuerart)
                 #Kostenstelle
-                data.append(lineitem.get('navision_shortcutdimensionscode_1') or "")
+                data.append(lineitem.get('revenue_kst_code') or "")
                 #Erlösart
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger

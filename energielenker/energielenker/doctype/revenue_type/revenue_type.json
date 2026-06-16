@@ -9,6 +9,7 @@
   "nav_number",
   "description",
   "cost_center",
+  "kst_code",
   "column_break_3",
   "group",
   "for_hardware",
@@ -73,9 +74,16 @@
    "label": "Cost Center",
    "options": "Cost Center",
    "reqd": 1
+  },
+  {
+   "fetch_from": "cost_center.kst_code",
+   "fieldname": "kst_code",
+   "fieldtype": "Data",
+   "label": "KST Code",
+   "read_only": 1
   }
  ],
- "modified": "2026-03-10 12:35:30.711703",
+ "modified": "2026-06-16 14:59:26.679319",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Revenue Type",
