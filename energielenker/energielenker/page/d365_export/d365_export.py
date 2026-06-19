@@ -188,7 +188,22 @@ def _get_salesheader_datas(suchparameter):
                 buchungsbeschreibung += " TR"
             if sinv.billing_type == 'Schlussrechnung':
                 buchungsbeschreibung += "SR"
-                #recalculate totals to involve TRs
+                #recalculate totals - remove TR Amount from SR Amount
+                #Get Sales Order
+                sinv_doc = frappe.get_doc("Sales Invoice", sinv.name)
+                sales_order = frappe.get_doc("Sales Order", sinv_doc.items[0].sales_order)
+                #Get Totals from SR
+                rounded_total = sinv.get('rounded_total')
+                net_total = sinv.get('net_total')
+                total_taxes_and_charges = sinv.get('total_taxes_and_charges')
+                #Remove TR Values from SR Totals
+                if len(sales_order.billing_overview) > 1:
+                    for teilrechnung in sales_order.billing_overview:
+                        if teilrechnung.sales_invoice != sinv.name:
+                            tr_sales_invoice = frappe.get_doc("Sales Invoice", teilrechnung.sales_invoice)
+                            rounded_total -= tr_sales_invoice.get('rounded_total')
+                            net_total -= tr_sales_invoice.get('net_total')
+                            total_taxes_and_charges -= tr_sales_invoice.get('total_taxes_and_charges')
             if projekt:
                 buchungsbeschreibung += " zu P{projektnummer}".format(projektnummer=projektnummer)
                 if projektnummer_rhapsody:
@@ -207,9 +222,9 @@ def _get_salesheader_datas(suchparameter):
             'd365_cust_no': d365_cust_no,
             'rechnungsdatum': sinv.posting_date,
             'due_date': sinv.due_date,
-            'rounded_total': sinv.get('rounded_total'),
-            'net_total': sinv.get('net_total'),
-            'total_taxes_and_charges': sinv.get('total_taxes_and_charges'),
+            'rounded_total': rounded_total,
+            'net_total': net_total,
+            'total_taxes_and_charges': total_taxes_and_charges,
             'leistungsdatum': sinv.get('leistungsdatum') or sinv.get('posting_date'),
             'payment_term': payment_term,
             'cash_discount': cash_discount,
