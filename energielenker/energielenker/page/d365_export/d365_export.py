@@ -382,7 +382,7 @@ def _get_salesline_datas(suchparameter):
                             projekt_zusatz += " RhNr. {projektnummer_rhapsody}".format(projektnummer_rhapsody=projektnummer_rhapsody)
                     data = []
                     #Rechnungsnummer
-                    data.append(_teilrechnung.get('name'))
+                    data.append(_sinv.get('sinv'))
                     #Positionsnummer
                     data.append("1")
                     #Gesamtbetrag brutto
