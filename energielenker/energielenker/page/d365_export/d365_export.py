@@ -102,7 +102,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     wb = openpyxl.Workbook(write_only=True)
     
     # SalesHeader
-    ws = wb.create_sheet('SalesHeader', 0)
+    ws = wb.create_sheet('Kopf', 0)
 
     for row in salesheader_data:
         clean_row = []
@@ -133,7 +133,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
         # ~ ws.append(clean_row)
         
     # SalesLine
-    ws = wb.create_sheet('SalesLine', 1)
+    ws = wb.create_sheet('Zeile', 1)
     row1 = ws.row_dimensions[1]
     row1.font = Font(name='Calibri',bold=False)
     for row in salesline_data:
