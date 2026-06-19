@@ -48,7 +48,7 @@ def get_data(suchparameter, exportieren=False):
                 data.append(sinv["cash_discount"] if frappe.utils.cint(sinv["cash_discount"]) != 0 else "")
                 data.append(sinv["sinv"])
                 data.append(sinv["type"])
-                data.append("")
+                data.append(sinv["buchungsbeschreibung"])
                 data.append("Debitor")
                 data.append("EUR")
                 data.append(sinv["rounded_total"])
