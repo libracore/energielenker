@@ -188,6 +188,7 @@ def _get_salesheader_datas(suchparameter):
                 buchungsbeschreibung += " TR"
             if sinv.billing_type == 'Schlussrechnung':
                 buchungsbeschreibung += "SR"
+                #recalculate totals to involve TRs
             if projekt:
                 buchungsbeschreibung += " zu P{projektnummer}".format(projektnummer=projektnummer)
                 if projektnummer_rhapsody:
