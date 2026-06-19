@@ -278,7 +278,7 @@ def _get_salesline_datas(suchparameter):
                 #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
                 #Sachkonto
-                data.append(lineitem.get('revenue_number') or "")
+                data.append(sinv.get('navision_kontonummer') or "")
                 #Mehrwertsteuerschlüssel
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
@@ -364,7 +364,7 @@ def _get_salesline_datas(suchparameter):
                 #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
                 #Sachkonto
-                data.append(lineitem.get('revenue_number') or "")
+                data.append(sinv.get('navision_kontonummer') or "")
                 #Mehrwertsteuerschlüssel
                 if len(sinv.taxes) > 0:
                     data.append(sinv.taxes[0].rate)
