@@ -157,9 +157,13 @@ def _get_salesheader_datas(suchparameter):
     # SalesHeader
     sinvs = frappe.db.sql("""SELECT `name`, `customer`, `posting_date`, `due_date`, `billing_type`, `project`, `cost_center`, `payment_terms_template`, `rounded_total`, `net_total`, `total_taxes_and_charges`, `leistungsdatum` FROM `tabSales Invoice` WHERE `posting_date` BETWEEN '{date_von}' AND '{date_bis}' AND `docstatus` = 1 AND `rechnung_nach_d365_exportiert` != 1""".format(date_von=suchparameter["date_von"], date_bis=suchparameter["date_bis"]), as_dict=True)
     datas = []
+    
     for sinv in sinvs:
+        #Get Totals from SR
+        rounded_total = sinv.get('rounded_total')
+        net_total = sinv.get('net_total')
+        total_taxes_and_charges = sinv.get('total_taxes_and_charges')
         cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
-        
         if sinv.project:
             projekt = frappe.get_doc("Project", sinv.project)
             projektnummer_rhapsody = projekt.projektnummer_rhapsody
@@ -192,10 +196,6 @@ def _get_salesheader_datas(suchparameter):
                 #Get Sales Order
                 sinv_doc = frappe.get_doc("Sales Invoice", sinv.name)
                 sales_order = frappe.get_doc("Sales Order", sinv_doc.items[0].sales_order)
-                #Get Totals from SR
-                rounded_total = sinv.get('rounded_total')
-                net_total = sinv.get('net_total')
-                total_taxes_and_charges = sinv.get('total_taxes_and_charges')
                 #Remove TR Values from SR Totals
                 if len(sales_order.billing_overview) > 1:
                     for teilrechnung in sales_order.billing_overview:
@@ -315,7 +315,7 @@ def _get_salesline_datas(suchparameter):
             #Beschreibung
             data.append(_sinv["buchungsbeschreibung"])
             #Sachkonto
-            data.append("5005")
+            data.append("17200")
             # ~ data.append("{0} {1}".format(sinv.get('navision_kontonummer'), sinv.get('navision_konto')))
             #Mehrwertsteuerschlüssel
             if len(sinv.taxes) > 0:
@@ -415,7 +415,7 @@ def _get_salesline_datas(suchparameter):
                     else:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     #Sachkonto
-                    data.append("5005")
+                    data.append("17100")
                     # ~ data.append("{0} {1}".format(_teilrechnung.get('navision_kontonummer'), _teilrechnung.get('navision_konto')))
                     #Mehrwertsteuerschlüssel
                     if len(sinv.taxes) > 0:
