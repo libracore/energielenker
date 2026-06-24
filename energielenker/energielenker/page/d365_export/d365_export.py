@@ -415,7 +415,7 @@ def _get_salesline_datas(suchparameter):
                     else:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.invoice_rhapsody + projekt_zusatz)
                     #Sachkonto
-                    data.append("17100")
+                    data.append("17200")
                     # ~ data.append("{0} {1}".format(_teilrechnung.get('navision_kontonummer'), _teilrechnung.get('navision_konto')))
                     #Mehrwertsteuerschlüssel
                     if len(sinv.taxes) > 0:
