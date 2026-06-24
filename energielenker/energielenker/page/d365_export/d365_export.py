@@ -267,12 +267,12 @@ def _get_salesline_datas(suchparameter):
                 else:
                     gross_amount = net_amount
                 #Gesamtbetrag brutto
-                data.append(gross_amount)
+                data.append(round(gross_amount, 2))
                 #Gesamtbetrag netto
-                data.append(net_amount)
+                data.append(round(net_amount, 2))
                 #Steuerbetrag
                 vat = gross_amount - net_amount
-                data.append(vat)
+                data.append(round(vat, 2))
                 #Menge
                 data.append(lineitem.get('qty'))
                 #Beschreibung
@@ -305,11 +305,11 @@ def _get_salesline_datas(suchparameter):
             #Positionsnummer
             data.append("1")
             #Gesamtbetrag brutto
-            data.append(sinv.get('rounded_total'))
+            data.append(round(sinv.get('rounded_total'), 2))
             #Gesamtbetrag netto
-            data.append(sinv.get('net_total'))
+            data.append(round(sinv.get('net_total'), 2))
             #Steuerbetrag
-            data.append(sinv.get('total_taxes_and_charges'))
+            data.append(round(sinv.get('total_taxes_and_charges'), 2))
             #Menge
             data.append("1")
             #Beschreibung
@@ -353,12 +353,12 @@ def _get_salesline_datas(suchparameter):
                 else:
                     gross_amount = net_amount
                 #Gesamtbetrag brutto
-                data.append(gross_amount)
+                data.append(round(gross_amount, 2))
                 #Gesamtbetrag netto
-                data.append(net_amount)
+                data.append(round(net_amount, 2))
                 #Steuerbetrag
                 vat = gross_amount - net_amount
-                data.append(vat)
+                data.append(round(vat, 2))
                 #Menge
                 data.append(lineitem.get('qty'))
                 #Beschreibung
