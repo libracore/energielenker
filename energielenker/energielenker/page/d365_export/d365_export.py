@@ -109,7 +109,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
         for item in row:
             cell = WriteOnlyCell(ws, value=item)
             cell.font = Font(name='Calibri', bold=False)
-            
+            frappe.log_error(type(item), item)
             # Feldtyp / Zahlenformat setzen
             if isinstance(item, datetime):
                 cell.number_format = 'DD.MM.YYYY'      # Datum
@@ -139,6 +139,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     for row in salesline_data:
         clean_row = []
         for item in row:
+            frappe.log_error(type(item), item)
             clean_row.append(item)
 
         ws.append(clean_row)
@@ -146,6 +147,19 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file
+    
+    #Sales Line Formatter
+            # ~ cell = WriteOnlyCell(ws, value=item)
+            # ~ cell.font = Font(name='Calibri', bold=False)
+            
+            # ~ # Feldtyp / Zahlenformat setzen
+            # ~ if isinstance(item, datetime):
+                # ~ cell.number_format = 'DD.MM.YYYY'      # Datum
+            # ~ elif isinstance(item, (int, float)):
+                # ~ cell.number_format = '0.00'             # Standard / Zahl
+            # ~ else:
+                # ~ cell.number_format = '@'                # Text
+            # ~ clean_row.append(cell)
 
 def get_datas(suchparameter):
     if suchparameter["ansicht_auswahl"] == 'SalesHeader':
@@ -303,7 +317,7 @@ def _get_salesline_datas(suchparameter):
             #Rechnungsnummer
             data.append(sinv.get('name'))
             #Positionsnummer
-            data.append("1")
+            data.append(1)
             #Gesamtbetrag brutto
             data.append(round(sinv.get('rounded_total'), 2))
             #Gesamtbetrag netto
@@ -400,7 +414,7 @@ def _get_salesline_datas(suchparameter):
                     #Rechnungsnummer
                     data.append(_sinv.get('sinv'))
                     #Positionsnummer
-                    data.append("1")
+                    data.append(1)
                     #Gesamtbetrag brutto
                     data.append(_teilrechnung.get('rounded_total'))
                     #Gesamtbetrag netto
