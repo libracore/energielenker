@@ -264,5 +264,12 @@ def get_revenue_type(item_code, revenue_group=None):
         return revenue_groups[0].get('name')
     else:
         return None
-    
-    
+
+@frappe.whitelist()
+def get_navision_konto(customer):
+    territory = frappe.get_value("Customer", customer, "territory")
+    if territory:   
+        navision_konto = frappe.get_value("Territory", territory, "navision_konto")
+        if navision_konto:
+            return navision_konto
+    return None
