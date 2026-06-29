@@ -147,19 +147,6 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file
-    
-    #Sales Line Formatter
-            # ~ cell = WriteOnlyCell(ws, value=item)
-            # ~ cell.font = Font(name='Calibri', bold=False)
-            
-            # ~ # Feldtyp / Zahlenformat setzen
-            # ~ if isinstance(item, datetime):
-                # ~ cell.number_format = 'DD.MM.YYYY'      # Datum
-            # ~ elif isinstance(item, (int, float)):
-                # ~ cell.number_format = '0.00'             # Standard / Zahl
-            # ~ else:
-                # ~ cell.number_format = '@'                # Text
-            # ~ clean_row.append(cell)
 
 def get_datas(suchparameter):
     if suchparameter["ansicht_auswahl"] == 'SalesHeader':
