@@ -109,7 +109,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
         for item in row:
             cell = WriteOnlyCell(ws, value=item)
             cell.font = Font(name='Calibri', bold=False)
-            frappe.log_error(type(item), item)
+            
             # Feldtyp / Zahlenformat setzen
             if isinstance(item, datetime):
                 cell.number_format = 'DD.MM.YYYY'      # Datum
@@ -139,7 +139,7 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     for row in salesline_data:
         clean_row = []
         for item in row:
-            frappe.log_error(type(item), item)
+            
             clean_row.append(item)
 
         ws.append(clean_row)
