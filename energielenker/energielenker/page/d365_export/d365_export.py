@@ -139,7 +139,6 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     for row in salesline_data:
         clean_row = []
         for item in row:
-            
             clean_row.append(item)
 
         ws.append(clean_row)
