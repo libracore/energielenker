@@ -142,6 +142,8 @@ frappe.ui.form.on("Sales Invoice", {
     customer: function(frm) {
         check_foreign_customers(frm.doc.customer);
         remove_billing_address(frm);
+        //Autoset Sachkonto
+        set_navision_konto(frm);
     },
     validate: function(frm) {
         check_navision(frm);
@@ -566,4 +568,24 @@ function check_payment_template(template) {
             }
         }
     });
+}
+
+function set_navision_konto(frm) {
+    if (frm.doc.customer) {
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_order.sales_order.get_navision_konto',
+            'args': {
+                'customer': frm.doc.customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    cur_frm.set_value("navision_konto", response.message);
+                } else {
+                    frappe.msgprint("Sachkonto konnte nicht gesetzt werden, bitte selber ergänzen");
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("navision_konto", null);
+    }
 }

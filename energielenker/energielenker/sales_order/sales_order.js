@@ -103,6 +103,8 @@ frappe.ui.form.on("Sales Order", {
             remove_delivered_and_closed(frm);
             //Remove Discount set with Blanket Order
             remove_blanket_order_discount(frm);
+            //Autoset Sachkonto
+            set_navision_konto(frm);
         }
         
         // hack to remove "+" in dashboard
@@ -155,6 +157,8 @@ frappe.ui.form.on("Sales Order", {
         check_foreign_customers(frm.doc.customer);
         shipping_address_query(frm);
         remove_billing_address(frm);
+        //Autoset Sachkonto
+        set_navision_konto(frm);
         if (cur_frm.doc.customer == 'WAGO Kontakttechnik GmbH & Co. KG') {
             frm.add_custom_button(__("Hinterlege Lieferant"), function() {
                 hinterlege_cfos_als_lieferant(frm);
@@ -1396,5 +1400,25 @@ function remove_blanket_order_discount(frm) {
             frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "discount_percentage", 0);
             frappe.model.set_value(frm.doc.items[i].doctype, frm.doc.items[i].name, "blanket_order_discount", 0);
         }
+    }
+}
+
+function set_navision_konto(frm) {
+    if (frm.doc.customer) {
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_order.sales_order.get_navision_konto',
+            'args': {
+                'customer': frm.doc.customer
+            },
+            'callback': function(response) {
+                if (response.message) {
+                    cur_frm.set_value("navision_konto", response.message);
+                } else {
+                    frappe.msgprint("Sachkonto konnte nicht gesetzt werden, bitte selber ergänzen");
+                }
+            }
+        });
+    } else {
+        cur_frm.set_value("navision_konto", null);
     }
 }

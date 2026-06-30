@@ -303,7 +303,7 @@ def _get_salesline_datas(suchparameter):
             #Rechnungsnummer
             data.append(sinv.get('name'))
             #Positionsnummer
-            data.append("1")
+            data.append(1)
             #Gesamtbetrag brutto
             data.append(round(sinv.get('rounded_total'), 2))
             #Gesamtbetrag netto
@@ -400,7 +400,7 @@ def _get_salesline_datas(suchparameter):
                     #Rechnungsnummer
                     data.append(_sinv.get('sinv'))
                     #Positionsnummer
-                    data.append("1")
+                    data.append(1)
                     #Gesamtbetrag brutto
                     data.append(_teilrechnung.get('rounded_total'))
                     #Gesamtbetrag netto
