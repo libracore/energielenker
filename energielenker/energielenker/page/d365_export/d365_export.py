@@ -311,7 +311,7 @@ def _get_salesline_datas(suchparameter):
             #Steuerbetrag
             data.append(round(sinv.get('total_taxes_and_charges'), 2))
             #Menge
-            data.append("1")
+            data.append(1)
             #Beschreibung
             data.append(_sinv["buchungsbeschreibung"])
             #Sachkonto
@@ -402,13 +402,13 @@ def _get_salesline_datas(suchparameter):
                     #Positionsnummer
                     data.append(1)
                     #Gesamtbetrag brutto
-                    data.append(_teilrechnung.get('rounded_total'))
+                    data.append(_teilrechnung.get('rounded_total') * -1)
                     #Gesamtbetrag netto
-                    data.append(_teilrechnung.get('net_total'))
+                    data.append(_teilrechnung.get('net_total') * -1)
                     #Steuerbetrag
-                    data.append(_teilrechnung.get('total_taxes_and_charges'))
+                    data.append(_teilrechnung.get('total_taxes_and_charges') * -1)
                     #Menge
-                    data.append("1")
+                    data.append(1)
                     #Beschreibung
                     if not teilrechnung.invoice_rhapsody:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.sales_invoice + projekt_zusatz)
@@ -423,7 +423,7 @@ def _get_salesline_datas(suchparameter):
                     else:
                         data.append("")
                     #Steuerart
-                    data.append("Anzahlung")
+                    data.append("Ware")
                     #Kostenstelle
                     data.append("9999")
                     #Erlösart
