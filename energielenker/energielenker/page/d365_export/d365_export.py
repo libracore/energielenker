@@ -402,11 +402,11 @@ def _get_salesline_datas(suchparameter):
                     #Positionsnummer
                     data.append(1)
                     #Gesamtbetrag brutto
-                    data.append(_teilrechnung.get('rounded_total') * -1)
+                    data.append(round(_teilrechnung.get('rounded_total') * -1, 2))
                     #Gesamtbetrag netto
-                    data.append(_teilrechnung.get('net_total') * -1)
+                    data.append(round(_teilrechnung.get('net_total') * -1, 2))
                     #Steuerbetrag
-                    data.append(_teilrechnung.get('total_taxes_and_charges') * -1)
+                    data.append(round(_teilrechnung.get('total_taxes_and_charges') * -1, 2))
                     #Menge
                     data.append(1)
                     #Beschreibung
