@@ -12,6 +12,7 @@ from openpyxl.styles import Font
 from openpyxl.cell import WriteOnlyCell
 from io import BytesIO
 from datetime import datetime
+from frappe.utils import cint
 
 @frappe.whitelist()
 def get_data(suchparameter, exportieren=False):
@@ -120,17 +121,6 @@ def make_d365_xlsx(salesheader_data, salesline_data):
             
             clean_row.append(cell)
         ws.append(clean_row)
-    
-    #Old Sales Header, to be saved
-    # ~ ws = wb.create_sheet('SalesHeader', 0)
-    # ~ row1 = ws.row_dimensions[1]
-    # ~ row1.font = Font(name='Calibri',bold=False)
-    # ~ for row in salesheader_data:
-        # ~ clean_row = []
-        # ~ for item in row:
-            # ~ clean_row.append(item)
-
-        # ~ ws.append(clean_row)
         
     # SalesLine
     ws = wb.create_sheet('Zeile', 1)
@@ -139,7 +129,19 @@ def make_d365_xlsx(salesheader_data, salesline_data):
     for row in salesline_data:
         clean_row = []
         for item in row:
-            clean_row.append(item)
+            cell = WriteOnlyCell(ws, value=item)
+            cell.font = Font(name='Calibri', bold=False)
+            
+            # Feldtyp / Zahlenformat setzen
+            if isinstance(item, datetime):
+                cell.number_format = 'DD.MM.YYYY'
+            elif isinstance(item, (float)):
+                cell.number_format = '0.00'
+            elif isinstance(item, (int)):
+                cell.number_format = '0' 
+            else:
+                cell.number_format = '@'
+            clean_row.append(cell)
 
         ws.append(clean_row)
 
@@ -274,7 +276,10 @@ def _get_salesline_datas(suchparameter):
                 vat = gross_amount - net_amount
                 data.append(round(vat, 2))
                 #Menge
-                data.append(lineitem.get('qty'))
+                if lineitem.get('qty').is_integer():
+                    data.append(cint(lineitem.get('qty')))
+                else:
+                    data.append(lineitem.get('qty'))
                 #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
                 #Sachkonto
@@ -360,7 +365,10 @@ def _get_salesline_datas(suchparameter):
                 vat = gross_amount - net_amount
                 data.append(round(vat, 2))
                 #Menge
-                data.append(lineitem.get('qty'))
+                if lineitem.get('qty').is_integer():
+                    data.append(cint(lineitem.get('qty')))
+                else:
+                    data.append(lineitem.get('qty'))
                 #Beschreibung
                 data.append(lineitem.get('item_name')[:50])
                 #Sachkonto
