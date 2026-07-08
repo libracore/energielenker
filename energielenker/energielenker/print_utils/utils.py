@@ -1345,7 +1345,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         tr_sales_invoice_paid_amount=tr_sales_invoice_paid_amount)
                 
                 total_anzahlung += tr_sales_invoice.net_total if tr_sales_invoice.net_total else tr_sales_invoice.total
-                total_anzahlung_mwst += tr_sales_invoice.total_taxes_and_charges
+                total_anzahlung_mwst += rounded(tr_sales_invoice.total_taxes_and_charges, 2)
                 table += tr
             
         for item in verpackung_versand:
@@ -1432,7 +1432,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                 grand_total=grand_total, taxes_name=taxes_name)
         
         table += tr
-        
+        frappe.log_error(total_anzahlung_mwst, "total_anzahlung_mwst")
         total_brutto = "{:,.2f}".format(rounded(doc.grand_total - total_anzahlung - total_anzahlung_mwst, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         total_anzahlung = "{:,.2f}".format(rounded(total_anzahlung, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
         total_anzahlung_mwst = "{:,.2f}".format(rounded(total_anzahlung_mwst, 2)).replace(",", "'").replace(".", ",").replace("'", ".")
