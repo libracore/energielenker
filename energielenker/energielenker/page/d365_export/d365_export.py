@@ -416,7 +416,7 @@ def _get_salesline_datas(suchparameter):
                     #Steuerbetrag
                     data.append(round(_teilrechnung.get('total_taxes_and_charges') * -1, 2))
                     #Menge
-                    data.append(1)
+                    data.append(-1)
                     #Beschreibung
                     if not teilrechnung.invoice_rhapsody:
                         data.append(str(teilrechnung.idx) + ". TR " + teilrechnung.sales_invoice + projekt_zusatz)
