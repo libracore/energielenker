@@ -86,7 +86,7 @@ def charged_at_cost(self, event):
     return
 
 def set_navision_export_check(self, event):
-    if not self.is_return:
+    if not self.is_return or self.billing_type == "Rechnung":
         self.rechnung_nach_navision_exportiert = 0
         self.rechnung_nach_d365_exportiert = 0
     else:
