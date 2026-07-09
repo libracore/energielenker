@@ -225,6 +225,9 @@ frappe.ui.form.on("Sales Order", {
         
         //Set Discounts from Blanket Order
         set_blanket_order_discount(frm);
+        
+        //Check of Order Volume has been estimated
+        validate_order_volume(frm);
     },
     project: function(frm) {
         cur_frm.set_value('project_clone', cur_frm.doc.project);
@@ -1420,5 +1423,16 @@ function set_navision_konto(frm) {
         });
     } else {
         cur_frm.set_value("navision_konto", null);
+    }
+}
+
+function validate_order_volume(frm) {
+    for (let i = 0; i < frm.doc.items.length; i++) {
+        if (frm.doc.items[i].is_support) {
+            if ((!frm.doc.items[i].cannot_be_estimated) && (frm.doc.items[i].estimated_volume < 0.01)) {
+                frappe.validated = false
+                frappe.msgprint("Bitte Auftragsvolumen von Artikel " + frm.doc.items[i].item_code + " in Zeile " + frm.doc.items[i].idx + " schätzen.");
+            }
+        }
     }
 }

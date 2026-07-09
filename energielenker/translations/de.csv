@@ -178,6 +178,9 @@ DocType: Lead,Private request,Privat-Anfrage
 Report: Service projects,Service projects,Dienstleistungsprojekte
 DocType: Sales Invoice,Billing Status,Aktueller Abrechnungsstand
 DocType: Sales Invoice,Show Billing Status,Aktueller Abrechnungsstand einblenden
+DocType: Sales Invoice,Estimated volume for the order,Bei Auftrag geschätztes Volumen
+DocType: Sales Invoice,Volume cannot be estimated,Volumen nicht schätzbar
+DocType: Sales Invoice,Adjusted expected order volume,Angepasstes zu erwartendes Auftragsvolumen
 DocType: Task,Forecast additional hours,Forecast zusätzliche Stunden
 DocType: Purchase Invoice,Ignore multiple quantities,Vielfachmenge ignorieren
 DocType: Revenue Type,Revenue Type,Erlösart
@@ -200,4 +203,3 @@ DocType: Quotation Reference Text,Reference Text,Referenztext
 DocType: Quotation,Set Alternative Reference Text,Alternativen Referenztext setzten
 DocType: Quotation,Fetch Reference Text,Referenztext holen
 DocType: Quotation Template,Quotation Template,Vorlage Angebot
-
