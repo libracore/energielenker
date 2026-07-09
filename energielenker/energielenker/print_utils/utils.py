@@ -1345,7 +1345,7 @@ def get_print_items(dt, dn, total_value_needed=False):
                         tr_sales_invoice_paid_amount=tr_sales_invoice_paid_amount)
                 
                 total_anzahlung += tr_sales_invoice.net_total if tr_sales_invoice.net_total else tr_sales_invoice.total
-                total_anzahlung_mwst += tr_sales_invoice.total_taxes_and_charges
+                total_anzahlung_mwst += rounded(tr_sales_invoice.total_taxes_and_charges, 2)
                 table += tr
             
         for item in verpackung_versand:
