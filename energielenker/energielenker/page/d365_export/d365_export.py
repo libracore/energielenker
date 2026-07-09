@@ -46,7 +46,9 @@ def get_data(suchparameter, exportieren=False):
                 data.append(frappe.utils.get_datetime(sinv["due_date"]))
                 data.append(sinv["payment_term"])
                 data.append("UEW")
-                data.append(sinv["cash_discount"] if frappe.utils.cint(sinv["cash_discount"]) != 0 else "")
+                if sinv["cash_discount"] == 0 or sinv["cash_discount"] == "0":
+                    sinv["cash_discount"] = ""
+                data.append(sinv["cash_discount"])
                 data.append(sinv["sinv"])
                 data.append(sinv["type"])
                 data.append(sinv["buchungsbeschreibung"])
