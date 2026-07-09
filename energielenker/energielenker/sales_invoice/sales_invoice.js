@@ -7,7 +7,8 @@ frappe.ui.form.on('Sales Invoice Item', {
 });
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
-
+       //Show comment if Billing Address Name is different to Customer Address
+       check_billing_address(frm);
        set_timestamps(frm);
        setTimeout(function(){ 
             try {
@@ -587,5 +588,11 @@ function set_navision_konto(frm) {
         });
     } else {
         cur_frm.set_value("navision_konto", null);
+    }
+}
+
+function check_billing_address(frm) {
+    if ((frm.doc.billing_address_name) && (frm.doc.billing_address_name != frm.doc.customer_address)) {
+        cur_frm.dashboard.add_comment('"Name der Rechnungsadresse" entspricht nicht der Kundenadresse!', 'red');
     }
 }
