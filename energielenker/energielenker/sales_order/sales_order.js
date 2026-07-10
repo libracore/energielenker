@@ -1427,12 +1427,19 @@ function set_navision_konto(frm) {
 }
 
 function validate_order_volume(frm) {
+    let message = "Achtung! Es gibt Dienstleistunsartikel. Bitte auf geschätztes Auftragsvolumen prüfen und ggfalls Wert eintragen.:<br><br>";
+    let show_message = false;
     for (let i = 0; i < frm.doc.items.length; i++) {
         if (frm.doc.items[i].is_support) {
             if ((!frm.doc.items[i].cannot_be_estimated) && (frm.doc.items[i].estimated_volume < 0.01)) {
-                frappe.validated = false
-                frappe.msgprint("Bitte Auftragsvolumen von Artikel " + frm.doc.items[i].item_code + " in Zeile " + frm.doc.items[i].idx + " schätzen.");
+                show_message = true;
+                message = message + "<br>Artikel: " + frm.doc.items[i].item_code + " (Zeile " + frm.doc.items[i].idx + ")";
             }
         }
     }
+    if (show_message) {
+        frappe.msgprint(message);
+    }
 }
+
+
