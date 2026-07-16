@@ -36,6 +36,7 @@ DocType: Customer,Framework agreement,Rahmenvertrag
 DocType: Depot,Depot,Kommissionierung
 DocType: Depot,To Warehouse,Ziellager
 DocType: Depot,Project,Projekt
+DocType: Depot,Check Open Depots,Offene Kommissionierungen prüfen
 DocType: Depot,Sales Order,Kundenauftrag
 DocType: Delivery Note,Please select Depot,Bitte Kommissionierung wählen
 DocType: Delivery Note,Get Depot Items,Kommissionierungsartikel

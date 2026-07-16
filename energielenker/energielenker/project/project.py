@@ -1279,3 +1279,16 @@ def update_service_orders(project, service_check):
                                                     `parent` = '{sales_order}';""".format(check=service_check, sales_order=order.get('name')), as_dict=True)
                 
     return
+
+@frappe.whitelist()
+def get_open_depots(project):
+    project_depots = frappe.db.sql("""
+                                    SELECT COUNT(*) AS `quantity`
+                                    FROM `tabDepot`
+                                    WHERE `project` = %(project)s
+                                    AND `status` = 'Open'""",{'project': project}, as_dict=True)
+    
+    if len(project_depots) > 0:
+        return project_depots[0].get('quantity')
+    else:
+        return 0
