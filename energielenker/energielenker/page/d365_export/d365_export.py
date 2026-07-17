@@ -62,7 +62,7 @@ def get_data(suchparameter, exportieren=False):
             # SalesLine
             suchparameter["ansicht_auswahl"] = 'SalesLine'
             salesline_raw_data = get_datas(suchparameter)
-            salesline_data = [["Rechnungsnummer","Positionsnummer","Gesamtbetrag brutto","Gesamtbetrag netto","Steuerbetrag","Menge","Beschreibung","Sachkonto","Mehrwertsteuerschlüssel","Steuerart","Kostenstelle","Erlösart","Kostenträger"]]
+            salesline_data = [["Rechnungsnummer","Positionsnummer","Gesamtbetrag brutto","Gesamtbetrag netto","Steuerbetrag","Menge","Beschreibung","Sachkonto","Mehrwertsteuerschlüssel","Steuerart","Kostenstelle","Erlösart","Kostenträger","Kostenträger Bezeichnung"]]
             for _salesline_data in salesline_raw_data:
                 salesline_data.append(_salesline_data)
             xlsx_file = make_d365_xlsx(salesheader_data, salesline_data)
@@ -304,6 +304,12 @@ def _get_salesline_datas(suchparameter):
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
+                #Kostenträger Bezeichnung
+                if sinv.get('project'):
+                    project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
+                else:
+                    project_name = "Dummy solutions"
+                data.append(project_name)
                 datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
             data = []
@@ -337,6 +343,12 @@ def _get_salesline_datas(suchparameter):
             data.append("5005")
             #Kostenträger
             data.append(sinv.get('project') or "212_9999")
+            #Kostenträger Bezeichnung
+            if sinv.get('project'):
+                project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
+            else:
+                project_name = "Dummy solutions"
+            data.append(project_name)
             datas.append(data)
         if sinv.billing_type == 'Schlussrechnung':
             loop = 0
@@ -393,6 +405,12 @@ def _get_salesline_datas(suchparameter):
                 data.append(lineitem.get('revenue_number') or "")
                 #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
+                #Kostenträger Bezeichnung
+                if sinv.get('project'):
+                    project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
+                else:
+                    project_name = "Dummy solutions"
+                data.append(project_name)
                 datas.append(data)
             sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
             for teilrechnung in sales_order.billing_overview:
@@ -440,7 +458,12 @@ def _get_salesline_datas(suchparameter):
                     data.append("5005")
                     #Kostenträger
                     data.append(_teilrechnung.get('project') or "212_9999")
-                    data.append("")
+                    #Kostenträger Bezeichnung
+                    if _teilrechnung.get('project'):
+                        project_name = frappe.get_value("Project", _teilrechnung.get('project'), "project_name")
+                    else:
+                        project_name = "Dummy solutions"
+                    data.append(project_name)
                     datas.append(data)
     
     if len(datas) > 0:
