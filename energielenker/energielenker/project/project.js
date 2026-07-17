@@ -131,6 +131,12 @@ frappe.ui.form.on("Project", {
             //If Project is marked as Service Project
             confirm_service_project(frm);
         }
+        
+        //Add Button to reset Open Depots
+        frm.add_custom_button(__("Check Open Depots"), function() {
+            reset_open_depots(frm.doc.name);
+        });
+        
     },
     auftragsumme_manuell_festsetzen: function(frm) {
         if (cur_frm.doc.auftragsumme_manuell_festsetzen) {
@@ -679,4 +685,16 @@ function confirm_service_project(frm) {
             }
         )
     }
+}
+
+function reset_open_depots(project) {
+    frappe.call({
+        'method': 'energielenker.energielenker.project.project.get_open_depots',
+        'args': {
+            'project': project
+        },
+        'callback': function(response) {
+            cur_frm.set_value("open_depots", response.message);
+        }
+    });
 }
