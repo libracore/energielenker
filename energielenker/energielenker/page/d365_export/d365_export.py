@@ -305,10 +305,7 @@ def _get_salesline_datas(suchparameter):
                 #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
                 #Kostenträger Bezeichnung
-                if sinv.get('project'):
-                    project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
-                else:
-                    project_name = "Dummy solutions"
+                project_name = get_project_name(sinv.get('project'))
                 data.append(project_name)
                 datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
@@ -344,10 +341,7 @@ def _get_salesline_datas(suchparameter):
             #Kostenträger
             data.append(sinv.get('project') or "212_9999")
             #Kostenträger Bezeichnung
-            if sinv.get('project'):
-                project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
-            else:
-                project_name = "Dummy solutions"
+            project_name = get_project_name(sinv.get('project'))
             data.append(project_name)
             datas.append(data)
         if sinv.billing_type == 'Schlussrechnung':
@@ -406,10 +400,7 @@ def _get_salesline_datas(suchparameter):
                 #Kostenträger
                 data.append(sinv.get('project') or "212_9999")
                 #Kostenträger Bezeichnung
-                if sinv.get('project'):
-                    project_name = frappe.get_value("Project", sinv.get('project'), "project_name")
-                else:
-                    project_name = "Dummy solutions"
+                project_name = get_project_name(sinv.get('project'))
                 data.append(project_name)
                 datas.append(data)
             sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
@@ -459,11 +450,8 @@ def _get_salesline_datas(suchparameter):
                     #Kostenträger
                     data.append(_teilrechnung.get('project') or "212_9999")
                     #Kostenträger Bezeichnung
-                    if _teilrechnung.get('project'):
-                        project_name = frappe.get_value("Project", _teilrechnung.get('project'), "project_name")
-                    else:
-                        project_name = "Dummy solutions"
-                    data.append(project_name)
+                    project_name = get_project_name(_teilrechnung.get('project'))
+                data.append(project_name)
                     datas.append(data)
     
     if len(datas) > 0:
@@ -486,3 +474,13 @@ def get_customer_territory(customer):
             territory = "EU"
             
     return territory
+
+def get_project_name(project):
+    """
+    Function to safely retrieve a project name or fall back to dummy
+    """
+    if project and frappe.db.exists("Project", project):
+        project_name = frappe.get_value("Project", project, "project_name")
+    else:
+        project_name = "Dummy solutions"
+    return project_name
