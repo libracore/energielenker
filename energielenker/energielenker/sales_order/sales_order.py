@@ -273,3 +273,7 @@ def get_navision_konto(customer):
         if navision_konto:
             return navision_konto
     return None
+
+#add support items to project payment schedule
+def add_support_positions_to_project(self, event):
+    

@@ -178,7 +178,8 @@ doc_events = {
     "Sales Order": {
         "on_submit": [
             "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so",
-            "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
+            "energielenker.energielenker.sales_order.sales_order.update_delivery_status",
+            "energielenker.energielenker.sales_order.sales_order.add_support_positions_to_project"
         ],
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet",
         "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information",
