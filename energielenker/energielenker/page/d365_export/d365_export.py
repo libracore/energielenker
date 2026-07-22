@@ -451,7 +451,7 @@ def _get_salesline_datas(suchparameter):
                     data.append(_teilrechnung.get('project') or "212_9999")
                     #Kostenträger Bezeichnung
                     project_name = get_project_name(_teilrechnung.get('project'))
-                data.append(project_name)
+                    data.append(project_name)
                     datas.append(data)
     
     if len(datas) > 0:
