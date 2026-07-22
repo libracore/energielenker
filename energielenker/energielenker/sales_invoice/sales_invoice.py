@@ -116,3 +116,29 @@ def set_billing_information(self, event):
                 self.billing_contact_display = billing_contact_display_dict.get('contact_display')
                 self.save()
                 frappe.db.commit()
+
+def update_payment_schedule_support(self, event):
+    project = None
+    #Check if there are Support items
+    if self.get('project'):
+        for item in self.get('items'):
+            if item.get('is_support'):
+                value_set = False
+                #Load project
+                if not project:
+                    project = frappe.get_doc("Project", self.get('project'))
+                #Check if Subtable is filled
+                if len(project.get('payment_schedule_support')) < 1:
+                    frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
+                else:
+                    #Add Amount from Position to Payment Schedule Support
+                    for pss in project.get('payment_schedule_support'):
+                        if pss.get('sales_order_detail') == item.get('so_detail'):
+                            pss.actual_billed_amount = (pss.actual_billed_amount or 0) + (item.get("amount") or 0)
+                            value_set = True
+                
+                #Check if row has been found
+                if not value_set:
+                    frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
+        if project:
+            project.save()

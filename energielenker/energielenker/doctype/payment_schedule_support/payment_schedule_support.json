@@ -8,7 +8,8 @@
   "sales_order_positions",
   "sales_order_detail",
   "estimated_volume",
-  "adjusted_expected_volume",
+  "cannot_be_estimated",
+  "adjusted_volume",
   "actual_billed_amount",
   "free_text_1",
   "free_text_2",
@@ -16,6 +17,7 @@
  ],
  "fields": [
   {
+   "columns": 2,
    "fieldname": "sales_order",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -24,6 +26,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "sales_order_positions",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -37,6 +40,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "estimated_volume",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -44,13 +48,7 @@
    "read_only": 1
   },
   {
-   "fieldname": "adjusted_expected_volume",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Adjusted expected Volume",
-   "read_only": 1
-  },
-  {
+   "columns": 2,
    "fieldname": "actual_billed_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -58,25 +56,45 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "free_text_1",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Freitext A"
   },
   {
+   "columns": 1,
    "fieldname": "free_text_2",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Freitext B"
   },
   {
+   "columns": 1,
    "fieldname": "free_text_3",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Freitext C"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "cannot_be_estimated",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Volume cannot be estimated",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "adjusted_volume",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Adjusted expected Volume",
+   "read_only": 1
   }
  ],
- "modified": "2026-07-22 09:39:19.789481",
+ "modified": "2026-07-22 12:13:05.148612",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Schedule Support",

@@ -276,4 +276,35 @@ def get_navision_konto(customer):
 
 #add support items to project payment schedule
 def add_support_positions_to_project(self, event):
+    project = None
     
+    #Check for support items, if a project is avaliable
+    if self.get('project'):
+        for item in self.get('items'):
+            if item.get('is_support'):
+                #load Project if not loaded yet
+                if not project:
+                    project = frappe.get_doc("Project", self.get('project'))
+                
+                #Add Line to Project
+                project.append("payment_schedule_support", {
+                                                        'reference_doctype': "Payment Schedule Support",
+                                                        'sales_order': self.get('name'),
+                                                        'sales_order_positions': item.get('idx'),
+                                                        'sales_order_detail': item.get('name'),
+                                                        'estimated_volume': item.get('estimated_volume'),
+                                                        'cannot_be_estimated': item.get('cannot_be_estimated'),
+                                                        'adjusted_volume': item.get('adjusted_volume'),
+                                                        'actual_billed_amount': 0
+                                                    })
+        if project:
+            project.save()
+
+#Update Adjusted Volume from Support Positions in Project Payment Schedule Support
+def update_adjusted_volume(self, event):
+    #Check of Adjusted Volume has changed in any Position
+    for item in self.get('items'):
+        old_adjusted_volume = frappe.get_value(item.get('doctype'), item.get('name'), "adjusted_volume")
+        if old_adjusted_volume != item.get('adjusted_volume'):
+            #update Payment Schedule Support in Project
+            update = frappe.db.sql("""UPDATE `tabPayment Schedule Support` SET `adjusted_volume` = %(new_volume)s WHERE `sales_order_detail` = %(so_detail)s;""", {'new_volume': item.get('adjusted_volume'), 'so_detail': item.get('name')}, as_dict=True)
