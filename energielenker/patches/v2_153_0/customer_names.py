@@ -1,6 +1,5 @@
 import frappe
 from frappe.modules.utils import sync_customizations
-from energielenker.zoho_api import send_request, get_new_token
 
 def execute():
     sync_customizations("energielenker")
