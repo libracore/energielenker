@@ -186,7 +186,8 @@ doc_events = {
         "before_update_after_submit": [
             "energielenker.energielenker.sales_order.sales_order.so_before_update_after_submit",
             "energielenker.energielenker.sales_order.sales_order.update_adjusted_volume"
-        ]
+        ],
+        "on_cancel": "energielenker.energielenker.sales_order.sales_order.remove_support_positions_from_project"
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
@@ -204,7 +205,10 @@ doc_events = {
                     "energielenker.energielenker.sales_invoice.sales_invoice.update_payment_schedule_support"
                     ],
         "before_submit": "energielenker.energielenker.sales_invoice.sales_invoice.set_navision_export_check",
-        "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+        "on_cancel": [
+                    "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+                    "energielenker.energielenker.sales_invoice.sales_invoice.update_payment_schedule_support"
+                    ],
         "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information"
     },
     "Purchase Invoice": {

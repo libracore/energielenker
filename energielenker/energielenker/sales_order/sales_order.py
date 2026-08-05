@@ -308,3 +308,16 @@ def update_adjusted_volume(self, event):
         if old_adjusted_volume != item.get('adjusted_volume'):
             #update Payment Schedule Support in Project
             update = frappe.db.sql("""UPDATE `tabPayment Schedule Support` SET `adjusted_volume` = %(new_volume)s WHERE `sales_order_detail` = %(so_detail)s;""", {'new_volume': item.get('adjusted_volume'), 'so_detail': item.get('name')}, as_dict=True)
+
+def remove_support_positions_from_project(self, event):
+    if self.get('project'):
+        for item in self.get('items'):
+            if item.get('is_support'):
+                frappe.db.delete(
+                    "Payment Schedule Support",
+                    {
+                        "parent": self.get('project'),
+                        "sales_order_detail": item.get('name')
+                    }
+                )
+        frappe.db.commit()

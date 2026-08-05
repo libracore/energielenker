@@ -134,7 +134,10 @@ def update_payment_schedule_support(self, event):
                     #Add Amount from Position to Payment Schedule Support
                     for pss in project.get('payment_schedule_support'):
                         if pss.get('sales_order_detail') == item.get('so_detail'):
-                            pss.actual_billed_amount = (pss.actual_billed_amount or 0) + (item.get("amount") or 0)
+                            if event == "on_submit":
+                                pss.actual_billed_amount = (pss.actual_billed_amount or 0) + (item.get("amount") or 0)
+                            elif event == "on_cancel":
+                                pss.actual_billed_amount = (pss.actual_billed_amount or 0) - (item.get("amount") or 0)
                             value_set = True
                 
                 #Check if row has been found
