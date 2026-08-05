@@ -78,6 +78,9 @@ frappe.ui.form.on('Customer', {
         
         //Update Sales Orders if Customer Reference has changed
         update_reference_in_so(frm);
+        
+        //Validate new Customer Names, if they are already use to rename doc after save
+        validate_customer_name(frm);
     },
     manual_billing_address: function(frm) {
         if (frm.doc.manual_billing_address) {
@@ -287,5 +290,17 @@ function update_reference_in_so(frm) {
                 'doc': frm.doc
             }
         });
+    }
+}
+
+function validate_customer_name(frm) {
+    if ((frm.doc.customer_name) && (frm.doc.customer_name != frm.doc.name)) {
+        frappe.db.exists("Customer", frm.doc.customer_name)
+            .then(exists => {
+                if (exists) {
+                    frappe.validated=false;
+                    frappe.msgprint("Dieser neue Kundenname existiert bereits, bitte einen anderen wählen.");
+                }
+            });
     }
 }

@@ -313,3 +313,18 @@ def update_reference_in_so(doc):
         if len(sales_orders) > 0:
             for sales_order in sales_orders:
                 update = frappe.db.set_value("Sales Order", sales_order.get('name'), "customer_reference", doc.get('referenz'))
+
+#Rename doc if Customer Name has changed
+def on_update(self, event):
+    if self.name != self.customer_name:
+        frappe.enqueue(
+            rename_customer,
+            old_name=self.name,
+            new_name=self.customer_name,
+            enqueue_after_commit=True
+        )
+
+
+def rename_customer(old_name, new_name):
+    frappe.rename_doc("Customer", old_name, new_name, force=True)
+    

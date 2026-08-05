@@ -255,6 +255,9 @@ doc_events = {
     },
     "Cost Center": {
         "before_save": "energielenker.energielenker.cost_center.cost_center.update_kst_code"
+    },
+    "Customer": {
+        "on_update": "energielenker.energielenker.customer.customer.on_update"
     }
 }
 
