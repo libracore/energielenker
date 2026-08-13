@@ -11,9 +11,9 @@
   "cannot_be_estimated",
   "adjusted_volume",
   "actual_billed_amount",
-  "free_text_1",
-  "free_text_2",
-  "free_text_3"
+  "forecast_time_period_1",
+  "forecast_time_period_2",
+  "forecast_time_period_3"
  ],
  "fields": [
   {
@@ -57,27 +57,6 @@
   },
   {
    "columns": 1,
-   "fieldname": "free_text_1",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Freitext A"
-  },
-  {
-   "columns": 1,
-   "fieldname": "free_text_2",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Freitext B"
-  },
-  {
-   "columns": 1,
-   "fieldname": "free_text_3",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Freitext C"
-  },
-  {
-   "columns": 1,
    "default": "0",
    "fieldname": "cannot_be_estimated",
    "fieldtype": "Check",
@@ -92,9 +71,30 @@
    "in_list_view": 1,
    "label": "Adjusted expected Volume",
    "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 1"
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_2",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_3",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 3"
   }
  ],
- "modified": "2026-07-22 12:13:05.148612",
+ "modified": "2026-08-13 15:54:13.826049",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Payment Schedule Support",
