@@ -1,0 +1,120 @@
+{
+ "creation": "2026-07-22 09:34:52.314183",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_order",
+  "sales_order_positions",
+  "sales_order_detail",
+  "estimated_volume",
+  "cannot_be_estimated",
+  "adjusted_volume",
+  "actual_billed_amount",
+  "forecast_time_period_1",
+  "forecast_time_period_2",
+  "forecast_time_period_3"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "sales_order_positions",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sales Order Position",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_order_detail",
+   "fieldtype": "Data",
+   "label": "Sales Order Detail",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "estimated_volume",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Estimated Volume",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "actual_billed_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Actual billed Amount",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "cannot_be_estimated",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Volume cannot be estimated",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "adjusted_volume",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Adjusted expected Volume",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 1"
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_2",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 2"
+  },
+  {
+   "columns": 1,
+   "fieldname": "forecast_time_period_3",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Monat 3"
+  }
+ ],
+ "modified": "2026-08-13 15:54:13.826049",
+ "modified_by": "Administrator",
+ "module": "energielenker",
+ "name": "Payment Schedule Support",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -178,11 +178,16 @@ doc_events = {
     "Sales Order": {
         "on_submit": [
             "energielenker.energielenker.sales_order.sales_order.fetch_payment_schedule_from_so",
-            "energielenker.energielenker.sales_order.sales_order.update_delivery_status"
+            "energielenker.energielenker.sales_order.sales_order.update_delivery_status",
+            "energielenker.energielenker.sales_order.sales_order.add_support_positions_to_project"
         ],
         "validate": "energielenker.energielenker.utils.utils.get_plz_gebiet",
         "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information",
-        "before_update_after_submit": "energielenker.energielenker.sales_order.sales_order.so_before_update_after_submit"
+        "before_update_after_submit": [
+            "energielenker.energielenker.sales_order.sales_order.so_before_update_after_submit",
+            "energielenker.energielenker.sales_order.sales_order.update_adjusted_volume"
+        ],
+        "on_cancel": "energielenker.energielenker.sales_order.sales_order.remove_support_positions_from_project"
     },
     "Timesheet": {
         "after_insert": "energielenker.energielenker.timesheet.timesheet.assign_read_for_all",
@@ -195,9 +200,15 @@ doc_events = {
     },
     "Sales Invoice": {
         "validate": "energielenker.energielenker.sales_invoice.sales_invoice.validate_navision_of_items",
-        "on_submit": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+        "on_submit": [
+                    "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+                    "energielenker.energielenker.sales_invoice.sales_invoice.update_payment_schedule_support"
+                    ],
         "before_submit": "energielenker.energielenker.sales_invoice.sales_invoice.set_navision_export_check",
-        "on_cancel": "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+        "on_cancel": [
+                    "energielenker.energielenker.sales_invoice.sales_invoice.charged_at_cost",
+                    "energielenker.energielenker.sales_invoice.sales_invoice.update_payment_schedule_support"
+                    ],
         "after_insert": "energielenker.energielenker.sales_invoice.sales_invoice.set_billing_information"
     },
     "Purchase Invoice": {
