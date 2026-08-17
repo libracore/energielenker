@@ -129,7 +129,9 @@ def update_payment_schedule_support(self, event):
                     project = frappe.get_doc("Project", self.get('project'))
                 #Check if Subtable is filled
                 if len(project.get('payment_schedule_support')) < 1:
-                    frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
+                    #do nothing until Go-Live of Feature
+                    print("1")
+                    # ~ frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
                 else:
                     #Add Amount from Position to Payment Schedule Support
                     for pss in project.get('payment_schedule_support'):
@@ -140,8 +142,8 @@ def update_payment_schedule_support(self, event):
                                 pss.actual_billed_amount = (pss.actual_billed_amount or 0) - (item.get("amount") or 0)
                             value_set = True
                 
-                #Check if row has been found
-                if not value_set:
-                    frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
+                #Check if row has been found -> Commented out until Go-Live of feature
+                # ~ if not value_set:
+                    # ~ frappe.throw("Zeile in Diensleistungszahlungsplan vom Projekt nicht gefunden, bitte prüfen.")
         if project:
             project.save()
