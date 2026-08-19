@@ -365,7 +365,6 @@ class PowerProject():
             #check if Item is manufactured by energielenker
             manufactured = frappe.get_value("Item", item.get('item_code'), "manufacturing_by_energielenker")
             if manufactured:
-                frappe.log_error(manufactured, "manufactured")
                 #Check if default BOM is existing
                 default_bom = frappe.get_all("BOM", filters={'item': item.get('item_code'), 'is_default': 1, 'docstatus': 1}, fields=["total_cost"])
                 if len(default_bom) > 0:
@@ -383,8 +382,8 @@ class PowerProject():
                 manufactured = frappe.get_value("Item", part_list_item.get('item_code'), "manufacturing_by_energielenker")
                 if manufactured:
                     #Check if default BOM is existing
-                    default_bom = frappe.get_all("BOM", filters={'item': item.get('item_code'), 'is_default': 1, 'docstatus': 1}, fields=["total_cost"])
-                    if len(default_bom) > 1:
+                    default_bom = frappe.get_all("BOM", filters={'item': part_list_item.get('item_code'), 'is_default': 1, 'docstatus': 1}, fields=["total_cost"])
+                    if len(default_bom) > 0:
                         #Add price
                         amount += (default_bom[0].total_cost * part_list_item.qty)
                 else:
