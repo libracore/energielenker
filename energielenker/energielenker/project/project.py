@@ -362,17 +362,35 @@ class PowerProject():
                                     )""".format(project=self.project.name), as_dict=True)
                                     
         for item in items:
-            price = frappe.get_all("Item Price", fields=["price_list_rate"],
-                filters={"price_list": 'Standard Einkauf', "item_code": item.item_code})
-            if price:
-                amount += (price[0].price_list_rate * item.qty)
+            #check if Item is manufactured by energielenker
+            manufactured = frappe.get_value("Item", item.get('item_code'), "manufacturing_by_energielenker")
+            if manufactured:
+                #Check if default BOM is existing
+                default_bom = frappe.get_all("BOM", filters={'item': item.get('item_code'), 'is_default': 1, 'docstatus': 1}, fields=["total_cost"])
+                if len(default_bom) > 0:
+                    #Add price
+                    amount += (default_bom[0].total_cost * item.qty)
+            else:
+                price = frappe.get_all("Item Price", fields=["price_list_rate"],
+                    filters={"price_list": 'Standard Einkauf', "item_code": item.item_code})
+                if price:
+                    amount += (price[0].price_list_rate * item.qty)
         
         if len(part_list_items) > 0:
             for part_list_item in part_list_items:
-                price = frappe.get_all("Item Price", fields=["price_list_rate"],
-                    filters={"price_list": 'Standard Einkauf', "item_code": part_list_item.item_code})
-                if price:
-                    amount += (price[0].price_list_rate * part_list_item.qty)
+                #check if Item is manufactured by energielenker
+                manufactured = frappe.get_value("Item", part_list_item.get('item_code'), "manufacturing_by_energielenker")
+                if manufactured:
+                    #Check if default BOM is existing
+                    default_bom = frappe.get_all("BOM", filters={'item': part_list_item.get('item_code'), 'is_default': 1, 'docstatus': 1}, fields=["total_cost"])
+                    if len(default_bom) > 0:
+                        #Add price
+                        amount += (default_bom[0].total_cost * part_list_item.qty)
+                else:
+                    price = frappe.get_all("Item Price", fields=["price_list_rate"],
+                        filters={"price_list": 'Standard Einkauf', "item_code": part_list_item.item_code})
+                    if price:
+                        amount += (price[0].price_list_rate * part_list_item.qty)
         
         return amount
     
