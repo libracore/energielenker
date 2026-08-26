@@ -131,7 +131,7 @@ def create_ticket(**kwargs):
     request_failure = check_request(kwargs)
     
     if request_failure:
-        return raise_xxx(400, 'BadRequest', request_failure)
+        return raise_xxx(400, 'BadRequest', request_failure, daten=kwargs)
     
     try:
         if 'test' not in kwargs:
