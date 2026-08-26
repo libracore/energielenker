@@ -5,8 +5,12 @@
  "engine": "InnoDB",
  "field_order": [
   "section_break_1",
+  "delivery_item_s",
+  "delivery_item_m",
   "so_item",
   "column_break_3",
+  "delivery_item_s_name",
+  "delivery_item_m_name",
   "so_item_name",
   "purchase_order_section",
   "supplier",
@@ -85,10 +89,36 @@
    "fieldtype": "Data",
    "label": "Item Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "delivery_item_s",
+   "fieldtype": "Link",
+   "label": "Delivery Item S",
+   "options": "Item"
+  },
+  {
+   "fieldname": "delivery_item_m",
+   "fieldtype": "Link",
+   "label": "Delivery Item M",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "delivery_item_s.item_name",
+   "fieldname": "delivery_item_s_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "delivery_item_m.item_name",
+   "fieldname": "delivery_item_m_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
   }
  ],
  "issingle": 1,
- "modified": "2024-04-19 15:18:10.358758",
+ "modified": "2026-08-26 16:51:45.004400",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Webshop Settings",

@@ -12,24 +12,32 @@ def get_context(context):
         frappe.local.flags.redirect_location = "/webshop_login"
         raise frappe.Redirect
     
-    context['ladepunkte'] = get_ladepunkte(frappe.session.user)
+    avaliable_points = get_ladepunkte(frappe.session.user)
+    context['ladepunkte_s'] = avaliable_points.get('avaliable_points_s')
+    context['ladepunkte_m'] = avaliable_points.get('avaliable_points_m')
     return context
 
 def get_ladepunkte(user):
-    
     data = frappe.db.sql("""SELECT
-                                `tabCharging Point Key Account`.`avaliable_points`
-                            FROM `tabCharging Point Key Account`
-                            LEFT JOIN `tabCharging Point Key Account User` ON `tabCharging Point Key Account`.`name` = `tabCharging Point Key Account User`.`parent`
-                            WHERE `tabCharging Point Key Account User`.`user` = '{user}'
-                            AND `tabCharging Point Key Account`.`disabled` = 0""".format(user=user), as_dict=True)
+                                `tabCharging Point Key Account`.`avaliable_points_s`,
+                                `tabCharging Point Key Account`.`avaliable_points_m`
+                            FROM
+                                `tabCharging Point Key Account`
+                            LEFT JOIN
+                                `tabCharging Point Key Account User` ON `tabCharging Point Key Account`.`name` = `tabCharging Point Key Account User`.`parent`
+                            WHERE
+                                `tabCharging Point Key Account User`.`user` = %(user)s
+                            AND 
+                                `tabCharging Point Key Account`.`disabled` = 0;""", {'user': user}, as_dict=True)
     
     if len(data) > 0:
-        avaliable_points = data[0].get('avaliable_points')
+        avaliable_points_s = data[0].get('avaliable_points_s')
+        avaliable_points_m = data[0].get('avaliable_points_m')
     else:
-        avaliable_points = 0
+        avaliable_points_s = 0
+        avaliable_points_m = 0
     
-    return avaliable_points
+    return {'avaliable_points_s': avaliable_points_s, 'avaliable_points_m': avaliable_points_m}
     
 @frappe.whitelist()
 def validate_qty(qty_string):
