@@ -40,32 +40,33 @@ def get_ladepunkte(user):
     return {'avaliable_points_s': avaliable_points_s, 'avaliable_points_m': avaliable_points_m}
     
 @frappe.whitelist()
-def validate_qty(qty_string):
+def validate_qty(qty_string, points_type):
     qty = int(qty_string)
     uom_check = get_item_uom(qty)
     if not uom_check:
         license_key = "Error"
         return license_key
-    avaliable_points = get_ladepunkte(frappe.session.user)
+    all_avaliable_points = get_ladepunkte(frappe.session.user)
+    avaliable_points = all_avaliable_points.get('avaliable_points_{0}'.format(points_type.lower()))
     if avaliable_points >= qty:
-        license_key = create_license_key(qty)
+        license_key = create_license_key(qty, points_type)
         return license_key
     else:
         return False
         
-def create_license_key(qty):
-    purchase_order = create_purchase_order(qty)
-    lizenzgutschein = create_lizenzgutschein(purchase_order, qty)
+def create_license_key(qty, points_type):
+    purchase_order = create_purchase_order(qty, points_type)
+    lizenzgutschein = create_lizenzgutschein(purchase_order, qty, points_type)
     license_key = get_license_key(lizenzgutschein)
-    log_entry = update_account(license_key, qty)
+    log_entry = update_account(license_key, qty, points_type)
     return license_key
     
 
-def create_purchase_order(qty):
+def create_purchase_order(qty, points_type):
     #get today
     today = getdate()
     
-    #get Sales Order and settings
+    #get Settings
     po_settings = frappe.get_doc('Webshop Settings', 'Webshop Settings')
     
     #create new Purchase Order
@@ -82,9 +83,9 @@ def create_purchase_order(qty):
     
     entry = {
         'reference_doctype': 'Purchase Order Item',
-        'item_code': po_settings.po_item,
+        'item_code': po_settings.get('po_item_{0}'.format(points_type.lower())),
         'schedule_date': today,
-        'item_name': po_settings.po_item_name,
+        'item_name': po_settings.get('po_item_{0}_name'.format(points_type.lower())),
         'qty': 1,
         'uom': get_item_uom(qty),
         'cost_center': po_settings.cost_center
@@ -99,16 +100,20 @@ def create_purchase_order(qty):
     
     return purchase_order
 
-def create_lizenzgutschein(purchase_order_name, qty):
-    # ~ #get Purchase Order
+def create_lizenzgutschein(purchase_order_name, qty, points_type):
+    #get Purchase Order
     purchase_order_doc = frappe.get_doc('Purchase Order', purchase_order_name)
+    
+    #Map Points Type
+    voucher_type = map_points_type(points_type)
     
     lizenzgutschein = frappe.get_doc({
         'doctype': 'Lizenzgutschein',
         'purchase_order': purchase_order_doc.name,
         'positions_nummer': "1.1",
         'position_id': purchase_order_doc.items[0].name,
-        'evse_count': qty
+        'evse_count': qty,
+        'type': voucher_type
         })
 
     lizenzgutschein = lizenzgutschein.insert(ignore_permissions=True)
@@ -129,16 +134,19 @@ def get_license_key(lizenzgutschein):
         
     return license_key
 
-def update_account(license_key, qty):
+def update_account(license_key, qty, points_type):
     today = getdate()
     customer = frappe.db.sql("""SELECT `parent` FROM `tabCharging Point Key Account User`  WHERE `user` = '{user}'""".format(user=frappe.session.user), as_dict=True)
     customer_doc = frappe.get_doc("Charging Point Key Account", customer[0].parent)
     
-    customer_doc.avaliable_points -= qty
+    fieldname = "avaliable_points_{0}".format(points_type.lower())
+    new_qty = customer_doc.get(fieldname) - qty
+    customer_doc.set(fieldname, new_qty)
     
     entry = {
         'reference_doctype': 'Charging Point Key Account Log',
         'date': today,
+        'type': points_type,
         'activity': "Webshop",
         'evse_count': qty * -1,
         'license_key': license_key,
@@ -164,3 +172,11 @@ def logout_from_webshop():
     frappe.local.login_manager.logout()
     frappe.db.commit()
     return
+
+def map_points_type(points_type):
+    mapper = {
+                'S': "EvseAc",
+                'M': "EvseDc"
+            }
+    
+    return mapper[points_type]

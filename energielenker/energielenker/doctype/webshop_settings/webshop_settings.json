@@ -17,9 +17,13 @@
   "po_item",
   "po_item_name",
   "cost_center",
+  "po_item_s",
+  "po_item_m",
   "column_break_6",
   "ansprechpartner",
-  "k_ansprechperson"
+  "k_ansprechperson",
+  "po_item_s_name",
+  "po_item_m_name"
  ],
  "fields": [
   {
@@ -37,6 +41,7 @@
    "fetch_from": "item_code.item_name",
    "fieldname": "po_item",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Purchase Order Item",
    "options": "Item"
   },
@@ -44,6 +49,7 @@
    "fetch_from": "po_item.item_name",
    "fieldname": "po_item_name",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Item Name",
    "read_only": 1
   },
@@ -76,6 +82,7 @@
   {
    "fieldname": "so_item",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Sales Order Item",
    "options": "Item"
   },
@@ -87,6 +94,7 @@
    "fetch_from": "so_item.item_name",
    "fieldname": "so_item_name",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Item Name",
    "read_only": 1
   },
@@ -115,10 +123,36 @@
    "fieldtype": "Data",
    "label": "Item Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "po_item_s",
+   "fieldtype": "Link",
+   "label": "Purchase Order Item S",
+   "options": "Item"
+  },
+  {
+   "fieldname": "po_item_m",
+   "fieldtype": "Link",
+   "label": "Purchase Order Item M",
+   "options": "Item"
+  },
+  {
+   "fetch_from": "po_item_s.item_name",
+   "fieldname": "po_item_s_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "po_item_m.item_name",
+   "fieldname": "po_item_m_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
   }
  ],
  "issingle": 1,
- "modified": "2026-08-26 16:51:45.004400",
+ "modified": "2026-08-27 09:20:19.934161",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Webshop Settings",

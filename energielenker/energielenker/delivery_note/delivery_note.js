@@ -223,6 +223,10 @@ frappe.ui.form.on("Delivery Note", {
             //Check if there are Positions with Qty 0
             check_zero_pos(frm);
         }
+        
+        //If Webshop Points are delivered, check for valid Webshop Account
+        check_for_webshop_account(frm);
+        
     },
     deliver_to(frm) {
         //set default customer and clearing the fields when re-selecting
@@ -302,8 +306,6 @@ frappe.ui.form.on("Delivery Note", {
         }
     },
     before_submit: function(frm) {
-        //If Webshop Points are delivered, check for valid Webshop Account
-        check_for_webshop_account(frm);
         check_for_overdelivery(frm);
         //~ check_for_depot(frm);
         check_manual_posting_date(frm);
