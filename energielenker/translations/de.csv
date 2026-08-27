@@ -12,7 +12,8 @@ DocType: Issue,Booked Hours,Gebuchte Stunden
 DocType: Issue,Contact Customer,Kontakt Kunde
 DocType: Issue,No Bill Hours,Stunden nicht zu verrechnen
 DocType: Charging Point Key Account,Charging Point Key Account,Ladepunkt Key Konto
-DocType: Charging Point Key Account,Avaliable Points,Verfügbare Punkte
+DocType: Charging Point Key Account,Avaliable Points S,Verfügbare Punkte S
+DocType: Charging Point Key Account,Avaliable Points M,Verfügbare Punkte M
 DocType: Charging Point Key Account,Disabled,Deaktiviert
 DocType: Charging Point Key Account,Users,Benutzer
 DocType: Charging Point Key Account,Past Avtivities,Vergangene Aktivitäten
@@ -22,11 +23,10 @@ DocType: Charging Point Key Account,Activity,Aktivität
 DocType: Charging Point Key Account,Amount,Menge
 DocType: Charging Point Key Account,User,Benutzer
 DocType: Webshop Settings,Webshop Settings,Webshop Einstellungen
-DocType: Webshop Settings,Sales Order Item,Artikel Kundenauftrag
-DocType: Webshop Settings,Item Name,Artikel Name
-DocType: Webshop Settings,Purchase Order,Lieferantenauftrag
-DocType: Webshop Settings,Supplier,Lieferant
-DocType: Webshop Settings,Purchase Order Item,Artikel Lieferantenauftrag
+DocType: Webshop Settings,Delivery Item S,Artikel Lieferschein S
+DocType: Webshop Settings,Delivery Item M,Artikel Lieferschein M
+DocType: Webshop Settings,Purchase Order Item S,Artikel Lieferantenauftrag S
+DocType: Webshop Settings,Purchase Order Item M,Artikel Lieferantenauftrag M
 DocType: Customer,Blocked Customer,Sperrkunde
 DocType: Customer,Blocking Reason,Grund der Sperrung
 DocType: Customer,Delivery Note Note,Notiz Lieferschein
