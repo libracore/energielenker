@@ -3,15 +3,30 @@ frappe.ready(function() {
     $(".success").toggle(false);
     $(".retrieving").on("submit", function(event){
         event.preventDefault();
-        var qty = $("#evse_count").val();
-        if (!qty) {
-            show_error('Bitte geben Sie eine Anzahl an.')
+        var qty_s = $("#evse_count_s").val();
+        var qty_m = $("#evse_count_m").val();
+        if ((!qty_s) && (!qty_m)) {
+            show_error('Bitte geben Sie eine Anzahl an.');
             return false;
-        } else if (isNaN(qty) || !Number.isInteger(parseFloat(qty))) {
-            show_error("Bitte geben Sie eine ganze Zahl an.");
+        } else if ((qty_s) && (qty_m)) {
+            show_error('Bitte nur einen Typ wählen.');
             return false;
         } else {
-            validate_qty(qty);
+            if (qty_s) {
+                if ((isNaN(qty_s) || !Number.isInteger(parseFloat(qty_s)))) {
+                    show_error("Bitte geben Sie eine ganze Zahl an.");
+                    return false;
+                }
+                validate_qty(qty_s, "S");
+            } else if (qty_m) {
+                if ((isNaN(qty_m) || !Number.isInteger(parseFloat(qty_m)))) {
+                    show_error("Bitte geben Sie eine ganze Zahl an.");
+                    return false;
+                }
+                validate_qty(qty_m, "M");
+            } else {
+                show_error("Es ist ein Fehler aufgetreten. Bitte setzen Sie sich mit Ihrer Kundenbetreuung in Verbindung.");
+            }
         }
     });
     $("#copy").click(function(){
@@ -23,11 +38,12 @@ frappe.ready(function() {
     });
 });
 
-function validate_qty(qty) {
+function validate_qty(qty, type) {
     frappe.call({
         'method': 'energielenker.www.retrieving_charging_points.validate_qty',
         'args': {
-            'qty_string': qty
+            'qty_string': qty,
+            'points_type': type
         },
         'callback': function(response) {
             var validation = response.message;

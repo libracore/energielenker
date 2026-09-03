@@ -63,10 +63,11 @@ def check_for_webshop_account(doc, event="submit"):
     delivery_note_doc = json.loads(doc)
     validation = True
     #get points item
-    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    points_item_s = frappe.db.get_value("Webshop Settings", "Webshop Settings", "delivery_item_s")
+    points_item_m = frappe.db.get_value("Webshop Settings", "Webshop Settings", "delivery_item_m")
     
     for item in delivery_note_doc['items']:
-        if item.get('item_code') == points_item:
+        if item.get('item_code') == points_item_s or item.get('item_code') == points_item_m:
             validation = False
             
     
@@ -89,32 +90,53 @@ def check_for_webshop_account(doc, event="submit"):
 def check_for_webshop_points(doc, event="submit"):
     delivery_note_doc = json.loads(doc)
     points = False
+    points_s = False
+    points_m = False
     #get points item and Account Document
-    points_item = frappe.db.get_value("Webshop Settings", "Webshop Settings", "so_item")
+    points_item_s = frappe.db.get_value("Webshop Settings", "Webshop Settings", "delivery_item_s")
+    points_item_m = frappe.db.get_value("Webshop Settings", "Webshop Settings", "delivery_item_m")
     account_doc = frappe.get_doc("Charging Point Key Account", delivery_note_doc.get('customer'))
     
     #check if there are webshop points in items
-    qty = 0
+    qty_s = 0
+    qty_m = 0
     
     for item in delivery_note_doc['items']:
-        if item.get('item_code') == points_item:
-            qty += item.get('qty')
-            points = True
+        if item.get('item_code') == points_item_s:
+            qty_s += item.get('qty')
+            points_s = True
+        elif item.get('item_code') == points_item_m:
+            qty_m += item.get('qty')
+            points_m = True
     
     #if there are points add/remove points to account
-    if points:
-        account_doc.avaliable_points += qty if event == "submit" else qty * -1
+    if points_s:
+        account_doc.avaliable_points_s += qty_s if event == "submit" else qty_s * -1
         #create log entry
         log_entry = {
             'date': getdate(),
+            'type': "S",
             'activity': delivery_note_doc['name'],
-            'amount': qty if event == "submit" else qty * -1,
+            'amount': qty_s if event == "submit" else qty_s * -1,
             'user': delivery_note_doc['owner']
         }
         account_doc.append('past_activities', log_entry)
+    if points_m:
+        account_doc.avaliable_points_m += qty_m if event == "submit" else qty_m * -1
+        #create log entry
+        log_entry = {
+            'date': getdate(),
+            'type': "M",
+            'activity': delivery_note_doc['name'],
+            'amount': qty_m if event == "submit" else qty_m * -1,
+            'user': delivery_note_doc['owner']
+        }
+        account_doc.append('past_activities', log_entry)
+    if points_s or points_m:
         #save document
         account_doc.save()
         frappe.db.commit()
+        points = True
     
     return points
     

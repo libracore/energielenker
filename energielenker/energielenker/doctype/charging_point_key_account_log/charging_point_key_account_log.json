@@ -4,6 +4,7 @@
  "engine": "InnoDB",
  "field_order": [
   "date",
+  "type",
   "activity",
   "amount",
   "evse_count",
@@ -51,10 +52,18 @@
    "label": "User",
    "options": "User",
    "read_only": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "S\nM\nOld",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2024-04-29 14:29:59.055708",
+ "modified": "2026-08-26 15:53:18.345222",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "Charging Point Key Account Log",
