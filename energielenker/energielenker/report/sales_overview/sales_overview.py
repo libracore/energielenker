@@ -47,7 +47,7 @@ def get_data(filters):
                                             SELECT
                                                 `item_code`,
                                                 `item_name`,
-                                                `uom`,
+                                                `evse_count`,
                                                 `qty`,
                                                 `amount`
                                                 
@@ -68,15 +68,8 @@ def get_data(filters):
                     total_amount = 0
                     if len(details) > 0:
                         for detail in details:
-                            #If uom is piece, just add the quantity to the total
-                            if detail.get('uom') == "Stück":
-                                total_quantity += detail.get('qty')
-                                total_amount += detail.get('amount')
-                            #If there is a lot, remove the "er-los", convert to int, multiply with qty and add it to the total
-                            else:
-                                quantity = int(detail.get('uom')[:-len(remove_sequence)]) * detail.get('qty')
-                                total_quantity += quantity
-                                total_amount += detail.get('amount')
+                            total_quantity += detail.get('qty') * detail.get('evse_count')
+                            total_amount += detail.get('amount')
                         
                         #create entry and append it to data
                         description = detail.get('item_code') + " " + detail.get('item_name')
