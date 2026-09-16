@@ -404,13 +404,15 @@ frappe.ui.form.on("Sales Order", {
         d.show();
     },
     contact_person_two: function(frm) {
-        if (frm.doc.contact_person_two) {
-            contact_info_display(frm, cur_frm.doc.contact_person_two, "contact_display_two")
-        } else {
-            cur_frm.set_value("contact_display_two", null);
-            cur_frm.set_value("contact_salutation", null);
-            cur_frm.set_value("contact_last_name", null);
-            cur_frm.set_value("contact_email_two", null);
+        if (cur_frm.doctype == "Sales Order") {
+            if (frm.doc.contact_person_two) {
+                contact_info_display(frm, cur_frm.doc.contact_person_two, "contact_display_two")
+            } else {
+                cur_frm.set_value("contact_display_two", null);
+                cur_frm.set_value("contact_salutation", null);
+                cur_frm.set_value("contact_last_name", null);
+                cur_frm.set_value("contact_email_two", null);
+            }
         }
     },
     shipping_contact: function(frm) {
