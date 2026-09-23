@@ -131,6 +131,11 @@ frappe.ui.form.on("Sales Invoice", {
                 }
             };
         });
+        
+        //Create Button to manually Update UID
+        frm.add_custom_button(__("Tax ID anpassen"),  function(){
+          update_tax_id(frm);
+        });
     },
     before_save(frm) {
 		set_zusatzgeschaft(frm);
@@ -595,4 +600,25 @@ function check_billing_address(frm) {
     if ((frm.doc.billing_address_name) && (frm.doc.billing_address_name != frm.doc.customer_address)) {
         cur_frm.dashboard.add_comment('"Name der Rechnungsadresse" entspricht nicht der Kundenadresse!', 'red');
     }
+}
+
+function update_tax_id(frm) {
+    frappe.prompt([
+        {'fieldname': 'tax_id', 'fieldtype': 'Data', 'label': 'New Tax ID', 'reqd': 1, 'default': frm.doc.tax_id}  
+    ],
+    function(values){
+        frappe.call({
+            'method': 'energielenker.energielenker.sales_invoice.sales_invoice.update_tax_id',
+            'args': {
+                'sinv': frm.doc.name,
+                'new_tax_id': values.tax_id
+            },
+            'callback': function(response) {
+                cur_frm.reload_doc();
+            }
+        });
+    },
+    'Tax ID anpassen',
+    'Übernehmen'
+    );
 }
