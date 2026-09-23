@@ -149,8 +149,7 @@ def update_payment_schedule_support(self, event):
             project.save()
 
 @frappe.whitelist()
-def update_tax_id(doc, new_tax_id):
-    doc = json.loads(doc)
-    frappe.db.set_value("Sales Invoice", doc.get('name'), "tax_id", new_tax_id)
+def update_tax_id(sinv, new_tax_id):
+    frappe.db.set_value("Sales Invoice", sinv, "tax_id", new_tax_id)
     frappe.db.commit()
     return

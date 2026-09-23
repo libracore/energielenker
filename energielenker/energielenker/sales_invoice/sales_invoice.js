@@ -610,7 +610,7 @@ function update_tax_id(frm) {
         frappe.call({
             'method': 'energielenker.energielenker.sales_invoice.sales_invoice.update_tax_id',
             'args': {
-                'doc': frm.doc,
+                'sinv': frm.doc.name,
                 'new_tax_id': values.tax_id
             },
             'callback': function(response) {
