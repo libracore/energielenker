@@ -21,7 +21,7 @@ frappe.ui.form.on('Issue', {
            // custom mail dialog (prevent duplicate icons on creation)
             if (document.getElementsByClassName("fa-envelope-o").length === 0) {
                 cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
-                    custom_mail_dialog(frm);
+                    custom_issue_mail_dialog(frm);
                 });
                 var target ="span[data-label='" + __("Email") + "']";
                 $(target).parent().parent().remove();   // remove Menu > Email
@@ -41,7 +41,6 @@ frappe.ui.form.on('Issue', {
             if (!frm.doc.__islocal) {
                 cur_frm.set_df_property('contact_customer', 'reqd', 1);
             }
-
     },
     validate: function(frm) {
         if (cur_frm.doc.status == 'Replied') {
@@ -136,7 +135,7 @@ function set_timestamps(frm){
     }, 1000);
 }
 
-function custom_mail_dialog(frm) {
+function custom_issue_mail_dialog(frm) {
     var recipient = cur_frm.doc.raised_by;
     new frappe.erpnextswiss.MailComposer({
         doc: cur_frm.doc,

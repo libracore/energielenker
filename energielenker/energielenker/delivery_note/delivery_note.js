@@ -137,6 +137,15 @@ frappe.ui.form.on("Delivery Note", {
                 set_default_warehouse(frm);
             }
         }
+        
+        // libracore E-Mail Composer
+        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                custom_mail_dialog(frm);
+            });
+            var target ="span[data-label='" + __("Email") + "']";
+            $(target).parent().parent().remove();
+        }
     },
     before_save(frm) {
         if (so_return == "Return"){

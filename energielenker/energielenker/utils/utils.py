@@ -50,3 +50,37 @@ def get_deactivated_items(doc):
         return deactivated_items
     else:
         return False
+
+@frappe.whitelist()
+def get_email_recipient_and_message(doc):
+    doc = json.loads(doc)
+    
+    #Get Recipient
+    recipient = None
+    
+    #Get Subject
+    prefix = get_subject_prefix(doc.get('doctype'))
+    subject = prefix + doc.get('name')
+    
+    #Get message
+    message = None
+    field = "email_{0}".format(doc.get('doctype').lower().replace(" ", "_"))
+    template = frappe.get_value("energielenker Settings", "energielenker Settings", field)
+    # ~ if template:
+        # ~ message = frappe.get_value("Email Template", template, "response")
+    
+    return {'recipient': recipient, 'subject': subject, 'template': template}
+
+def get_subject_prefix(doctype):
+    try:
+        mapper = {
+                'Quotation': "Angebot: ",
+                'Sales Order': "Auftragsbestätigung: ",
+                'Delivery Note': "Lieferschein: ",
+                'Sales Invoice': "Rechnung: ",
+                'Purchase Order': "Bestellung: ",
+                'Issue': "Anfrage: "
+                }
+        return mapper[doctype]
+    except:
+        return None 

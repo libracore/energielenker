@@ -119,6 +119,15 @@ frappe.ui.form.on('Quotation', {
         frm.add_custom_button(__("Extend validity"),  function(){
           extend_validity(frm);
         });
+    
+        // libracore E-Mail Composer
+        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                custom_mail_dialog(frm);
+            });
+            var target ="span[data-label='" + __("Email") + "']";
+            $(target).parent().parent().remove();
+        }
     },
     validate: function(frm) {
         check_vielfaches(frm);

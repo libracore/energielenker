@@ -138,6 +138,15 @@ frappe.ui.form.on("Sales Order", {
         }
         //Save alternative Warehouse in locals and toggle warehouse if frm is local
         save_alternative_warehouse(frm)
+    
+        // libracore E-Mail Composer
+        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                custom_mail_dialog(frm);
+            });
+            var target ="span[data-label='" + __("Email") + "']";
+            $(target).parent().parent().remove();
+        }
     },
     after_cancel: function(frm) {
         if (cur_frm.doc.project) {
