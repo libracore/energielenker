@@ -29,6 +29,14 @@ frappe.ui.form.on('Purchase Order', {
             });
         }
         
+        // libracore E-Mail Composer
+        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                custom_mail_dialog(frm);
+            });
+            var target ="span[data-label='" + __("Email") + "']";
+            $(target).parent().parent().remove();
+        }
     },
     drop_ship_check: function(frm) {
         cur_frm.add_fetch('customer_shipping','customer_name','customer_shipping_name');

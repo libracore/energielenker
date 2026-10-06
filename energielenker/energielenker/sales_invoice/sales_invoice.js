@@ -136,6 +136,15 @@ frappe.ui.form.on("Sales Invoice", {
         frm.add_custom_button(__("Tax ID anpassen"),  function(){
           update_tax_id(frm);
         });
+        
+        // libracore E-Mail Composer
+        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+                custom_mail_dialog(frm);
+            });
+            var target ="span[data-label='" + __("Email") + "']";
+            $(target).parent().parent().remove();
+        }
     },
     before_save(frm) {
 		set_zusatzgeschaft(frm);

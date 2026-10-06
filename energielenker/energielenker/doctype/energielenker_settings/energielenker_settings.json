@@ -63,7 +63,15 @@
   "alternative_section",
   "alternative_warehouse",
   "section_break_54",
-  "d365_export"
+  "d365_export",
+  "e_mail_sec",
+  "email_quotation",
+  "email_sales_order",
+  "email_delivery_note",
+  "email_sales_invoice",
+  "column_break_65",
+  "email_purchase_order",
+  "email_issue"
  ],
  "fields": [
   {
@@ -395,10 +403,55 @@
    "fieldtype": "Link",
    "label": "Charging Points Item DC",
    "options": "Item"
+  },
+  {
+   "fieldname": "e_mail_sec",
+   "fieldtype": "Section Break",
+   "label": "E-Mail Templates"
+  },
+  {
+   "fieldname": "email_quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_delivery_note",
+   "fieldtype": "Link",
+   "label": "Delivery Note",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_65",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email_purchase_order",
+   "fieldtype": "Link",
+   "label": "Purchase Order",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "email_issue",
+   "fieldtype": "Link",
+   "label": "Issue",
+   "options": "Email Template"
   }
  ],
  "issingle": 1,
- "modified": "2026-05-06 08:33:39.463759",
+ "modified": "2026-10-02 15:41:22.351173",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
