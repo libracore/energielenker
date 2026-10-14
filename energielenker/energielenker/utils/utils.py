@@ -57,6 +57,12 @@ def get_email_recipient_and_message(doc):
     
     #Get Recipient
     recipient = None
+    cc = None
+    if doc.get('doctype') == "Sales Invoice":
+        customer_doc = frappe.get_doc("Customer", doc.get('customer'))
+        if customer_doc and customer_doc.get('set_primary_invoice_email'):
+            recipient = customer_doc.get('primary_invoice_email')
+            cc = customer_doc.get('primary_invoice_cc')
     
     #Get Subject
     prefix = get_subject_prefix(doc.get('doctype'))
@@ -69,7 +75,7 @@ def get_email_recipient_and_message(doc):
     # ~ if template:
         # ~ message = frappe.get_value("Email Template", template, "response")
     
-    return {'recipient': recipient, 'subject': subject, 'template': template}
+    return {'recipient': recipient, 'cc': cc, 'subject': subject, 'template': template}
 
 def get_subject_prefix(doctype):
     try:
