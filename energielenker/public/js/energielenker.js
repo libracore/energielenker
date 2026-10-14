@@ -811,15 +811,16 @@ function custom_mail_dialog(frm) {
         'callback': function(response) {
             console.log(response.message.message);
             let recipient = response.message.recipient || cur_frm.doc.contact_email;
-            let subject = response.message.subject || cur_frm.doc.name
-            let template = response.message.template
+            let subject = response.message.subject || cur_frm.doc.name;
+            let template = response.message.template;
+            let cc = response.message.cc;
             new frappe.erpnextswiss.MailComposer({
                 doc: cur_frm.doc,
                 frm: cur_frm,
                 subject: subject,
-                //~ cc:  cc,
                 //~ bcc: bcc,
                 recipients: recipient,
+                cc: cc,
                 email_template: template,
                 attach_document_print: true,
             });
