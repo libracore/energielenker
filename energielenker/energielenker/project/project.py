@@ -1169,7 +1169,7 @@ def check_for_chancelled_payments(order_doc):
     cancelled_payments = 0
     cancelled_payments_msg = ''
     for invoice in order_doc.billing_overview:
-        stock_uom_check(invoice.get('sales_invoice'))
+        # stock_uom_check(invoice.get('sales_invoice'))
         cancelled_invoice_payments = frappe.db.sql("""
                                             SELECT
                                                 `parent`
@@ -1188,13 +1188,13 @@ def check_for_chancelled_payments(order_doc):
             
     return cancelled_payments, cancelled_payments_msg
 
-def stock_uom_check(invoice):
-    invoice_doc = frappe.get_doc("Sales Invoice", invoice)
-    for item in invoice_doc.get('items'):
-        if item.get('stock_qty') != item.get('qty'):
-            frappe.db.set_value('Sales Invoice Item', item.get('name'), 'qty', item.get('stock_qty'))
-            frappe.db.commit()
-    return
+# def stock_uom_check(invoice):
+#     invoice_doc = frappe.get_doc("Sales Invoice", invoice)
+#     for item in invoice_doc.get('items'):
+#         if item.get('stock_qty') != item.get('qty'):
+#             frappe.db.set_value('Sales Invoice Item', item.get('name'), 'qty', item.get('stock_qty'))
+#             frappe.db.commit()
+#     return
 
 def update_project_manager(self, event):
     #get before save project manager
