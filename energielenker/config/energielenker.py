@@ -157,6 +157,12 @@ def get_data():
                     "name": "d365-export",
                     "label": _("D365 Export"),
                     "description": _("D365 Export")
+                },
+                {
+                    "type": "doctype",
+                    "name": "Email Template",
+                    "label": _("Email Template"),
+                    "description": _("Email Template")
                 }
             ]
         }
