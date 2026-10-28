@@ -97,6 +97,7 @@ DocType: Sales Order,Deliver Position,Artikel ausliefern
 DocType: Sales Order,Delivered Qty (by energielenker),Gelieferte Menge (durch energielenker)
 DocType: Sales Order,Delivered by Drop Ship,Geliefert durch Streckengeschäft
 DocType: Sales Order,Total Delivered Qty,Total gelieferte Menge
+DocType: Sales Order,Approved for further processing,zur Weiterverarbeitung freigegeben
 DocType: Depot,Depot Status,Status Kommissionierung
 DocType: Depot,Project Status,Projektstatus
 Report: Customer Overview,Customer Overview,Kundenübersicht
