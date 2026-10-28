@@ -1,4 +1,4 @@
-// Copyright (c) 2021, libracore AG and contributors
+// Copyright (c) 2026, libracore AG and contributors
 // For license information, please see license.txt
 
 frappe.ui.form.on('Purchase Invoice', {
@@ -15,7 +15,9 @@ frappe.ui.form.on('Purchase Invoice', {
         }, 1000);
         
         if (frm.doc.__islocal) {
-			set_update_stock(frm);
+            //Removed according on information (Pham) -> left in code because of Streckengeschäft History
+			//~ set_update_stock(frm);
+            cur_frm.set_value('update_stock', 0);
 		}
     },
     validate: function(frm) {
