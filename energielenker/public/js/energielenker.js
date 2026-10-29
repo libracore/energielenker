@@ -828,3 +828,17 @@ function custom_mail_dialog(frm) {
     });
 }
 
+function set_sales_team_user() {
+    frappe.call({
+        'method': "frappe.client.get",
+        'args': {
+            'doctype': "energielenker Settings",
+            'name': "energielenker Settings"
+        },
+        'callback': function(response) {
+            if ((response.message) && (response.message.sales_team_user)) {
+                cur_frm.set_value("k_ansprechperson", response.message.sales_team_user);
+            }
+        }
+    });
+}

@@ -136,6 +136,9 @@ frappe.ui.form.on("Delivery Note", {
             } else {
                 set_default_warehouse(frm);
             }
+            
+            //Autoset Sales Team User
+            set_sales_team_user();
         }
         
         // libracore E-Mail Composer

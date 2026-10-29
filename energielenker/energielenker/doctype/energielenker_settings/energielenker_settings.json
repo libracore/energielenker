@@ -71,7 +71,9 @@
   "email_sales_invoice",
   "column_break_65",
   "email_purchase_order",
-  "email_issue"
+  "email_issue",
+  "section_break_68",
+  "sales_team_user"
  ],
  "fields": [
   {
@@ -448,10 +450,20 @@
    "fieldtype": "Link",
    "label": "Issue",
    "options": "Email Template"
+  },
+  {
+   "fieldname": "section_break_68",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "sales_team_user",
+   "fieldtype": "Link",
+   "label": "Sales Team User",
+   "options": "User"
   }
  ],
  "issingle": 1,
- "modified": "2026-10-02 15:41:22.351173",
+ "modified": "2026-10-29 15:53:49.285746",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
