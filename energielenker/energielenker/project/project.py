@@ -754,7 +754,6 @@ def make_final_sales_invoice(order, invoice_date):
         pre_invoice_return = make_sales_return(entry.sales_invoice)
         pre_invoice_return.update_billed_amount_in_sales_order = 1
         pre_invoice_return.save(ignore_permissions=True)
-        frappe.log_error(frappe.as_json(pre_invoice_return), "pre_invoice_return")
         pre_invoice_return.submit()
         frappe.db.commit()
     
