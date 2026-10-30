@@ -87,9 +87,10 @@ frappe.ui.form.on('Issue', {
             cur_frm.set_value("reklamationsverfolgung", "");
         }
     },
-    before_save: function(frm) {
-        send_invoice_notification(frm);
-    },
+    //Removed according information from 2026-10-29 (J.Schmitz)
+    //~ before_save: function(frm) {
+        //~ send_invoice_notification(frm);
+    //~ },
     contact_customer: function(frm) {
         display_contact_information(frm);
     },

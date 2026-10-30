@@ -1310,3 +1310,4 @@ def get_open_depots(project):
         return project_depots[0].get('quantity')
     else:
         return 0
+
