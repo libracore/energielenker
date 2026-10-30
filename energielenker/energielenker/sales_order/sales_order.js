@@ -105,6 +105,8 @@ frappe.ui.form.on("Sales Order", {
             remove_blanket_order_discount(frm);
             //Autoset Sachkonto
             set_navision_konto(frm);
+            //Autoset Sales Team User
+            set_sales_team_user();
         }
         
         // hack to remove "+" in dashboard

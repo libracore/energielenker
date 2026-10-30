@@ -111,6 +111,9 @@ frappe.ui.form.on('Quotation', {
             if (frm.doc.quotation_to == "Customer") {
                 check_foreign_customers(frm.doc.party_name);
             }
+            
+            //Autoset Sales Team User
+            set_sales_team_user();
         }
         
         cost_center_query(frm);

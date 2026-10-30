@@ -1,10 +1,10 @@
 // Copyright (c) 2025, libracore AG and contributors
 // For license information, please see license.txt
-frappe.ui.form.on('Sales Invoice Item', {
-    items_add(frm, cdt, cdn) {
+//~ frappe.ui.form.on('Sales Invoice Item', {
+    //~ items_add(frm, cdt, cdn) {
 
-    }
-});
+    //~ }
+//~ });
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
        //Show comment if Billing Address Name is different to Customer Address
@@ -111,6 +111,9 @@ frappe.ui.form.on("Sales Invoice", {
         }
         
         if (cur_frm.doc.__islocal) {
+            //Autoset Sales Team User
+            set_sales_team_user();
+            
             check_foreign_customers(frm.doc.customer);
         }
         
