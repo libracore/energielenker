@@ -190,21 +190,6 @@ def check_request(kwargs):
         if not existing_issue:
             return [7, 'ZOHO ID {0} does not exist'.format(kwargs["issue"]["zoho_id"])]
         
-    if "customer" in kwargs["issue"]:
-        customer = frappe.db.exists("Customer", kwargs["issue"]["customer"])
-        if not customer:
-            return [5, 'Customer not existing']
-        
-    if "contact_customer" in kwargs["issue"]:
-        contact = frappe.db.exists("Contact", kwargs["issue"]["contact_customer"])
-        if not contact:
-            return [5, 'Contact not existing']
-    
-    if "address" in kwargs["issue"]:
-        address = frappe.db.exists("Address", kwargs["issue"]["address"])
-        if not address:
-            return [5, 'Adress not existing']
-        
     if "priority" in kwargs["issue"]:
         priority = frappe.db.exists("Issue Priority", kwargs["issue"]["priority"])
         if not priority:
@@ -262,6 +247,19 @@ def raise_xxx(code, title, message, daten=None):
 
 def create_issue(kwargs):
     new_issue = frappe.get_doc({'doctype': "Issue"})
+    #Check if customer, contact and address is available, otherwise use dummy
+    customer = frappe.db.exists("Customer", kwargs["issue"]["customer"])
+    if not customer:
+        kwargs["issue"]["customer"] = frappe.get_value("energielenker Settings", "energielenker Settings", "customer_fallback")
+    
+    contact = frappe.db.exists("Contact", kwargs["issue"]["contact_customer"])
+    if not contact:
+        kwargs["issue"]["contact_customer"] = frappe.get_value("energielenker Settings", "energielenker Settings", "contact_fallback")
+    
+    address = frappe.db.exists("Address", kwargs["issue"]["address"])
+    if not address:
+        kwargs["issue"]["address"] = frappe.get_value("energielenker Settings", "energielenker Settings", "address_fallback")
+    
     new_issue.update(kwargs["issue"])
     new_issue.insert()
     
@@ -273,6 +271,18 @@ def create_issue(kwargs):
 
 def update_issue(kwargs):
     issue = frappe.get_doc("Issue", {'zoho_id': kwargs['issue'].get('zoho_id')})
+    #Check if customer, contact and address is available, otherwise use dummy
+    customer = frappe.db.exists("Customer", kwargs["issue"]["customer"])
+    if not customer:
+        kwargs["issue"]["customer"] = frappe.get_value("energielenker Settings", "energielenker Settings", "customer_fallback")
+    
+    contact = frappe.db.exists("Contact", kwargs["issue"]["contact_customer"])
+    if not contact:
+        kwargs["issue"]["contact_customer"] = frappe.get_value("energielenker Settings", "energielenker Settings", "contact_fallback")
+    
+    address = frappe.db.exists("Address", kwargs["issue"]["address"])
+    if not address:
+        kwargs["issue"]["address"] = frappe.get_value("energielenker Settings", "energielenker Settings", "address_fallback")
     issue.update(kwargs["issue"])
     issue.save()
     return issue.name

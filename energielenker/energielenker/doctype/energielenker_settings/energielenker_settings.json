@@ -60,6 +60,10 @@
   "zoho_sandbox_refresh_token",
   "zoho_timestamp",
   "submit_zoho_data",
+  "column_break_56",
+  "customer_fallback",
+  "contact_fallback",
+  "address_fallback",
   "alternative_section",
   "alternative_warehouse",
   "section_break_54",
@@ -460,10 +464,38 @@
    "fieldtype": "Link",
    "label": "Sales Team User",
    "options": "User"
+  },
+  {
+   "fieldname": "column_break_56",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "for Sub-Customer",
+   "fieldname": "customer_fallback",
+   "fieldtype": "Link",
+   "label": "Customer Fallback",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "description": "for Sub-Customer",
+   "fieldname": "contact_fallback",
+   "fieldtype": "Link",
+   "label": "Contact Fallback",
+   "options": "Contact",
+   "reqd": 1
+  },
+  {
+   "description": "for Sub-Customer",
+   "fieldname": "address_fallback",
+   "fieldtype": "Link",
+   "label": "Address Fallback",
+   "options": "Address",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2026-10-29 15:53:49.285746",
+ "modified": "2026-11-04 15:22:54.226309",
  "modified_by": "Administrator",
  "module": "energielenker",
  "name": "energielenker Settings",
