@@ -166,7 +166,7 @@ def _get_salesheader_datas(suchparameter):
         #Get Totals from SR
         rounded_total = sinv.get('rounded_total')
         net_total = sinv.get('net_total')
-        total_taxes_and_charges = sinv.get('total_taxes_and_charges')
+        total_taxes_and_charges = round(sinv.get('total_taxes_and_charges'), 2)
         cost_center = frappe.get_doc("Cost Center", sinv.cost_center)
         if sinv.project:
             projekt = frappe.get_doc("Project", sinv.project)
@@ -252,62 +252,63 @@ def _get_salesline_datas(suchparameter):
         if sinv.billing_type == 'Rechnung':
             loop = 0
             for lineitem in sinv.items:
-                data = []
-                #Rechnungsnummer
-                data.append(_sinv.get('sinv'))
-                #Positionsnummer
-                data.append(lineitem.get('idx'))
-                #Get Discount percentage
-                if sinv.additional_discount_percentage > 0:
-                    discount_percentage = sinv.additional_discount_percentage
-                elif sinv.discount_amount > 0:
-                    discount_percentage = sinv.discount_amount / sinv.total * 100
-                else:
-                    discount_percentage = 0
-                #Calculate Line Prices
-                net_amount = lineitem.get('amount') * (1-(discount_percentage/100))
-                if len(sinv.taxes) > 0:
-                    gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
-                else:
-                    gross_amount = net_amount
-                #Gesamtbetrag brutto
-                data.append(round(gross_amount, 2))
-                #Gesamtbetrag netto
-                data.append(round(net_amount, 2))
-                #Steuerbetrag
-                vat = gross_amount - net_amount
-                data.append(round(vat, 2))
-                #Menge
-                if lineitem.get('qty').is_integer():
-                    data.append(cint(lineitem.get('qty')))
-                else:
-                    data.append(lineitem.get('qty'))
-                #Beschreibung
-                data.append(lineitem.get('item_name')[:50])
-                #Sachkonto
-                data.append(sinv.get('navision_kontonummer') or "")
-                #Mehrwertsteuerschlüssel
-                if len(sinv.taxes) > 0:
-                    data.append(sinv.taxes[0].rate)
-                else:
-                    data.append("")
-                #Steuerart
-                is_support = frappe.get_value("Item", lineitem.get('item_code'), "is_support")
-                if is_support:
-                    steuerart = "Dienstleistung"
-                else:
-                    steuerart = "Ware"
-                data.append(steuerart)
-                #Kostenstelle
-                data.append(lineitem.get('revenue_kst_code') or "")
-                #Erlösart
-                data.append(lineitem.get('revenue_number') or "")
-                #Kostenträger
-                data.append(sinv.get('project') or "212_9999")
-                #Kostenträger Bezeichnung
-                project_name = get_project_name(sinv.get('project'))
-                data.append(project_name)
-                datas.append(data)
+                if lineitem.get('amount') > 0:
+                    data = []
+                    #Rechnungsnummer
+                    data.append(_sinv.get('sinv'))
+                    #Positionsnummer
+                    data.append(lineitem.get('idx'))
+                    #Get Discount percentage
+                    if sinv.additional_discount_percentage > 0:
+                        discount_percentage = sinv.additional_discount_percentage
+                    elif sinv.discount_amount > 0:
+                        discount_percentage = sinv.discount_amount / sinv.total * 100
+                    else:
+                        discount_percentage = 0
+                    #Calculate Line Prices
+                    net_amount = lineitem.get('amount') * (1-(discount_percentage/100))
+                    if len(sinv.taxes) > 0:
+                        gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
+                    else:
+                        gross_amount = net_amount
+                    #Gesamtbetrag brutto
+                    data.append(round(gross_amount, 2))
+                    #Gesamtbetrag netto
+                    data.append(round(net_amount, 2))
+                    #Steuerbetrag
+                    vat = gross_amount - net_amount
+                    data.append(round(vat, 2))
+                    #Menge
+                    if lineitem.get('qty').is_integer():
+                        data.append(cint(lineitem.get('qty')))
+                    else:
+                        data.append(lineitem.get('qty'))
+                    #Beschreibung
+                    data.append(lineitem.get('item_name')[:50])
+                    #Sachkonto
+                    data.append(sinv.get('navision_kontonummer') or "")
+                    #Mehrwertsteuerschlüssel
+                    if len(sinv.taxes) > 0:
+                        data.append(sinv.taxes[0].rate)
+                    else:
+                        data.append("")
+                    #Steuerart
+                    is_support = frappe.get_value("Item", lineitem.get('item_code'), "is_support")
+                    if is_support:
+                        steuerart = "Dienstleistung"
+                    else:
+                        steuerart = "Ware"
+                    data.append(steuerart)
+                    #Kostenstelle
+                    data.append(lineitem.get('revenue_kst_code') or "")
+                    #Erlösart
+                    data.append(lineitem.get('revenue_number') or "")
+                    #Kostenträger
+                    data.append(sinv.get('project') or "212_9999")
+                    #Kostenträger Bezeichnung
+                    project_name = get_project_name(sinv.get('project'))
+                    data.append(project_name)
+                    datas.append(data)
         if sinv.billing_type == 'Teilrechnung':
             data = []
             #Rechnungsnummer
@@ -347,62 +348,63 @@ def _get_salesline_datas(suchparameter):
         if sinv.billing_type == 'Schlussrechnung':
             loop = 0
             for lineitem in sinv.items:
-                data = []
-                #Rechnungsnummer
-                data.append(_sinv.get('sinv'))
-                #Positionsnummer
-                data.append(lineitem.get('idx'))
-                #Get Discount percentage
-                if sinv.additional_discount_percentage > 0:
-                    discount_percentage = sinv.additional_discount_percentage
-                elif sinv.discount_amount > 0:
-                    discount_percentage = sinv.discount_amount / sinv.total * 100
-                else:
-                    discount_percentage = 0
-                #Calculate Line Prices
-                net_amount = lineitem.get('amount') * (1-(discount_percentage/100))
-                if len(sinv.taxes) > 0:
-                    gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
-                else:
-                    gross_amount = net_amount
-                #Gesamtbetrag brutto
-                data.append(round(gross_amount, 2))
-                #Gesamtbetrag netto
-                data.append(round(net_amount, 2))
-                #Steuerbetrag
-                vat = gross_amount - net_amount
-                data.append(round(vat, 2))
-                #Menge
-                if lineitem.get('qty').is_integer():
-                    data.append(cint(lineitem.get('qty')))
-                else:
-                    data.append(lineitem.get('qty'))
-                #Beschreibung
-                data.append(lineitem.get('item_name')[:50])
-                #Sachkonto
-                data.append(sinv.get('navision_kontonummer') or "")
-                #Mehrwertsteuerschlüssel
-                if len(sinv.taxes) > 0:
-                    data.append(sinv.taxes[0].rate)
-                else:
-                    data.append("")
-                #Steuerart
-                is_support = frappe.get_value("Item", lineitem.get('item_code'), "is_support")
-                if is_support:
-                    steuerart = "Dienstleistung"
-                else:
-                    steuerart = "Ware"
-                data.append(steuerart)
-                #Kostenstelle
-                data.append(lineitem.get('revenue_kst_code') or "")
-                #Erlösart
-                data.append(lineitem.get('revenue_number') or "")
-                #Kostenträger
-                data.append(sinv.get('project') or "212_9999")
-                #Kostenträger Bezeichnung
-                project_name = get_project_name(sinv.get('project'))
-                data.append(project_name)
-                datas.append(data)
+                if lineitem.get('amount') > 0:
+                    data = []
+                    #Rechnungsnummer
+                    data.append(_sinv.get('sinv'))
+                    #Positionsnummer
+                    data.append(lineitem.get('idx'))
+                    #Get Discount percentage
+                    if sinv.additional_discount_percentage > 0:
+                        discount_percentage = sinv.additional_discount_percentage
+                    elif sinv.discount_amount > 0:
+                        discount_percentage = sinv.discount_amount / sinv.total * 100
+                    else:
+                        discount_percentage = 0
+                    #Calculate Line Prices
+                    net_amount = lineitem.get('amount') * (1-(discount_percentage/100))
+                    if len(sinv.taxes) > 0:
+                        gross_amount = net_amount*(1+(sinv.taxes[0].rate/100))
+                    else:
+                        gross_amount = net_amount
+                    #Gesamtbetrag brutto
+                    data.append(round(gross_amount, 2))
+                    #Gesamtbetrag netto
+                    data.append(round(net_amount, 2))
+                    #Steuerbetrag
+                    vat = gross_amount - net_amount
+                    data.append(round(vat, 2))
+                    #Menge
+                    if lineitem.get('qty').is_integer():
+                        data.append(cint(lineitem.get('qty')))
+                    else:
+                        data.append(lineitem.get('qty'))
+                    #Beschreibung
+                    data.append(lineitem.get('item_name')[:50])
+                    #Sachkonto
+                    data.append(sinv.get('navision_kontonummer') or "")
+                    #Mehrwertsteuerschlüssel
+                    if len(sinv.taxes) > 0:
+                        data.append(sinv.taxes[0].rate)
+                    else:
+                        data.append("")
+                    #Steuerart
+                    is_support = frappe.get_value("Item", lineitem.get('item_code'), "is_support")
+                    if is_support:
+                        steuerart = "Dienstleistung"
+                    else:
+                        steuerart = "Ware"
+                    data.append(steuerart)
+                    #Kostenstelle
+                    data.append(lineitem.get('revenue_kst_code') or "")
+                    #Erlösart
+                    data.append(lineitem.get('revenue_number') or "")
+                    #Kostenträger
+                    data.append(sinv.get('project') or "212_9999")
+                    #Kostenträger Bezeichnung
+                    project_name = get_project_name(sinv.get('project'))
+                    data.append(project_name)
+                    datas.append(data)
             sales_order = frappe.get_doc("Sales Order", sinv.items[0].sales_order)
             for teilrechnung in sales_order.billing_overview:
                 if teilrechnung.sales_invoice != sinv.name:
