@@ -53,7 +53,10 @@ DocType: energielenker Settings,Charging Points Item,Ladepunkte Artikel
 DocType: energielenker Settings,Last Sync,Letze Synchronisation
 DocType: energielenker Settings,Submit Data,Daten übermitteln
 DocType: energielenker Settings,Warehouse for Alt. Items,Lager für alternative Positionen
-DocType: energielenker Settings,Charging Points,Ladepunkte
+DocType: energielenker Settings,for Sub-Customer,für Sub-Kunden
+DocType: energielenker Settings,Customer Fallback,Fallback Kunde
+DocType: energielenker Settings,Contact Fallback,Fallback Kontakt
+DocType: energielenker Settings,Address Fallback,Fallback Adresse
 DocType: Stock Entry,Source Depot,Kommissionierung
 DocType: Stock Entry,Select Serial Numbers,Seriennummern auswählen
 DocType: Stock Entry,Serial Numbers,Seriennummern
