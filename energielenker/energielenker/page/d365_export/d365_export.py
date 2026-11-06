@@ -252,7 +252,7 @@ def _get_salesline_datas(suchparameter):
         if sinv.billing_type == 'Rechnung':
             loop = 0
             for lineitem in sinv.items:
-                if lineitem.get('amount') > 0:
+                if not lineitem.get('amount') == 0:
                     data = []
                     #Rechnungsnummer
                     data.append(_sinv.get('sinv'))
@@ -348,7 +348,7 @@ def _get_salesline_datas(suchparameter):
         if sinv.billing_type == 'Schlussrechnung':
             loop = 0
             for lineitem in sinv.items:
-                if lineitem.get('amount') > 0:
+                if not lineitem.get('amount') == 0:
                     data = []
                     #Rechnungsnummer
                     data.append(_sinv.get('sinv'))
