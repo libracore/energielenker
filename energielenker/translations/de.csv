@@ -210,4 +210,7 @@ DocType: Quotation Reference Text,Quotation Reference Text,Angebot Referenztext
 DocType: Quotation Reference Text,Reference Text,Referenztext
 DocType: Quotation,Set Alternative Reference Text,Alternativen Referenztext setzten
 DocType: Quotation,Fetch Reference Text,Referenztext holen
+DocType: Sales Order,Download individual PDFs,PDFs einzeln herunterladen
+DocType: Sales Order,Downloading PDFs...,PDFs werden heruntergeladen...
+DocType: Sales Order,Could not download PDFs for the following Sales Orders: {0},PDFs konnten für folgende Kundenaufträge nicht heruntergeladen werden: {0}
 DocType: Quotation Template,Quotation Template,Vorlage Angebot
