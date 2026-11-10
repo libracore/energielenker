@@ -566,7 +566,8 @@ def translate_status(status):
             'Geschlossen': "Closed",
             'In Bearbeitung': "In Bearbeitung",
             'Warten auf Rückmeldung': "Warte auf Rückantwort",
-            'Jira Ticket Anhalten': "Hold"
+            'Jira Ticket Anhalten': "Jira Ticket Anhalten",
+            'Kundentermin vereinbart': "Kundentermin vereinbart"
         }
         return mapper[status]
     except Exception as err:
