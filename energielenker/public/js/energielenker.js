@@ -803,7 +803,6 @@ function update_revenue_types(frm) {
 }
 
 function custom_mail_dialog(frm) {
-    console.log("go");
     frappe.call({
         'method': 'energielenker.energielenker.utils.utils.get_email_recipient_and_message',
         'args': {
