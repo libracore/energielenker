@@ -149,6 +149,13 @@ frappe.ui.form.on("Delivery Note", {
             var target ="span[data-label='" + __("Email") + "']";
             $(target).parent().parent().remove();
         }
+        
+        //Remove Shotcut to Standard E-Mail dialog
+        frappe.ui.keys.off('ctrl+e', cur_frm.page);
+        //Set Custom mail Dialog on Shortcut
+        frappe.ui.keys.on('ctrl+e', () => {
+            custom_mail_dialog(frm);
+        });
     },
     before_save(frm) {
         if (so_return == "Return"){
