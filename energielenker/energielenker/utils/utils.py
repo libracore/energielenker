@@ -54,6 +54,14 @@ def get_deactivated_items(doc):
 @frappe.whitelist()
 def get_email_recipient_and_message(doc):
     doc = json.loads(doc)
+    sales_solutions = ["Quotation", "Sales Order", "Delivery Note", "Sales Invoice"]
+    #Get Sender and bcc
+    if doc.get('doctype') in sales_solutions:
+        sender = "sales-solutions@energielenker.de"
+        bcc = "sales-solutions@energielenker.de"
+    else:
+        sender = "no-reply@energielenker.de"
+        bcc = None
     
     #Get Recipient
     recipient = None
@@ -75,7 +83,7 @@ def get_email_recipient_and_message(doc):
     # ~ if template:
         # ~ message = frappe.get_value("Email Template", template, "response")
     
-    return {'recipient': recipient, 'cc': cc, 'subject': subject, 'template': template}
+    return {'recipient': recipient, 'sender': sender, 'cc': cc, 'bcc': bcc, 'subject': subject, 'template': template}
 
 def get_subject_prefix(doctype):
     try:
