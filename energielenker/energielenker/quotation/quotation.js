@@ -124,20 +124,15 @@ frappe.ui.form.on('Quotation', {
         });
     
         // libracore E-Mail Composer
-        if (document.getElementsByClassName("fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
-            cur_frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
+        if (frm.page.wrapper.find(".fa-envelope-o").length === 0 && frm.doc.docstatus == 1) {
+            frm.page.add_action_icon(__("fa fa-envelope-o"), function() {
                 custom_mail_dialog(frm);
             });
             var target ="span[data-label='" + __("Email") + "']";
-            $(target).parent().parent().remove();
+            frm.page.wrapper.find(target).parent().parent().remove();
         }
         
-        //Remove Shotcut to Standard E-Mail dialog
-        frappe.ui.keys.off('ctrl+e', cur_frm.page);
-        //Set Custom mail Dialog on Shortcut
-        frappe.ui.keys.on('ctrl+e', () => {
-            custom_mail_dialog(frm);
-        });
+        setup_custom_mail_shortcut(frm);
     },
     validate: function(frm) {
         check_vielfaches(frm);

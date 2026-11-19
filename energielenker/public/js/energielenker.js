@@ -802,22 +802,43 @@ function update_revenue_types(frm) {
     }
 }
 
+function setup_custom_mail_shortcut(frm) {
+    frappe.ui.keys.add_shortcut({
+        shortcut: 'ctrl+e',
+        page: frm.page,
+        description: __('Email'),
+        condition: () => !cur_dialog && !frm.is_new() && frm.doc.docstatus < 2 && frappe.model.can_email(null, frm),
+        action: () => custom_mail_dialog(frm)
+    });
+}
+
 function custom_mail_dialog(frm) {
-    frappe.call({
+    // "Doppelte Öffnung" unterbinden
+    if (frm._custom_mail_pending || (frm._custom_mail_composer && frm._custom_mail_composer.dialog.$wrapper.is(':visible'))) {
+        return;
+    }
+
+    const doc = frm.doc;
+    frm._custom_mail_pending = true;
+    return frappe.call({
         'method': 'energielenker.energielenker.utils.utils.get_email_recipient_and_message',
         'args': {
-            'doc': frm.doc
+            'doc': doc
         },
         'callback': function(response) {
+            // Sicherstellung dass der User das frm nicht bereits vor der Server-seitigen Antwort gewechselt hat
+            if (!response.message || cur_frm !== frm || frm.doc !== doc || !frm.page.wrapper.is(':visible')) {
+                return;
+            }
             let sender = response.message.sender;
-            let recipient = response.message.recipient || cur_frm.doc.contact_email;
-            let subject = response.message.subject || cur_frm.doc.name;
+            let recipient = response.message.recipient || doc.contact_email;
+            let subject = response.message.subject || doc.name;
             let template = response.message.template;
             let cc = response.message.cc;
             let bcc = response.message.bcc;
-            new frappe.erpnextswiss.MailComposer({
-                doc: cur_frm.doc,
-                frm: cur_frm,
+            frm._custom_mail_composer = new frappe.erpnextswiss.MailComposer({
+                doc: doc,
+                frm: frm,
                 subject: subject,
                 sender: sender,
                 recipients: recipient,
@@ -826,6 +847,9 @@ function custom_mail_dialog(frm) {
                 email_template: template,
                 attach_document_print: true,
             });
+        },
+        'always': function() {
+            frm._custom_mail_pending = false;
         }
     });
 }
